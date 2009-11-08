@@ -1,0 +1,1 @@
+navigation/search=tie/parse=navigation/search
