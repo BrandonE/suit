@@ -1,0 +1,1 @@
+tie/checkall=tie/all=tie/parse
