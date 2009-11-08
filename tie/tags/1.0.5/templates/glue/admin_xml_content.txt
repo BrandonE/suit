@@ -1,0 +1,1 @@
+admin_xml_content=parse

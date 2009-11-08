@@ -1,0 +1,1 @@
+		<input type="hidden" name="title{openingbracket}{closingbracket}" value="<title>" />

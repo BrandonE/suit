@@ -1,0 +1,1 @@
+		<b><welcome></b><admin_menu>

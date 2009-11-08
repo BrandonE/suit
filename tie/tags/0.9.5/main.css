@@ -1,0 +1,646 @@
+/* CSS Document */
+body
+{
+	background-color: #DBDADA;
+	font-family: "Trebuchet MS", Verdana, Tahoma, Arial;
+	font-size: 12px;
+	color: #4B4B4B;
+	margin: 0 0 10px 0;
+	line-height: 16px;
+}
+
+p
+{
+	margin: 0;
+	padding: 0;
+}
+
+img
+{
+	border: none;
+}
+
+#header
+{
+	min-height: 67px;
+	background-color: #ffffff;
+	height: auto !important;
+	height:67px;
+	overflow: hidden;
+}
+
+	#header .d1
+	{
+		float: left;
+		padding: 21px 0 0 25px;
+		position: static;
+	}
+	
+	h1.title
+	{
+		color: #4997CD;
+		font-size: 26px;
+		font-weight: normal;
+		margin: 0;
+		padding: 0;
+	}
+	
+		h1.title a
+		{
+			color: #4997CD;
+			text-decoration: none;
+		}
+	
+	.slogan
+	{
+		color: #868788;
+		font-style: italic;
+		line-height: 15px;
+		position: relative;
+		padding: 4px 0 0 0;
+	}
+	
+	.search
+	{
+		padding: 6px 0 0 0;
+	}
+	
+	#header .d2
+	{
+		float: right;
+		padding: 10px 10px 0 0;
+		text-align: right;
+		color: #DBDADA;
+		/*position: static;*/
+	}
+	
+	.welcome
+	{
+		margin: 0 0 0 0;
+		padding: 0 0 4px 0;
+		/*height: 21px !important;*/
+		height: auto;
+		color: #4997CD;
+		line-height: 21px;
+		text-align: right;
+		background-color: #ffffff;
+	}
+	
+		.welcome .menu
+		{
+			padding: 0 10px 0 0;
+		}
+		
+		.welcome a
+		{
+			color: #4997CD;
+			text-decoration: none;
+		}
+		
+		.welcome a:hover
+		{
+			text-decoration: underline;
+		}
+	
+#nav
+{
+	white-space: nowrap;
+	height: 31px;
+	border-bottom: 4px solid #217CBB;
+	background-color: #4997CD;
+	margin: 0 0 0 0;
+	position: static;
+}
+	
+	.space
+	{
+		width: 246px;
+		float: left;
+		min-height: 31px;
+		height: 31px;
+		background-color: #ffffff;
+	}
+	
+	#nav ul
+	{
+		margin: 0;
+		padding: 0;
+		background-color: #4997CD;
+	}
+	
+		#nav ul li
+		{
+			float: left;
+			list-style-type: none;
+			background-color: #4997CD;
+			font-size: 15px;
+			font-weight: bold;
+			line-height: 31px;
+			
+		}
+		
+		#nav ul li.selected
+		{
+			float: left;
+			list-style-type: none;
+			background-color: #217CBB;
+			font-size: 15px;
+			font-weight: bold;
+			line-height: 31px;
+		}
+		
+		#nav ul li:hover
+		{
+			float: left;
+			list-style-type: none;
+			background-color: #217CBB;
+			font-size: 15px;
+			font-weight: bold;
+			line-height: 31px;
+		}
+		
+			#nav ul li a
+			{
+				padding: 0 22px 0 22px;
+				color: #ffffff;
+				text-decoration: none;
+				display: block;
+				margin:0px;
+			}
+			
+			#nav ul li a:hover
+			{
+				padding: 0 22px 0 22px;
+				background-color: #217CBB;
+			}
+
+#content
+{
+	padding: 8px;
+	padding-bottom: 0;
+}
+
+	.section
+	{
+		border: 1px solid #B7B6B6;
+		background-color: #ffffff;
+		padding: 11px 14px 10px 14px;
+		line-height: 19px;
+		margin: 0 0 8px 0;
+	}
+	
+	.section h2
+	{
+		color: #4997CD;
+		font-size: 18px;
+		font-weight: normal;
+		margin: 0 0 8px 0;
+		padding: 0;
+	}
+	
+	.section h2 a
+	{
+		color: #4997CD;
+		text-decoration: none;
+	}
+	
+	.section h2 a:hover
+	{
+		color: #217CBB;
+	}
+	
+	.section p
+	{
+		margin: 0 0 10px 0;
+		line-height: 19px;
+	}
+	
+	.section p a
+	{
+		color: #4997CD;
+		text-decoration: none;
+	}
+	
+	.section p a:hover
+	{
+		color: #4997CD;
+		text-decoration: underline;
+	}
+	
+	.section p.news
+	{
+		padding: 0 0 0 26px;
+		background-image: url(images/news.gif);
+		background-position: top left;
+		background-repeat: no-repeat;
+	}
+	
+	.section p.news a
+	{
+		font-style: italic;
+		padding: 0 0 0 8px;
+	}
+
+#footer
+{
+	background-color: #E7E5E5;
+	text-align: center;
+	border-bottom: 1px solid #B7B6B6;
+	border-top: 1px solid #B7B6B6;
+	line-height: 21px;
+	padding: 10px 0 7px 0;
+}
+
+	#footer p
+	{
+		margin: 0;
+		padding: 0;
+	}
+	
+	#footer p.nav a
+	{
+		color: #4997CD;
+		text-decoration: none;
+		padding: 0 10px;
+	}
+	
+	#footer a
+	{
+		color: #4997CD;
+		text-decoration: none;
+	}
+	
+#redirect 
+{
+	border: 2px solid #ABE1FA;
+	background-color: #E3EDFC;
+	font-size: 15px;
+	font-weight: bold;
+	line-height: 24px;
+	padding: 23px;
+	margin: 8px;
+	text-align: center;	
+}
+
+.container
+{
+	border: 1px solid #B7B6B6;
+	background-color: #F1F1F1;/*#CC3300*/
+	line-height: 19px;
+	margin: 0 0 8px 0;
+	color: #9C9B9B;
+}
+
+.txt, .txt2, .txt3
+{
+	padding: 2px 0 0 7px;
+	line-height: 29px;
+	background-color: #ffffff;
+}
+
+.new
+{
+	float: right;
+	padding: 0 10px 0 0;
+}
+
+.select
+{
+	float: left;
+}
+
+.txt
+{
+	padding: 3px 0 0 13px;
+	clear: both;
+	height: 29px;
+}
+
+.txt2
+{
+	padding: 2px 0 0 13px;
+	clear: both;
+}
+
+	.txt a
+	{
+		color: #4997CD;
+		text-decoration: none;
+	}
+	
+	.txt a:hover
+	{
+		text-decoration: underline;
+	}
+	
+.msg
+{
+	background-color: #F1F1F1;
+	clear: left;
+	padding: 0 0 9px 0;
+	border-bottom: 1px solid #ffffff;
+	position: static;
+	margin: 0 0 1px 0;
+}
+
+.msg2
+{
+	background-color: #F1F1F1;
+	clear: both;
+	border-bottom: 1px solid #ffffff;
+	padding: 0 0 9px 0;
+	position: static;
+	margin: 0 0 1px 0;
+}
+
+.line
+{
+	
+	padding: 0 0 9px 0;
+	clear: both;
+}
+
+.controls:hover
+{
+	background-color: #EAFCFF;
+}
+
+.msg2:hover
+{
+	background-color: #EAFCFF;
+}
+
+	.msg a, .msg2 a
+	{
+		color: #4997CD;
+		text-decoration: none;
+	}
+	
+	.msg a:hover
+	{
+		text-decoration: underline;
+	}
+	
+	.controls
+	{
+		padding: 5px 10px 0 13px;
+		clear: both;
+	}
+	
+	.controls a
+	{
+		color: #9C9B9B;
+		text-decoration: none;
+	}
+	
+	.info
+	{
+		margin: 0 0 0 25%;
+		padding: 9px 10px 0 13px;
+	}
+	
+	.info2
+	{
+		margin: 0 0 0 0;
+		width: 70%;
+		float: left;
+		padding: 0 10px 0 13px;
+	}
+	
+	.info a, .info2 a
+	{
+		color: #4997CD;
+		text-decoration: none;
+	}
+	
+	.info a:hover
+	{
+		text-decoration: none;
+	}
+	
+	.chk
+	{
+		width: 20px;
+		float: left;
+		padding: 1px 0 0 0;
+	}
+	
+	.links
+	{
+		width: 25%;
+		float: left;
+		margin: 0 0 0 0;
+		padding: 1px 10px 0 0;
+	}
+	
+	.chk input, .checkbox
+	{
+		border: 0 !important;
+		margin: 0;
+	}
+	
+	.lnk
+	{
+		width: 30px;
+		float: left;
+	}
+	
+	a.current
+	{
+		background-color: #9C9B9B;
+		padding: 2px 8px;
+		color: #ffffff;
+		text-decoration: none;
+	}
+	
+	a.link
+	{
+		background-color: #4997CD;
+		padding: 2px 8px;
+		color: #ffffff;
+		text-decoration: none;
+	}
+	
+	a.link:hover
+	{
+		background-color: #9C9B9B;
+	}
+	
+fieldset
+{
+	padding: 10px;
+	border: 2px solid #FEE498;
+	margin: 0 0 0 0;
+	color: #606060;
+	font-size: 13px;
+}
+
+	legend
+	{
+		color: #606060;
+		font-size: 12px;
+		font-weight: bold;
+		margin: 0 0 0 0;
+		padding: 0;
+	}
+	
+form
+{
+	margin: 0;
+	padding: 0;
+}
+
+input, select, textarea
+{
+	border: 1px solid #C9C8C8;
+	color: #4B4B4B;
+	font-family: "Trebuchet MS", Verdana, Tahoma, Arial;
+	font-size: 11px;
+	line-height: 14px;
+	margin: 0 0 0 0;
+	padding: 2px 0 2px 4px;
+}
+
+select
+{
+	padding: 1px 0 0 4px !important;
+}
+
+.txtSearch
+{
+	width: 106px;
+}
+
+.welcome input
+{
+}
+
+.btnSearch
+{
+	background-color: #9C9B9B;
+	border: 1px solid #9C9B9B;
+	width: 50px;
+	color: #ffffff;
+	height: 22px;
+	padding: 0 0 1px 0;
+}
+
+.btnUpdate
+{
+	border: 1px solid #9C9B9B;
+	width: 50px;
+	color: #4B4B4B;
+	height: 22px;
+	padding: 0 0 0 0;
+}
+
+.btn
+{
+	border: 1px solid #9C9B9B;
+	color: #4B4B4B;
+	height: 22px;
+	padding: 0 0 1px 0;
+}
+
+.lstLang
+{
+	width: 146px;
+}
+
+optgroup
+{
+	font-style: normal;
+	font-weight: normal;
+}
+
+/****************************/
+
+div.community-forum
+{
+	background: #EFEFEF;
+}
+
+div.community-forum .forum-title
+{
+	font-size: 16px;
+}
+
+div.community-forum div.forum-description
+{
+	margin-left: 15px;
+}
+
+
+div.community-post
+{
+	clear: both;
+	background: #EFEFEF;
+}
+
+div.community-post div.post-left
+{
+	float: left;
+	width: 15%;
+	border-right: 1px solid #CCC;
+}
+
+div.post-content
+{
+	margin-left: 15px;
+}
+
+.community-newtopic, .community-newreply
+{
+	font-weight: bold;
+	text-align: center;
+	background: #4997CD;
+	width: 100px;
+	margin-bottom: 5px;
+}
+
+div.community-newtopic a, div.community-newreply a
+{
+	color: #FFF;
+	padding: 5px;
+	display: block;
+	text-decoration: none;
+}
+
+div.community div.new-buttons div
+{
+	float: left;
+	margin: 5px;
+}
+
+div.community-newtopic + div.community-newtopic
+{
+	border-top: 1px solid #333;
+}
+
+div.community-newtopic a:hover, div.community-newreply a:hover
+{
+	background: #217CBB;
+}
+
+div.community div.msg2:hover, div.community div.controls:hover
+{
+	background: #F1F1F1;
+}
+
+div.community div.signature
+{
+	border-top: 1px solid #000;
+	margin-top: 16px;
+}
+
+div.community div.post-controls
+{
+	text-align: right;
+	padding-bottom: 0;
+}
+
+div.community div.breadcrumb
+{
+	margin: 10px;
+	padding: 5px;
+}
