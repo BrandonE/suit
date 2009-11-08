@@ -1,0 +1,1 @@
+<a href="[:navigationpath=>url:][:navigationpath=>urlquerychar:]start=[:start:]&amp;list=[:list:]&amp;order=[if link]asc[/if link][else link]desc[/else link]&amp;search=[:search:]&amp;check=[if checked]true[/if checked][else checked]false[/else checked]">[if link][:language=>asc:][/if link][else link][:language=>desc:][/else link]</a>
