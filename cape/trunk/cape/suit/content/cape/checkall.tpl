@@ -1,0 +1,1 @@
+<a href="[if mod_rewrite](mod_rewriteurl)/(string)/(start)/(limit)/(order)/true/(search)/[/if mod_rewrite][else mod_rewrite](path)start=(start)&amp;limit=(limit)&amp;order=(order)&amp;search=(search)&amp;check=true[/else mod_rewrite]">(language=>checkall)</a>
