@@ -24,22 +24,21 @@ class Helper
 
     public function closingstring($params)
     {
-        $test = (!empty($params['skipnode']));
-        $skippop = ($test) ?
+        $skippop = (!empty($params['skipnode'])) ?
             array_pop($params['skipnode']) :
             false;
         //If this should not be skipped over
-        if (!$test || ($params['nodes'][$params['node']]['close'] == $skippop['close'] && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
+        if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
             //If this position should not be overlooked and the stack is not empty
-            if (!$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
+            if (empty($params['skipnode']) && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
             {
                 $params['open'] = array_pop($params['stack']);
-            }
-            //If this closing string matches the last node's
-            if ($params['open'] && $params['open'][0]['close'] == $params['nodes'][$params['node']]['close'])
-            {
-                $params = $this->transform($params);
+                //If this closing string matches the last node's
+                if ($params['open'][0]['close'] == $params['nodes'][$params['node']]['close'])
+                {
+                    $params = $this->transform($params);
+                }
             }
         }
         //Else, put the popped value back
@@ -84,21 +83,33 @@ class Helper
 
     public function openingstring($params)
     {
-        //If this position should not be overlooked
-        if (!$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']))
+        $skippop = (!empty($params['skipnode'])) ?
+            array_pop($params['skipnode']) :
+            false;
+        //If this should not be skipped over
+        if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
-            //Add the opening string to the stack
-            $params['stack'][] = array
-            (
-                $params['nodes'][$params['node']],
-                $params['node'],
-                $params['position']
-            );
-            //If the skip key is true, skip over everything inside
-            if (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip'])
+            //If this position should not be overlooked
+            if (empty($params['skipnode']) && $skippop === false && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']))
             {
-                $params['skipnode'][] = $params['nodes'][$params['node']];
+                //Add the opening string to the stack
+                $params['stack'][] = array
+                (
+                    $params['nodes'][$params['node']],
+                    $params['node'],
+                    $params['position']
+                );
             }
+            //If we popped a value or the skip key is true, skip over everything between this opening string and it's closing string
+            if ($skippop !== false || (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip']))
+            {
+                $params['skipnode'][] = $params['nodes'][$params['node']]['close'];
+            }
+        }
+        //If we popped a value, put it back
+        if ($skippop !== false)
+        {
+            $params['skipnode'][] = $skippop;
         }
         return $params;
     }

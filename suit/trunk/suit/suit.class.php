@@ -427,7 +427,7 @@ class SUIT
                 );
                 $function = 'closingstring';
                 //If this is the opening string and it should not be skipped over
-                if ($value[1] == 0 && empty($params['skipnode']))
+                if ($value[1] == 0)
                 {
                     $function = 'openingstring';
                 }

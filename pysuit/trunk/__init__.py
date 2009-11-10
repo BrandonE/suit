@@ -369,7 +369,7 @@ class SUIT:
             }
             function = self.helper.closingstring
             #If this is the opening string and it should not be skipped over
-            if value[1][1] == 0 and not params['skipnode']:
+            if value[1][1] == 0:
                 function = self.helper.openingstring
             params = function(params)
             returnvalue = params['return']

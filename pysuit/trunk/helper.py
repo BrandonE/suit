@@ -24,10 +24,6 @@ class Helper:
     def closingstring(self, params):
         """Handle a closing string instance in the parser"""
         if params['skipnode']:
-            test = True
-        else:
-            test = False
-        if test:
             skippop = params['skipnode'].pop()
         else:
             skippop = False
@@ -37,20 +33,22 @@ class Helper:
             params['escape']
         )
         #If this should not be skipped over
-        if (not test or
-        (params['nodes'][params['node']][1]['close'] == skippop[1]['close'] and
+        if (skippop == False or
+        (params['nodes'][params['node']][1]['close'] == skippop and
         not result['condition'])):
             params['position'] = result['pos']
             params['return'] = result['content']
             params['open'] = None
             #If this position should not be overlooked and the stack is not
             #empty
-            if not result['condition'] and params['stack']:
+            if (not params['skipnode'] and
+            not result['condition'] and
+            params['stack']):
                 params['open'] = params['stack'].pop()
-            original = params['nodes'][params['node']][1]['close']
-            #If this closing string matches the last node's
-            if (params['open'] and params['open'][0][1]['close'] == original):
-                params = self.transform(params)
+                original = params['nodes'][params['node']][1]['close']
+                #If this closing string matches the last node's
+                if (params['open'][0][1]['close'] == original):
+                    params = self.transform(params)
         #Else, put the popped value back
         else:
             params['skipnode'].append(skippop)
@@ -58,24 +56,40 @@ class Helper:
 
     def openingstring(self, params):
         """Handle an opening string instance in the parser"""
+        if params['skipnode']:
+            skippop = params['skipnode'].pop()
+        else:
+            skippop = False
         result = self.owner.parseunescape(
             params['position'],
             params['return'],
             params['escape']
         )
-        params['position'] = result['pos']
-        params['return'] = result['content']
-        #If this position should not be overlooked
-        if not result['condition']:
-            #Add the opening string to the stack
-            params['stack'].append((
-                params['nodes'][params['node']],
-                params['position']
-            ))
-            #If the skip key is true, skip over everything inside
-            if ('skip' in params['nodes'][params['node']][1] and
-            params['nodes'][params['node']][1]['skip']):
-                params['skipnode'].append(params['nodes'][params['node']])
+        #If this should not be skipped over
+        if (skippop == False or
+        (params['nodes'][params['node']][1]['close'] == skippop and
+        not result['condition'])):
+            params['position'] = result['pos']
+            params['return'] = result['content']
+            #If this position should not be overlooked
+            if (not params['skipnode'] and
+            skippop == False and
+            not result['condition']):
+                #Add the opening string to the stack
+                params['stack'].append((
+                    params['nodes'][params['node']],
+                    params['position']
+                ))
+            #If we popped a value or the skip key is true, skip over everything
+            #between this opening string and it's closing string
+            if (skippop != False or
+            ('skip' in params['nodes'][params['node']][1] and
+            params['nodes'][params['node']][1]['skip'])):
+                close = params['nodes'][params['node']][1]['close']
+                params['skipnode'].append(close)
+        #If we popped a value, put it back
+        if skippop != False:
+            params['skipnode'].append(skippop)
         return params
 
     def parseconfig(self, config):
