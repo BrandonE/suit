@@ -19,15 +19,18 @@ class Nodes
 {
     public function condition($params)
     {
+        $return = '';
         //Calculate the left offset created by trimming
         $offset = ltrim($params['case'], $params['var']['trim']);
         $params['suit']->extra['offset'] = strlen($offset) - strlen($params['case']);
         //Trim the case if requested
         $params['case'] = trim($params['case'], $params['var']['trim']);
         //If the boolean is true, strip the tags. If not, hide the entire thing
-        return ($params['var']['bool']) ?
-            $params['case'] :
-            '';
+        if ($params['var']['bool'])
+        {
+            $return = $params['case'];
+        }
+        return $return;
     }
 
     public function getsection($params)
@@ -41,87 +44,85 @@ class Nodes
     public function loop($params)
     {
         $iterations = array();
-        if (is_array($params['var']) && is_array($params['var']['array']) && is_array($params['nodes']))
+        $realnodes = array();
+        $loopvars = array();
+        foreach ($params['nodes'] as $key => $value)
         {
-            $realnodes = array();
-            $loopvars = array();
-            foreach ($params['nodes'] as $key => $value)
+            //If the node should not be ignored
+            if (!$value['ignore'])
             {
-                //If the node should not be ignored
-                if (!$value['ignore'])
+                //If the node exists already, merge its loopvars later
+                if ($key == $params['var']['config']['loopopen'] && is_array($value['var']) && is_array($value['var']['var']))
                 {
-                    //If the node exists already, merge its loopvars later
-                    if ($key == $params['var']['config']['loopopen'] && is_array($value['var']) && is_array($value['var']['var']))
-                    {
-                        $loopvars = $value['var']['var'];
-                    }
-                    //Else, add it to the array
-                    else
-                    {
-                        $realnodes[$key] = $value;
-                    }
+                    $loopvars = $value['var']['var'];
+                }
+                //Else, add it to the array
+                else
+                {
+                    $realnodes[$key] = $value;
                 }
             }
-            $unique = array();
-            $result = array
-            (
-                'ignore' => array(),
-                'same' => array()
-            );
-            foreach ($params['var']['array'] as $value)
+        }
+        $unique = array();
+        $result = array
+        (
+            'ignore' => array(),
+            'same' => array()
+        );
+        foreach ($params['var']['array'] as $value)
+        {
+            if (!is_array($value['nodes']))
             {
-                if (!is_array($value['nodes']))
-                {
-                    $value['nodes'] = array();
-                }
-                $value['nodes'][$params['var']['config']['loopopen']] = array
+                $value['nodes'] = array();
+            }
+            $value['nodes'][$params['var']['config']['loopopen']] = array
+            (
+                'class' => $this,
+                'close' => $params['var']['config']['loopclose'],
+                'function' => 'loopvars',
+                'var' => array
                 (
-                    'class' => $this,
-                    'close' => $params['var']['config']['loopclose'],
-                    'function' => 'loopvars',
-                    'var' => array
-                    (
-                        'var' => ((is_array($value['vars'])) ?
-                            array_merge($value['vars'], $loopvars) :
-                            $loopvars),
-                        'escape' => $params['config']['escape'],
-                        'separator' => $params['var']['config']['separator']
-                    ) //This will be used by the function
-                );
-                $result = $params['suit']->nodes->looppreparse($value['nodes'], $result);
-                $unique[] = $value;
-            }
-            $config = array
-            (
-                'escape' => $params['escape'],
-                'preparse' => true
+                    'escape' => $params['config']['escape'],
+                    'separator' => $params['var']['config']['separator']
+                ) //This will be used by the function
             );
-            if (array_key_exists('label', $params['var']['config']))
+            if (is_array($value['vars']))
             {
-                $config['label'] = $params['var']['config']['label'];
+                $value['nodes'][$params['var']['config']['loopopen']]['var']['var'] = array_merge($value['vars'], $loopvars);
             }
-            $result = $params['suit']->parse(array_merge($realnodes, $result['same'], $result['ignore']), $params['case'], $config);
-            foreach ($unique as $key => $value)
+            else
             {
-                $value['escape'] = $result['escape'];
-                $value['taken'] = $result['taken'];
-                //Parse for this iteration
-                $thiscase = $params['suit']->parse(array_merge($realnodes, $value['nodes']), $result['return'], $value);
-                //Trim the result if requested
-                $thiscase = ltrim($thiscase, $params['var']['config']['trim']);
-                if (count($unique) == $key + 1)
-                {
-                    $thiscase = rtrim($thiscase, $params['var']['config']['trim']);
-                }
-                //Append the result
-                $iterations[] = $thiscase;
+                $value['nodes'][$params['var']['config']['loopopen']]['var']['var'] = $loopvars;
             }
+            $result = $params['suit']->nodes->looppreparse($value['nodes'], $result);
+            $unique[] = $value;
         }
-        else
+        $config = array
+        (
+            'escape' => $params['escape'],
+            'preparse' => true
+        );
+        if (array_key_exists('label', $params['var']['config']))
         {
-            $params['suit']->error('Provided argument not array or improperly formatted one', NULL, 'Warning', 2);
+            $config['label'] = $params['var']['config']['label'];
         }
-        return implode(strval($params['var']['implode']), $iterations);
+        $result = $params['suit']->parse(array_merge($realnodes, $result['same'], $result['ignore']), $params['case'], $config);
+        foreach ($unique as $key => $value)
+        {
+            $value['escape'] = $result['escape'];
+            $value['taken'] = $result['taken'];
+            //Parse for this iteration
+            $thiscase = $params['suit']->parse(array_merge($realnodes, $value['nodes']), $result['return'], $value);
+            //Trim the result if requested
+            $thiscase = ltrim($thiscase, $params['var']['config']['trim']);
+            if (count($unique) == $key + 1)
+            {
+                $thiscase = rtrim($thiscase, $params['var']['config']['trim']);
+            }
+            //Append the result
+            $iterations[] = $thiscase;
+        }
+        return implode($params['var']['implode'], $iterations);
     }
 
     public function looppreparse($nodes, $return)
@@ -175,7 +176,7 @@ class Nodes
     public function loopvars($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['separatator'], $params['case'], $params['var']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
         foreach ($split as $value)
         {
             $params['var']['var'] = $params['var']['var'][$value];

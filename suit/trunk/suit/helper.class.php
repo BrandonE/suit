@@ -24,9 +24,14 @@ class Helper
 
     public function closingstring($params)
     {
-        $skippop = (!empty($params['skipnode'])) ?
-            array_pop($params['skipnode']) :
-            false;
+        if (!empty($params['skipnode']))
+        {
+            $skippop = array_pop($params['skipnode']);
+        }
+        else
+        {
+            $skippop = false;
+        }
         //If this should not be skipped over
         if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
@@ -83,9 +88,14 @@ class Helper
 
     public function openingstring($params)
     {
-        $skippop = (!empty($params['skipnode'])) ?
-            array_pop($params['skipnode']) :
-            false;
+        if (!empty($params['skipnode']))
+        {
+            $skippop = array_pop($params['skipnode']);
+        }
+        else
+        {
+            $skippop = false;
+        }
         //If this should not be skipped over
         if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
@@ -180,15 +190,18 @@ class Helper
 
     public function parseconfig($config)
     {
-        $config['escape'] = strval((array_key_exists('escape', $config)) ?
-            $config['escape'] :
-            $this->config['parse']['escape']);
-        $config['preparse'] = (array_key_exists('preparse', $config)) ?
-            $config['preparse'] :
-            false;
-        $config['taken'] = (array_key_exists('taken', $config)) ?
-            $config['taken'] :
-            array();
+        if (!array_key_exists('escape', $config))
+        {
+            $config['escape'] = $this->config['parse']['escape'];
+        }
+        if (!array_key_exists('preparse', $config))
+        {
+            $config['preparse'] = false;
+        }
+        if (!array_key_exists('taken', $config))
+        {
+            $config['taken'] = array();
+        }
         return $config;
     }
 
@@ -226,7 +239,6 @@ class Helper
     {
         foreach ($params['strings'] as $params['nodekey'] => $params['nodevalue'])
         {
-            $params['nodevalue'] = strval($params['nodevalue']);
             //If the string has not already been used
             if (!in_array($params['nodevalue'], $params['repeated']))
             {
@@ -268,18 +280,26 @@ class Helper
 
     public function strpos($haystack, $needle, $offset = 0, $function = NULL)
     {
-        $haystack = strval($haystack);
-        $needle = strval($needle);
-        $offset = intval($offset);
+        if (!is_string($needle))
+        {
+            $debug = debug_backtrace();
+            print $debug[0]['line'];
+            print $debug[0]['file'];
+        }
         //If a function name was provided, increment the number of times that the function called strpos by 1
         if (isset($function))
         {
             $this->owner->debug['strpos'][$function]['call']++;
         }
         //Find the position insensitively or sensitively based on the configuration
-        return ($this->owner->config['flag']['insensitive']) ?
-            stripos($haystack, $needle, $offset) :
-            strpos($haystack, $needle, $offset);
+        if ($this->owner->config['flag']['insensitive'])
+        {
+            return stripos($haystack, $needle, $offset);
+        }
+        else
+        {
+            return strpos($haystack, $needle, $offset);
+        }
     }
 
     public function transform($params)
@@ -319,23 +339,37 @@ class Helper
                 'var' => $params['open'][0]['var']
             );
             //If a function is provided
-            $params['string'] = (array_key_exists('function', $params['open'][0])) ?
-                (
-                    //Transform the string in between the opening and closing strings. Note whether or not the function is in a class. If the function uses params, send them
-                    (array_key_exists('class', $params['open'][0])) ?
-                        (
-                            (!array_key_exists('params', $params['open'][0]) || $params['open'][0]['params']) ?
-                                $params['open'][0]['class']->$params['open'][0]['function']($signature) :
-                                $params['open'][0]['class']->$params['open'][0]['function']()
-                        ) :
-                        (
-                            (!array_key_exists('params', $params['open'][0]) || $params['open'][0]['params']) ?
-                                $params['open'][0]['function']($signature) :
-                                $params['open'][0]['function']()
-                        )
-                ) :
+            if (array_key_exists('function', $params['open'][0]))
+            {
+                //Transform the string in between the opening and closing strings. Note whether or not the function is in a class. If the function uses params, send them
+                if (array_key_exists('class', $params['open'][0]))
+                {
+                    if (!array_key_exists('params', $params['open'][0]) || $params['open'][0]['params'])
+                    {
+                        $params['string'] = $params['open'][0]['class']->$params['open'][0]['function']($signature);
+                    }
+                    else
+                    {
+                        $params['string'] = $params['open'][0]['class']->$params['open'][0]['function']();
+                    }
+                }
+                else
+                {
+                        if (!array_key_exists('params', $params['open'][0]) || $params['open'][0]['params'])
+                        {
+                            $params['string'] = $params['open'][0]['function']($signature);
+                        }
+                        else
+                        {
+                            $params['string'] = $params['open'][0]['function']();
+                        }
+                }
+            }
+            else
+            {
                 //Replace the opening and closing strings
                 $params['open'][1] . $params['string'] . $params['open'][0]['close'];
+            }
             //Replace everything including and between the opening and closing strings with the transformed string
             $params['return'] = substr_replace($params['return'], $params['string'], $params['open'][2], $params['position'] + strlen($params['open'][0]['close']) - $params['open'][2]);
             $params = $this->offset($params);

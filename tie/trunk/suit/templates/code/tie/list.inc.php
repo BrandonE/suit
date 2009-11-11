@@ -17,9 +17,14 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
 $path = $suit->tie->path(array('check', 'list', 'order', 'search', 'start'));
-$checked = ($suit->tie->settings['check']) ?
-    'true' :
-    'false';
+if ($suit->tie->settings['check'])
+{
+    $checked = 'true';
+}
+else
+{
+    $checked = 'false';
+}
 if (isset($_POST['navigation_list_submit']) && isset($_POST['navigation_list_value']))
 {
     $config = array

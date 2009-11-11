@@ -21,9 +21,14 @@ $path = $suit->tie->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'l
 $suit->vars['sitetitle'] = $suit->vars['language']['title'];
 $suit->vars['path'] = $path;
 $separator = $suit->section->get('section separator', &$content);
-$separator = (!empty($separator)) ?
-    $separator[0] :
-    '';
+if (!empty($separator))
+{
+    $separator = $separator[0];
+}
+else
+{
+    $separator = '';
+}
 if (in_array($_GET['section'], array('code', 'content', 'glue')))
 {
     $nodes = array_merge($nodes, $suit->section->condition('if dashboard', false, 'else dashboard'));
@@ -50,10 +55,11 @@ else
     $section = $suit->vars['language']['dashboard'];
     if ($_GET['tieversion'] == 'true')
     {
-        $fetchversion = @file_get_contents('http://suitframework.sourceforge.net/tieversion.txt');
-        $version = ($fetchversion) ?
-            $fetchversion :
-            $suit->vars['language']['na'];
+        $version = @file_get_contents('http://suitframework.sourceforge.net/tieversion.txt');
+        if (!$version)
+        {
+            $version = $suit->vars['language']['na'];
+        }
         $nodes = array_merge
         (
             $nodes,
@@ -66,10 +72,11 @@ else
     }
     if ($_GET['suitversion'] == 'true')
     {
-        $fetchversion = @file_get_contents('http://suitframework.sourceforge.net/suitversion.txt');
-        $version = ($fetchversion) ?
-            $fetchversion :
-            $suit->vars['language']['na'];
+        $version = @file_get_contents('http://suitframework.sourceforge.net/suitversion.txt');
+        if (!$version)
+        {
+            $version = $suit->vars['language']['na'];
+        }
         $nodes = array_merge
         (
             $nodes,

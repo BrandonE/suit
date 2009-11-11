@@ -22,14 +22,6 @@ import section
 
 __version__ = '0.0.2'
 
-class TemplateNotFoundError(ValueError):
-    """Template x Not Found"""
-    pass
-
-class InfiniteLoopError(ValueError):
-    """Infinite Loop Caused by x"""
-    pass
-
 class SUIT:
     """An open-source templating framework that allows you to define your own
     syntax through nodes."""
@@ -78,8 +70,6 @@ class SUIT:
         """http://www.suitframework.com/docs/escape"""
         if escape == None:
             escape = self.config['parse']['escape']
-        returnvalue = str(returnvalue)
-        escape = str(escape)
         cache = hash((returnvalue, pickle.dumps(strings)))
         #If positions are cached for this case, load them
         if cache in self.extra['cache']['escape']:
@@ -147,9 +137,6 @@ class SUIT:
         array = []
         if escape == None:
             escape = self.config['parse']['escape']
-        explode = str(explode)
-        glue = str(glue)
-        escape = str(escape)
         cache = hash((glue, explode))
         #If positions are cached for this case, load them
         if cache in self.extra['cache']['explodeunescape']:
@@ -219,7 +206,7 @@ class SUIT:
     def gettemplate(self, template):
         """http://www.suitframework.com/docs/gettemplate"""
         #Restrict user to the provided directory
-        template = str(template).replace('../', '').replace('..\\', '')
+        template = template.replace('../', '').replace('..\\', '')
         returnvalue = ''
         backtrace = inspect.stack()
         #Log this function
@@ -238,13 +225,6 @@ class SUIT:
             template,
             '.txt'
         ))
-        #If this template will cause an infinite loop, show an error and log
-        #it
-        if template in self.extra['chain']:
-            raise InfiniteLoopError('Infinite Loop Caused by %s' % template)
-        #If the glue file does not exist, show an error and log it
-        if not os.path.exists(filepath):
-            raise TemplateNotFoundError('Template %s Not Found' % template)
         #Split up the file, paying attention to escape strings
         array = self.explodeunescape('=', open(filepath).read(), '\\')
         #Prevent this template from being used again until it is finished
@@ -320,8 +300,6 @@ class SUIT:
         config = self.helper.parseconfig(config)
         if 'label' in config:
             debug['label'] = config['label']
-        returnvalue = str(returnvalue)
-        config['escape'] = str(config['escape'])
         #Order the nodes by the length of the opening string, descending
         iteratenodes = sorted(nodes.items(), reverse = True)
         cache = helper.parsecache(iteratenodes, returnvalue, config)
@@ -407,9 +385,6 @@ class SUIT:
         """http://www.suitframework.com/docs/parseunescape"""
         if escape == None:
             escape = self.config['parse']['escape']
-        pos = int(pos)
-        content = str(content)
-        escape = str(escape)
         count = 0
         #If the escape string is not empty
         if escape:

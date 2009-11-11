@@ -34,11 +34,6 @@ class Section:
             config['end'] = self.owner.config['parse']['section']['end']
         if not 'trim' in config:
             config['trim'] = self.owner.config['parse']['section']['trim']
-        ifstring = str(ifstring)
-        config['open'] = str(config['open'])
-        config['close'] = str(config['close'])
-        config['end'] = str(config['end'])
-        config['trim'] = str(config['trim'])
         #Add the if node
         returnvalue[
             ''.join((
@@ -66,7 +61,6 @@ class Section:
         }
         #If an else statement is provided
         if elsestring != None:
-            elsestring = str(elsestring)
             #Add the else node
             returnvalue[
                 ''.join((
@@ -106,12 +100,6 @@ class Section:
             config['end'] = self.owner.config['parse']['section']['end']
         if not 'escape' in config:
             config['escape'] = self.owner.config['parse']['escape']
-        string = str(string)
-        content = str(content)
-        config['open'] = str(config['open'])
-        config['close'] = str(config['close'])
-        config['end'] = str(config['end'])
-        config['escape'] = str(config['escape'])
         node = {
             ''.join((
                 config['open'],
@@ -169,14 +157,6 @@ class Section:
             config['separator'] = self.owner.config['parse']['separator']
         if not 'trim' in config:
             config['trim'] = self.owner.config['parse']['section']['trim']
-        string = str(string)
-        config['open'] = str(config['open'])
-        config['close'] = str(config['close'])
-        config['end'] = str(config['end'])
-        config['loopopen'] = str(config['loopopen'])
-        config['loopclose'] = str(config['loopclose'])
-        config['separator'] = str(config['separator'])
-        config['trim'] = str(config['trim'])
         returnvalue = {
             ''.join((
                 config['open'],

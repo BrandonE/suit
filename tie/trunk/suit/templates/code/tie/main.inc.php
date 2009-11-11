@@ -36,21 +36,46 @@ class TIE
         $this->owner = $owner;
         $this->helper = new TIEHelper($this);
         $this->config = $config;
-        $this->settings['start'] = (isset($this->config['navigation']['array']['start'])) ?
-            intval($this->config['navigation']['array']['start']) :
-            0;
-        $this->settings['list'] = (isset($this->config['navigation']['array']['list'])) ?
-            intval($this->config['navigation']['array']['list']) :
-            $this->config['navigation']['list'];
-        $this->settings['search'] = (isset($this->config['navigation']['array']['search'])) ?
-            $this->config['navigation']['array']['search'] :
-            '';
-        $this->settings['order'] = (isset($this->config['navigation']['array']['order']) && $this->config['navigation']['array']['order'] == 'desc') ?
-            'desc' :
-            'asc';
-        $this->settings['order_reverse'] = (isset($this->config['navigation']['array']['order']) && $this->config['navigation']['array']['order'] == 'asc') ?
-            'asc' :
-            'desc';
+        if (array_key_exists('start', $this->config['navigation']['array']))
+        {
+            $this->settings['start'] = $this->config['navigation']['array']['start'];
+        }
+        else
+        {
+            $this->settings['start'] = 0;
+        }
+        if (array_key_exists('list', $this->config['navigation']['array']))
+        {
+            $this->settings['list'] = $this->config['navigation']['array']['list'];
+        }
+        else
+        {
+            $this->settings['list'] = $this->config['navigation']['list'];
+        }
+        if (array_key_exists('search', $this->config['navigation']['array']))
+        {
+            $this->settings['search'] = $this->config['navigation']['array']['search'];
+        }
+        else
+        {
+            $this->settings['search'] = '';
+        }
+        if (array_key_exists('order', $this->config['navigation']['array']) && $this->config['navigation']['array']['order'] == 'desc')
+        {
+            $this->settings['order'] = 'desc';
+        }
+        else
+        {
+            $this->settings['order'] = 'asc';
+        }
+        if (array_key_exists('order_reverse', $this->config['navigation']['array']) && $this->config['navigation']['array']['order'] == 'asc')
+        {
+            $this->settings['order_reverse'] = 'asc';
+        }
+        else
+        {
+            $this->settings['order_reverse'] ='desc';
+        }
         $this->settings['check'] = (isset($this->config['navigation']['array']['check']) && $this->config['navigation']['array']['check'] == 'true');
         if (isset($this->config['cookie']['domain']) && isset($this->config['cookie']['length']) && isset($this->config['cookie']['path']) && isset($this->config['cookie']['prefix']))
         {
@@ -92,9 +117,14 @@ class TIE
                 {
                     if (!is_array($value))
                     {
-                        $in[$k][$key] = (ini_get('magic_quotes_sybase')) ?
-                            $in[$k][$key] = str_replace('\'\'', '\'', $value) :
+                        if (ini_get('magic_quotes_sybase'))
+                        {
+                            $in[$k][$key] = str_replace('\'\'', '\'', $value);
+                        }
+                        else
+                        {
                             $in[$k][$key] = stripslashes($value);
+                        }
                         continue;
                     }
                     $in[] =& $in[$k][$key];
@@ -109,22 +139,26 @@ class TIE
     **/
     public function adminarea($type, $config = array())
     {
-        $type = strval($type);
-        $config['badrequest'] = strval((array_key_exists('badrequest', $config)) ?
-            $config['badrequest'] :
-            $this->config['templates']['badrequest']);
-        $config['delete'] = strval((array_key_exists('delete', $config)) ?
-            $config['delete'] :
-            $this->config['templates']['delete']);
-        $config['form'] = strval((array_key_exists('form', $config)) ?
-            $config['form'] :
-            $this->config['templates']['form']);
-        $config['entries'] = strval((array_key_exists('entries', $config)) ?
-            $config['entries'] :
-            $this->config['templates']['entries']);
-        $config['xml'] = strval((array_key_exists('xml', $config)) ?
-            $config['xml'] :
-            $this->config['templates']['xml']);
+        if (!array_key_exists('badrequest', $config))
+        {
+            $config['badrequest'] = $this->config['templates']['badrequest'];
+        }
+        if (!array_key_exists('delete', $config))
+        {
+            $config['delete'] = $this->config['templates']['delete'];
+        }
+        if (!array_key_exists('form', $config))
+        {
+            $config['form'] = $this->config['templates']['form'];
+        }
+        if (!array_key_exists('entries', $config))
+        {
+            $config['entries'] = $this->config['templates']['entries'];
+        }
+        if (!array_key_exists('xml', $config))
+        {
+            $config['xml'] = $this->config['templates']['xml'];
+        }
         $error = false;
         $nodes = $this->owner->config['parse']['nodes'];
         $nodes = array_merge
@@ -148,13 +182,21 @@ class TIE
         {
             $this->owner->gettemplate($config['badrequest']);
         }
-        $filetype = ($type != 'code') ?
-            (
-                ($type == 'glue') ?
-                    'txt' :
-                    'tpl'
-            ) :
-            'inc.php';
+        if ($type != 'code')
+        {
+            if ($type == 'glue')
+            {
+                $filetype = 'txt';
+            }
+            else
+            {
+                $filetype = 'tpl';
+            }
+        }
+        else
+        {
+            $filetype = 'inc.php';
+        }
         switch ($type)
         {
             case 'content':
@@ -168,17 +210,27 @@ class TIE
                 break;
         }
         $illegal = array('/', '\\');
-        $post = ($type == 'glue') ?
-            array('code', 'content', 'title') :
-            array('content', 'title');
+        if ($type == 'glue')
+        {
+            $post = array('code', 'content', 'title');
+        }
+        else
+        {
+            $post = array('content', 'title');
+        }
         if ($type != 'code')
         {
             $posted = array();
             foreach ($post as $value)
             {
-                $posted[$value] = (isset($_POST[$value])) ?
-                    $_POST[$value] :
-                    NULL;
+                if (isset($_POST[$value]))
+                {
+                    $posted[$value] = $_POST[$value];
+                }
+                else
+                {
+                    $posted[$value] = NULL;
+                }
             }
             if (isset($_POST['import']))
             {
@@ -443,19 +495,34 @@ class TIE
                                             $check = implode('/', $check);
                                             if (is_writable($check))
                                             {
-                                                $showtitle = (!isset($_POST['move']) && !isset($_POST['replace'])) ?
-                                                    '/' . $strippedposted :
-                                                    '/' . $stripped;
-                                                $moveto = (isset($_POST['move']) && ($_POST['moveto'] != '..')) ?
-                                                    '/' . str_replace($illegal, '', $_POST['moveto']) :
-                                                    '';
+                                                if (!isset($_POST['move']) && !isset($_POST['replace']))
+                                                {
+                                                    $showtitle = '/' . $strippedposted;
+                                                }
+                                                else
+                                                {
+                                                    $showtitle = '/' . $stripped;
+                                                }
+                                                if (isset($_POST['move']) && ($_POST['moveto'] != '..'))
+                                                {
+                                                    $moveto = '/' . str_replace($illegal, '', $_POST['moveto']);
+                                                }
+                                                else
+                                                {
+                                                    $moveto = '';
+                                                }
                                                 $newdirectory = explode('/', $directory['string']);
                                                 $newdirectory = array_values($newdirectory);
                                                 unset($newdirectory[count($newdirectory) - 1]);
                                                 $newdirectory = implode('/', $newdirectory);
-                                                $string = (isset($_POST['move']) && ($_POST['moveto'] == '..')) ?
-                                                    $newdirectory :
-                                                    $directory['string'];
+                                                if (isset($_POST['move']) && ($_POST['moveto'] == '..'))
+                                                {
+                                                    $string = $newdirectory;
+                                                }
+                                                else
+                                                {
+                                                    $string = $directory['string'];
+                                                }
                                                 $new = str_replace($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped, $this->owner->config['files'][$type] . $string . $moveto . $showtitle, $value2);
                                                 if (substr($new, strlen($new) - 1) == '/')
                                                 {
@@ -540,23 +607,25 @@ class TIE
                             $filepath = $this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'];
                             if (!isset($_POST['rename']) && !isset($_POST['copy']) && !isset($_POST['replace']))
                             {
-                                $error = (!is_dir($filepath)) ?
-                                    (
-                                        ($value['title'] == '') ?
-                                            $this->owner->vars['language']['missingtitle'] :
-                                            $error
-                                    ) :
-                                    $this->owner->vars['language']['duplicatetitle'];
+                                if (!is_dir($filepath) && $value['title'] == '')
+                                {
+                                    $error = $this->owner->vars['language']['missingtitle'];
+                                }
+                                elseif (is_dir($filepath))
+                                {
+                                    $error = $this->owner->vars['language']['duplicatetitle'];
+                                }
                             }
                             else
                             {
-                                $error = (!is_dir($filepath) || $value['title'] == $value['oldtitle']) ?
-                                    (
-                                        ($value['title'] == '') ?
-                                            $this->owner->vars['language']['missingtitle'] :
-                                            $error
-                                    ) :
-                                    $this->owner->vars['language']['duplicatetitle'];
+                                if ((!is_dir($filepath) || $value['title'] == $value['oldtitle']) && $value['title'] == '')
+                                {
+                                    $error = $this->owner->vars['language']['missingtitle'];
+                                }
+                                elseif (is_dir($filepath) && $value['title'] != $value['oldtitle'])
+                                {
+                                    $error = $this->owner->vars['language']['duplicatetitle'];
+                                }
                             }
                             if ($error !== false)
                             {
@@ -599,25 +668,27 @@ class TIE
                                         {
                                             if (!isset($_POST['edit']) && !isset($_POST['editandcontinue']) && !isset($_POST['replace']))
                                             {
-                                                $error = (!is_file($filepath2)) ?
-                                                    (
-                                                        ($value['title'] == '') ?
-                                                            $this->owner->vars['language']['missingtitle'] :
-                                                            $error
-                                                    ) :
-                                                    $this->owner->vars['language']['duplicatetitle'];
+                                                if (!is_file($filepath2) && $value['title'] == '')
+                                                {
+                                                    $error = $this->owner->vars['language']['missingtitle'];
+                                                }
+                                                elseif (is_file($filepath2))
+                                                {
+                                                    $error = $this->owner->vars['language']['duplicatetitle'];
+                                                }
                                             }
                                             else
                                             {
                                                 if (is_file($filepath))
                                                 {
-                                                    $error = (!is_file($filepath2) || $value['title'] == $value['oldtitle']) ?
-                                                        (
-                                                            ($value['title'] == '') ?
-                                                                $this->owner->vars['language']['missingtitle'] :
-                                                                $error
-                                                        ) :
-                                                        $this->owner->vars['language']['duplicatetitle'];
+                                                    if ((!is_file($filepath2) || $value['title'] == $value['oldtitle']) && $value['title'] == '')
+                                                    {
+                                                        $error = $this->owner->vars['language']['missingtitle'];
+                                                    }
+                                                    elseif (is_file($filepath2) && $value['title'] != $value['oldtitle'])
+                                                    {
+                                                        $error = $this->owner->vars['language']['duplicatetitle'];
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -653,12 +724,11 @@ class TIE
                                                                 $value['code'][$key] = $this->owner->escape(array('='), $value2, '\\');
                                                             }
                                                         }
-                                                        $value['content'] = $this->owner->escape(array('='), $value['content'], '\\') .
-                                                        (
-                                                            (!empty($value['code'])) ?
-                                                                '=' . implode('=', $value['code']) :
-                                                                ''
-                                                        );
+                                                        $value['content'] = $this->owner->escape(array('='), $value['content'], '\\');
+                                                        if (!empty($value['code']))
+                                                        {
+                                                            $value['content'] .= '=' . implode('=', $value['code']);
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -698,13 +768,21 @@ class TIE
                                 {
                                     if((isset($_POST['rename']) && $posted['title'] != $_GET['title']) || (isset($_POST['delete']) && is_array($_GET['directorytitle'])) || (isset($_POST['move']) && is_array($_POST['directoryentry'])))
                                     {
-                                        $title = (isset($_POST['delete'])) ?
-                                            $_GET['directorytitle'] :
-                                            (
-                                                (isset($_POST['rename'])) ?
-                                                    array($_GET['title']) :
-                                                    $_POST['directoryentry']
-                                            );
+                                        if (isset($_POST['delete']))
+                                        {
+                                            $title = $_GET['directorytitle'];
+                                        }
+                                        else
+                                        {
+                                            if (isset($_POST['rename']))
+                                            {
+                                                $title = array($_GET['title']);
+                                            }
+                                            else
+                                            {
+                                                $title = $_POST['directoryentry'];
+                                            }
+                                        }
                                         foreach ($title as $value)
                                         {
                                             if (!in_array($value, array('', '.', '..')) && !(isset($_POST['move']) && $value == $_POST['moveto']))
@@ -726,44 +804,54 @@ class TIE
                                             }
                                         }
                                     }
-                                    $redirect .= (isset($_POST['editandcontinue'])) ?
-                                        $directory['url'] . '&cmd=edit&title=' . $value['title'] :
-                                        $directory['url'];
-                                    $redirectmessage = (isset($_POST['add'])) ?
-                                        $this->owner->vars['language']['addedsuccessfully'] :
-                                        (
-                                            (isset($_POST['edit']) || isset($_POST['editandcontinue'])) ?
-                                                $this->owner->vars['language']['editedsuccessfully'] :
-                                                (
-                                                    (isset($_POST['delete'])) ?
-                                                        $this->owner->vars['language']['deletedsuccessfully'] :
-                                                        (
-                                                            (isset($_POST['create'])) ?
-                                                                $this->owner->vars['language']['createdsuccessfully'] :
-                                                                (
-                                                                    (isset($_POST['rename'])) ?
-                                                                        $this->owner->vars['language']['renamedsuccessfully'] :
-                                                                        (
-                                                                            (isset($_POST['remove'])) ?
-                                                                                $this->owner->vars['language']['removedsuccessfully'] :
-                                                                                (
-                                                                                    (isset($_POST['copy'])) ?
-                                                                                        $this->owner->vars['language']['copiedsuccessfully'] :
-                                                                                        (
-                                                                                            (isset($_POST['move'])) ?
-                                                                                                $this->owner->vars['language']['movedsuccessfully'] :
-                                                                                                (
-                                                                                                    (isset($_POST['replace'])) ?
-                                                                                                        $this->owner->vars['language']['replacedsuccessfully'] :
-                                                                                                        $this->owner->vars['language']['importedsuccessfully']
-                                                                                                )
-                                                                                        )
-                                                                                )
-                                                                        )
-                                                                )
-                                                        )
-                                                )
-                                        );
+                                    if (isset($_POST['editandcontinue']))
+                                    {
+                                        $redirect .= $directory['url'] . '&cmd=edit&title=' . $value['title'];
+                                    }
+                                    else
+                                    {
+                                        $redirect .= $directory['url'];
+                                    }
+                                    if (isset($_POST['add']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['addedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['edit']) || isset($_POST['editandcontinue']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['editedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['delete']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['deletedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['create']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['createdsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['rename']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['renamedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['remove']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['removedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['copy']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['copiedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['move']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['movedsuccessfully'];
+                                    }
+                                    elseif (isset($_POST['replace']))
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['replacedsuccessfully'];
+                                    }
+                                    else
+                                    {
+                                        $redirectmessage = $this->owner->vars['language']['importedsuccessfully'];
+                                    }
                                 }
                             }
                         }
@@ -771,12 +859,22 @@ class TIE
                 }
                 elseif(($_GET['cmd']=='export') || (isset($_POST['exportchecked']) && ((isset($_POST['entry']) && is_array($_POST['entry'])) || (isset($_POST['directoryentry']) && is_array($_POST['directoryentry'])))))
                 {
-                    $files = ($_GET['cmd'] == 'export') ?
-                        $_GET['title'] :
-                        $_POST['entry'];
-                    $directories = ($_GET['cmd'] == 'export') ?
-                        $_GET['directorytitle'] :
-                        $_POST['directoryentry'];
+                    if ($_GET['cmd'] == 'export')
+                    {
+                        $files = $_GET['title'];
+                    }
+                    else
+                    {
+                        $files = $_POST['entry'];
+                    }
+                    if ($_GET['cmd'] == 'export')
+                    {
+                        $directories = $_GET['directorytitle'];
+                    }
+                    else
+                    {
+                        $directories = $_POST['directoryentry'];
+                    }
                     $nodes = array();
                     $filesarray = array();
                     $directoriesarray = array();
@@ -867,9 +965,14 @@ class TIE
                         if ($type == 'glue')
                         {
                             $array = $this->owner->explodeunescape('=', file_get_contents($value), '\\');
-                            $content = (isset($array[0])) ?
-                                $array[0] :
-                                '';
+                            if (isset($array[0]))
+                            {
+                                $content = $array[0];
+                            }
+                            else
+                            {
+                                $content = '';
+                            }
                             unset($array[0]);
                             foreach ($array as $value2)
                             {
@@ -933,12 +1036,22 @@ class TIE
                 }
                 elseif(isset($_POST['deletechecked']) && ((isset($_POST['entry']) && is_array($_POST['entry'])) || (isset($_POST['directoryentry']) && is_array($_POST['directoryentry']))))
                 {
-                    $titles = (isset($_POST['entry'])) ?
-                        implode('&title[]=', $_POST['entry']) :
-                        '';
-                    $directorytitles = (isset($_POST['directoryentry'])) ?
-                        implode('&directorytitle[]=', $_POST['directoryentry']) :
-                        '';
+                    if (isset($_POST['entry']))
+                    {
+                        $titles = implode('&title[]=', $_POST['entry']);
+                    }
+                    else
+                    {
+                        $titles = '';
+                    }
+                    if (isset($_POST['directoryentry']))
+                    {
+                        $directorytitles = implode('&directorytitle[]=', $_POST['directoryentry']);
+                    }
+                    else
+                    {
+                        $directorytitles = '';
+                    }
                     $config = array
                     (
                         'refresh' => 0
@@ -979,12 +1092,22 @@ class TIE
         }
         if((in_array($_GET['cmd'], array('add', 'copy', 'create', 'delete', 'edit', 'remove', 'rename')) && $type != 'code') || ($_GET['cmd'] == 'view' && $type == 'code'))
         {
-            $return = $this->owner->gettemplate(($_GET['cmd'] == 'delete') ?
-                $config['delete'] :
-                $config['form']);
-            $sectiontitle = (!in_array($_GET['cmd'], array('add', 'create', 'delete'))) ?
-                array(htmlspecialchars($_GET['title'])) :
-                array();
+            if ($_GET['cmd'] == 'delete')
+            {
+                $return = $this->owner->gettemplate($config['delete']);
+            }
+            else
+            {
+                $return = $this->owner->gettemplate($config['form']);
+            }
+            if (!in_array($_GET['cmd'], array('add', 'create', 'delete')))
+            {
+                $sectiontitle = array(htmlspecialchars($_GET['title']));
+            }
+            else
+            {
+                $sectiontitle = array();
+            }
             $section = array_merge
             (
                 array($this->owner->vars['language'][$_GET['cmd']]),
@@ -1002,9 +1125,14 @@ class TIE
             if ($_GET['cmd'] == 'delete')
             {
                 $delimiter = $this->owner->section->get('section delimiter', &$return);
-                $delimiter = (!empty($delimiter)) ?
-                    $delimiter[0] :
-                    '';
+                if (!empty($delimiter))
+                {
+                    $delimiter = $delimiter[0];
+                }
+                else
+                {
+                    $delimiter = '';
+                }
                 $titles = array();
                 $directorytitles = array();
                 if (is_array($_GET['title']))
@@ -1069,25 +1197,38 @@ class TIE
             else
             {
                 $nodes = array_merge($nodes, $this->owner->section->condition('if editing', ($_GET['cmd'] == 'edit')));
-                $posted['title'] = (!isset($posted['title'])) ?
-                    $_GET['title'] :
-                    $posted['title'];
+                if (!isset($posted['title']))
+                {
+                    $posted['title'] = $_GET['title'];
+                }
                 if ($type == 'glue')
                 {
-                    $glue = (isset($filepath) && is_file($filepath)) ?
-                        file_get_contents($filepath) :
-                        '=';
+                    if (isset($filepath) && is_file($filepath))
+                    {
+                        $glue = file_get_contents($filepath);
+                    }
+                    else
+                    {
+                        $glue = '=';
+                    }
                     $glue = $this->owner->explodeunescape('=', $glue, '\\');
-                    $posted['content'] = (isset($glue[0]) && !$posted['content']) ?
-                        $glue[0] :
-                        $posted['content'];
+                    if (isset($glue[0]) && !$posted['content'])
+                    {
+                        $posted['content'] = $glue[0];
+                    }
                     unset($glue[0]);
-                    $posted['code'] = (!$posted['code']) ?
-                        $glue :
-                        $posted['code'];
-                    $boxes = (isset($_POST['boxes']) && (intval($_POST['boxes']) >= 0)) ?
-                        intval($_POST['boxes']) :
-                        count($posted['code']);
+                    if (!$posted['code'])
+                    {
+                        $posted['code'] = $glue;
+                    }
+                    if (isset($_POST['boxes']) && (intval($_POST['boxes']) >= 0))
+                    {
+                        $boxes = intval($_POST['boxes']);
+                    }
+                    else
+                    {
+                        $boxes = count($posted['code']);
+                    }
                     $number = 1;
                     $code = array();
                     foreach ($posted['code'] as $value)
@@ -1126,9 +1267,10 @@ class TIE
                     {
                         $posted['content'] = '';
                     }
-                    $posted['content'] = (isset($filepath) && is_file($filepath) && !$posted['content']) ?
-                        file_get_contents($filepath) :
-                        $posted['content'];
+                    if (isset($filepath) && is_file($filepath) && !$posted['content'])
+                    {
+                        $posted['content'] = file_get_contents($filepath);
+                    }
                 }
                 $this->owner->vars['content'] = htmlspecialchars(strval($posted['content']));
                 $this->owner->vars['title'] = htmlspecialchars(strval($posted['title']));
@@ -1139,9 +1281,14 @@ class TIE
         {
             $return = $this->owner->gettemplate($config['entries']);
             $page = $this->owner->section->get('section page', &$return);
-            $page = (!empty($page)) ?
-                $page[0] :
-                '';
+            if (!empty($page))
+            {
+                $page = $page[0];
+            }
+            else
+            {
+                $page = '';
+            }
             $section = array($this->owner->vars['language']['page'] . $page . ($this->settings['start'] / $this->settings['list'] + 1));
             $templates = array_diff(scandir($this->owner->config['files'][$type] . $directory['string']), array('.', '..'));
             $files = array();
@@ -1192,9 +1339,10 @@ class TIE
                 $directories,
                 $files
             );
-            $templates = ($this->settings['order'] == 'desc') ?
-                array_reverse($templates) :
-                $templates;
+            if ($this->settings['order'] == 'desc')
+            {
+                $templates = array_reverse($templates);
+            }
             if (!empty($directory['array']))
             {
                 $templates = array_merge
@@ -1213,20 +1361,34 @@ class TIE
             if (!empty($templates))
             {
                 $highlightstart = $this->owner->section->get('section highlightstart', &$return);
-                $highlightstart = (!empty($highlightstart)) ?
-                    $highlightstart[0] :
-                    '';
-                $highlightend = $this->owner->section->get('section highlightend', &$return);
-                $highlightend = (!empty($highlightend)) ?
-                    $highlightend[0] :
-                    '';
+                if (!empty($highlightstart))
+                {
+                    $highlightstart = $highlightstart[0];
+                }
+                else
+                {
+                    $highlightstart = '';
+                }
+                if (!empty($highlightend))
+                {
+                    $highlightend = $highlightend[0];
+                }
+                else
+                {
+                    $highlightend = '';
+                }
                 foreach ($templates as $value)
                 {
                     if ($iterations >= $this->settings['start'])
                     {
-                        $title = (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value)) ?
-                            basename($value, '.' . $filetype) :
-                            $value;
+                        if (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value))
+                        {
+                            $title = basename($value, '.' . $filetype);
+                        }
+                        else
+                        {
+                            $title = $value;
+                        }
                         $displaytitle = str_replace(htmlspecialchars($this->settings['search']), $highlightstart . $this->settings['search'] . $highlightend, htmlspecialchars($title));
                         $entries[] = array
                         (
@@ -1304,13 +1466,14 @@ class TIE
     **/
     public function pagination($count, $config = array())
     {
-        $count = intval($count);
-        $config['pages'] = intval((array_key_exists('pages', $config)) ?
-            $config['pages'] :
-            $this->config['navigation']['pages']);
-        $config['pagelink'] = strval((array_key_exists('pagelink', $config)) ?
-            $config['pagelink'] :
-            $this->config['templates']['pagelink']);
+        if (!array_key_exists('pages', $config))
+        {
+            $config['pages'] = $this->config['navigation']['pages'];
+        }
+        if (!array_key_exists('pagelink', $config))
+        {
+            $config['pagelink'] = $this->config['templates']['pagelink'];
+        }
         $path = $this->path(array('check', 'list', 'order', 'search', 'start'));
         $return = array();
         $pagelink = $this->owner->gettemplate($config['pagelink']);
@@ -1373,27 +1536,14 @@ class TIE
         $urlquerychar = '?';
         foreach ($_GET as $key => $value)
         {
-            if (is_array($exclude))
+            if (!in_array($key, $exclude))
             {
-                if (!in_array($key, $exclude))
+                if (is_array($value))
                 {
-                    if (is_array($value))
+                    foreach ($value as $value2)
                     {
-                        foreach ($value as $value2)
-                        {
-                            $regular .= $querychar . $key . '[]=' . $value2;
-                            $url .= $urlquerychar . urlencode($key) . '[]=' . urlencode($value2);
-                            if ($querychar == '?')
-                            {
-                                $querychar = '&';
-                                $urlquerychar = '&amp;';
-                            }
-                        }
-                    }
-                    else
-                    {
-                        $regular .= $querychar . $key . '=' . $value;
-                        $url .= $urlquerychar . urlencode($key) . '=' . urlencode($value);
+                        $regular .= $querychar . $key . '[]=' . $value2;
+                        $url .= $urlquerychar . urlencode($key) . '[]=' . urlencode($value2);
                         if ($querychar == '?')
                         {
                             $querychar = '&';
@@ -1401,10 +1551,16 @@ class TIE
                         }
                     }
                 }
-            }
-            else
-            {
-                $this->owner->error('Provided argument not array or improperly formatted one', NULL, 'Warning');
+                else
+                {
+                    $regular .= $querychar . $key . '=' . $value;
+                    $url .= $urlquerychar . urlencode($key) . '=' . urlencode($value);
+                    if ($querychar == '?')
+                    {
+                        $querychar = '&';
+                        $urlquerychar = '&amp;';
+                    }
+                }
             }
         }
         return array
@@ -1421,14 +1577,14 @@ class TIE
     **/
     public function redirect($url, $message = '', $config = array())
     {
-        $url = strval($url);
-        $message = strval($message);
-        $config['refresh'] = intval((array_key_exists('refresh', $config)) ?
-            $config['refresh'] :
-            $this->config['navigation']['refresh']);
-        $config['redirect'] = strval((array_key_exists('redirect', $config)) ?
-            $config['redirect'] :
-            $this->config['templates']['redirect']);
+        if (!array_key_exists('refresh', $config))
+        {
+            $config['refresh'] = $this->config['navigation']['refresh'];
+        }
+        if (!array_key_exists('redirect', $config))
+        {
+            $config['redirect'] = $this->config['templates']['redirect'];
+        }
         $content = $this->owner->gettemplate($config['redirect']);
         if ($config['refresh'])
         {
@@ -1467,7 +1623,6 @@ class TIE
     **/
     public function reduce($return, $once = false)
     {
-        $return = intval($return);
         if ($return % $this->settings['list'] || $once)
         {
             do
@@ -1489,13 +1644,15 @@ class TIEHelper
 
     public function directorydata($array)
     {
-        $return = array
-        (
-            'array' => $array
-        );
-        $return['array'] = (isset($return['array']) && is_array($return['array'])) ?
-            $return['array'] :
-            array();
+        $return = array();
+        if ($array && is_array($array))
+        {
+            $return['array'] = $array;
+        }
+        else
+        {
+            $return['array'] = array();
+        }
         $return['string'] = '';
         $return['replace'] = array();
         $return['url'] = '';
@@ -1511,7 +1668,7 @@ class TIEHelper
                 (
                     'vars' => array
                     (
-                        'directory' => urlencode(strval($value))
+                        'directory' => urlencode($value)
                     )
                 );
                 $return['string'] .= '/' . $value;
@@ -1524,11 +1681,6 @@ class TIEHelper
     public function pageLink($count, $check, $start, $display, $ahead, $pagelink)
     {
         $return = '';
-        $count = intval($count);
-        $check = intval($check);
-        $start = intval($start);
-        $display = strval($display);
-        $pagelink = strval($pagelink);
         $path = $this->owner->path(array('check', 'list', 'order', 'search', 'start'));
         $success = false;
         if ($ahead)

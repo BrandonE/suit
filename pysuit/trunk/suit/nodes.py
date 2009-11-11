@@ -64,12 +64,12 @@ def loop(params):
             value['nodes'] = {}
         value['nodes'][params['var']['config']['loopopen']] = {
             'close': params['var']['config']['loopclose'],
-            'function': loopvars
-        }
-        #This will be used by the function
-        value['nodes'][params['var']['config']['loopopen']]['var'] = {
-            'escape': params['escape'],
-            'separator': params['var']['config']['separator']
+            'function': loopvars,
+            'var':
+            {
+                'escape': params['escape'],
+                'separator': params['var']['config']['separator']
+            } #This will be used by the function
         }
         loopopen = params['var']['config']['loopopen']
         if 'vars' in value:
@@ -110,7 +110,7 @@ def loop(params):
             thiscase = thiscase.rstrip(params['var']['config']['trim'])
         #Append the result
         iterations.append(thiscase)
-    return str(params['var']['implode']).join(iterations)
+    return params['var']['implode'].join(iterations)
 
 def looppreparse(nodes, returnvalue):
     """Populate the nodes for preparsing"""

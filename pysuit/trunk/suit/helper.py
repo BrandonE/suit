@@ -134,7 +134,6 @@ class Helper:
         for params['nodekey'], params['nodevalue'] in enumerate(
             params['strings']
         ):
-            params['nodevalue'] = str(params['nodevalue'])
             #If the string has not already been used
             if not params['nodevalue'] in params['repeated']:
                 #Find the next position of the string
@@ -234,9 +233,6 @@ class Helper:
     def strpos(self, haystack, needle, offset = 0, function = None):
         """Find the position insensitively or sensitively based on the
         configuration"""
-        haystack = str(haystack)
-        needle = str(needle)
-        offset = int(offset)
         #If a function name was provided,
         #increment the number of times that the function called strpos by 1
         if function != None:

@@ -91,7 +91,7 @@ $config = array
 			'end' => '/',
 			'trim' => "\r.\n.\t ."
 		),
-		'separatator' => '=>'
+		'separator' => '=>'
 	)
 );
 $suit = new SUIT($config);
