@@ -55,7 +55,6 @@ class SUIT
             'explodeunescape' => array(),
             'parse' => array()
         ),
-        'chain' => array(),
         'offset' => 0,
         'sections' => array()
     );
@@ -233,68 +232,43 @@ class SUIT
     /**
     http://www.suitframework.com/docs/gettemplate
     **/
-    public function gettemplate($template)
+    public function gettemplate($return, $code = array(), $label = NULL)
     {
         //Restrict user to the provided directory
-        $search = array('../', '..\\');
-        $template = str_replace($search, '', $template);
-        $return = '';
         $backtrace = debug_backtrace();
-        //Log this function
-        $this->debug['gettemplate'][] = array
+        $debug = array
         (
             'code' => array(),
-            'content' => array(false, false, false),
             'file' => $backtrace[0]['file'],
-            'glue' => array($template),
-            'line' => $backtrace[0]['line']
+            'label' => $label,
+            'line' => $backtrace[0]['line'],
+            'template' => $return
         );
-        end($this->debug['gettemplate']);
-        $last = key($this->debug['gettemplate']);
-        $this->filepath = $this->config['files']['glue'] . '/' . $template . '.txt';
-        //Split up the file, paying attention to escape strings
-        $array = $this->explodeunescape('=', file_get_contents($this->filepath), '\\');
-        //Prevent this template from being used again until it is finished
-        $this->extra['chain'][] = $template;
-        foreach ($array as $key => $value)
+        if (!empty($code))
         {
-            //If this is the content file
-            if ($key == 0)
+            foreach ($code as $value)
             {
-                $this->filepath = $this->config['files']['content'] . '/' . str_replace($search, '', $value) . '.tpl';
-                //If the content file exists
-                if (is_file($this->filepath))
-                {
-                    //Set the return value to the contents of the content file
-                    $return = file_get_contents($this->filepath);
-                    $this->debug['gettemplate'][$last]['content'] = array($value, true, $return);
-                }
-                else
-                {
-                    $this->debug['gettemplate'][$last]['content'] = array($value, false, $return);
-                }
-            }
-            else
-            {
-                $this->filepath = $this->config['files']['code'] . '/' . str_replace($search, '', $value) . '.inc.php';
                 //If the code file exists
-                if (is_file($this->filepath))
+                if (is_file($value))
                 {
-                    $this->debug['gettemplate'][$last]['code'][] = array($value, true, false);
-                    end($this->debug['gettemplate'][$last]['code']);
-                    $last2 = key($this->debug['gettemplate'][$last]['code']);
-                    //Include the code file and set the return value to the modified content
-                    $return = $this->helper->includeFile($return);
-                    $this->debug['gettemplate'][$last]['code'][$last2][2] = $return;
+                    $debug['code'][] = array($value, true, false);
+                    end($debug['code']);
+                    $last = key($debug['code']);
+                    //Include the code file and set the return value to the modified template
+                    $return = $this->helper->includeFile($return, $value);
+                    $debug['code'][$last][2] = $return;
                 }
                 else
                 {
-                    $this->debug['gettemplate'][$key]['code'][] = array($value, false, $return);
+                    $debug['code'][] = array($value, false, $return);
                 }
             }
         }
-        //This template can be used again
-        array_pop($this->extra['chain']);
+        //If a label was provided, log this function
+        if (isset($label))
+        {
+            $this->debug['gettemplate'][] = $debug;
+        }
         return $return;
     }
 
@@ -397,10 +371,7 @@ class SUIT
                 'return' => $return,
                 'taken' => $preparse['taken']
             );
-            if (array_key_exists('label', $config))
-            {
-                $debug['preparse'] = $this->helper->debugpreparse($preparse['taken'], $preparse['ignored'], $return['return']);
-            }
+            $debug['preparse'] = $preparse;
         }
         //If a label was provided, log this function
         if (array_key_exists('label', $config))
@@ -413,7 +384,7 @@ class SUIT
     /**
     http://www.suitframework.com/docs/parseunescape
     **/
-    public function parseunescape($pos, $content, $escape = NULL)
+    public function parseunescape($pos, $string, $escape = NULL)
     {
         $pos = intval($pos);
         if (!isset($escape))
@@ -425,7 +396,7 @@ class SUIT
         if ($escape)
         {
             //Count how many escape characters are directly to the left of this position
-            while (abs($start = $pos - $count - strlen($escape)) == $start && substr($content, $start, strlen($escape)) == $escape)
+            while (abs($start = $pos - $count - strlen($escape)) == $start && substr($string, $start, strlen($escape)) == $escape)
             {
                 $count += strlen($escape);
             }
@@ -442,7 +413,7 @@ class SUIT
         //Adjust the position
         $pos -= strlen($escape) * ($count / 2);
         //Remove the decided number of escape strings
-        $content = substr_replace($content, '', $pos, strlen($escape) * ($count / 2));
+        $string = substr_replace($string, '', $pos, strlen($escape) * ($count / 2));
         return $condition;
     }
 }

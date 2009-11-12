@@ -445,25 +445,12 @@ ul, ol
 
 			<h2>FAQ</h2>
 <a id="faq1" href="#faq1"><h3>What is SUIT?</h3></a>
-SUIT is a PHP class that defines what a template is and provides several functions to manipulate content. A Python version exists under the name PySUIT.
+SUIT is a PHP / Python framework that provides several functions to manipulate templates. A Python version exists under the name PySUIT.
 
 <br /><br /><a id="faq2" href="#faq2"><h3>What is TIE?</h3></a>
 TIE is an admin area for editing SUIT templates written in SUIT. It also includes a Debug System, a Language System, and navigation functions that allow pagination, searching, ordering, and mass selecting checkboxes.
 
-<br /><br /><a id="faq3" href="#faq3"><h3>What is a Template?</h3></a>
-SUIT defines it's templates differently than other systems may. The template is not defined by the content file, nor the code file, but the "Glue" file. Glue is a file that simply decides what content and / or code to use when the template is called.
-
-<br /><br />Glue files are stored in .txt files in the glue folder, consisting of keys delimited by an = (The first key is the content, and the rest represent code files). To use an = in the resource name, place a \ before it. For example, the admin.txt file's content by default is:
-<fieldset>
-	<legend>Glue</legend>
-
-	admin=tie=admin_set=parse=admin
-</fieldset>
-This says to load content/admin.tpl into our $content variable, and include code/tie.inc.php, code/admin_set.inc.php, code/parse.inc.php, and code/admin.inc.php to manipulate this variable. The end result is that when we run $suit->getTemplate('admin'), it returns the parsed $content variable.
-
-<br /><br />To bypass the editing of these glue files, which some might consider messy, you can do the equivalent through the Glue section in TIE.
-
-<br /><br /><a id="faq4" href="#faq4"><h3>How are the versions named?</h3></a>
+<br /><br /><a id="faq3" href="#faq3"><h3>How are the versions named?</h3></a>
 SUIT and TIE used to have the same version names, regardless of changes. As of version 1.3.0, due to TIE being a separate project, the versions are split. Before the split, the TIE version would dictate the SUIT version. As some revisions of TIE did not have any revisions in SUIT, SUIT was not re-released for each version. For example, there is no SUIT version 1.2.8. Thus, TIE 1.2.7 and TIE 1.2.8 should use SUIT 1.2.7.
 
 <br /><br />As of version 1.3.4, TIE is packaged with SUIT. No matchup is necessary.

@@ -448,34 +448,39 @@ ul, ol
 <p>Retrieves a template</p>
 <fieldset>
 	<legend><a id="syntax" href="#syntax">Syntax</a></legend>
-	string $suit->gettemplate ( string $template )
+	string $suit->gettemplate ( string $template, array $code )
 </fieldset>
 <fieldset>
 
 	<legend><a id="parameters" href="#parameters">Parameters</a></legend>
 	<fieldset>
 		<legend><a id="parameter0" href="#parameter0">template</a></legend>
-		<p>The template we want to retreive.</p>
+		<p>The template we want to transform.</p>
+	</fieldset>
+	<fieldset>
+		<legend><a id="parameter1" href="#parameter1">code</a></legend>
+
+		<p>An array of code files we want to transform the template with.</p>
 	</fieldset>
 </fieldset>
 <fieldset>
 	<legend><a id="returnvalues" href="#returnvalues">Return Values</a></legend>
-
-	<p>The template after having content loaded and being manipulated by code.</p>
+	<p>The template after having template loaded and being manipulated by code.</p>
 </fieldset>
 <fieldset>
 	<legend><a id="examples" href="#examples">Examples</a></legend>
+
 	<fieldset>
 		<legend><a id="example0" href="#example0">Basic Usage</a></legend>
 		<fieldset>
-			<legend><a id="content0" href="#content0">Content</a></legend>
-
+			<legend><a id="template0" href="#template0">Template</a></legend>
 			<pre>[template]</pre>
 		</fieldset>
 		<fieldset>
+
 			<legend><a id="code0" href="#code0">Code</a></legend>
 			<code><span style="color: #000000">
-<span style="color: #0000BB">&lt;?php<br />$content&nbsp;</span><span style="color: #007700">=&nbsp;</span><span style="color: #0000BB">str_replace</span><span style="color: #007700">(</span><span style="color: #DD0000">'[template]'</span><span style="color: #007700">,&nbsp;</span><span style="color: #0000BB">$suit</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">gettemplate</span><span style="color: #007700">(</span><span style="color: #DD0000">'template'</span><span style="color: #007700">),&nbsp;</span><span style="color: #0000BB">$content</span><span style="color: #007700">);<br /></span><span style="color: #FF8000">//Result:&nbsp;The&nbsp;template&nbsp;"template".&nbsp;See&nbsp;http://suitframework.com/new.php?page=docs&amp;title=FAQ#faq3<br /></span><span style="color: #0000BB">?&gt;</span>
+<span style="color: #0000BB">&lt;?php<br />$template&nbsp;</span><span style="color: #007700">=&nbsp;</span><span style="color: #0000BB">str_replace</span><span style="color: #007700">(</span><span style="color: #DD0000">'[template]'</span><span style="color: #007700">,&nbsp;</span><span style="color: #0000BB">$suit</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">gettemplate</span><span style="color: #007700">(</span><span style="color: #DD0000">'Hi!'</span><span style="color: #007700">,&nbsp;array()),&nbsp;</span><span style="color: #0000BB">$template</span><span style="color: #007700">);<br /></span><span style="color: #FF8000">//Result:&nbsp;Hi!&nbsp;If&nbsp;the&nbsp;code&nbsp;array&nbsp;was&nbsp;populated,&nbsp;each&nbsp;file&nbsp;would&nbsp;be&nbsp;included&nbsp;in&nbsp;order&nbsp;to&nbsp;transform&nbsp;the&nbsp;template.<br /></span><span style="color: #0000BB">?&gt;</span>
 
 </span>
 </code>
@@ -483,11 +488,10 @@ ul, ol
 	</fieldset>
 </fieldset>
 
-
 <fieldset>
-	<legend><a id="seealso" href="#seealso">See Also</a></legend>
+	<legend><a id="changelog" href="#changelog">Changelog</a></legend>
 		<ul>
-			<li><a href="http://www.suitframework.com/docs/explodeunescape">explodeunescape</a></li>
+			<li>1.3.5 - Glue has been removed.</li>
 
 		</ul>
 </fieldset>

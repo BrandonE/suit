@@ -37,7 +37,7 @@ class Helper:
         (params['nodes'][params['node']][1]['close'] == skippop and
         not result['condition'])):
             params['position'] = result['pos']
-            params['return'] = result['content']
+            params['return'] = result['string']
             params['open'] = None
             #If this position should not be overlooked and the stack is not
             #empty
@@ -70,7 +70,7 @@ class Helper:
         (params['nodes'][params['node']][1]['close'] == skippop and
         not result['condition'])):
             params['position'] = result['pos']
-            params['return'] = result['content']
+            params['return'] = result['string']
             #If this position should not be overlooked
             if (not params['skipnode'] and
             skippop == False and
@@ -81,7 +81,7 @@ class Helper:
                     params['position']
                 ))
             #If we popped a value or the skip key is true, skip over everything
-            #between this opening string and it's closing string
+            #between this opening string and its closing string
             if (skippop != False or
             ('skip' in params['nodes'][params['node']][1] and
             params['nodes'][params['node']][1]['skip'])):
@@ -323,27 +323,6 @@ class Helper:
                 params['position'] + len(params['open'][0][1]['close'])
             ))
         return params
-
-def debugpreparse(taken, ignored, returnvalue):
-    """Mark every taken substring"""
-    pos = {}
-    for value in taken:
-        pos[value[0]] = '[taken]'
-        pos[value[1]] = '[/taken]'
-    for value in ignored:
-        pos[value[0]] = '[ignored]'
-        pos[value[1]] = '[/ignored]'
-    pos = sorted(pos.items())
-    offset = 0
-    for value in pos:
-        position = value[0] + offset
-        returnvalue = ''.join((
-            returnvalue[0:position],
-            value[1],
-            returnvalue[position:len(returnvalue)]
-        ))
-        offset += len(value[1])
-    return returnvalue
 
 def parsecache(nodes, returnvalue, config):
     """Generate the cache key for the parse function"""

@@ -30,7 +30,7 @@ class SUIT:
         self.helper = helper.Helper(self)
         self.section = section.Section(self)
         self.config = config
-        self.content = ''
+        self.template = ''
         self.extra = {
             'cache':
             {
@@ -38,12 +38,10 @@ class SUIT:
                 'explodeunescape': {},
                 'parse': {}
             },
-            'chain': [],
             'offset': 0,
             'sections': []
         }
         self.debug = {
-            'gettemplate': [],
             'parse': [],
             'strpos':
             {
@@ -62,7 +60,8 @@ class SUIT:
                     'cache': 0,
                     'call': 0
                 }
-            }
+            },
+            'template': []
         }
         self.vars = {}
 
@@ -203,89 +202,46 @@ class SUIT:
             offset = len(glue) - len(temp)
         return array
 
-    def gettemplate(self, template):
+    def gettemplate(self, returnvalue, code = None, label = None):
         """http://www.suitframework.com/docs/gettemplate"""
-        #Restrict user to the provided directory
-        template = template.replace('../', '').replace('..\\', '')
-        returnvalue = ''
         backtrace = inspect.stack()
-        #Log this function
-        self.debug['gettemplate'].append({
-            'backtrace': backtrace[1],
+        debug = {
             'code': [],
-            'content': [False, False, False],
             'file': backtrace[1][2],
-            'glue': [template],
-            'line': backtrace[1][3]
-        })
-        last = len(self.debug['gettemplate']) - 1
-        filepath = ''.join((
-            self.config['files']['glue'],
-            '/',
-            template,
-            '.txt'
-        ))
-        #Split up the file, paying attention to escape strings
-        array = self.explodeunescape('=', open(filepath).read(), '\\')
-        #Prevent this template from being used again until it is finished
-        self.extra['chain'].append(template)
-        suit = self
-        for key, value in enumerate(array):
-            if key == 0:
-                filepath = ''.join((
-                    self.config['files']['content'],
-                    '/',
-                    value.replace('../', '').replace('..\\', ''),
-                    '.tpl'
-                ))
-                #If the content file exists
-                if os.path.exists(filepath):
-                    #Set the return value to the contents of the content file
-                    returnvalue = open(filepath).read()
-                    self.debug['gettemplate'][last]['content'] = [
-                        value,
-                        True,
-                        returnvalue
-                    ]
-                else:
-                    self.debug['gettemplate'][last]['content'] = [
-                        value,
-                        False,
-                        returnvalue
-                    ]
-            else:
-                filepath = ''.join((
-                    self.config['files']['code'],
-                    '/',
-                    value,
-                    '.py'
-                ))
+            'label': label,
+            'line': backtrace[1][3],
+            'template': returnvalue
+        }
+        if code:
+            for value in code:
                 #If the code file exists
-                if os.path.exists(filepath):
-                    self.debug['gettemplate'][last]['code'].append([
+                if os.path.exists(value):
+                    debug['code'].append([
                         value,
                         True,
                         False
                     ])
-                    last2 = len(self.debug['gettemplate'][last]['code']) - 1
-                    suit.content = returnvalue
+                    last = len(debug['code']) - 1
+                    suit = self
+                    suit.template = returnvalue
                     #Execute the code file and set the return value to the
-                    #modified content
-                    execfile(filepath)
-                    returnvalue = suit.content
-                    self.debug['gettemplate'][last]['code'][last2] = [
-                        self.debug['gettemplate'][last]['code'][last2][1],
-                        self.debug['gettemplate'][last]['code'][last2][2],
+                    #modified template
+                    execfile(value)
+                    returnvalue = suit.template
+                    debug['code'][last] = [
+                        debug['code'][last][1],
+                        debug['code'][last][2],
                         returnvalue
                     ]
                 else:
-                    self.debug['gettemplate'][last]['code'].append([
+                    debug['code'].append([
                         value,
                         False,
                         returnvalue
                     ])
-        #This template can be used again
-        self.extra['chain'].pop()
+        #If a label was provided, log this function
+        if label != None:
+            self.debug['parse'].append(debug)
         return returnvalue
 
     def parse(self, nodes, returnvalue, config = None):
@@ -370,18 +326,13 @@ class SUIT:
                 'return': returnvalue,
                 'taken': params['taken']
             }
-            if 'label' in config:
-                debug['preparse'] = helper.debugpreparse(
-                    params['taken'],
-                    preparse['ignored'],
-                    returnvalue['return']
-                )
+            debug['preparse'] = preparse
         #If a label was provided, log this function
         if 'label' in config:
             self.debug['parse'].append(debug)
         return returnvalue
 
-    def parseunescape(self, pos, content, escape = None):
+    def parseunescape(self, pos, string, escape = None):
         """http://www.suitframework.com/docs/parseunescape"""
         if escape == None:
             escape = self.config['parse']['escape']
@@ -392,7 +343,7 @@ class SUIT:
             #Count how many escape characters are directly to the left of this
             #position
             while (abs(start) == start and
-            content[start:start + len(escape)] == escape):
+            string[start:start + len(escape)] == escape):
                 count += len(escape)
                 start = pos - count - len(escape)
             #Determine how many escape strings are directly to the left of this
@@ -408,12 +359,12 @@ class SUIT:
         #Adjust the position
         pos -= len(escape) * (count / 2)
         #Remove the decided number of escape strings
-        content = ''.join((
-            content[0:pos],
-            content[pos + len(escape) * (count / 2):len(content)]
+        string = ''.join((
+            string[0:pos],
+            string[pos + len(escape) * (count / 2):len(string)]
         ))
         return {
             'condition': condition,
-            'content': content,
-            'pos': pos
+            'pos': pos,
+            'string': string
         }

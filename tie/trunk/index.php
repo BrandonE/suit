@@ -28,7 +28,23 @@ function nodecomments()
 
 function nodetemplates($params)
 {
-	return $params['suit']->gettemplate($params['case']);
+    //Split up the file, paying attention to escape strings
+    $split = $params['suit']->explodeunescape('=>', $params['case']);
+    $code = array();
+    foreach ($split as $key => $value)
+    {
+        //If this is the content file, get the file's content
+        if ($key == 0)
+        {
+            $content = file_get_contents($params['suit']->config['files']['templates'] . '/' . $value . '.' . $params['suit']->config['filetypes']['templates']);
+        }
+        //Else, prepare to include the file
+        else
+        {
+            $code[] = str_replace(array('../', '..\\'), '', $params['suit']->config['files']['code'] . '/' . $value . '.' . $params['suit']->config['filetypes']['code']);
+        }
+    }
+	return $params['suit']->gettemplate($content, $code);
 }
 
 function nodevars($params)
@@ -48,10 +64,14 @@ $config = array
 (
 	'files' => array
 	(
-		'code' => 'suit/templates/code',
-		'content' => 'suit/templates/content',
-		'glue' => 'suit/templates/glue'
+		'code' => 'suit/code',
+		'templates' => 'suit/templates'
 	),
+    'filetypes' => array
+    (
+        'code' => 'inc.php',
+        'templates' => 'tpl'
+    ),
 	'flag' => array
 	(
 		'insensitive' => true,
@@ -95,9 +115,20 @@ $config = array
 	)
 );
 $suit = new SUIT($config);
-$content = $suit->gettemplate('tie/index');
+require $suit->config['files']['code'] . '/tie/main.inc.php';
+require $suit->config['files']['code'] . '/tie/print.inc.php';
+$content = $suit->gettemplate(
+    file_get_contents($suit->config['files']['templates'] . '/tie/index.tpl'),
+    array
+    (
+        $suit->config['files']['code'] . '/tie/index.inc.php'
+    )
+);
 $suit->vars['debug'] = $suit->debug;
-$debug = $suit->gettemplate('tie/debug');
+$debug = $suit->gettemplate(
+    file_get_contents($suit->config['files']['templates'] . '/tie/debug.tpl'),
+    array($suit->config['files']['code'] . '/tie/debug.inc.php')
+);
 $nodes = array
 (
 	'<debug' => array

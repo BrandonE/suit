@@ -2,9 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>SUIT Framework - Docs - Escaping</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="description" content="The home of SUIT Framework, a templating framework available in PHP and Python, as well as several subprojects written in SUIT." />
-<meta name="keywords" content="suit,framework,template,templates,templating,php,python,tie,cape" />
+<meta http-equiv="Content-Type" template="text/html; charset=utf-8" />
+<meta name="description" template="The home of SUIT Framework, a templating framework available in PHP and Python, as well as several subprojects written in SUIT." />
+<meta name="keywords" template="suit,framework,template,templates,templating,php,python,tie,cape" />
 <style type="text/css">
 *, form, p, #footer p
 {
@@ -111,7 +111,7 @@ table.dashboard td
     padding: 1em;
 }
 
-.content
+.template
 {
     padding: 8px 8px 0;
 }
@@ -439,7 +439,7 @@ ul, ol
 		<li><a href="http://www.suitframework.com/forums/">Forums</a></li>
 	</ul>
 </div>
-<div class="content">
+<div class="template">
 	<div class="section">
 		<div class="docs">
 
@@ -449,7 +449,7 @@ As of 1.2.1, a new escaping system was created. Before, a section parameter was 
 <br /><br />To escape something parsed, simply put the escaping character before it (Default: \). This is what we would do if we had a node that parses templates with [! as the open and !] as the close:
 
 <fieldset>
-	<legend>Content</legend>
+	<legend>template</legend>
 	<pre>[!parsethis!]
 \[!don'tparsethis\!]
 \\[!parse\!]this!]
@@ -472,7 +472,7 @@ The results would be:
 <br /><br />The parse function works recursively. Here are some examples:
 
 <fieldset>
-	<legend>Content</legend>
+	<legend>template</legend>
 	<pre>[![!parsethis!]!]
 \[![!parsethis!]\!]
 \[!\[!\!]\!]</pre>

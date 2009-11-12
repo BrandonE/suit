@@ -54,36 +54,12 @@ class Helper
         return $params;
     }
 
-    public function debugpreparse($taken, $ignored, $returnvalue)
-    {
-        $pos = array();
-        foreach ($taken as $value)
-        {
-            $pos[$value[0]] = '[taken]';
-            $pos[$value[1]] = '[/taken]';
-        }
-        foreach ($ignored as $value)
-        {
-            $pos[$value[0]] = '[ignored]';
-            $pos[$value[1]] = '[/ignored]';
-        }
-        ksort($pos);
-        $offset = 0;
-        foreach ($pos as $key => $value)
-        {
-            $key += $offset;
-            $returnvalue = substr_replace($returnvalue, $value, $key, 0);
-            $offset += strlen($value);
-        }
-        return $returnvalue;
-    }
-
-    public function includeFile($content)
+    public function includeFile($template, $code)
     {
         $suit = $this->owner;
         //Include the code file without the possibility of affecting the gettemplate function
-        include $this->owner->filepath;
-        return $content;
+        include $code;
+        return $template;
     }
 
     public function openingstring($params)
@@ -110,7 +86,7 @@ class Helper
                     $params['position']
                 );
             }
-            //If we popped a value or the skip key is true, skip over everything between this opening string and it's closing string
+            //If we popped a value or the skip key is true, skip over everything between this opening string and its closing string
             if ($skippop !== false || (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip']))
             {
                 $params['skipnode'][] = $params['nodes'][$params['node']]['close'];
