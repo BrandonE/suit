@@ -21,44 +21,6 @@ function nodedebug($params)
 	return $params['var'];
 }
 
-function nodecomments()
-{
-	return '';
-}
-
-function nodetemplates($params)
-{
-    //Split up the file, paying attention to escape strings
-    $split = $params['suit']->explodeunescape('=>', $params['case']);
-    $code = array();
-    foreach ($split as $key => $value)
-    {
-        //If this is the content file, get the file's content
-        if ($key == 0)
-        {
-            $content = file_get_contents($params['suit']->config['files']['templates'] . '/' . $value . '.' . $params['suit']->config['filetypes']['templates']);
-        }
-        //Else, prepare to include the file
-        else
-        {
-            $code[] = str_replace(array('../', '..\\'), '', $params['suit']->config['files']['code'] . '/' . $value . '.' . $params['suit']->config['filetypes']['code']);
-        }
-    }
-	return $params['suit']->gettemplate($content, $code);
-}
-
-function nodevars($params)
-{
-	//Split up the file, paying attention to escape strings
-	$split = $params['suit']->explodeunescape('=>', $params['case']);
-	$var = $params['suit']->vars;
-	foreach ($split as $value)
-	{
-		$var = $var[$value];
-	}
-	return $var;
-}
-
 require 'suit/suit.class.php';
 $config = array
 (
@@ -84,26 +46,6 @@ $config = array
 			'open' => '[|',
 			'close' => '|]'
 		),
-		'nodes' => array
-		(
-			'[!' => array
-			(
-				'close' => '!]',
-				'function' => 'nodetemplates'
-			),
-			'[:' => array
-			(
-				'close' => ':]',
-				'function' => 'nodevars'
-			),
-			'[*' => array
-			(
-				'close' => '*]',
-				'function' => 'nodecomments',
-                'params' => false,
-				'skip' => true
-			)
-		),
 		'section' => array
 		(
 			'open' => '[',
@@ -115,6 +57,39 @@ $config = array
 	)
 );
 $suit = new SUIT($config);
+$suit->config['parse']['nodes'] = array
+(
+    '[!' => array
+    (
+        'close' => '!]',
+        'class' => $suit->nodes,
+        'function' => 'templates',
+        'var' => array
+        (
+            'escape' => $suit->config['parse']['escape'],
+            'separator' => $suit->config['parse']['separator']
+        )
+    ),
+    '[:' => array
+    (
+        'close' => ':]',
+        'class' => $suit->nodes,
+        'function' => 'variables',
+        'var' => array
+        (
+            'escape' => $suit->config['parse']['escape'],
+            'separator' => $suit->config['parse']['separator']
+        )
+    ),
+    '[*' => array
+    (
+        'close' => '*]',
+        'class' => $suit->nodes,
+        'function' => 'comments',
+        'params' => false,
+        'skip' => true
+    )
+);
 require $suit->config['files']['code'] . '/tie/main.inc.php';
 require $suit->config['files']['code'] . '/tie/print.inc.php';
 $content = $suit->gettemplate(

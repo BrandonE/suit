@@ -17,6 +17,11 @@ http://www.suitframework.com/docs/credits
 **/
 class Nodes
 {
+    public function comments()
+    {
+        return '';
+    }
+
     public function condition($params)
     {
         $return = '';
@@ -79,7 +84,7 @@ class Nodes
             (
                 'class' => $this,
                 'close' => $params['var']['config']['loopclose'],
-                'function' => 'loopvars',
+                'function' => 'loopvariables',
                 'var' => array
                 (
                     'escape' => $params['config']['escape'],
@@ -173,7 +178,7 @@ class Nodes
         return $return;
     }
 
-    public function loopvars($params)
+    public function loopvariables($params)
     {
         //Split up the file, paying attention to escape strings
         $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
@@ -182,6 +187,39 @@ class Nodes
             $params['var']['var'] = $params['var']['var'][$value];
         }
         return $params['var']['var'];
+    }
+
+    public function templates($params)
+    {
+        //Split up the file, paying attention to escape strings
+        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
+        $code = array();
+        foreach ($split as $key => $value)
+        {
+            //If this is the content file, get the file's content
+            if ($key == 0)
+            {
+                $content = file_get_contents($params['suit']->config['files']['templates'] . '/' . $value . '.' . $params['suit']->config['filetypes']['templates']);
+            }
+            //Else, prepare to include the file
+            else
+            {
+                $code[] = str_replace(array('../', '..\\'), '', $params['suit']->config['files']['code'] . '/' . $value . '.' . $params['suit']->config['filetypes']['code']);
+            }
+        }
+        return $params['suit']->gettemplate($content, $code);
+    }
+
+    public function variables($params)
+    {
+        //Split up the file, paying attention to escape strings
+        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
+        $var = $params['suit']->vars;
+        foreach ($split as $value)
+        {
+            $var = $var[$value];
+        }
+        return $var;
     }
 }
 ?>
