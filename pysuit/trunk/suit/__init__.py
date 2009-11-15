@@ -31,15 +31,10 @@ class SUIT:
         self.section = section.Section(self)
         self.config = config
         self.template = ''
-        self.extra = {
-            'cache':
-            {
-                'escape': {},
-                'explodeunescape': {},
-                'parse': {}
-            },
-            'offset': 0,
-            'sections': []
+        self.cache = {
+            'escape': {},
+            'explodeunescape': {},
+            'parse': {}
         }
         self.debug = {
             'parse': [],
@@ -71,8 +66,8 @@ class SUIT:
             escape = self.config['parse']['escape']
         cache = hash((returnvalue, pickle.dumps(strings)))
         #If positions are cached for this case, load them
-        if cache in self.extra['cache']['escape']:
-            pos = self.extra['cache']['escape'][cache]
+        if cache in self.cache['escape']:
+            pos = self.cache['escape'][cache]
             self.debug['strpos']['escape']['cache'] += 1
         else:
             #Order the strings by length, descending
@@ -93,7 +88,7 @@ class SUIT:
             #Order the positions from smallest to biggest
             pos = sorted(pos.items())
             #Cache the positions
-            self.extra['cache']['escape'][cache] = pos
+            self.cache['escape'][cache] = pos
         offset = 0
         for value in pos:
             #Adjust position to changes in length
@@ -138,8 +133,8 @@ class SUIT:
             escape = self.config['parse']['escape']
         cache = hash((glue, explode))
         #If positions are cached for this case, load them
-        if cache in self.extra['cache']['explodeunescape']:
-            pos = self.extra['cache']['explodeunescape'][cache]
+        if cache in self.cache['explodeunescape']:
+            pos = self.cache['explodeunescape'][cache]
             self.debug['strpos']['explodeunescape']['cache'] += 1
         else:
             pos = []
@@ -157,7 +152,7 @@ class SUIT:
             #the string should be checked for escape strings
             pos.append(len(glue))
             #Cache the positions
-            self.extra['cache']['explodeunescape'][cache] = pos
+            self.cache['explodeunescape'][cache] = pos
         offset = 0
         last = 0
         temp = glue
@@ -204,12 +199,12 @@ class SUIT:
 
     def gettemplate(self, returnvalue, code = None, label = None):
         """http://www.suitframework.com/docs/gettemplate"""
-        backtrace = inspect.stack()
+        debug = inspect.stack()
         debug = {
             'code': [],
-            'file': backtrace[1][2],
+            'file': debug[1][2],
             'label': label,
-            'line': backtrace[1][3],
+            'line': debug[1][3],
             'template': returnvalue
         }
         if code:
@@ -260,8 +255,8 @@ class SUIT:
         iteratenodes = sorted(nodes.items(), reverse = True)
         cache = helper.parsecache(iteratenodes, returnvalue, config)
         #If positions are cached for this case, load them
-        if cache in self.extra['cache']['parse']:
-            pos = self.extra['cache']['parse'][cache]
+        if cache in self.cache['parse']:
+            pos = self.cache['parse'][cache]
             self.debug['strpos']['parse']['cache'] += 1
         else:
             pos = self.helper.parsepositions(
@@ -272,7 +267,7 @@ class SUIT:
             #Order the positions from smallest to biggest
             pos = sorted(pos.items())
             #Cache the positions
-            self.extra['cache']['parse'][cache] = pos
+            self.cache['parse'][cache] = pos
         preparse = {
             'taken': [],
             'ignored': []

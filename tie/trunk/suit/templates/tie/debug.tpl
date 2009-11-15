@@ -158,6 +158,7 @@
                             [:language=>parse:]
                         </td>
                     </tr>
+                    [if preparse]
                     <tr class="list-entry parsehide parse[|id|]" style="display: none;">
                         <td>
                             <span class="list-hidden">
@@ -169,6 +170,7 @@
                             [:language=>preparse:]
                         </td>
                     </tr>
+                    [/if preparse]
                     <tr class="list-entry parsehide parse[|id|]" style="display: none;">
                         <td />
                         <td>
@@ -200,10 +202,12 @@
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [|return|]</textarea>
                 </p>
+                [if preparse]
                 <p class="parsehide parseboxhide parse[|id|]boxhide" id="parse[|id|]preparsebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [|preparse|]</textarea>
                 </p>
+                [/if preparse]
                 [/loop parse]
             </div>
             <div class="strpos" style="display: none;">

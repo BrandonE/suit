@@ -100,55 +100,6 @@ class Helper
         return $params;
     }
 
-    public function offset($params)
-    {
-        foreach ($params['ignored'] as $key => $value)
-        {
-            //If this reserved range is in this case, adjust the range to the removal of the opening string and trimming
-            if ($params['open'][2] < $value[0] && $params['position'] + strlen($params['open'][0]['close']) > $value[1])
-            {
-                $params['ignored'][$key][0] += $this->owner->extra['offset'] - strlen($params['open'][1]);
-                $params['ignored'][$key][1] += $this->owner->extra['offset'] - strlen($params['open'][1]);
-            }
-        }
-        //Only continue if we are preparsing
-        if (!$params['preparse'])
-        {
-            return $params;
-        }
-        $clone = array();
-        foreach ($params['taken'] as $value)
-        {
-            $success = true;
-            //If this reserved range is in this case
-            if ($params['open'][2] < $value[0] && $params['position'] + strlen($params['open'][0]['close']) > $value[1])
-            {
-                //If the node does not just strip the opening and closing string, remove the range
-                if (!$params['open'][0]['strip'])
-                {
-                    $success = false;
-                }
-                //Else, adjust the range to the removal of the opening string and trimming
-                else
-                {
-                    $value[0] += $this->owner->extra['offset'] - strlen($params['open'][1]);
-                    $value[1] += $this->owner->extra['offset'] - strlen($params['open'][1]);
-                }
-            }
-            if ($success)
-            {
-                $clone[] = $value;
-            }
-        }
-        $params['taken'] = $clone;
-        //If the node does not just strip the opening and closing string, reserve the transformed case
-        if ((!array_key_exists('strip', $params['open'][0]) || !$params['open'][0]['strip']) && $params['open'][2] != $params['open'][2] + strlen($params['string']))
-        {
-            $params['taken'][] = array($params['open'][2], $params['open'][2] + strlen($params['string']));
-        }
-        return $params;
-    }
-
     public function parsecache($nodes, $return, $config)
     {
         $values = array();
@@ -254,6 +205,58 @@ class Helper
         return $params;
     }
 
+    public function preparse($params)
+    {
+        $clone = array();
+        foreach ($params['ignored'] as $value)
+        {
+            //If this reserved range is in this case, adjust the range to the removal of the opening string and trimming
+            if ($params['open'][2] < $value[0] && $params['position'] + strlen($params['open'][0]['close']) > $value[1])
+            {
+                $value[0] += $params['offset'] - strlen($params['open'][1]);
+                $value[1] += $params['offset'] - strlen($params['open'][1]);
+            }
+            $clone[] = $value;
+        }
+        $params['ignored'] = $clone;
+        //Only continue if we are preparsing
+        if (!$params['preparse'])
+        {
+            return $params;
+        }
+        $clone = array();
+        foreach ($params['taken'] as $value)
+        {
+            $success = true;
+            //If this reserved range is in this case
+            if ($params['open'][2] < $value[0] && $params['position'] + strlen($params['open'][0]['close']) > $value[1])
+            {
+                //If the node does not just strip the opening and closing string, remove the range
+                if (!$params['open'][0]['strip'])
+                {
+                    $success = false;
+                }
+                //Else, adjust the range to the removal of the opening string and trimming
+                else
+                {
+                    $value[0] += $params['offset'] - strlen($params['open'][1]);
+                    $value[1] += $params['offset'] - strlen($params['open'][1]);
+                }
+            }
+            if ($success)
+            {
+                $clone[] = $value;
+            }
+        }
+        $params['taken'] = $clone;
+        //If the node does not just strip the opening and closing string and the case is not empty, reserve the transformed case
+        if ((!array_key_exists('strip', $params['open'][0]) || !$params['open'][0]['strip']) && $params['case'])
+        {
+            $params['taken'][] = array($params['open'][2], $params['open'][2] + strlen($params['case']));
+        }
+        return $params;
+    }
+
     public function strpos($haystack, $needle, $offset = 0, $function = NULL)
     {
         if (!is_string($needle))
@@ -304,51 +307,39 @@ class Helper
         //If the node should not be ignored, and either this does not contain a ignored node or the node strips the opening and closing string, parse
         if ((!array_key_exists('ignore', $params['open'][0]) || !$params['open'][0]['ignore']) && ($success || $params['open'][0]['strip']))
         {
-            $params['string'] = substr($params['return'], $params['open'][2] + strlen($params['open'][1]), $params['position'] - $params['open'][2] - strlen($params['open'][1]));
-            $this->owner->extra['offset'] = 0;
             $signature = array
             (
-                'case' => $params['string'],
+                'case' => substr($params['return'], $params['open'][2] + strlen($params['open'][1]), $params['position'] - $params['open'][2] - strlen($params['open'][1])),
                 'escape' => $params['escape'],
                 'nodes' => $params['nodes'],
+                'offset' => 0,
                 'suit' => $this->owner,
                 'var' => $params['open'][0]['var']
             );
             //If a function is provided
             if (array_key_exists('function', $params['open'][0]))
             {
-                //Transform the string in between the opening and closing strings. Note whether or not the function is in a class. If the function uses params, send them
+                //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
                 if (array_key_exists('class', $params['open'][0]))
                 {
-                    if (!array_key_exists('params', $params['open'][0]) || $params['open'][0]['params'])
-                    {
-                        $params['string'] = $params['open'][0]['class']->$params['open'][0]['function']($signature);
-                    }
-                    else
-                    {
-                        $params['string'] = $params['open'][0]['class']->$params['open'][0]['function']();
-                    }
+                    $signature = $params['open'][0]['class']->$params['open'][0]['function']($signature);
                 }
                 else
                 {
-                        if (!array_key_exists('params', $params['open'][0]) || $params['open'][0]['params'])
-                        {
-                            $params['string'] = $params['open'][0]['function']($signature);
-                        }
-                        else
-                        {
-                            $params['string'] = $params['open'][0]['function']();
-                        }
+                    $signature = $params['open'][0]['function']($signature);
                 }
             }
             else
             {
                 //Replace the opening and closing strings
-                $params['open'][1] . $params['string'] . $params['open'][0]['close'];
+                $signature['case'] = $params['open'][1] . $signature['case'] . $params['open'][0]['close'];
+                $signature['offset'] = len($params['open'][1]);
             }
             //Replace everything including and between the opening and closing strings with the transformed string
-            $params['return'] = substr_replace($params['return'], $params['string'], $params['open'][2], $params['position'] + strlen($params['open'][0]['close']) - $params['open'][2]);
-            $params = $this->offset($params);
+            $params['return'] = substr_replace($params['return'], $signature['case'], $params['open'][2], $params['position'] + strlen($params['open'][0]['close']) - $params['open'][2]);
+            $params['case'] = $signature['case'];
+            $params['offset'] = $signature['offset'];
+            $params = $this->preparse($params);
         }
         //Else if the node should be ignored, reserve the space
         elseif (array_key_exists('ignore', $params['open'][0]) && $params['open'][0]['ignore'])

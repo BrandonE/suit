@@ -47,16 +47,11 @@ class SUIT
         )
     );
 
-    public $extra = array
+    public $cache = array
     (
-        'cache' => array
-        (
-            'escape' => array(),
-            'explodeunescape' => array(),
-            'parse' => array()
-        ),
-        'offset' => 0,
-        'sections' => array()
+        'escape' => array(),
+        'explodeunescape' => array(),
+        'parse' => array()
     );
 
     public $filepath = '';
@@ -97,9 +92,9 @@ class SUIT
         }
         $cache = md5(md5(serialize($return)) . md5(serialize($strings)));
         //If positions are cached for this case, load them
-        if (array_key_exists($cache, $this->extra['cache']['escape']))
+        if (array_key_exists($cache, $this->cache['escape']))
         {
-            $pos = $this->extra['cache']['escape'][$cache];
+            $pos = $this->cache['escape'][$cache];
             $this->debug['strpos']['escape']['cache']++;
         }
         else
@@ -123,7 +118,7 @@ class SUIT
             //Order the positions from smallest to biggest
             ksort($pos);
             //Cache the positions
-            $this->extra['cache']['escape'][$cache] = $pos;
+            $this->cache['escape'][$cache] = $pos;
         }
         $offset = 0;
         foreach ($pos as $key => $value)
@@ -163,9 +158,9 @@ class SUIT
         }
         $cache = md5(md5(serialize($string)) . md5(serialize($explode)));
         //If positions are cached for this case, load them
-        if (array_key_exists($cache, $this->extra['cache']['explodeunescape']))
+        if (array_key_exists($cache, $this->cache['explodeunescape']))
         {
-            $pos = $this->extra['cache']['explodeunescape'][$cache];
+            $pos = $this->cache['explodeunescape'][$cache];
             $this->debug['strpos']['explodeunescape']['cache']++;
         }
         else
@@ -180,7 +175,7 @@ class SUIT
             //On top of the explode string to be escaped, the last position in the string should be checked for escape strings
             $pos[] = strlen($string);
             //Cache the positions
-            $this->extra['cache']['explodeunescape'][$cache] = $pos;
+            $this->cache['explodeunescape'][$cache] = $pos;
         }
         $offset = 0;
         $last = 0;
@@ -235,13 +230,13 @@ class SUIT
     public function gettemplate($return, $code = array(), $label = NULL)
     {
         //Restrict user to the provided directory
-        $backtrace = debug_backtrace();
+        $debug = debug_backtrace();
         $debug = array
         (
             'code' => array(),
-            'file' => $backtrace[0]['file'],
+            'file' => $debug[0]['file'],
             'label' => $label,
-            'line' => $backtrace[0]['line'],
+            'line' => $debug[0]['line'],
             'template' => $return
         );
         if (!empty($code))
@@ -294,9 +289,9 @@ class SUIT
         krsort($nodes);
         $cache = $this->helper->parsecache($nodes, $return, $config);
         //If positions are cached for this case, load them
-        if (array_key_exists($cache, $this->extra['cache']['parse']))
+        if (array_key_exists($cache, $this->cache['parse']))
         {
-            $pos = $this->extra['cache']['parse'][$cache];
+            $pos = $this->cache['parse'][$cache];
             $this->debug['strpos']['parse']['cache']++;
         }
         else
@@ -305,7 +300,7 @@ class SUIT
             //Order the positions from smallest to biggest
             ksort($pos);
             //Cache the positions
-            $this->extra['cache']['parse'][$cache] = $pos;
+            $this->cache['parse'][$cache] = $pos;
         }
         $preparse = array
         (

@@ -17,6 +17,8 @@ http://www.suitframework.com/docs/credits
 **/
 class Section
 {
+    public $sections = array();
+
     public function __construct($owner)
     {
         $this->owner = $owner;
@@ -84,7 +86,6 @@ class Section
     **/
     public function get($string, $content, $config = array())
     {
-        $return = array();
         if (!array_key_exists('open', $config))
         {
             $config['open'] = $this->owner->config['parse']['section']['open'];
@@ -115,11 +116,10 @@ class Section
                 ) //The string will be used by the function
             )
         );
-        $this->owner->extra['sections'] = array();
+        $this->sections = array();
         //Unescape when applicable, and populate sections with the inside of each section
         $content = $this->owner->parse($nodes, $content, $config);
-        $return = $this->owner->extra['sections'];
-        return $return;
+        return $this->sections;
     }
 
     /**

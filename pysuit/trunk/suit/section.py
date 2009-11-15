@@ -20,6 +20,7 @@ class Section:
     """Functions that generate nodes or use custom ones"""
     def __init__(self, owner):
         self.owner = owner
+        self.sections = []
 
     def condition(self, ifstring, boolean, elsestring = None, config = None):
         """http://www.suitframework.com/docs/condition"""
@@ -130,13 +131,13 @@ class Section:
                 } #The string will be used by the function
             }
         }
-        self.owner.extra['sections'] = []
+        self.sections = []
         #Unescape when applicable, and populate sections with the inside of
         #each section
         content = self.owner.parse(node, content, config)
         return {
             'content': content,
-            'sections': self.owner.extra['sections']
+            'sections': self.sections
         }
 
     def loop(self, string, array, implode = '', config = None):

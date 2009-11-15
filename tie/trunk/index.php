@@ -18,7 +18,8 @@ http://www.suitframework.com/docs/credits
 **/
 function nodedebug($params)
 {
-	return $params['var'];
+    $params['case'] = $params['var'];
+	return $params;
 }
 
 require 'suit/suit.class.php';
@@ -86,7 +87,6 @@ $suit->config['parse']['nodes'] = array
         'close' => '*]',
         'class' => $suit->nodes,
         'function' => 'comments',
-        'params' => false,
         'skip' => true
     )
 );

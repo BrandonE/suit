@@ -182,54 +182,6 @@ class Helper:
             )
         return params
 
-    def offset(self, params):
-        """Adjust ignored and taken ranges"""
-        for key, value in enumerate(params['ignored']):
-            length = len(params['open'][0][1]['close'])
-            #If this reserved range is in this case, adjust the range to the
-            #removal of the opening string and trimming
-            if (params['open'][1] < value[0] and
-            params['position'] + length > value[1]):
-                offset = self.owner.extra['offset']
-                length = len(params['open'][0][0])
-                params['ignored'][key][0] += offset - length
-                params['ignored'][key][1] += offset - length
-        #Only continue if we are preparsing
-        if not params['preparse']:
-            return params
-        clone = []
-        for value in params['taken']:
-            success = True
-            length = len(params['open'][0][1]['close'])
-            #If this reserved range is in this case
-            if (params['open'][1] < value[0] and
-            params['position'] + length > value[1]):
-                #If the node does not just strip the opening and closing
-                #string, remove the range
-                if (not 'strip' in params['open'][0][1] or
-                not params['open'][0][1]['strip']):
-                    success = False
-                #Else, adjust the range to the removal of the opening string
-                #and trimming
-                else:
-                    offset = self.owner.extra['offset']
-                    length = len(params['open'][0][0])
-                    value[0] += offset - length
-                    value[1] += offset - length
-            if success:
-                clone.append(value)
-        params['taken'] = clone
-        #If the node does not just strip the opening and closing string,
-        #reserve the transformed case
-        if ((not 'strip' in params['open'][0][1] or
-        not params['open'][0][1]['strip']) and
-        params['open'][1] != params['open'][1] + len(params['string'])):
-            params['taken'].append([
-                params['open'][1],
-                params['open'][1] + len(params['string'])
-            ])
-        return params
-
     def strpos(self, haystack, needle, offset = 0, function = None):
         """Find the position insensitively or sensitively based on the
         configuration"""
@@ -273,48 +225,39 @@ class Helper:
             params['open'][0][1]['strip'])
         )):
             start = params['open'][1] + len(params['open'][0][0])
-            params['string'] = params['return'][start:params['position']]
-            #If a function is provied, transform the string in between the
-            #opening and closing strings. Else, replace the opening and closing
-            #strings.
+            signature = {
+                'case': params['return'][start:params['position']],
+                'escape': params['escape'],
+                'nodes': params['realnodes'],
+                'offset': 0,
+                'suit': self.owner
+            }
             if 'var' in params['open'][0][1]:
-                var = params['open'][0][1]['var']
-            else:
-                var = None
-            self.owner.extra['offset'] = 0
+                signature['var'] = params['open'][0][1]['var']
             #If a function is provided
             if 'function' in params['open'][0][1]:
-                function = params['open'][0][1]['function']
                 #Transform the string in between the opening and closing
-                #strings. If the function uses params, send them
-                if (not 'params' in params['open'][0][1] or
-                params['open'][0][1]['params']):
-                    signature = {
-                        'case': params['string'],
-                        'escape': params['escape'],
-                        'nodes': params['realnodes'],
-                        'suit': self.owner,
-                        'var': var
-                    }
-                    params['string'] = function(signature)
-                else:
-                    params['string'] = function()
+                #strings.
+                signature = params['open'][0][1]['function'](signature)
             else:
                 #Replace the opening and closing strings
-                params['string'] = ''.join((
+                signature['case'] = ''.join((
                     params['open'][0][0],
-                    params['string'],
+                    signature['case'],
                     params['open'][0][1]['close']
                 ))
+                signature['offset'] = len(params['open'][0][0])
             start = params['position'] + len(params['open'][0][1]['close'])
             #Replace everything including and between the opening and closing
             #strings with the transformed string
             params['return'] = ''.join((
                 params['return'][0:params['open'][1]],
-                params['string'],
+                signature['case'],
                 params['return'][start:len(params['return'])]
             ))
-            params = self.offset(params)
+            params['case'] = signature['case']
+            params['offset'] = signature['offset']
+            params = preparse(params)
         #Else if the node should be ignored, reserve the space
         elif ('ignore' in params['open'][0][1] and
         params['open'][0][1]['ignore']):
@@ -337,3 +280,50 @@ def parsecache(nodes, returnvalue, config):
             pickle.dumps(values),
             pickle.dumps(config['taken'])
     ))
+
+def preparse(params):
+    """Adjust ignored and taken ranges"""
+    clone = []
+    for value in params['ignored']:
+        length = len(params['open'][0][1]['close'])
+        #If this reserved range is in this case, adjust the range to the
+        #removal of the opening string and trimming
+        if (params['open'][1] < value[0] and
+        params['position'] + length > value[1]):
+            value[0] += params['offset'] - len(params['open'][0][0])
+            value[1] += params['offset'] - len(params['open'][0][0])
+        clone.append(value)
+    params['ignored'] = clone
+    #Only continue if we are preparsing
+    if not params['preparse']:
+        return params
+    clone = []
+    for value in params['taken']:
+        success = True
+        length = len(params['open'][0][1]['close'])
+        #If this reserved range is in this case
+        if (params['open'][1] < value[0] and
+        params['position'] + length > value[1]):
+            #If the node does not just strip the opening and closing
+            #string, remove the range
+            if (not 'strip' in params['open'][0][1] or
+            not params['open'][0][1]['strip']):
+                success = False
+            #Else, adjust the range to the removal of the opening string
+            #and trimming
+            else:
+                value[0] += params['offset'] - len(params['open'][0][0])
+                value[1] += params['offset'] - len(params['open'][0][0])
+        if success:
+            clone.append(value)
+    params['taken'] = clone
+    #If the node does not just strip the opening and closing string and
+    #the case is not empty, reserve the transformed case
+    if ((not 'strip' in params['open'][0][1] or
+    not params['open'][0][1]['strip']) and
+    params['case']):
+        params['taken'].append([
+            params['open'][1],
+            params['open'][1] + len(params['case'])
+        ])
+    return params

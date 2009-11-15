@@ -14,43 +14,48 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+def comments(params):
+    """Function used in default nodes"""
+    params['case'] = ''
+    return params
+
 def condition(params):
     """Function used by the node generated in Section.condition"""
     #Calculate how many characters were stripped
-    offset = params['case'].lstrip(params['var']['trim'])
-    params['suit'].extra['offset'] = len(offset) - len(params['case'])
+    params['offset'] = params['case'].lstrip(params['var']['trim'])
+    params['offset'] = len(params['offset']) - len(params['case'])
     #Trim the case if requested
     params['case'] = params['case'].strip(params['var']['trim'])
     #If the boolean is true, strip the tags. If not, hide the entire thing
-    if params['var']['bool']:
-        return params['case']
-    else:
-        return ''
+    if not params['var']['bool']:
+        params['case'] = ''
+    return params
 
 def getsection(params):
     """Function used by the node generated in Section.get"""
     #Add the case to the sections array
-    params['suit'].extra['sections'].append(params['case'])
+    params['suit'].section.sections.append(params['case'])
     #Replace the tags
-    return ''.join(
+    params['case'] = ''.join(
         (
             params['var']['open'],
             params['case'],
             params['var']['close']
         )
     )
+    return params
 
 def loop(params):
     """Function used by the node generated in Section.loop"""
     iterations = []
     realnodes = {}
-    loopvariables = {}
+    loopvars = {}
     for key, value in params['nodes'].items():
         #If the node should not be ignored
         if not 'ignore' in value or not value['ignore']:
             #If the node exists already, merge its loopvars later
             if key == params['var']['config']['loopopen']:
-                loopvariables = value['var']['var']
+                loopvars = value['var']['var']
             #Else, add it to the array
             else:
                 realnodes[key] = value
@@ -64,7 +69,7 @@ def loop(params):
             value['nodes'] = {}
         value['nodes'][params['var']['config']['loopopen']] = {
             'close': params['var']['config']['loopclose'],
-            'function': loopvars,
+            'function': loopvariables,
             'var':
             {
                 'escape': params['escape'],
@@ -73,10 +78,10 @@ def loop(params):
         }
         loopopen = params['var']['config']['loopopen']
         if 'vars' in value:
-            value['vars'].update(loopvariables)
+            value['vars'].update(loopvars)
             value['nodes'][loopopen]['var']['var'] = value['vars']
         else:
-            value['nodes'][loopopen]['var']['var'] = loopvariables
+            value['nodes'][loopopen]['var']['var'] = loopvars
         result = looppreparse(value['nodes'].items(), result)
         unique.append(value)
     config = {
@@ -110,7 +115,8 @@ def loop(params):
             thiscase = thiscase.rstrip(params['var']['config']['trim'])
         #Append the result
         iterations.append(thiscase)
-    return params['var']['implode'].join(iterations)
+    params['case'] = params['var']['implode'].join(iterations)
+    return params
 
 def looppreparse(nodes, returnvalue):
     """Populate the nodes for preparsing"""
@@ -149,7 +155,7 @@ def looppreparse(nodes, returnvalue):
             returnvalue['ignore'][key]['skip'] = False
     return returnvalue
 
-def loopvars(params):
+def loopvariables(params):
     """Function used by the node generated in Nodes.loop"""
     #Split up the file, paying attention to escape strings
     split = params['suit'].explodeunescape(
@@ -157,7 +163,57 @@ def loopvars(params):
         params['case'],
         params['var']['escape']
     )
-    var = params['var']['var']
+    params['case'] = params['var']['var']
     for value in split:
-        var = var[value]
-    return var
+        params['case'] = params['case'][value]
+    return params
+
+def templates(params):
+    """Function used in default nodes"""
+    #Split up the file, paying attention to escape strings
+    split = params['suit'].explodeunescape(
+        params['var']['separator'],
+        params['case'],
+        params['var']['escape']
+    )
+    code = []
+    for key, value in enumerate(split):
+        #If this is the template file, get the file's content
+        if key == 0:
+            template = open(
+                ''.join
+                ((
+                    params['suit'].config['files']['templates'],
+                    '/',
+                    value,
+                    '.',
+                    params['suit'].config['filetypes']['templates']
+                ))
+            ).read()
+        #Else, prepare to include the file
+        else:
+            code.append(
+                ''.join
+                ((
+                    params['suit'].config['files']['code'],
+                    '/',
+                    value,
+                    '.',
+                    params['suit'].config['filetypes']['code']
+                )).replace('../', '').replace('..\\', '')
+            )
+    params['case'] = params['suit'].gettemplate(template, code)
+    return params
+
+def variables(params):
+    """Function used in default nodes"""
+    #Split up the file, paying attention to escape strings
+    split = params['suit'].explodeunescape(
+        params['var']['separator'],
+        params['case'],
+        params['var']['escape']
+    )
+    params['case'] = params['suit'].vars
+    for value in split:
+        params['case'] = params['case'][value]
+    return params

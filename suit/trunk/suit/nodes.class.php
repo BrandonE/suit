@@ -17,33 +17,34 @@ http://www.suitframework.com/docs/credits
 **/
 class Nodes
 {
-    public function comments()
+    public function comments($params)
     {
-        return '';
+        $params['case'] = '';
+        return $params;
     }
 
     public function condition($params)
     {
-        $return = '';
         //Calculate the left offset created by trimming
-        $offset = ltrim($params['case'], $params['var']['trim']);
-        $params['suit']->extra['offset'] = strlen($offset) - strlen($params['case']);
+        $params['offset'] = ltrim($params['case'], $params['var']['trim']);
+        $params['offset'] = strlen($params['offset']) - strlen($params['case']);
         //Trim the case if requested
         $params['case'] = trim($params['case'], $params['var']['trim']);
         //If the boolean is true, strip the tags. If not, hide the entire thing
-        if ($params['var']['bool'])
+        if (!$params['var']['bool'])
         {
-            $return = $params['case'];
+            $params['case'] = '';
         }
-        return $return;
+        return $params;
     }
 
     public function getsection($params)
     {
         //Add the case to the sections array
-        $params['suit']->extra['sections'][] = $params['case'];
+        $params['suit']->section->sections[] = $params['case'];
         //Replace the tags
-        return $params['var']['open'] . $params['case'] . $params['var']['close'];
+        $params['case'] = $params['var']['open'] . $params['case'] . $params['var']['close'];
+        return $params;
     }
 
     public function loop($params)
@@ -127,7 +128,8 @@ class Nodes
             //Append the result
             $iterations[] = $thiscase;
         }
-        return implode($params['var']['implode'], $iterations);
+        $params['case'] = implode($params['var']['implode'], $iterations);
+        return $params;
     }
 
     public function looppreparse($nodes, $return)
@@ -182,11 +184,12 @@ class Nodes
     {
         //Split up the file, paying attention to escape strings
         $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
+        $params['case'] = $params['var']['var'];
         foreach ($split as $value)
         {
-            $params['var']['var'] = $params['var']['var'][$value];
+            $params['case'] = $params['case'][$value];
         }
-        return $params['var']['var'];
+        return $params;
     }
 
     public function templates($params)
@@ -196,10 +199,10 @@ class Nodes
         $code = array();
         foreach ($split as $key => $value)
         {
-            //If this is the content file, get the file's content
+            //If this is the template file, get the file's content
             if ($key == 0)
             {
-                $content = file_get_contents($params['suit']->config['files']['templates'] . '/' . $value . '.' . $params['suit']->config['filetypes']['templates']);
+                $template = file_get_contents($params['suit']->config['files']['templates'] . '/' . $value . '.' . $params['suit']->config['filetypes']['templates']);
             }
             //Else, prepare to include the file
             else
@@ -207,19 +210,20 @@ class Nodes
                 $code[] = str_replace(array('../', '..\\'), '', $params['suit']->config['files']['code'] . '/' . $value . '.' . $params['suit']->config['filetypes']['code']);
             }
         }
-        return $params['suit']->gettemplate($content, $code);
+        $params['case'] = $params['suit']->gettemplate($template, $code);
+        return $params;
     }
 
     public function variables($params)
     {
         //Split up the file, paying attention to escape strings
         $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
-        $var = $params['suit']->vars;
+        $params['case'] = $params['suit']->vars;
         foreach ($split as $value)
         {
-            $var = $var[$value];
+            $params['case'] = $params['case'][$value];
         }
-        return $var;
+        return $params;
     }
 }
 ?>
