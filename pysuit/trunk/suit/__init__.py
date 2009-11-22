@@ -22,7 +22,7 @@ import section
 
 __version__ = '0.0.2'
 
-class SUIT:
+class SUIT(object):
     """An open-source templating framework that allows you to define your own
     syntax through nodes."""
     def __init__(self, config):
@@ -274,7 +274,9 @@ class SUIT:
         }
         params = {
             'ignored': [],
+            'last': 0,
             'skipnode': [],
+            'skiptotal': 0,
             'stack': [],
             'taken': []
         }
@@ -286,13 +288,16 @@ class SUIT:
             params = {
                 'escape': config['escape'],
                 'ignored': params['ignored'],
+                'iteratenodes': iteratenodes,
+                'last': params['last'],
                 'node': value[1][0],
-                'nodes': iteratenodes,
+                'nodes': nodes,
+                'pos': pos,
                 'position': position,
                 'preparse': config['preparse'],
-                'realnodes': nodes,
                 'return': returnvalue,
                 'skipnode': params['skipnode'],
+                'skiptotal': params['skiptotal'],
                 'stack': params['stack'],
                 'taken': params['taken']
             }
@@ -302,6 +307,7 @@ class SUIT:
                 function = self.helper.openingstring
             params = function(params)
             returnvalue = params['return']
+            pos = params['pos']
             #If the stack is empty
             if not params['stack']:
                 #It is impossible that a skipped over node is in another node

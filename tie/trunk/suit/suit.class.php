@@ -250,7 +250,7 @@ class SUIT
                     end($debug['code']);
                     $last = key($debug['code']);
                     //Include the code file and set the return value to the modified template
-                    $return = $this->helper->includeFile($return, $value);
+                    $return = $this->helper->includefile($return, $value);
                     $debug['code'][$last][2] = $return;
                 }
                 else
@@ -310,7 +310,9 @@ class SUIT
         $params = array
         (
             'ignored' => array(),
+            'last' => 0,
             'skipnode' => array(),
+            'skiptotal' => 0,
             'stack' => array(),
             'taken' => array()
         );
@@ -324,8 +326,10 @@ class SUIT
             (
                 'escape' => $config['escape'],
                 'ignored' => $params['ignored'],
+                'last' => $params['last'],
                 'node' => $value[0],
                 'nodes' => $nodes,
+                'pos' => $pos,
                 'position' => $key,
                 'preparse' => $config['preparse'],
                 'return' => $return,
@@ -341,6 +345,7 @@ class SUIT
             }
             $params = $this->helper->$function($params);
             $return = $params['return'];
+            $pos = $params['pos'];
             //If the stack is empty
             if (empty($params['stack']))
             {

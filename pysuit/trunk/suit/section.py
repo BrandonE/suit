@@ -16,7 +16,7 @@ http://www.suitframework.com/docs/credits
 """
 import nodes
 
-class Section:
+class Section(object):
     """Functions that generate nodes or use custom ones"""
     def __init__(self, owner):
         self.owner = owner
@@ -49,7 +49,7 @@ class Section:
                 ifstring,
                 config['close']
             )),
-            'function': nodes.condition,
+            'function': [nodes.condition],
             'skip': not boolean, #If the string will be removed, there is no
             #reason to parse in between the opening and closing strings
             'strip': True, #If this boolean is true, the node strips
@@ -76,7 +76,7 @@ class Section:
                     elsestring,
                     config['close']
                 )),
-                'function': nodes.condition,
+                'function': [nodes.condition],
                 'skip': boolean, #If the string will be removed, there is no
                 #reason to parse in between the opening and closing strings
                 'strip': True, #If this boolean is false, the node strips the
@@ -114,7 +114,7 @@ class Section:
                     string,
                     config['close']
                 )),
-                'function': nodes.getsection,
+                'function': [nodes.getsection],
                 'var':
                 {
                     'open': ''.join((
@@ -171,7 +171,7 @@ class Section:
                     string,
                     config['close']
                 )),
-                'function': nodes.loop,
+                'function': [nodes.loop],
                 'skip': True, #We want the function to run the parse, so there
                 #is no reason to parse in between the opening and closing
                 #strings

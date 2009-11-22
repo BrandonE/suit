@@ -1409,7 +1409,13 @@ class TIE
                 '<debug' => array
                 (
                     'close' => ' />',
-                    'function' => 'nodedebug',
+                    'function' => array
+                    (
+                        array
+                        (
+                            'function' => 'nodedebug'
+                        )
+                    ),
                     'skip' => true,
                     'var' => $debug
                 )

@@ -63,8 +63,14 @@ $suit->config['parse']['nodes'] = array
     '[!' => array
     (
         'close' => '!]',
-        'class' => $suit->nodes,
-        'function' => 'templates',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'templates',
+                'class' => $suit->nodes
+            )
+        ),
         'var' => array
         (
             'escape' => $suit->config['parse']['escape'],
@@ -75,7 +81,14 @@ $suit->config['parse']['nodes'] = array
     (
         'close' => ':]',
         'class' => $suit->nodes,
-        'function' => 'variables',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'variables',
+                'class' => $suit->nodes
+            )
+        ),
         'var' => array
         (
             'escape' => $suit->config['parse']['escape'],
@@ -85,8 +98,14 @@ $suit->config['parse']['nodes'] = array
     '[*' => array
     (
         'close' => '*]',
-        'class' => $suit->nodes,
-        'function' => 'comments',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'comments',
+                'class' => $suit->nodes
+            )
+        ),
         'skip' => true
     )
 );
@@ -109,7 +128,13 @@ $nodes = array
 	'<debug' => array
 	(
 		'close' => ' />',
-		'function' => 'nodedebug',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'nodedebug'
+            )
+        ),
 		'skip' => true,
 		'var' => $debug
 	)

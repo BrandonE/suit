@@ -69,7 +69,7 @@ def loop(params):
             value['nodes'] = {}
         value['nodes'][params['var']['config']['loopopen']] = {
             'close': params['var']['config']['loopclose'],
-            'function': loopvariables,
+            'function': [loopvariables],
             'var':
             {
                 'escape': params['escape'],

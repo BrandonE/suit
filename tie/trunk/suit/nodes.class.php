@@ -58,7 +58,7 @@ class Nodes
             if (!$value['ignore'])
             {
                 //If the node exists already, merge its loopvars later
-                if ($key == $params['var']['config']['loopopen'] && is_array($value['var']) && is_array($value['var']['var']))
+                if ($key == $params['var']['config']['loopopen'])
                 {
                     $loopvars = $value['var']['var'];
                 }
@@ -77,22 +77,28 @@ class Nodes
         );
         foreach ($params['var']['array'] as $value)
         {
-            if (!is_array($value['nodes']))
+            if (!array_key_exists('nodes', $value))
             {
                 $value['nodes'] = array();
             }
             $value['nodes'][$params['var']['config']['loopopen']] = array
             (
-                'class' => $this,
                 'close' => $params['var']['config']['loopclose'],
-                'function' => 'loopvariables',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'loopvariables',
+                        'class' => $this
+                    )
+                ),
                 'var' => array
                 (
-                    'escape' => $params['config']['escape'],
+                    'escape' => $params['escape'],
                     'separator' => $params['var']['config']['separator']
                 ) //This will be used by the function
             );
-            if (is_array($value['vars']))
+            if (array_key_exists('vars', $value))
             {
                 $value['nodes'][$params['var']['config']['loopopen']]['var']['var'] = array_merge($value['vars'], $loopvars);
             }

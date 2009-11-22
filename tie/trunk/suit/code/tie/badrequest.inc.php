@@ -28,7 +28,13 @@ $nodes = array
     '<debug' => array
     (
         'close' => ' />',
-        'function' => 'nodeDebug',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'nodedebug'
+            )
+        ),
         'skip' => true,
         'var' => $debug
     )

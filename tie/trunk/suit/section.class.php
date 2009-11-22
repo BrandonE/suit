@@ -49,9 +49,15 @@ class Section
         //Add the if node
         $return[$config['open'] . $if . $config['close']] = array
         (
-            'class' => $this->owner->nodes,
             'close' => $config['open'] . $config['end'] . $if . $config['close'],
-            'function' => 'condition',
+            'function' => array
+            (
+                array
+                (
+                    'function' => 'condition',
+                    'class' => $this->owner->nodes
+                )
+            ),
             'skip' => !$boolean, //If the string will be removed, there is no reason to parse in between the opening and closing strings
             'strip' => true, //If this boolean is true, the node strips the opening and closing string
             'var' => array
@@ -66,9 +72,15 @@ class Section
             //Add the else node
             $return[$config['open'] . $else . $config['close']] = array
             (
-                'class' => $this->owner->nodes,
                 'close' => $config['open'] . $config['end'] . $else . $config['close'],
-                'function' => 'condition',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'condition',
+                        'class' => $this->owner->nodes
+                    )
+                ),
                 'skip' => $boolean, //If the string will be removed, there is no reason to parse in between the opening and closing strings
                 'strip' => true, //If this boolean is false, the node strips the opening and closing string
                 'var' => array
@@ -106,9 +118,15 @@ class Section
         (
             $config['open'] . $string . $config['close'] => array
             (
-                'class' => $this->owner->nodes,
                 'close' => $config['open'] . $config['end'] . $string . $config['close'],
-                'function' => 'getsection',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'getsection',
+                        'class' => $this->owner->nodes
+                    )
+                ),
                 'var' => array
                 (
                     'open' => $config['open'] . $string . $config['close'],
@@ -160,9 +178,15 @@ class Section
         (
             $config['open'] . $string . $config['close'] => array
             (
-                'class' => $this->owner->nodes,
                 'close' => $config['open'] . $config['end'] . $string . $config['close'],
-                'function' => 'loop',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'loop',
+                        'class' => $this->owner->nodes
+                    )
+                ),
                 'skip' => true, //We want the function to run the parse, so there is no reason to parse in between the opening and closing strings
                 'var' => array
                 (
