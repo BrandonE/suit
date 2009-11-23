@@ -45,7 +45,7 @@ if (is_array($languages))
                 'id' => $key,
                 'title' => htmlspecialchars($value[0])
             ),
-            'nodes' => $suit->section->condition('if selected', (intval($suit->tie->language) == $key), false, $config)
+            'nodes' => $suit->section->condition('if selected', (intval($suit->tie->language) == $key), NULL, array('trim' => ''))
         );
     }
 }

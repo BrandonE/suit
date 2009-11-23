@@ -1203,7 +1203,7 @@ class TIE
                             'nodes' => array_merge
                             (
                                 $this->owner->section->condition('if file', (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value)), 'else file'),
-                                $this->owner->section->condition('if checked', ($this->settings['check'])),
+                                $this->owner->section->condition('if checked', ($this->settings['check']), NULL, array('trim' => '')),
                                 $this->owner->section->condition('if up', ($value == '..'), 'else up')
                             )
                         );

@@ -27,7 +27,6 @@ class Helper
         if (!empty($params['skipnode']))
         {
             $skippop = array_pop($params['skipnode']);
-            $params['skiptotal']--;
         }
         else
         {
@@ -37,7 +36,7 @@ class Helper
         if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
             //If this position should not be overlooked and the stack is not empty
-            if (count($params['skipnode']) <= $params['skiptotal'] && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
+            if (!$params['skipoffset'] && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
             {
                 $params['open'] = array_pop($params['stack']);
                 //If this closing string matches the last node's
@@ -46,16 +45,15 @@ class Helper
                     $params = $this->transform($params);
                 }
             }
-            else
+            elseif (!$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
             {
-                $params['skiptotal']++;
+                $params['skipoffset']--;
             }
         }
         //Else, put the popped value back
         else
         {
             $params['skipnode'][] = $skippop;
-            $params['skiptotal']++;
         }
         return $params;
     }
@@ -73,7 +71,6 @@ class Helper
         if (!empty($params['skipnode']))
         {
             $skippop = array_pop($params['skipnode']);
-            $params['skiptotal']--;
         }
         else
         {
@@ -83,9 +80,22 @@ class Helper
         if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
             //If this position should not be overlooked
-            if (count($params['skipnode']) <= $params['skiptotal'] && $skippop === false && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']))
+            if ($skippop === false && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']))
             {
                 //Add the opening string to the stack
+                $clone = array();
+                foreach ($params['nodes'][$params['node']] as $key => $value)
+                {
+                    $clone[$key] = $value;
+                }
+                if (array_key_exists('function', $clone))
+                {
+                    $clone['function'] = array();
+                    foreach ($params['nodes'][$params['node']]['function'] as $value)
+                    {
+                        $clone['function'][] = $value;
+                    }
+                }
                 $params['stack'][] = array
                 (
                     'node' => $params['nodes'][$params['node']],
@@ -93,26 +103,21 @@ class Helper
                     'position' => $params['position']
                 );
             }
-            else
-            {
-                $params['skiptotal']++;
-            }
             //If we popped a value or the skip key is true, skip over everything between this opening string and its closing string
             if ($skippop !== false || (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip']))
             {
                 $params['skipnode'][] = $params['nodes'][$params['node']]['close'];
             }
-            //If this position was not be overlooked and the skip key is true, count the current amount of nodes we should skip
-            if (count($params['skipnode']) - 1 <= $params['skiptotal'] && array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip'])
+            //If we already popped a value from skipnode, nothing should be parsed until this is closed.
+            if ($skippop !== false)
             {
-                $params['skiptotal'] = count($params['skipnode']); 
+                $params['skipoffset']++;
             }
         }
         //If we popped a value, put it back
         if ($skippop !== false)
         {
             $params['skipnode'][] = $skippop;
-            $params['skiptotal']++;
         }
         return $params;
     }

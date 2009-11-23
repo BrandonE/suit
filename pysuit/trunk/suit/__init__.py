@@ -276,7 +276,7 @@ class SUIT(object):
             'ignored': [],
             'last': 0,
             'skipnode': [],
-            'skiptotal': 0,
+            'skipoffset': 0,
             'stack': [],
             'taken': []
         }
@@ -286,6 +286,7 @@ class SUIT(object):
             #Adjust position to changes in length
             position = value[0] + offset
             params = {
+                'break': False,
                 'escape': config['escape'],
                 'ignored': params['ignored'],
                 'iteratenodes': iteratenodes,
@@ -297,7 +298,7 @@ class SUIT(object):
                 'preparse': config['preparse'],
                 'return': returnvalue,
                 'skipnode': params['skipnode'],
-                'skiptotal': params['skiptotal'],
+                'skipoffset': params['skipoffset'],
                 'stack': params['stack'],
                 'taken': params['taken']
             }
@@ -321,6 +322,8 @@ class SUIT(object):
                     params['taken'] = []
             #Adjust the offset
             offset = len(returnvalue) - len(temp)
+            if params['break']:
+                break
         debug['return'] = returnvalue
         if config['preparse']:
             returnvalue = {

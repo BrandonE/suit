@@ -168,6 +168,37 @@ def loopvariables(params):
         params['case'] = params['case'][value]
     return params
 
+def returning(params):
+    """Function used in default nodes"""
+    params['case'] = ''
+    for key, value in enumerate(params['stack']):
+        if not 'function' in value['node'][1]:
+            params['stack'][key]['node'][1]['function'] = []
+        #Make all of the nodes remove all content in the case that takes place
+        #after this return.
+        params['stack'][key]['node'][1]['function'].insert(0, returningfirst)
+        #Make the last node to be closed remove everything after this return.
+        if key == 0:
+            params['stack'][key]['node'][1]['function'].append(returninglast)
+        params['skipnode'].append(value['node'][1]['close'])
+    #If the stack is empty, remove everything after this return.
+    if not params['stack']:
+        params['last'] = params['open']['position']
+        params = returninglast(params)
+    return params
+
+def returningfirst(params):
+    """Function placed in front of all the functions in a stack"""
+    params['case'] = params['case'][0:(params['last'] -
+    params['open']['position'] - len(params['open']['node'][0]))]
+    return params
+
+def returninglast(params):
+    """Function appended to the last node to be closed in the stack"""
+    params['return'] = params['return'][0:params['last']]
+    params['break'] = True
+    return params
+
 def templates(params):
     """Function used in default nodes"""
     #Split up the file, paying attention to escape strings

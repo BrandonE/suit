@@ -312,7 +312,7 @@ class SUIT
             'ignored' => array(),
             'last' => 0,
             'skipnode' => array(),
-            'skiptotal' => 0,
+            'skipoffset' => 0,
             'stack' => array(),
             'taken' => array()
         );
@@ -324,16 +324,17 @@ class SUIT
             $key += $offset;
             $params = array
             (
+                'break' => false,
                 'escape' => $config['escape'],
                 'ignored' => $params['ignored'],
                 'last' => $params['last'],
                 'node' => $value[0],
                 'nodes' => $nodes,
-                'pos' => $pos,
                 'position' => $key,
                 'preparse' => $config['preparse'],
                 'return' => $return,
                 'skipnode' => $params['skipnode'],
+                'skipoffset' => $params['skipoffset'],
                 'stack' => $params['stack'],
                 'taken' => $params['taken'],
             );
@@ -345,7 +346,6 @@ class SUIT
             }
             $params = $this->helper->$function($params);
             $return = $params['return'];
-            $pos = $params['pos'];
             //If the stack is empty
             if (empty($params['stack']))
             {
@@ -362,6 +362,10 @@ class SUIT
             }
             //Adjust the offset
             $offset = strlen($return) - strlen($temp);
+            if ($params['break'])
+            {
+                break;
+            }
         }
         $debug['return'] = $return;
         if ($config['preparse'])

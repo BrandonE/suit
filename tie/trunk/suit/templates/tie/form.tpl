@@ -4,14 +4,14 @@
         <p>[:error:]</p>
         [/if error]
         [/else code]
-        <p>[:language=>inputtitle:]: <input type="text" name="title" value="[:title:]"[if code]readonly="readonly"[/if code] /></p>
+        <p><label for="title">[:language=>inputtitle:]</label>: <input type="text" name="title" id="title" value="[:title:]"[if code]readonly="readonly"[/if code] /></p>
         [if box]
         [if templates]
-        <p>[:language=>templates:]: <textarea name="template" rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea">
+        <p><label for="template">[:language=>templates:]</label>: <textarea name="template" id="template" rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea">
 [:template:]</textarea></p>
         [/if templates]
         [if code]
-        <p>[:language=>code:]: <textarea rows="40" cols="100" wrap="off" style="width: 100%;" readonly="readonly">
+        <p><label for="code">[:language=>code:]</label>: <textarea id="code" rows="40" cols="100" wrap="off" style="width: 100%;" readonly="readonly">
 [:template:]</textarea></p>
         [/if code]
         [/if box]

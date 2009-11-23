@@ -198,6 +198,62 @@ class Nodes
         return $params;
     }
 
+    public function returning($params)
+    {
+        $params['case'] = '';
+        foreach ($params['stack'] as $key => $value)
+        {
+            if (!array_key_exists('function', $value['node']))
+            {
+                $params['stack'][$key]['node']['function'] = array();
+            }
+            //Make all of the nodes remove all content in the case that takes place after this return.
+            array_splice(
+                $params['stack'][$key]['node']['function'],
+                0,
+                0,
+                array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'returningfirst'
+                    )
+                )
+            );
+            //Make the last node to be closed remove everything after this return.
+            if ($key == 0)
+            {
+                $params['stack'][$key]['node']['function'][] = array
+                (
+                    'class' => $this,
+                    'function' => 'returninglast'
+                );
+            }
+            $params['skipnode'][] = $value['node']['close'];
+        }
+        //If the stack is empty, remove everything after this return.
+        if (empty($params['stack']))
+        {
+            $params['last'] = $params['open']['position'];
+            $params = $this->returninglast($params);
+        }
+        return $params;
+    }
+
+    public function returningfirst($params)
+    {
+        $params['case'] = substr_replace($params['case'], '', $params['last'] - $params['open']['position'] - strlen($params['open']['open']));
+        return $params;
+    }
+
+    public function returninglast($params)
+    {
+        $params['return'] = substr_replace($params['return'], '', $params['last']);
+        $params['break'] = true;
+        return $params;
+    }
+
     public function templates($params)
     {
         //Split up the file, paying attention to escape strings

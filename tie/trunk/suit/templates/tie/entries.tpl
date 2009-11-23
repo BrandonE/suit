@@ -12,8 +12,8 @@
             <input type="submit" name="deletechecked" value="[:language=>deletechecked:]" />
             <input type="submit" name="exportchecked" value="[:language=>exportchecked:]" />
             <input type="submit" name="move" value="[:language=>move:]" />
-            [:language=>find:]: <input type="text" name="find" />
-            [:language=>replacewith:]: <input type="text" name="replacewith" />
+            <label for="find">[:language=>find:]</label>: <input type="text" name="find" id="find" />
+            <label for="replacewith">[:language=>replacewith:]</label>: <input type="text" name="replacewith" id="replacewith" />
             <input type="submit" name="replace" value="[:language=>replace:]" />
         </p>
         [/else code]
@@ -44,10 +44,10 @@
                 <td>
                     [else code]
                     [if file]
-                    <input name="entry[]" type="checkbox" value="[|title|]"[if checked] checked="checked"[/if checked] />
+                    <input name="entry[]" id="[|title|]" type="checkbox" value="[|title|]"[if checked] checked="checked"[/if checked] />
                     [/if file]
                     [else file]
-                    [if up]<div style="visibility: hidden">[/if up]<input name="directoryentry[]" type="checkbox" value="[|title|]"[else up][if checked] checked="checked"[/if checked][/else up] />[if up]</div>[/if up]
+                    [if up]<div style="visibility: hidden">[/if up]<input name="directoryentry[]" id="directory[|title|]" type="checkbox" value="[|title|]"[if checked] [else up]checked="checked"[/else up][/if checked] />[if up]</div>[/if up]
                     [/else file]
                     [/else code]
                 </td>
@@ -78,7 +78,7 @@
                     </span>
                 </td>
                 <td>
-                    [|displaytitle|]
+                    [else up]<label for="[else file]directory[/else file][|title|]">[/else up][|displaytitle|][else up]</label>[/else up]
                 </td>
             </tr>
             [/loop entries]

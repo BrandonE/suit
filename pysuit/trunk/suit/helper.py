@@ -25,7 +25,6 @@ class Helper(object):
         """Handle a closing string instance in the parser"""
         if params['skipnode']:
             skippop = params['skipnode'].pop()
-            params['skiptotal'] -= 1
         else:
             skippop = False
         result = self.owner.parseunescape(
@@ -41,7 +40,7 @@ class Helper(object):
             params['return'] = result['string']
             #If this position should not be overlooked and the stack is not
             #empty
-            if (len(params['skipnode']) <= params['skiptotal'] and
+            if (not params['skipoffset'] and
             not result['condition'] and
             params['stack']):
                 params['open'] = params['stack'].pop()
@@ -49,19 +48,17 @@ class Helper(object):
                 #If this closing string matches the last node's
                 if (params['open']['node'][1]['close'] == original):
                     params = self.transform(params)
-            else:
-                params['skiptotal'] += 1
+            elif not result['condition'] and params['stack']:
+                params['skipoffset'] -= 1
         #Else, put the popped value back
         else:
             params['skipnode'].append(skippop)
-            params['skiptotal'] += 1
         return params
 
     def openingstring(self, params):
         """Handle an opening string instance in the parser"""
         if params['skipnode']:
             skippop = params['skipnode'].pop()
-            params['skiptotal'] -= 1
         else:
             skippop = False
         result = self.owner.parseunescape(
@@ -76,16 +73,20 @@ class Helper(object):
             params['position'] = result['pos']
             params['return'] = result['string']
             #If this position should not be overlooked
-            if (len(params['skipnode']) <= params['skiptotal'] and
-            skippop == False and
-            not result['condition']):
+            if skippop == False and not result['condition']:
                 #Add the opening string to the stack
+                clone = (params['iteratenodes'][params['node']][0], {})
+                for value in params['iteratenodes'][params['node']][1].items():
+                    clone[1][value[0]] = value[1]
+                if 'function' in clone[1]:
+                    function = clone[1]['function']
+                    clone[1]['function'] = []
+                    for value in function:
+                        clone[1]['function'].append(value)
                 params['stack'].append({
-                    'node': params['iteratenodes'][params['node']],
+                    'node': clone,
                     'position': params['position']
                 })
-            else:
-                params['skiptotal'] += 1
             #If we popped a value or the skip key is true, skip over everything
             #between this opening string and its closing string
             if (skippop != False or
@@ -93,16 +94,13 @@ class Helper(object):
             params['iteratenodes'][params['node']][1]['skip'])):
                 close = params['iteratenodes'][params['node']][1]['close']
                 params['skipnode'].append(close)
-            #If this position was not be overlooked and the skip key is true,
-            #count the current amount of nodes we should skip
-            if (len(params['skipnode']) - 1 <= params['skiptotal'] and
-            'skip' in params['iteratenodes'][params['node']][1] and
-            params['iteratenodes'][params['node']][1]['skip']):
-                params['skiptotal'] = len(params['skipnode'])
+            #If we already popped a value from skipnode, nothing should be
+            #parsed until this is closed.
+            if skippop != False:
+                params['skipoffset'] += 1
         #If we popped a value, put it back
         if skippop != False:
             params['skipnode'].append(skippop)
-            params['skiptotal'] += 1
         return params
 
     def parseconfig(self, config):

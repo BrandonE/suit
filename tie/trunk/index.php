@@ -107,6 +107,19 @@ $suit->config['parse']['nodes'] = array
             )
         ),
         'skip' => true
+    ),
+    '[return' => array
+    (
+        'close' => ' /]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'returning',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true
     )
 );
 require $suit->config['files']['code'] . '/tie/main.inc.php';
