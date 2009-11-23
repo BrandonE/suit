@@ -72,7 +72,8 @@ class Helper(object):
         not result['condition'])):
             params['position'] = result['pos']
             params['return'] = result['string']
-            #If this position should not be overlooked
+            #If a value was not popped from skipnode and this position should
+            #not be overlooked
             if skippop == False and not result['condition']:
                 #Add the opening string to the stack
                 clone = (params['iteratenodes'][params['node']][0], {})
@@ -87,11 +88,13 @@ class Helper(object):
                     'node': clone,
                     'position': params['position']
                 })
-            #If we popped a value or the skip key is true, skip over everything
+            #If a value was popped from skipnode or the skip key is true and
+            #this position should not be overlooked, skip over everything
             #between this opening string and its closing string
             if (skippop != False or
             ('skip' in params['iteratenodes'][params['node']][1] and
-            params['iteratenodes'][params['node']][1]['skip'])):
+            params['iteratenodes'][params['node']][1]['skip']) and
+            not result['condition']):
                 close = params['iteratenodes'][params['node']][1]['close']
                 params['skipnode'].append(close)
             #If we already popped a value from skipnode, nothing should be

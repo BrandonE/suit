@@ -36,7 +36,7 @@ class Helper
         if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
             //If this position should not be overlooked and the stack is not empty
-            if (!$params['skipoffset'] && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
+            if (!$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !$params['skipoffset'] && !empty($params['stack']))
             {
                 $params['open'] = array_pop($params['stack']);
                 //If this closing string matches the last node's
@@ -45,7 +45,7 @@ class Helper
                     $params = $this->transform($params);
                 }
             }
-            elseif (!$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']) && !empty($params['stack']))
+            elseif (!$this->owner->parseunescape($params['position'], $params['return'], $params['escape']) && !empty($params['stack']))
             {
                 $params['skipoffset']--;
             }
@@ -79,8 +79,9 @@ class Helper
         //If this should not be skipped over
         if ($skippop === false || ($params['nodes'][$params['node']]['close'] == $skippop && !$this->owner->parseunescape($params['position'], $params['return'], $params['escape'])))
         {
-            //If this position should not be overlooked
-            if ($skippop === false && !$this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']))
+            $condition = $this->owner->parseunescape(&$params['position'], &$params['return'], $params['escape']);
+            //If a value was not popped from skipnode and this position should not be overlooked
+            if ($skippop === false && !$condition)
             {
                 //Add the opening string to the stack
                 $clone = array();
@@ -103,12 +104,12 @@ class Helper
                     'position' => $params['position']
                 );
             }
-            //If we popped a value or the skip key is true, skip over everything between this opening string and its closing string
-            if ($skippop !== false || (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip']))
+            //If a value was popped from skipnode or the skip key is true and this position should not be overlooked, skip over everything between this opening string and its closing string
+            if ($skippop !== false || (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip'] && !$condition))
             {
                 $params['skipnode'][] = $params['nodes'][$params['node']]['close'];
             }
-            //If we already popped a value from skipnode, nothing should be parsed until this is closed.
+            //If a value was popped from skipnode, nothing should be parsed until this is closed.
             if ($skippop !== false)
             {
                 $params['skipoffset']++;
