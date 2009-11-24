@@ -27,28 +27,29 @@ class Helper(object):
             skippop = params['skipnode'].pop()
         else:
             skippop = False
-        result = self.owner.parseunescape(
-            params['position'],
-            params['return'],
-            params['escape']
-        )
-        #If this should not be skipped over
+        #If a value was not popped or the closing string for this node matches
+        #it
         if (skippop == False or
-        (params['iteratenodes'][params['node']][1]['close'] == skippop and
-        not result['condition'])):
-            params['position'] = result['pos']
-            params['return'] = result['string']
-            #If this position should not be overlooked and the stack is not
-            #empty
-            if (not params['skipoffset'] and
-            not result['condition'] and
-            params['stack']):
-                params['open'] = params['stack'].pop()
-                original = params['iteratenodes'][params['node']][1]['close']
-                #If this closing string matches the last node's
-                if (params['open']['node'][1]['close'] == original):
-                    params = self.transform(params)
-            elif not result['condition'] and params['stack']:
+        params['iteratenodes'][params['node']][1]['close'] == skippop):
+            #If there is no offset
+            if not params['skipoffset']:
+                result = self.owner.parseunescape(
+                    params['position'],
+                    params['return'],
+                    params['escape']
+                )
+                params['position'] = result['pos']
+                params['return'] = result['string']
+                #If this position should not be overlooked and the stack is not
+                #empty
+                if not result['condition'] and params['stack']:
+                    params['open'] = params['stack'].pop()
+                    close = params['iteratenodes'][params['node']][1]['close']
+                    #If this closing string matches the last node's
+                    if (params['open']['node'][1]['close'] == close):
+                        params = self.transform(params)
+            #Else, decrement it
+            else:
                 params['skipoffset'] -= 1
         #Else, put the popped value back
         else:
@@ -66,44 +67,36 @@ class Helper(object):
             params['return'],
             params['escape']
         )
-        #If this should not be skipped over
-        if (skippop == False or
-        (params['iteratenodes'][params['node']][1]['close'] == skippop and
-        not result['condition'])):
-            params['position'] = result['pos']
-            params['return'] = result['string']
-            #If a value was not popped from skipnode and this position should
-            #not be overlooked
-            if skippop == False and not result['condition']:
-                #Add the opening string to the stack
-                clone = (params['iteratenodes'][params['node']][0], {})
-                for value in params['iteratenodes'][params['node']][1].items():
-                    clone[1][value[0]] = value[1]
-                if 'function' in clone[1]:
-                    function = clone[1]['function']
-                    clone[1]['function'] = []
-                    for value in function:
-                        clone[1]['function'].append(value)
-                params['stack'].append({
-                    'node': clone,
-                    'position': params['position']
-                })
-            #If a value was popped from skipnode or the skip key is true and
-            #this position should not be overlooked, skip over everything
-            #between this opening string and its closing string
-            if (skippop != False or
-            ('skip' in params['iteratenodes'][params['node']][1] and
-            params['iteratenodes'][params['node']][1]['skip']) and
-            not result['condition']):
+        #If a value was not popped from skipnode and this position should not
+        #be overlooked
+        if skippop == False and not result['condition']:
+            #Add the opening string to the stack
+            clone = (params['iteratenodes'][params['node']][0], {})
+            for value in params['iteratenodes'][params['node']][1].items():
+                clone[1][value[0]] = value[1]
+            if 'function' in clone[1]:
+                function = clone[1]['function']
+                clone[1]['function'] = []
+                for value in function:
+                    clone[1]['function'].append(value)
+            params['stack'].append({
+                'node': clone,
+                'position': params['position']
+            })
+            #If the skip key is true, skip over everything between this opening
+            #string and its closing string
+            if ('skip' in params['iteratenodes'][params['node']][1] and
+            params['iteratenodes'][params['node']][1]['skip']):
                 close = params['iteratenodes'][params['node']][1]['close']
                 params['skipnode'].append(close)
-            #If we already popped a value from skipnode, nothing should be
-            #parsed until this is closed.
-            if skippop != False:
-                params['skipoffset'] += 1
-        #If we popped a value, put it back
+        #If a value was popped
         if skippop != False:
+            #Put it back
             params['skipnode'].append(skippop)
+            #If the closing string for this node matches it, account for it.
+            if params['iteratenodes'][params['node']][1]['close'] == skippop:
+                params['skipnode'].append(skippop)
+                params['skipoffset'] += 1
         return params
 
     def parseconfig(self, config):

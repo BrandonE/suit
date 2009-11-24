@@ -38,6 +38,16 @@ class Nodes
         return $params;
     }
 
+    public function escape($params)
+    {
+        //Calculate the left offset created by trimming
+        $params['offset'] = ltrim($params['case'], $params['var']);
+        $params['offset'] = strlen($params['offset']) - strlen($params['case']);
+        //Trim the case if requested
+        $params['case'] = trim($params['case'], $params['var']);
+        return $params;
+    }
+
     public function getsection($params)
     {
         //Add the case to the sections array

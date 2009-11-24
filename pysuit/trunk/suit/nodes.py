@@ -31,6 +31,15 @@ def condition(params):
         params['case'] = ''
     return params
 
+def escape(params):
+    """Function used in default nodes"""
+    #Calculate how many characters were stripped
+    params['offset'] = params['case'].lstrip(params['var'])
+    params['offset'] = len(params['offset']) - len(params['case'])
+    #Trim the case if requested
+    params['case'] = params['case'].strip(params['var'])
+    return params
+
 def getsection(params):
     """Function used by the node generated in Section.get"""
     #Add the case to the sections array
