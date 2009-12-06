@@ -16,7 +16,6 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$nodes = $suit->config['parse']['nodes'];
 $path = $suit->tie->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'check', 'section', 'start', 'title'));
 $suit->vars['sitetitle'] = $suit->vars['language']['title'];
 $suit->vars['path'] = $path;
@@ -31,8 +30,8 @@ else
 }
 if (in_array($_GET['section'], array('code', 'templates')))
 {
-    $nodes = array_merge($nodes, $suit->section->condition('if dashboard', false, 'else dashboard'));
-    $return = $suit->tie->adminArea($_GET['section']);
+    $suit->vars['condition']['dashboard'] = false;
+    $return = $suit->tie->adminarea($_GET['section']);
     $suit->vars['tie'] = $return['return'];
     $section = array_merge
     (
@@ -63,14 +62,10 @@ else
         {
             $version = $suit->vars['language']['na'];
         }
-        $nodes = array_merge
-        (
-            $nodes,
-            $suit->section->condition('if currentversion', ($suit->tie->version != $version)),
-            $suit->section->condition('if version', true, 'else version')
-        );
+        $suit->vars['condition']['currentversion'] = ($suit->tie->version != $version);
+        $suit->vars['condition']['version'] = true;
         $suit->vars['version'] = $version;
-        $template = $suit->parse($nodes, $template);
+        $template = $suit->parse($suit->config['parse']['nodes'], $template);
         exit($template);
     }
     if ($_GET['suitversion'] == 'true')
@@ -80,26 +75,18 @@ else
         {
             $version = $suit->vars['language']['na'];
         }
-        $nodes = array_merge
-        (
-            $nodes,
-            $suit->section->condition('if currentversion', ($suit->version != $version)),
-            $suit->section->condition('if version', true, 'else version')
-        );
+        $suit->vars['condition']['currentversion'] = ($suit->version != $version);
+        $suit->vars['condition']['version'] = true;
         $suit->vars['version'] = $version;
-        $template = $suit->parse($nodes, $template);
+        $template = $suit->parse($suit->config['parse']['nodes'], $template);
         exit($template);
     }
-    $nodes = array_merge
-    (
-        $nodes,
-        $suit->section->condition('if dashboard', true, 'else dashboard'),
-        $suit->section->condition('if fileuploads', (ini_get('file_uploads')), 'else fileuploads'),
-        $suit->section->condition('if magicquotesgpc', (ini_get('magic_quotes_gpc')), 'else magicquotesgpc'),
-        $suit->section->condition('if magicquotesruntime', (ini_get('magic_quotes_runtime')), 'else magicquotesruntime'),
-        $suit->section->condition('if magicquotessybase', (ini_get('magic_quotes_sybase')), 'else magicquotessybase'),
-        $suit->section->condition('if registerglobals', (ini_get('register_globals')), 'else registerglobals')
-    );
+    $suit->vars['condition']['dashboard'] = true;
+    $suit->vars['condition']['fileuploads'] = (ini_get('file_uploads'));
+    $suit->vars['condition']['magicquotesgpc'] = (ini_get('magic_quotes_gpc'));
+    $suit->vars['condition']['magicquotesruntime'] = (ini_get('magic_quotes_runtime'));
+    $suit->vars['condition']['magicquotessybase'] = (ini_get('magic_quotes_sybase'));
+    $suit->vars['condition']['registerglobals'] = (ini_get('register_globals'));
     $suit->vars['currentsuitversion'] = $suit->version;
     $suit->vars['currenttieversion'] = $suit->tie->version;
     $suit->vars['phpversion'] = PHP_VERSION;
@@ -107,11 +94,6 @@ else
 }
 $suit->vars['name'] = $section;
 $suit->vars['section'] = $section;
-$nodes = array_merge
-(
-    $nodes,
-    $suit->section->condition('section separator', false),
-    $suit->section->condition('if version', false, 'else version')
-);
-$template = $suit->parse($nodes, $template);
+$suit->vars['condition']['version'] = false;
+$template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

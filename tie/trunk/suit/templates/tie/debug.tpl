@@ -40,7 +40,7 @@
             <div class="templates">
                 <h2>[:language=>templates:]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop templates]
+                    [loop vars="[:loop=>templates:]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
@@ -63,27 +63,27 @@
                             [:language=>template:]
                         </td>
                     </tr>
-                    [loop code]
+                    [loop vars="[|code|]"]
                     <tr class="list-entry templatehide template[|id|]" style="display: none;">
                         <td>
-                            [if code]
+                            [if condition="[|ifcode|]"]
                             <span class="list-hidden">
                                 <a class="templateboxshow template[|id|]boxshow" id="template[|id|]code[|id2|]box0" href="#template[|id|]code[|id2|]box" onclick="box('template', '[|id|]', 'code[|id2|]', true);">[:language=>expand:]</a>
                                 <a class="templateboxhide template[|id|]boxhide" id="template[|id|]code[|id2|]box1" href="#NULL" onclick="box('template', '[|id|]', 'code[|id2|]', false);" style="display: none;">[:language=>collapse:]</a>
                             </span>
-                            [/if code]
+                            [/if]
                         </td>
                         <td>
                             [:language=>code:]:
-                            [if code]
+                            [if condition="[|ifcode|]"]
                             [|code|]
-                            [/if code]
-                            [else code]
+                            [/if]
+                            [if condition="[|ifcode|]" else="true"]
                             "[|code|]" - [:language=>notfound:]
-                            [/else code]
+                            [/if]
                         </td>
                     </tr>
-                    [/loop code]
+                    [/loop]
                     <tr class="list-entry templatehide template[|id|]" style="display: none;">
                         <td />
                         <td>
@@ -96,35 +96,35 @@
                             [:language=>line:]: [|line|]
                         </td>
                     </tr>
-                    [/loop templates]
-                    [else templates]
+                    [/loop]
+                    [if condition="[:condition=>templates:]" else="true"]
                     <tr class="list-entry-folder">
                         <td width="25%" />
                         <td width="75%">
                             [:language=>empty:]
                         </td>
                     </tr>
-                    [/else templates]
+                    [/if]
                 </table>
-                [loop templates]
+                [loop vars="[:loop=>templates:]"]
                 <p class="templatehide templateboxhide template[|id|]boxhide" id="template[|id|]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [|template|]</textarea>
                 </p>
-                [loop code]
-                [if code]
+                [loop vars="[|code|]"]
+                [if condition="[|ifcode|]"]
                 <p class="templatehide templateboxhide template[|id|]boxhide" id="template[|id|]code[|id2|]box" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[if codefile][|codefile|][/if codefile][else codefile][:language=>na:][/else codefile]</textarea>
+[if condition="[|ifcodefile|]"][|codefile|][/if][if condition="[|ifcodefile|]" else="true"][:language=>na:][/if]</textarea>
                 </p>
-                [/if code]
-                [/loop code]
-                [/loop templates]
+                [/if]
+                [/loop]
+                [/loop]
             </div>
             <div class="parse" style="display: none;">
             <h2>[:language=>parse:]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop parse]
+                    [loop vars="[:loop=>parse:]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
@@ -158,7 +158,7 @@
                             [:language=>parse:]
                         </td>
                     </tr>
-                    [if preparse]
+                    [if condition="[|ifpreparse|]"]
                     <tr class="list-entry parsehide parse[|id|]" style="display: none;">
                         <td>
                             <span class="list-hidden">
@@ -170,7 +170,7 @@
                             [:language=>preparse:]
                         </td>
                     </tr>
-                    [/if preparse]
+                    [/if]
                     <tr class="list-entry parsehide parse[|id|]" style="display: none;">
                         <td />
                         <td>
@@ -183,17 +183,17 @@
                             [:language=>line:]: [|line|]
                         </td>
                     </tr>
-                    [/loop parse]
-                    [else parse]
+                    [/loop]
+                    [if condition="[:condition=>parse:]" else="true"]
                     <tr class="list-entry-folder">
                         <td width="25%" />
                         <td width="75%">
                             [:language=>empty:]
                         </td>
                     </tr>
-                    [/else parse]
+                    [/if]
                 </table>
-                [loop parse]
+                [loop vars="[:loop=>parse:]"]
                 <p class="parsehide parseboxhide parse[|id|]boxhide" id="parse[|id|]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [|before|]</textarea>
@@ -202,13 +202,13 @@
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [|return|]</textarea>
                 </p>
-                [if preparse]
+                [if condition="[|ifpreparse|]"]
                 <p class="parsehide parseboxhide parse[|id|]boxhide" id="parse[|id|]preparsebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [|preparse|]</textarea>
                 </p>
-                [/if preparse]
-                [/loop parse]
+                [/if]
+                [/loop]
             </div>
             <div class="strpos" style="display: none;">
                 <h2>[:language=>strpos:]</h2>

@@ -41,12 +41,13 @@ $config = array
 	),
 	'parse' => array
 	(
+        'attribute' => array
+        (
+            'equal' => '=',
+            'separator' => ' ',
+            'quote' => '"'
+        ),
 		'escape' => '\\',
-		'loop' => array
-		(
-			'open' => '[|',
-			'close' => '|]'
-		),
 		'section' => array
 		(
 			'open' => '[',
@@ -108,9 +109,133 @@ $suit->config['parse']['nodes'] = array
         ),
         'skip' => true
     ),
-    '[return' => array
+    '[*' => array
     (
-        'close' => ' /]',
+        'close' => '*]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'comments',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true
+    ),
+    '[escape]' => array
+    (
+        'close' => '[/escape]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'escape',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true,
+        'skipescape' => true,
+        'var' => $suit->config['parse']['section']['trim']
+    ),
+    $suit->config['parse']['section']['open'] . 'if' . $suit->config['parse']['section']['close'] => array
+    (
+        'close' => $suit->config['parse']['section']['open'] . $suit->config['parse']['section']['end'] . 'if' . $suit->config['parse']['section']['close'],
+        'function' => array
+        (
+            array
+            (
+                'function' => 'condition',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true,
+        'strip' => true,
+        'var' => array
+        (
+            'condition' => false,
+            'else' => false,
+            'trim' => $suit->config['parse']['section']['trim']
+        )
+    ),
+    $suit->config['parse']['section']['open'] . 'if ' => array
+    (
+        'close' => $suit->config['parse']['attribute']['quote'] . $suit->config['parse']['section']['close'],
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $suit->nodes
+            ),
+            array
+            (
+                'function' => 'conditionskip',
+                'class' => $suit->nodes
+            )
+        ),
+        'attribute' => $suit->config['parse']['section']['open'] . 'if' . $suit->config['parse']['section']['close'],
+        'skip' => true,
+        'skipignore' => true,
+        'var' => array
+        (
+            'escape' => $suit->config['parse']['escape'],
+            'equal' => $suit->config['parse']['attribute']['equal'],
+            'separator' => $suit->config['parse']['attribute']['separator'],
+            'quote' => $suit->config['parse']['attribute']['quote']
+        )
+    ),
+    $suit->config['parse']['section']['open'] . 'loop' . $suit->config['parse']['section']['close'] => array
+    (
+        'close' => $suit->config['parse']['section']['open'] . $suit->config['parse']['section']['end'] . 'loop' . $suit->config['parse']['section']['close'],
+        'function' => array
+        (
+            array
+            (
+                'function' => 'loop',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true,
+        'var' => array
+        (
+            'vars' => serialize(array()),
+            'delimiter' => '',
+            'trim' => $suit->config['parse']['section']['trim'],
+            'node' => array
+            (
+                'open' => '[|',
+                'close' => '|]',
+                'separator' => $suit->config['parse']['separator']
+            )
+        )
+    ),
+    $suit->config['parse']['section']['open'] . 'loop ' => array
+    (
+        'close' => $suit->config['parse']['attribute']['quote'] . $suit->config['parse']['section']['close'],
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $suit->nodes
+            )
+        ),
+        'attribute' => $suit->config['parse']['section']['open'] . 'loop' . $suit->config['parse']['section']['close'],
+        'skip' => true,
+        'skipignore' => true,
+        'var' => array
+        (
+            'blacklist' => true,
+            'escape' => $suit->config['parse']['escape'],
+            'equal' => $suit->config['parse']['attribute']['equal'],
+            'list' => array('node'),
+            'separator' => $suit->config['parse']['attribute']['separator'],
+            'quote' => $suit->config['parse']['attribute']['quote']
+        )
+    ),
+    '[return ' => array
+    (
+        'close' => '/]',
         'function' => array
         (
             array
@@ -122,6 +247,8 @@ $suit->config['parse']['nodes'] = array
         'skip' => true
     )
 );
+$suit->vars['condition'] = array();
+$suit->vars['loop'] = array();
 require $suit->config['files']['code'] . '/tie/main.inc.php';
 require $suit->config['files']['code'] . '/tie/print.inc.php';
 $content = $suit->gettemplate(

@@ -18,16 +18,12 @@ http://www.suitframework.com/docs/credits
 **/
 $nodes = $suit->config['parse']['nodes'];
 $path = $suit->tie->path(array('check', 'list', 'order', 'search', 'start'));
+$suit->vars['condition']['checked'] = ($suit->tie->settings['check']);
+$suit->vars['condition']['desc'] = ($suit->tie->settings['order'] == 'desc');
 $suit->vars['list'] = urlencode($suit->tie->settings['list']);
 $suit->vars['order'] = urlencode($suit->tie->settings['order']);
 $suit->vars['navigationpath'] = $path;
 $suit->vars['search'] = urlencode($suit->tie->settings['search']);
 $suit->vars['start'] = urlencode($suit->tie->settings['start']);
-$nodes = array_merge
-(
-    $nodes,
-    $suit->section->condition('if checked', ($suit->tie->settings['check']), 'else checked'),
-    $suit->section->condition('if link', ($suit->tie->settings['order'] == 'desc'), 'else link')
-);
 $template = $suit->parse($nodes, $template);
 ?>

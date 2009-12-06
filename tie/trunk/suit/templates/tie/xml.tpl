@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
-[loop directories]
+[loop vars="[:loop=>directories:]"]
 <directory>
     <title>[|titletoken|]</title>
-    [loop array]
+    [loop vars="[|array|]"]
     <array>[|arraytoken|]</array>
-    [/loop array]
+    [/loop]
 </directory>
-[/loop directories]
-[loop files]
+[/loop]
+[loop vars="[:loop=>files:]"]
 <file>
     <title>[|titletoken|]</title>
-    [loop array]
+    [loop vars="[|array|]"]
     <array>[|arraytoken|]</array>
-    [/loop array]
+    [/loop]
     <template>[|templatetoken|]</template>
 </file>
-[/loop files]
+[/loop]

@@ -70,18 +70,24 @@ class SUIT(object):
             pos = self.cache['escape'][cache]
             self.debug['strpos']['escape']['cache'] += 1
         else:
-            #Order the strings by length, descending
-            strings.sort(key = lambda item: not len(item), reverse = True)
+            positionstrings = {}
+            for value in strings:
+                positionstrings[value] = None
+            positionstrings = positionstrings.items()
+            #Order the strings by the length, descending
+            positionstrings.sort(
+                key = lambda item: len(item[0]),
+                reverse = True
+            )
             params = {
                 'function': 'escape',
-                'key': None,
                 'pos': {},
                 'repeated': [],
                 'return': returnvalue,
-                'strings': strings,
+                'strings': positionstrings,
                 'taken': []
             }
-            pos = self.helper.positions(params)['pos']
+            pos = self.helper.positions(params)
             #On top of the strings to be escaped, the last position in the
             #string should be checked for escape strings
             pos[len(returnvalue)] = None
@@ -251,16 +257,14 @@ class SUIT(object):
         config = self.helper.parseconfig(config)
         if 'label' in config:
             debug['label'] = config['label']
-        #Order the nodes by the length of the opening string, descending
-        iteratenodes = sorted(nodes.items(), reverse = True)
-        cache = helper.parsecache(iteratenodes, returnvalue, config)
+        cache = helper.parsecache(nodes, returnvalue, config)
         #If positions are cached for this case, load them
         if cache in self.cache['parse']:
             pos = self.cache['parse'][cache]
             self.debug['strpos']['parse']['cache'] += 1
         else:
             pos = self.helper.parsepositions(
-                iteratenodes,
+                nodes,
                 returnvalue,
                 config['taken']
             )
@@ -273,8 +277,14 @@ class SUIT(object):
             'ignored': []
         }
         params = {
+            'escape': config['escape'],
             'ignored': [],
             'last': 0,
+            'nodes': nodes,
+            'preparse': config['preparse'],
+            'preparsenodes': {},
+            'skipignore': False,
+            'skipignorestack': [],
             'skipnode': [],
             'skipoffset': 0,
             'stack': [],
@@ -285,30 +295,23 @@ class SUIT(object):
         for value in pos:
             #Adjust position to changes in length
             position = value[0] + offset
-            params = {
-                'break': False,
-                'escape': config['escape'],
-                'ignored': params['ignored'],
-                'iteratenodes': iteratenodes,
-                'last': params['last'],
-                'node': value[1][0],
-                'nodes': nodes,
-                'pos': pos,
-                'position': position,
-                'preparse': config['preparse'],
-                'return': returnvalue,
-                'skipnode': params['skipnode'],
-                'skipoffset': params['skipoffset'],
-                'stack': params['stack'],
-                'taken': params['taken']
-            }
+
+            params['break'] = False
+            params['node'] = value[1][0]
+            params['offset'] = 0
+            params['position'] = position
+            params['return'] = returnvalue
+            params['unescape'] = helper.parseunescape(
+                position,
+                config['escape'],
+                returnvalue
+            )
             function = self.helper.closingstring
             #If this is the opening string and it should not be skipped over
             if value[1][1] == 0:
-                function = self.helper.openingstring
+                function = helper.openingstring
             params = function(params)
             returnvalue = params['return']
-            pos = params['pos']
             #If the stack is empty
             if not params['stack']:
                 #It is impossible that a skipped over node is in another node
@@ -328,6 +331,7 @@ class SUIT(object):
         if config['preparse']:
             returnvalue = {
                 'return': returnvalue,
+                'nodes': params['preparsenodes'],
                 'taken': params['taken']
             }
             debug['preparse'] = preparse
@@ -335,40 +339,3 @@ class SUIT(object):
         if 'label' in config:
             self.debug['parse'].append(debug)
         return returnvalue
-
-    def parseunescape(self, pos, string, escape = None):
-        """http://www.suitframework.com/docs/parseunescape"""
-        if escape == None:
-            escape = self.config['parse']['escape']
-        count = 0
-        #If the escape string is not empty
-        if escape:
-            start = pos - len(escape)
-            #Count how many escape characters are directly to the left of this
-            #position
-            while (abs(start) == start and
-            string[start:start + len(escape)] == escape):
-                count += len(escape)
-                start = pos - count - len(escape)
-            #Determine how many escape strings are directly to the left of this
-            #position
-            count = count / len(escape)
-        #If the number of escape strings directly to the left of this position
-        #are odd, the position should be overlooked
-        condition = count % 2
-        #If the number of escape strings directly to the left of this position
-        #are odd, (x + 1) / 2 of them should be removed
-        if condition:
-            count += 1
-        #Adjust the position
-        pos -= len(escape) * (count / 2)
-        #Remove the decided number of escape strings
-        string = ''.join((
-            string[0:pos],
-            string[pos + len(escape) * (count / 2):len(string)]
-        ))
-        return {
-            'condition': condition,
-            'pos': pos,
-            'string': string
-        }

@@ -25,75 +25,6 @@ class Section
     }
 
     /**
-    http://www.suitframework.com/docs/condition
-    **/
-    public function condition($if, $boolean, $else = NULL, $config = array())
-    {
-        $return = array();
-        if (!array_key_exists('open', $config))
-        {
-            $config['open'] = $this->owner->config['parse']['section']['open'];
-        }
-        if (!array_key_exists('close', $config))
-        {
-            $config['close'] = $this->owner->config['parse']['section']['close'];
-        }
-        if (!array_key_exists('end', $config))
-        {
-            $config['end'] = $this->owner->config['parse']['section']['end'];
-        }
-        if (!array_key_exists('trim', $config))
-        {
-            $config['trim'] = $this->owner->config['parse']['section']['trim'];
-        }
-        //Add the if node
-        $return[$config['open'] . $if . $config['close']] = array
-        (
-            'close' => $config['open'] . $config['end'] . $if . $config['close'],
-            'function' => array
-            (
-                array
-                (
-                    'function' => 'condition',
-                    'class' => $this->owner->nodes
-                )
-            ),
-            'skip' => !$boolean, //If the string will be removed, there is no reason to parse in between the opening and closing strings
-            'strip' => true, //If this boolean is true, the node strips the opening and closing string
-            'var' => array
-            (
-                'bool' => $boolean,
-                'trim' => $config['trim']
-            ) //The string will be used by the function
-        );
-        //If an else statement is provided
-        if (isset($else))
-        {
-            //Add the else node
-            $return[$config['open'] . $else . $config['close']] = array
-            (
-                'close' => $config['open'] . $config['end'] . $else . $config['close'],
-                'function' => array
-                (
-                    array
-                    (
-                        'function' => 'condition',
-                        'class' => $this->owner->nodes
-                    )
-                ),
-                'skip' => $boolean, //If the string will be removed, there is no reason to parse in between the opening and closing strings
-                'strip' => true, //If this boolean is false, the node strips the opening and closing string
-                'var' => array
-                (
-                    'bool' => !$boolean,
-                    'trim' => $config['trim']
-                ) //The string will be used by the function
-            );
-        }
-        return $return;
-    }
-
-    /**
     http://www.suitframework.com/docs/get
     **/
     public function get($string, $content, $config = array())
@@ -126,77 +57,13 @@ class Section
                         'function' => 'getsection',
                         'class' => $this->owner->nodes
                     )
-                ),
-                'var' => array
-                (
-                    'open' => $config['open'] . $string . $config['close'],
-                    'close' => $config['open'] . $config['end'] . $string . $config['close']
-                ) //The string will be used by the function
+                )
             )
         );
         $this->sections = array();
         //Unescape when applicable, and populate sections with the inside of each section
         $content = $this->owner->parse($nodes, $content, $config);
         return $this->sections;
-    }
-
-    /**
-    http://www.suitframework.com/docs/loop
-    **/
-    public function loop($string, $array, $implode = '', $config = array())
-    {
-        $return = array();
-        if (!array_key_exists('open', $config))
-        {
-            $config['open'] = $this->owner->config['parse']['section']['open'];
-        }
-        if (!array_key_exists('close', $config))
-        {
-            $config['close'] = $this->owner->config['parse']['section']['close'];
-        }
-        if (!array_key_exists('end', $config))
-        {
-            $config['end'] = $this->owner->config['parse']['section']['end'];
-        }
-        if (!array_key_exists('loopopen', $config))
-        {
-            $config['loopopen'] = $this->owner->config['parse']['loop']['open'];
-        }
-        if (!array_key_exists('loopclose', $config))
-        {
-            $config['loopclose'] = $this->owner->config['parse']['loop']['close'];
-        }
-        if (!array_key_exists('separator', $config))
-        {
-            $config['separator'] = $this->owner->config['parse']['separator'];
-        }
-        if (!array_key_exists('trim', $config))
-        {
-            $config['trim'] = $this->owner->config['parse']['section']['trim'];
-        }
-        $return = array
-        (
-            $config['open'] . $string . $config['close'] => array
-            (
-                'close' => $config['open'] . $config['end'] . $string . $config['close'],
-                'function' => array
-                (
-                    array
-                    (
-                        'function' => 'loop',
-                        'class' => $this->owner->nodes
-                    )
-                ),
-                'skip' => true, //We want the function to run the parse, so there is no reason to parse in between the opening and closing strings
-                'var' => array
-                (
-                    'array' => $array,
-                    'config' => $config,
-                    'implode' => $implode,
-                ) //This will be used by the function
-            )
-        );
-        return $return;
     }
 }
 ?>

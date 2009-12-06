@@ -2,9 +2,9 @@
         <p>
             <select name="languages_entry">
             <option value="-1">[:language=>default:]</option>
-            [loop languages]
-            <option value="[|id|]"[if selected] selected="selected"[/if selected]>[|title|]</option>
-            [/loop languages]
+            [loop vars="[:loop=>languages:]"]
+            <option value="[|id|]"[if condition="[|selected|]" trim=""] selected="selected"[/if]>[|title|]</option>
+            [/loop]
             </select>
             <input type="submit" name="languages_update" value="[:language=>update:]" />
         </p>

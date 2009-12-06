@@ -18,7 +18,6 @@ http://www.suitframework.com/docs/credits
 **/
 if ($suit->tie->config['flag']['debug'])
 {
-    $nodes = $suit->config['parse']['nodes'];
     $templates = array();
     $parse = array();
     foreach ($suit->vars['debug']['gettemplate'] as $key => $value)
@@ -28,33 +27,21 @@ if ($suit->tie->config['flag']['debug'])
         {
             $code[] = array
             (
-                'vars' => array
-                (
-                    'id2' => $key2,
-                    'code' => htmlspecialchars($value2[0]),
-                    'codefile' => htmlspecialchars($value2[2])
-                ),
-                'nodes' => array_merge
-                (
-                    $suit->section->condition('if code', ($value2[1]), 'else code'),
-                    $suit->section->condition('if codefile', ($value2[2] !== false), 'else codefile')
-                )
+                'id2' => $key2,
+                'ifcode' => ($value2[1]),
+                'ifcodefile' => ($value2[2] !== false),
+                'code' => htmlspecialchars($value2[0]),
+                'codefile' => htmlspecialchars($value2[2])
             );
         }
         $templates[] = array
         (
-            'vars' => array
-            (
-                'file' => htmlspecialchars($value['file']),
-                'id' => $key,
-                'line' => htmlspecialchars($value['line']),
-                'template' => htmlspecialchars($value['template']),
-                'title' => htmlspecialchars($value['label'])
-            ),
-            'nodes' => array_merge
-            (
-                $suit->section->loop('loop code', $code)
-            )
+            'code' => serialize($code),
+            'file' => htmlspecialchars($value['file']),
+            'id' => $key,
+            'line' => htmlspecialchars($value['line']),
+            'template' => htmlspecialchars($value['template']),
+            'title' => htmlspecialchars($value['label'])
         );
     }
     foreach ($suit->vars['debug']['parse'] as $key => $value)
@@ -100,22 +87,20 @@ if ($suit->tie->config['flag']['debug'])
         }
         $parse[] = array
         (
-            'vars' => array
-            (
-                'before' => htmlspecialchars($value['before']),
-                'file' => htmlspecialchars($value['file']),
-                'id' => $key,
-                'line' => htmlspecialchars($value['line']),
-                'return' => htmlspecialchars($value['return']),
-                'preparse' => htmlspecialchars($preparse),
-                'title' => htmlspecialchars($value['label'])
-            ),
-            'nodes' => array_merge
-            (
-                $suit->section->condition('if preparse', (array_key_exists('preparse', $value)))
-            )
+            'before' => htmlspecialchars($value['before']),
+            'file' => htmlspecialchars($value['file']),
+            'id' => $key,
+            'ifpreparse' => (array_key_exists('preparse', $value)),
+            'line' => htmlspecialchars($value['line']),
+            'return' => htmlspecialchars($value['return']),
+            'preparse' => htmlspecialchars($preparse),
+            'title' => htmlspecialchars($value['label'])
         );
     }
+    $suit->vars['loop']['templates'] = serialize($templates);
+    $suit->vars['loop']['parse'] = serialize($parse);
+    $suit->vars['condition']['templates'] = (!empty($templates));
+    $suit->vars['condition']['parse'] = (!empty($parse));
     $suit->vars['escapecall'] = $suit->vars['debug']['strpos']['escape']['call'];
     $suit->vars['escapecache'] = $suit->vars['debug']['strpos']['escape']['cache'];
     $suit->vars['explodeunescapecall'] = $suit->vars['debug']['strpos']['explodeunescape']['call'];
@@ -124,15 +109,7 @@ if ($suit->tie->config['flag']['debug'])
     $suit->vars['parsecache'] = $suit->vars['debug']['strpos']['parse']['cache'];
     $suit->vars['totalcall'] = $suit->vars['debug']['strpos']['escape']['call'] + $suit->vars['debug']['strpos']['explodeunescape']['call'] + $suit->vars['debug']['strpos']['parse']['call'];
     $suit->vars['totalcache'] = $suit->vars['debug']['strpos']['escape']['cache'] + $suit->vars['debug']['strpos']['explodeunescape']['cache'] + $suit->vars['debug']['strpos']['parse']['cache'];
-    $nodes = array_merge
-    (
-        $nodes,
-        $suit->section->condition('else templates', (empty($templates))),
-        $suit->section->condition('else parse', (empty($parse))),
-        $suit->section->loop('loop templates', $templates),
-        $suit->section->loop('loop parse', $parse)
-    );
-    $template = $suit->parse($nodes, $template);
+    $template = $suit->parse($suit->config['parse']['nodes'], $template);
 }
 else
 {

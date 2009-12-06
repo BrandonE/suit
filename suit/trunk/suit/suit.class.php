@@ -99,20 +99,23 @@ class SUIT
         }
         else
         {
-            //Order the strings by length, descending
-            rsort($strings);
+            $positionstrings = array();
+            foreach ($strings as $value)
+            {
+                $positionstrings[$value] = NULL;
+            }
+            //Order the strings by the length, descending
+            uksort($positionstrings, array('Helper', 'sort'));
             $params = array
             (
                 'function' => 'escape',
-                'key' => NULL,
                 'pos' => array(),
                 'repeated' => array(),
                 'return' => $return,
-                'strings' => $strings,
+                'strings' => $positionstrings,
                 'taken' => array()
             );
-            $result = $this->helper->positions($params);
-            $pos = $result['pos'];
+            $pos = $this->helper->positions($params);
             //On top of the strings to be escaped, the last position in the string should be checked for escape strings
             $pos[strlen($return)] = NULL;
             //Order the positions from smallest to biggest
@@ -121,16 +124,18 @@ class SUIT
             $this->cache['escape'][$cache] = $pos;
         }
         $offset = 0;
-        foreach ($pos as $key => $value)
+        $key = array_keys($pos);
+        $size = count($key);
+        for ($i = 0; $i < $size; $i++)
         {
             //Adjust position to changes in length
-            $key += $offset;
+            $position = $key[$i] + $offset;
             $count = 0;
             //If the escape string is not empty
             if ($escape)
             {
                 //Count how many escape characters are directly to the left of this position
-                while (abs($start = $key - $count - strlen($escape)) == $start && substr($return, $start, strlen($escape)) == $escape)
+                while (abs($start = $key[$i] - $count - strlen($escape)) == $start && substr($return, $start, strlen($escape)) == $escape)
                 {
                     $count += strlen($escape);
                 }
@@ -138,7 +143,7 @@ class SUIT
                 $count = $count / strlen($escape);
             }
             //Replace the escape strings with two escape strings, escaping each of them
-            $return = substr_replace($return, str_repeat($escape, $count * 2), $key - ($count * strlen($escape)), strlen($escape) * $count);
+            $return = substr_replace($return, str_repeat($escape, $count * 2), $key[$i] - ($count * strlen($escape)), strlen($escape) * $count);
             //Adjust the offset
             $offset += $count * strlen($escape);
         }
@@ -285,8 +290,6 @@ class SUIT
             $debug['label'] = $config['label'];
         }
         $config = $this->helper->parseconfig($config);
-        //Order the nodes by the length of the opening string, descending
-        krsort($nodes);
         $cache = $this->helper->parsecache($nodes, $return, $config);
         //If positions are cached for this case, load them
         if (array_key_exists($cache, $this->cache['parse']))
@@ -309,8 +312,14 @@ class SUIT
         );
         $params = array
         (
+            'escape' => $config['escape'],
             'ignored' => array(),
             'last' => 0,
+            'nodes' => $nodes,
+            'preparse' => $config['preparse'],
+            'preparsenodes' => array(),
+            'skipignore' => false,
+            'skipignorestack' => array(),
             'skipnode' => array(),
             'skipoffset' => 0,
             'stack' => array(),
@@ -318,29 +327,21 @@ class SUIT
         );
         $offset = 0;
         $temp = $return;
-        foreach ($pos as $key => $value)
+        $key = array_keys($pos);
+        $size = count($key);
+        for ($i = 0; $i < $size; $i++)
         {
             //Adjust position to changes in length
-            $key += $offset;
-            $params = array
-            (
-                'break' => false,
-                'escape' => $config['escape'],
-                'ignored' => $params['ignored'],
-                'last' => $params['last'],
-                'node' => $value[0],
-                'nodes' => $nodes,
-                'position' => $key,
-                'preparse' => $config['preparse'],
-                'return' => $return,
-                'skipnode' => $params['skipnode'],
-                'skipoffset' => $params['skipoffset'],
-                'stack' => $params['stack'],
-                'taken' => $params['taken'],
-            );
+            $position = $key[$i] + $offset;
+            $params['break'] = false;
+            $params['node'] = $pos[$key[$i]][0];
+            $params['offset'] = 0;
+            $params['position'] = $position;
+            $params['return'] = $return;
+            $params['unescape'] = $this->helper->parseunescape($position, $config['escape'], $return);
             $function = 'closingstring';
             //If this is the opening string and it should not be skipped over
-            if ($value[1] == 0)
+            if ($pos[$key[$i]][1] == 0)
             {
                 $function = 'openingstring';
             }
@@ -373,6 +374,7 @@ class SUIT
             $return = array
             (
                 'return' => $return,
+                'nodes' => $params['preparsenodes'],
                 'taken' => $preparse['taken']
             );
             $debug['preparse'] = $preparse;
@@ -383,42 +385,6 @@ class SUIT
             $this->debug['parse'][] = $debug;
         }
         return $return;
-    }
-
-    /**
-    http://www.suitframework.com/docs/parseunescape
-    **/
-    public function parseunescape($pos, $string, $escape = NULL)
-    {
-        $pos = intval($pos);
-        if (!isset($escape))
-        {
-            $escape = $this->config['parse']['escape'];
-        }
-        $count = 0;
-        //If the escape string is not empty
-        if ($escape)
-        {
-            //Count how many escape characters are directly to the left of this position
-            while (abs($start = $pos - $count - strlen($escape)) == $start && substr($string, $start, strlen($escape)) == $escape)
-            {
-                $count += strlen($escape);
-            }
-            //Determine how many escape strings are directly to the left of this position
-            $count = $count / strlen($escape);
-        }
-        //If the number of escape strings directly to the left of this position are odd, the position should be overlooked
-        $condition = $count % 2;
-        //If the number of escape strings directly to the left of this position are odd, (x + 1) / 2 of them should be removed
-        if ($condition)
-        {
-            $count++;
-        }
-        //Adjust the position
-        $pos -= strlen($escape) * ($count / 2);
-        //Remove the decided number of escape strings
-        $string = substr_replace($string, '', $pos, strlen($escape) * ($count / 2));
-        return $condition;
     }
 }
 ?>

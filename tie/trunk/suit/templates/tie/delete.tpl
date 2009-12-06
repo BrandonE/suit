@@ -1,8 +1,7 @@
-        [if error]
+        [if condition="[:condition=>error:]"]
         <p>[:error:]</p>
-        [/if error]
+        [/if]
         <p>[:message:]</p>
         <form action="#" method="post">
         <input type="submit" name="[:name:]" value="[:value:]" />
         </form>
-[section delimiter], [/section delimiter]

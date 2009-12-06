@@ -132,7 +132,6 @@ table.dashboard td
 {
     float: left;
     padding: 21px 0 0 25px;
-    position: static;
 }
 
 .header .right
@@ -166,7 +165,6 @@ table.dashboard td
     clear: both;
     margin: 0 0 1px;
     padding: 0 0 9px;
-    position: static;
 }
 
 .list-entry a
@@ -198,7 +196,6 @@ table.dashboard td
     clear: both;
     margin: 0 0 1px;
     padding: 0 0 9px;
-    position: static;
 }
 
 .list-entry-folder a
@@ -258,7 +255,6 @@ table.dashboard td
     border-bottom: 4px solid #217CBB;
     margin: 0;
     overflow: hidden;
-    position: static;
     white-space: nowrap;
 }
 

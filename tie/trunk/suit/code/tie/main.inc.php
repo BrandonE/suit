@@ -97,16 +97,13 @@ class TIE
             }
             else
             {
-                if (is_array($languages))
+                foreach ($languages as $value)
                 {
-                    foreach ($languages as $value)
+                    if ($value[2])
                     {
-                        if ($value[2])
-                        {
-                            require $value[1];
-                            $this->owner->vars['language'] = $language;
-                            break;
-                        }
+                        require $value[1];
+                        $this->owner->vars['language'] = $language;
+                        break;
                     }
                 }
             }
@@ -163,14 +160,8 @@ class TIE
             $config['xml'] = $this->config['templates']['xml'];
         }
         $error = false;
-        $nodes = $this->owner->config['parse']['nodes'];
-        $nodes = array_merge
-        (
-            $nodes,
-            $this->owner->section->condition('if code', ($type == 'code'), 'else code'),
-            $this->owner->section->condition('if templates', ($type == 'templates')),
-            $this->owner->section->condition('if box', (!in_array($_GET['cmd'], array('copy', 'create', 'rename'))))
-        );
+        $this->owner->vars['condition']['code'] = ($type == 'code');
+        $this->owner->vars['condition']['box'] = (!in_array($_GET['cmd'], array('copy', 'create', 'rename')));
         $path = $this->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'check', 'start', 'title'));
         $this->owner->vars['path'] = $path;
         $redirect = $this->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'check', 'title'));
@@ -784,7 +775,6 @@ class TIE
                     {
                         $directories = $_POST['directoryentry'];
                     }
-                    $nodes = array();
                     $filesarray = array();
                     $directoriesarray = array();
                     $xml = $this->owner->gettemplate(file_get_contents($config['xml']['template']), $config['xml']['code']);
@@ -794,7 +784,9 @@ class TIE
                         {
                             $files[$key] = $this->owner->config['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value) . '.' . $filetype;
                             if (!is_file($files[$key]))
+                            {
                                 unset($files[$key]);
+                            }
                         }
                     }
                     else
@@ -852,20 +844,14 @@ class TIE
                         {
                             $array[] = array
                             (
-                                'vars' => array
-                                (
-                                    'arraytoken' => $this->owner->escape($strings, $value2, '\\')
-                                )
+                                'arraytoken' => $this->owner->escape($strings, $value2, '\\')
                             );
                         }
                         $value = basename($value);
                         $directoriesarray[] = array
                         (
-                            'vars' => array
-                            (
-                                'titletoken' => $this->owner->escape($strings, $value, '\\')
-                            ),
-                            'nodes' => $this->owner->section->loop('loop array', $array)
+                            'titletoken' => $this->owner->escape($strings, $value, '\\'),
+                            'array' => serialize($array)
                         );
                     }
                     foreach ($files as $value)
@@ -880,33 +866,20 @@ class TIE
                         {
                             $array[] = array
                             (
-                                'vars' => array
-                                (
-                                    'arraytoken' => $this->owner->escape($strings, $value2, '\\')
-                                )
+                                'arraytoken' => $this->owner->escape($strings, $value2, '\\')
                             );
                         }
                         $title = basename($value, '.' . $filetype);
                         $filesarray[] = array
                         (
-                            'vars' => array
-                            (
-                                'templatetoken' => $this->owner->escape($strings, $content, '\\'),
-                                'titletoken' => $this->owner->escape($strings, $title, '\\')
-                            ),
-                            'nodes' => array_merge
-                            (
-                                $this->owner->section->loop('loop array', $array)
-                            )
+                            'array' => serialize($array),
+                            'templatetoken' => $this->owner->escape($strings, $content, '\\'),
+                            'titletoken' => $this->owner->escape($strings, $title, '\\')
                         );
                     }
-                    $nodes = array_merge
-                    (
-                        $nodes,
-                        $this->owner->section->loop('loop directories', $directoriesarray),
-                        $this->owner->section->loop('loop files', $filesarray)
-                    );
-                    $xml = $this->owner->parse($nodes, $xml);
+                    $this->owner->vars['loop']['directories'] = serialize($directoriesarray);
+                    $this->owner->vars['loop']['files'] = serialize($filesarray);
+                    $xml = $this->owner->parse($this->owner->config['parse']['nodes'], $xml);
                     header('Pragma: public');
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -942,7 +915,7 @@ class TIE
             }
         }
         $this->owner->vars['error'] = $error;
-        $nodes = array_merge($nodes, $this->owner->section->condition('if error', ($error)));
+        $this->owner->vars['condition']['error'] = ($error);
         if (isset($redirectmessage))
         {
             $templates = array_diff(scandir($this->owner->config['files'][$type] . $directory['string']), array('.', '..'));
@@ -1001,15 +974,6 @@ class TIE
             $this->owner->vars['value'] = $section[0];
             if ($_GET['cmd'] == 'delete')
             {
-                $delimiter = $this->owner->section->get('section delimiter', &$return);
-                if (!empty($delimiter))
-                {
-                    $delimiter = $delimiter[0];
-                }
-                else
-                {
-                    $delimiter = '';
-                }
                 $titles = array();
                 $directorytitles = array();
                 if (is_array($_GET['title']))
@@ -1021,10 +985,7 @@ class TIE
                         {
                             $titles[] = array
                             (
-                                'vars' => array
-                                (
-                                    'title' => htmlspecialchars($value)
-                                )
+                                'title' => htmlspecialchars($value)
                             );
                         }
                     }
@@ -1038,10 +999,7 @@ class TIE
                         {
                             $directorytitles[] = array
                             (
-                                'vars' => array
-                                (
-                                    'title' => htmlspecialchars($value)
-                                )
+                                'title' => htmlspecialchars($value)
                             );
                         }
                     }
@@ -1051,29 +1009,18 @@ class TIE
                     $this->owner->gettemplate(file_get_contents($config['badrequest']['template']), $config['badrequest']['code']);
                 }
                 $message = $this->owner->vars['language']['deleteconfirm'];
-                $message = $this->owner->parse
-                (
-                    array_merge
-                    (
-                        $nodes,
-                        array_merge
-                        (
-                            $this->owner->section->condition('if titles', (!empty($titles))),
-                            $this->owner->section->condition('if directorytitles', (!empty($directorytitles))),
-                            $this->owner->section->condition('if plural', (count($titles) != 1)),
-                            $this->owner->section->condition('if directoryplural', (count($directorytitles) != 1), 'else directoryplural'),
-                            $this->owner->section->loop('loop titles', $titles, $delimiter),
-                            $this->owner->section->loop('loop directorytitles', $directorytitles, $delimiter)
-                        )
-                    ),
-                    $message
-                );
+                $this->owner->vars['condition']['titles'] = (!empty($titles));
+                $this->owner->vars['condition']['directorytitles'] = (!empty($directorytitles));
+                $this->owner->vars['condition']['plural'] = (count($titles) != 1);
+                $this->owner->vars['condition']['directoryplural'] = (count($directorytitles) != 1);
+                $this->owner->vars['loop']['titles'] = serialize($titles);
+                $this->owner->vars['loop']['directorytitles'] = serialize($directorytitles);
+                $message = $this->owner->parse($this->owner->config['parse']['nodes'], $message);
                 $this->owner->vars['message'] = $message;
-                $nodes = array_merge($nodes, $this->owner->section->condition('section delimiter', false));
             }
             else
             {
-                $nodes = array_merge($nodes, $this->owner->section->condition('if editing', ($_GET['cmd'] == 'edit')));
+                $this->owner->vars['condition']['editing'] = ($_GET['cmd'] == 'edit');
                 if (!isset($posted['title']))
                 {
                     $posted['title'] = $_GET['title'];
@@ -1089,7 +1036,7 @@ class TIE
                 $this->owner->vars['template'] = htmlspecialchars(strval($posted['template']));
                 $this->owner->vars['title'] = htmlspecialchars(strval($posted['title']));
             }
-            $return = $this->owner->parse($nodes, $return);
+            $return = $this->owner->parse($this->owner->config['parse']['nodes'], $return);
         }
         else
         {
@@ -1164,6 +1111,7 @@ class TIE
             if (!empty($templates))
             {
                 $highlightstart = $this->owner->section->get('section highlightstart', &$return);
+                $highlightend = $this->owner->section->get('section highlightend', &$return);
                 if (!empty($highlightstart))
                 {
                     $highlightstart = $highlightstart[0];
@@ -1195,17 +1143,10 @@ class TIE
                         $displaytitle = str_replace(htmlspecialchars($this->settings['search']), $highlightstart . $this->settings['search'] . $highlightend, htmlspecialchars($title));
                         $entries[] = array
                         (
-                            'vars' => array
-                            (
-                                'displaytitle' => $displaytitle,
-                                'title' => urlencode($title)
-                            ),
-                            'nodes' => array_merge
-                            (
-                                $this->owner->section->condition('if file', (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value)), 'else file'),
-                                $this->owner->section->condition('if checked', ($this->settings['check']), NULL, array('trim' => '')),
-                                $this->owner->section->condition('if up', ($value == '..'), 'else up')
-                            )
+                            'file' => (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value)),
+                            'displaytitle' => $displaytitle,
+                            'title' => urlencode($title),
+                            'up' => ($value == '..')
                         );
                     }
                     $iterations++;
@@ -1215,29 +1156,18 @@ class TIE
                     }
                 }
             }
-            $nodes = array_merge
-            (
-                $nodes,
-                $this->owner->section->condition('section highlightstart', false),
-                $this->owner->section->condition('section highlightend', false),
-                $this->owner->section->condition('section page', false),
-                $this->owner->section->condition('if entries', (!empty($entries)), 'else entries'),
-                $this->owner->section->loop('loop directories', $directory['replace'])
-            );
-            unset($directory['replace'][count($directory['replace']) - 1]);
-            $nodes = array_merge
-            (
-                $nodes,
-                $this->owner->section->loop('loop updirectories', $directory['replace']),
-                $this->owner->section->loop('loop entries', $entries)
-            );
+            $this->owner->vars['loop']['directories'] = serialize($directory['loop']);
+            unset($directory['loop'][count($directory['loop']) - 1]);
+            $this->owner->vars['loop']['updirectories'] = serialize($directory['loop']);
+            $this->owner->vars['loop']['entries'] = serialize($entries);
+            $this->owner->vars['condition']['checked'] = ($this->settings['check']);
             $this->owner->vars['count'] = $count;
             $this->owner->vars['display'] = ($this->settings['start'] / $this->settings['list']) + 1;
             $this->owner->vars['list'] = urlencode($this->settings['list']);
             $this->owner->vars['order'] = urlencode($this->settings['order']);
             $this->owner->vars['search'] = urlencode($this->settings['search']);
             $this->owner->vars['start'] = urlencode($this->settings['start']);
-            $return = $this->owner->parse($nodes, $return);
+            $return = $this->owner->parse($this->owner->config['parse']['nodes'], $return);
         }
         $array = array();
         foreach ($directory['array'] as $value)
@@ -1281,29 +1211,25 @@ class TIE
         $return = array();
         $pagelink = $this->owner->gettemplate(file_get_contents($config['pagelink']['template']), $config['pagelink']['code']);
         $return['current'] = $pagelink;
-        $nodes = array_merge
-        (
-            $this->owner->config['parse']['nodes'],
-            $this->owner->section->condition('if checked', ($this->settings['check']), 'else checked'),
-            $this->owner->section->condition('if current', true, 'else current')
-        );
+        $this->owner->vars['condition']['checked'] = ($this->settings['check']);
+        $this->owner->vars['condition']['current'] = true;
         $this->owner->vars['display'] = ($this->settings['start'] / $this->settings['list']) + 1;
         $this->owner->vars['list'] = urlencode($this->settings['list']);
         $this->owner->vars['order'] = urlencode($this->settings['order']);
         $this->owner->vars['navigationpath'] = $path;
         $this->owner->vars['search'] = urlencode($this->settings['search']);
         $this->owner->vars['start'] = urlencode($this->settings['start']);
-        $return['current'] = $this->owner->parse($nodes, $return['current']);
+        $return['current'] = $this->owner->parse($this->owner->config['parse']['nodes'], $return['current']);
         $num = $this->reduce($count - 1);
         $array = array();
-        $result = $this->helper->pageLink($count, ($this->settings['start'] - ($this->settings['list'] * ($config['pages'] + 1))), 0, $this->owner->vars['language']['first'], false, $pagelink);
+        $result = $this->helper->pagelink($count, ($this->settings['start'] - ($this->settings['list'] * ($config['pages'] + 1))), 0, $this->owner->vars['language']['first'], false, $pagelink);
         if ($result)
         {
             $array[] = $result;
         }
         for ($x = $config['pages']; $x != 0; $x--)
         {
-            $result = $this->helper->pageLink($count, ($this->settings['start'] - ($this->settings['list'] * $x)), -1, (($this->settings['start'] / $this->settings['list']) - ($x - 1)), false, $pagelink);
+            $result = $this->helper->pagelink($count, ($this->settings['start'] - ($this->settings['list'] * $x)), -1, (($this->settings['start'] / $this->settings['list']) - ($x - 1)), false, $pagelink);
             if ($result)
             {
                 $array[] = $result;
@@ -1313,13 +1239,13 @@ class TIE
         $array = array();
         for ($x = 1; $x <= $config['pages']; $x++)
         {
-            $result = $this->helper->pageLink($count, ($this->settings['start'] + ($this->settings['list'] * $x)), -1, (($this->settings['start'] / $this->settings['list']) + ($x + 1)), true, $pagelink);
+            $result = $this->helper->pagelink($count, ($this->settings['start'] + ($this->settings['list'] * $x)), -1, (($this->settings['start'] / $this->settings['list']) + ($x + 1)), true, $pagelink);
             if ($result)
             {
                 $array[] = $result;
             }
         }
-        $result = $this->helper->pageLink($count, ($this->settings['start'] + ($this->settings['list'] * ($config['pages'] + 1))), strval($num), $this->owner->vars['language']['last'], true, $pagelink);
+        $result = $this->helper->pagelink($count, ($this->settings['start'] + ($this->settings['list'] * ($config['pages'] + 1))), strval($num), $this->owner->vars['language']['last'], true, $pagelink);
         if ($result)
         {
             $array[] = $result;
@@ -1391,14 +1317,14 @@ class TIE
         $content = $this->owner->gettemplate(file_get_contents($config['redirect']['template']), $config['redirect']['code']);
         if ($config['refresh'])
         {
-            $nodes = array_merge($this->owner->config['parse']['nodes'], $this->owner->section->condition('if s', ($config['refresh'] != 1)));
+            $this->owner->vars['condition']['s'] = ($config['refresh'] != 1);
             $this->owner->vars['seconds'] = $this->owner->vars['language']['seconds'];
             $this->owner->vars['refresh'] = $config['refresh'];
-            $this->owner->vars['seconds'] = $this->owner->parse($nodes, $this->owner->vars['seconds']);
+            $this->owner->vars['seconds'] = $this->owner->parse($this->owner->config['parse']['nodes'], $this->owner->vars['seconds']);
             $this->owner->vars['message'] = $message;
             $this->owner->vars['name'] = $this->owner->vars['language']['redirecting'];
             $this->owner->vars['url'] = htmlspecialchars($url);
-            $content = $this->owner->parse($nodes, $content);
+            $content = $this->owner->parse($this->owner->config['parse']['nodes'], $content);
             $this->owner->vars['debug'] = $this->owner->debug;
             $debug = $this->owner->gettemplate(
                 file_get_contents($this->owner->config['files']['templates'] . '/tie/debug.tpl'),
@@ -1466,7 +1392,7 @@ class TIEHelper
             $return['array'] = array();
         }
         $return['string'] = '';
-        $return['replace'] = array();
+        $return['loop'] = array();
         $return['url'] = '';
         foreach ($return['array'] as $key => $value)
         {
@@ -1476,12 +1402,9 @@ class TIEHelper
             }
             else
             {
-                $return['replace'][] = array
+                $return['loop'][] = array
                 (
-                    'vars' => array
-                    (
-                        'directory' => urlencode($value)
-                    )
+                    'directory' => urlencode($value)
                 );
                 $return['string'] .= '/' . $value;
                 $return['url'] .= '&directory[]=' . $value;
@@ -1490,7 +1413,7 @@ class TIEHelper
         return $return;
     }
 
-    public function pageLink($count, $check, $start, $display, $ahead, $pagelink)
+    public function pagelink($count, $check, $start, $display, $ahead, $pagelink)
     {
         $return = '';
         $path = $this->owner->path(array('check', 'list', 'order', 'search', 'start'));
@@ -1513,20 +1436,15 @@ class TIEHelper
         if ($success)
         {
             $return = $pagelink;
-            $nodes = $this->owner->owner->config['parse']['nodes'];
-            $nodes = array_merge
-            (
-                $nodes,
-                $this->owner->owner->section->condition('if checked', ($this->owner->settings['check']), 'else checked'),
-                $this->owner->owner->section->condition('if current', false, 'else current')
-            );
+            $this->owner->owner->vars['condition']['checked'] = ($this->owner->settings['check']);
+            $this->owner->owner->vars['condition']['current'] = false;
             $this->owner->owner->vars['display'] = $display;
             $this->owner->owner->vars['list'] = urlencode($this->owner->settings['list']);
             $this->owner->owner->vars['order'] = urlencode($this->owner->settings['order']);
             $this->owner->owner->vars['navigationpath'] = $path;
             $this->owner->owner->vars['search'] = urlencode($this->owner->settings['search']);
             $this->owner->owner->vars['start'] = urlencode($start);
-            $return = $this->owner->owner->parse($nodes, $return);
+            $return = $this->owner->owner->parse($this->owner->owner->config['parse']['nodes'], $return);
         }
         return $return;
     }

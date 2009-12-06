@@ -44,7 +44,7 @@ $language = array
 'debug' => 'Debug',
 'default' => 'Domyślny',
 'delete' => 'Usuń',
-'deleteconfirm' => 'Napewno chcesz usunąć [if titles]plik[if plural]i[/if plural] [loop titles]"[|title|]"[/loop titles][if directorytitles] i [/if directorytitles][/if titles][if directorytitles]katalog[if directoryplural]i[/if directoryplural] [loop directorytitles]"[|title|]"[/loop directorytitles][/if directorytitles]?',
+'deleteconfirm' => 'Napewno chcesz usunąć [if condition="[:condition=>titles:]" trim=""]plik[if condition="[:condition=>plural:]"]i[/if] [loop vars="[:loop=>titles:]" delimiter=", "]"[|title|]"[/loop][if condition="[:condition=>directorytitles:]" trim=""] i [/if][/if][if condition="[:condition=>directorytitles:]" trim=""]katalog[if condition="[:condition=>directoryplural:]"]i[/if] [loop vars="[:loop=>directorytitles:]" delimiter=", "]"[|title|]"[/loop][/if]?',
 'deletechecked' => 'Usuń zaznaczone',
 'deletedsuccessfully' => 'Usunięcie wykonane z sukcesem',
 'desc' => 'Porządek malejący',

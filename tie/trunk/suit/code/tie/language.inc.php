@@ -16,7 +16,6 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$nodes = $suit->config['parse']['nodes'];
 if (isset($_POST['languages_update']) && isset($_POST['languages_entry']))
 {
     $language = intval($_POST['languages_entry']);
@@ -30,29 +29,16 @@ if (isset($_POST['languages_update']) && isset($_POST['languages_entry']))
 $languagesloop = array();
 require $this->owner->config['files']['code'] . '/languages/main.inc.php';
 asort($languages);
-if (is_array($languages))
+foreach ($languages as $key => $value)
 {
-    $config = array
+    $languagesloop[] = array
     (
-        'trim' => ''
+        'id' => $key,
+        'selected' => (intval($suit->tie->language) == $key),
+        'title' => htmlspecialchars($value[0])
     );
-    foreach ($languages as $key => $value)
-    {
-        $languagesloop[] = array
-        (
-            'vars' => array
-            (
-                'id' => $key,
-                'title' => htmlspecialchars($value[0])
-            ),
-            'nodes' => $suit->section->condition('if selected', (intval($suit->tie->language) == $key), NULL, array('trim' => ''))
-        );
-    }
 }
-$nodes = array_merge
-(
-    $nodes,
-    $suit->section->loop('loop languages', $languagesloop)
-);
-$template = $suit->parse($nodes, $template);
+$suit->vars['loop']['languages'] = serialize($languagesloop);
+$suit->vars['test'] = '[|test|]';
+$template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

@@ -44,7 +44,7 @@ $language = array
 'debug' => '调试',
 'default' => '默认',
 'delete' => '删除',
-'deleteconfirm' => '您一定想要删除[if titles]文件[loop titles]"[|title|]"[/loop titles][if directorytitles]和[/if directorytitles][/if titles][if directorytitles]目录[loop directorytitles]"[|title|]"[/loop directorytitles][/if directorytitles]吗？',
+'deleteconfirm' => '您一定想要删除[if condition="[:condition=>titles:]" trim=""]文件[loop vars="[:loop=>titles:]" delimiter=", "]"[|title|]"[/loop][if condition="[:condition=>directorytitles:]" trim=""]和[/if][/if][if condition="[:condition=>directorytitles:]" trim=""]目录[loop vars="[:loop=>directorytitles:]" delimiter=", "]"[|title|]"[/loop][/if]吗？',
 'deletechecked' => '删除所选',
 'deletedsuccessfully' => '删除成功',
 'desc' => '大到小排序',
