@@ -1,6 +1,6 @@
-[!tie/header=>tie/header=>tie/parse!]
+[template]tie/header=>tie/header=>tie/parse[/template]
     <div class="section">
-        <h2>[:name:]</h2>
-        [:language=>badrequest:]
+        <h2>[var]name[/var]</h2>
+        [var]language=>badrequest[/var]
     </div>
-[!tie/footer=>tie/parse!]
+[template]tie/footer=>tie/parse[/template]

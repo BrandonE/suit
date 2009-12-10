@@ -20,8 +20,8 @@ $suit->vars['name'] = $suit->vars['language']['badrequest'];
 $template = $suit->parse($suit->config['parse']['nodes'], $template);
 $suit->vars['debug'] = $suit->debug;
 $debug = $suit->gettemplate(
-    file_get_contents($suit->config['files']['templates'] . '/tie/debug.tpl'),
-    array($suit->config['files']['code'] . '/tie/debug.inc.php')
+    file_get_contents($suit->vars['files']['templates'] . '/tie/debug.tpl'),
+    array($suit->vars['files']['code'] . '/tie/debug.inc.php')
 );
 $nodes = array
 (

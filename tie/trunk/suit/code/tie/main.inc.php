@@ -16,6 +16,12 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
+function nodedebug($params)
+{
+    $params['case'] = $params['var'];
+	return $params;
+}
+
 class TIE
 {
     public $config = array();
@@ -79,7 +85,7 @@ class TIE
         $this->settings['check'] = (isset($this->config['navigation']['array']['check']) && $this->config['navigation']['array']['check'] == 'true');
         if (isset($this->config['cookie']['domain']) && isset($this->config['cookie']['length']) && isset($this->config['cookie']['path']) && isset($this->config['cookie']['prefix']))
         {
-            require $this->owner->config['files']['code'] . '/languages/main.inc.php';
+            require $this->owner->vars['files']['code'] . '/languages/main.inc.php';
             $this->language = -1;
             if (isset($_COOKIE[$this->config['cookie']['prefix'] . 'language']))
             {
@@ -171,11 +177,11 @@ class TIE
             $this->owner->gettemplate(file_get_contents($config['badrequest']['template']), $config['badrequest']['code']);
         }
         $directory = $this->helper->directorydata($_GET['directory']);
-        if (!is_dir($this->owner->config['files'][$type] . $directory['string']))
+        if (!is_dir($this->owner->vars['files'][$type] . $directory['string']))
         {
             $this->owner->gettemplate(file_get_contents($config['badrequest']['template']), $config['badrequest']['code']);
         }
-        $filetype = $this->owner->config['filetypes'][$type];
+        $filetype = $this->owner->vars['filetypes'][$type];
         $illegal = array('/', '\\');
         $post = array('template', 'title');
         if ($type != 'code')
@@ -253,7 +259,7 @@ class TIE
                                 $error = $this->owner->vars['language']['filenotvalid'];
                             }
                             $thisdirectory = $this->helper->directorydata($files[$key]['directory']);
-                            $filepath = $this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $files[$key]['title'] . '.' . $filetype;
+                            $filepath = $this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $files[$key]['title'] . '.' . $filetype;
                             if (is_file($filepath))
                             {
                                 $error = $this->owner->vars['language']['duplicatetitle'];
@@ -264,7 +270,7 @@ class TIE
                     {
                         foreach ($_GET['title'] as $value)
                         {
-                            if (is_writable($this->owner->config['files'][$type] . $directory['string']))
+                            if (is_writable($this->owner->vars['files'][$type] . $directory['string']))
                             {
                                 if ($value != '')
                                 {
@@ -289,7 +295,7 @@ class TIE
                     {
                         foreach ($_POST['entry'] as $value)
                         {
-                            if (is_writable($this->owner->config['files'][$type] . $directory['string']))
+                            if (is_writable($this->owner->vars['files'][$type] . $directory['string']))
                             {
                                 if ($value != '')
                                 {
@@ -307,7 +313,7 @@ class TIE
                                     $stripped = str_replace($illegal, '', $value);
                                     $files[] = array
                                     (
-                                        'template' => file_get_contents($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped . '.' . $filetype),
+                                        'template' => file_get_contents($this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped . '.' . $filetype),
                                         'directory' => array_merge($array, $moveto),
                                         'oldtitle' => $stripped,
                                         'title' => $stripped
@@ -328,7 +334,7 @@ class TIE
                             if ($value != '')
                             {
                                 $stripped = str_replace($illegal, '', $value);
-                                $template = str_replace($_POST['find'], $_POST['replacewith'], file_get_contents($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped . '.' . $filetype));
+                                $template = str_replace($_POST['find'], $_POST['replacewith'], file_get_contents($this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped . '.' . $filetype));
                                 $files[] = array
                                 (
                                     'template' => $template,
@@ -404,14 +410,14 @@ class TIE
                                     if ($value != '')
                                     {
                                         $stripped = str_replace($illegal, '', $value);
-                                        if (!is_dir($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped))
+                                        if (!is_dir($this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped))
                                         {
                                             $this->owner->gettemplate(file_get_contents($config['badrequest']['template']), $config['badrequest']['code']);
                                         }
-                                        $templates = array_diff($this->helper->rscandir($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped . '/'), array('.', '..'));
+                                        $templates = array_diff($this->helper->rscandir($this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped . '/'), array('.', '..'));
                                         $templates = array_merge
                                         (
-                                            array($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped),
+                                            array($this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped),
                                             $templates
                                         );
                                         foreach ($templates as $value2)
@@ -455,12 +461,12 @@ class TIE
                                                 {
                                                     $string = $directory['string'];
                                                 }
-                                                $new = str_replace($this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped, $this->owner->config['files'][$type] . $string . $moveto . $showtitle, $value2);
+                                                $new = str_replace($this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped, $this->owner->vars['files'][$type] . $string . $moveto . $showtitle, $value2);
                                                 if (substr($new, strlen($new) - 1) == '/')
                                                 {
                                                     $new = substr($new, 0, -1);
                                                 }
-                                                $new = explode($this->owner->config['files'][$type] . '/', $new, 2);
+                                                $new = explode($this->owner->vars['files'][$type] . '/', $new, 2);
                                                 $new = explode('/', $new[1]);
                                                 $new = array_values($new);
                                                 unset($new[count($new) - 1]);
@@ -522,7 +528,7 @@ class TIE
                         foreach ($directories as $value)
                         {
                             $thisdirectory = $this->helper->directorydata($value['directory']);
-                            $filepath = $this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'];
+                            $filepath = $this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title'];
                             if (!isset($_POST['rename']) && !isset($_POST['copy']) && !isset($_POST['replace']))
                             {
                                 if (!is_dir($filepath) && $value['title'] == '')
@@ -556,12 +562,12 @@ class TIE
                             {
                                 $thisdirectory = $this->helper->directorydata($value['directory']);
                                 $error = false;
-                                if (!is_dir($this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title']))
+                                if (!is_dir($this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title']))
                                 {
-                                    if (is_writable($this->owner->config['files'][$type] . $thisdirectory['string']))
+                                    if (is_writable($this->owner->vars['files'][$type] . $thisdirectory['string']))
                                     {
-                                        mkdir($this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title']);
-                                        chmod($this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'], 0777);
+                                        mkdir($this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title']);
+                                        chmod($this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title'], 0777);
                                     }
                                     else
                                     {
@@ -578,8 +584,8 @@ class TIE
                                 foreach ($files as $value)
                                 {
                                     $thisdirectory = $this->helper->directorydata($value['directory']);
-                                    $filepath = $this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['oldtitle'] . '.' . $filetype;
-                                    $filepath2 = $this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype;
+                                    $filepath = $this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['oldtitle'] . '.' . $filetype;
+                                    $filepath2 = $this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype;
                                     if (!isset($_POST['delete']))
                                     {
                                         if (!isset($_POST['rename']))
@@ -617,12 +623,12 @@ class TIE
                                         if ($error === false)
                                         {
                                             $error = false;
-                                            if (!is_file($this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype))
+                                            if (!is_file($this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype))
                                             {
-                                                if (is_writable($this->owner->config['files'][$type] . $thisdirectory['string']))
+                                                if (is_writable($this->owner->vars['files'][$type] . $thisdirectory['string']))
                                                 {
-                                                    @touch($this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype) or $return = $this->owner->vars['language']['filecouldnotbecreated'];
-                                                    @chmod($this->owner->config['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype, 0666);
+                                                    @touch($this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype) or $return = $this->owner->vars['language']['filecouldnotbecreated'];
+                                                    @chmod($this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value['title'] . '.' . $filetype, 0666);
                                                 }
                                                 else
                                                 {
@@ -648,7 +654,7 @@ class TIE
                                             }
                                             if ($error === false && isset($_POST['move']) && is_array($_POST['entry']) && in_array($value['title'], $_POST['entry']))
                                             {
-                                                unlink($this->owner->config['files'][$type] . $directory['string'] . '/' . $value['title'] . '.' . $filetype);
+                                                unlink($this->owner->vars['files'][$type] . $directory['string'] . '/' . $value['title'] . '.' . $filetype);
                                             }
                                         }
                                     }
@@ -687,9 +693,9 @@ class TIE
                                         {
                                             if (!in_array($value, array('', '.', '..')) && !(isset($_POST['move']) && $value == $_POST['moveto']))
                                             {
-                                                $templates = array_diff($this->helper->rscandir($this->owner->config['files'][$type] . $directory['string'] . '/' . $value . '/'), array('.', '..'));
+                                                $templates = array_diff($this->helper->rscandir($this->owner->vars['files'][$type] . $directory['string'] . '/' . $value . '/'), array('.', '..'));
                                                 $templates = array_reverse($templates);
-                                                $templates[] = $this->owner->config['files'][$type] . $directory['string'] . '/' . $value;
+                                                $templates[] = $this->owner->vars['files'][$type] . $directory['string'] . '/' . $value;
                                                 foreach ($templates as $value2)
                                                 {
                                                     if (is_file($value2))
@@ -782,7 +788,7 @@ class TIE
                     {
                         foreach ($files as $key => $value)
                         {
-                            $files[$key] = $this->owner->config['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value) . '.' . $filetype;
+                            $files[$key] = $this->owner->vars['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value) . '.' . $filetype;
                             if (!is_file($files[$key]))
                             {
                                 unset($files[$key]);
@@ -797,7 +803,7 @@ class TIE
                     {
                         foreach ($directories as $key => $value)
                         {
-                            $directories[$key] = $this->owner->config['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value);
+                            $directories[$key] = $this->owner->vars['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value);
                             if (is_dir($directories[$key]))
                             {
                                 $templates = array_diff($this->helper->rscandir($directories[$key] . '/'), array('.', '..'));
@@ -835,7 +841,7 @@ class TIE
                         {
                             $dir = substr($dir, 0, -1);
                         }
-                        $dir = explode($this->owner->config['files'][$type] . $directory['string'] . '/', $dir, 2);
+                        $dir = explode($this->owner->vars['files'][$type] . $directory['string'] . '/', $dir, 2);
                         $dir = explode('/', $dir[1]);
                         $dir = array_values($dir);
                         unset($dir[count($dir) - 1]);
@@ -857,7 +863,7 @@ class TIE
                     foreach ($files as $value)
                     {
                         $content = file_get_contents($value);
-                        $dir = explode($this->owner->config['files'][$type] . $directory['string'] . '/', $value, 2);
+                        $dir = explode($this->owner->vars['files'][$type] . $directory['string'] . '/', $value, 2);
                         $dir = explode('/', $dir[1]);
                         $dir = array_values($dir);
                         unset($dir[count($dir) - 1]);
@@ -918,7 +924,7 @@ class TIE
         $this->owner->vars['condition']['error'] = ($error);
         if (isset($redirectmessage))
         {
-            $templates = array_diff(scandir($this->owner->config['files'][$type] . $directory['string']), array('.', '..'));
+            $templates = array_diff(scandir($this->owner->vars['files'][$type] . $directory['string']), array('.', '..'));
             if (!empty($directory['array']))
             {
                 $templates = array_merge
@@ -964,8 +970,8 @@ class TIE
                 $sectiontitle
             );
             $stripped = str_replace($illegal, '', $_GET['title']);
-            $filepath = $this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped . '.' . $filetype;
-            $filepath2 = $this->owner->config['files'][$type] . $directory['string'] . '/' . $stripped;
+            $filepath = $this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped . '.' . $filetype;
+            $filepath2 = $this->owner->vars['files'][$type] . $directory['string'] . '/' . $stripped;
             if((in_array($_GET['cmd'], array('edit', 'view')) && !is_file($filepath)) || (in_array($_GET['cmd'], array('rename', 'copy')) && (in_array($_GET['title'], array('.', '..')) || !is_dir($filepath2))))
             {
                 $this->owner->gettemplate(file_get_contents($config['badrequest']['template']), $config['badrequest']['code']);
@@ -980,7 +986,7 @@ class TIE
                 {
                     foreach ($_GET['title'] as $value)
                     {
-                        $filepath = $this->owner->config['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value) . '.' . $filetype;
+                        $filepath = $this->owner->vars['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value) . '.' . $filetype;
                         if (is_file($filepath) && !in_array($value, array('.', '..')))
                         {
                             $titles[] = array
@@ -994,7 +1000,7 @@ class TIE
                 {
                     foreach ($_GET['directorytitle'] as $value)
                     {
-                        $filepath = $this->owner->config['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value);
+                        $filepath = $this->owner->vars['files'][$type] . $directory['string'] . '/' . str_replace($illegal, '', $value);
                         if (is_dir($filepath) && !in_array($value, array('', '.', '..')))
                         {
                             $directorytitles[] = array
@@ -1051,7 +1057,7 @@ class TIE
                 $page = '';
             }
             $section = array($this->owner->vars['language']['page'] . $page . ($this->settings['start'] / $this->settings['list'] + 1));
-            $templates = array_diff(scandir($this->owner->config['files'][$type] . $directory['string']), array('.', '..'));
+            $templates = array_diff(scandir($this->owner->vars['files'][$type] . $directory['string']), array('.', '..'));
             $files = array();
             $directories = array();
             if (is_array($templates))
@@ -1063,7 +1069,7 @@ class TIE
                     {
                         $pos = $this->owner->helper->strpos(basename($value, '.' . $filetype), $this->settings['search']);
                     }
-                    $filepath = $this->owner->config['files'][$type] . $directory['string'] . '/' . $value;
+                    $filepath = $this->owner->vars['files'][$type] . $directory['string'] . '/' . $value;
                     if (is_file($filepath) && $value != basename($value, '.' . $filetype))
                     {
                         $file = false;
@@ -1076,7 +1082,7 @@ class TIE
                             $files[] = $value;
                         }
                     }
-                    elseif (is_dir($this->owner->config['files'][$type] . $directory['string'] . '/' . $value) && $pos !== false)
+                    elseif (is_dir($this->owner->vars['files'][$type] . $directory['string'] . '/' . $value) && $pos !== false)
                     {
                         $directories[] = $value;
                     }
@@ -1132,7 +1138,7 @@ class TIE
                 {
                     if ($iterations >= $this->settings['start'])
                     {
-                        if (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value))
+                        if (is_file($this->owner->vars['files'][$type] . $directory['string'] . '/' . $value))
                         {
                             $title = basename($value, '.' . $filetype);
                         }
@@ -1143,7 +1149,7 @@ class TIE
                         $displaytitle = str_replace(htmlspecialchars($this->settings['search']), $highlightstart . $this->settings['search'] . $highlightend, htmlspecialchars($title));
                         $entries[] = array
                         (
-                            'file' => (is_file($this->owner->config['files'][$type] . $directory['string'] . '/' . $value)),
+                            'file' => (is_file($this->owner->vars['files'][$type] . $directory['string'] . '/' . $value)),
                             'displaytitle' => $displaytitle,
                             'title' => urlencode($title),
                             'up' => ($value == '..')
@@ -1327,8 +1333,8 @@ class TIE
             $content = $this->owner->parse($this->owner->config['parse']['nodes'], $content);
             $this->owner->vars['debug'] = $this->owner->debug;
             $debug = $this->owner->gettemplate(
-                file_get_contents($this->owner->config['files']['templates'] . '/tie/debug.tpl'),
-                array($this->owner->config['files']['code'] . '/tie/debug.inc.php')
+                file_get_contents($this->owner->vars['files']['templates'] . '/tie/debug.tpl'),
+                array($this->owner->vars['files']['code'] . '/tie/debug.inc.php')
             );
             $nodes = array
             (
@@ -1467,6 +1473,6 @@ class TIEHelper
         return $data;
     }
 }
-require $suit->config['files']['code'] . '/tie/config.inc.php';
+require $suit->vars['files']['code'] . '/tie/config.inc.php';
 $suit->tie = new TIE($suit, $config);
 ?>

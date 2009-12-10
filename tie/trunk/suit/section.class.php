@@ -31,19 +31,19 @@ class Section
     {
         if (!array_key_exists('open', $config))
         {
-            $config['open'] = $this->owner->config['parse']['section']['open'];
+            $config['open'] = '[';
         }
         if (!array_key_exists('close', $config))
         {
-            $config['close'] = $this->owner->config['parse']['section']['close'];
+            $config['close'] = ']';
         }
         if (!array_key_exists('end', $config))
         {
-            $config['end'] = $this->owner->config['parse']['section']['end'];
+            $config['end'] = '/';
         }
         if (!array_key_exists('escape', $config))
         {
-            $config['escape'] = $this->owner->config['parse']['section']['escape'];
+            $config['escape'] = $this->owner->escape;
         }
         $nodes = array
         (

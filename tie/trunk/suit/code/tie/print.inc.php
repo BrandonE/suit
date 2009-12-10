@@ -19,16 +19,16 @@ http://www.suitframework.com/docs/credits
 if ($_GET['css'] == 'true')
 {
     header('Content-type: text/css');
-    exit(file_get_contents($suit->config['files']['templates'] . '/tie/css.tpl'));
+    exit(file_get_contents($suit->vars['files']['templates'] . '/tie/css.tpl'));
 }
 if ($_GET['jquery'] == 'true')
 {
     header('Content-type: text/javascript');
-    exit(file_get_contents($suit->config['files']['templates'] . '/tie/jquery.tpl'));
+    exit(file_get_contents($suit->vars['files']['templates'] . '/tie/jquery.tpl'));
 }
 if ($_GET['javascript'] == 'true')
 {
     header('Content-type: text/javascript');
-    exit(file_get_contents($suit->config['files']['templates'] . '/tie/javascript.tpl'));
+    exit(file_get_contents($suit->vars['files']['templates'] . '/tie/javascript.tpl'));
 }
 ?>

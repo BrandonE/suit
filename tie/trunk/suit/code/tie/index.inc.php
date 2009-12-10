@@ -45,8 +45,8 @@ elseif ($_GET['section'] == 'phpinfo')
     if ($suit->tie->config['flag']['debug'])
     {
         echo $suit->template(
-            file_get_contents($suit->config['files']['templates'] . '/tie/debug.tpl'),
-            array($suit->config['files']['code'] . '/tie/debug.inc.php')
+            file_get_contents($suit->vars['files']['templates'] . '/tie/debug.tpl'),
+            array($suit->vars['files']['code'] . '/tie/debug.inc.php')
         );
     }
     phpinfo();

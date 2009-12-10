@@ -1,5 +1,5 @@
-<title>[:sitetitle:] - [:name:]</title>
+<title>[var]sitetitle[/var] - [var]name[/var]</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="[:path=>url:][:path=>urlquerychar:]css=true" rel="stylesheet" type="text/css" />
-<script src="[:path=>url:][:path=>urlquerychar:]jquery=true" type="text/javascript"></script>
-<script src="[:path=>url:][:path=>urlquerychar:]javascript=true" type="text/javascript"></script>
+<link href="[var]path=>url[/var][var]path=>urlquerychar[/var]css=true" rel="stylesheet" type="text/css" />
+<script src="[var]path=>url[/var][var]path=>urlquerychar[/var]jquery=true" type="text/javascript"></script>
+<script src="[var]path=>url[/var][var]path=>urlquerychar[/var]javascript=true" type="text/javascript"></script>

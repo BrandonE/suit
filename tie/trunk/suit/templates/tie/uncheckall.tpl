@@ -1,1 +1,1 @@
-<a href="[:navigationpath=>url:][:navigationpath=>urlquerychar:]start=[:start:]&amp;list=[:list:]&amp;order=[:order:]&amp;search=[:search:]&amp;check=false">[:language=>uncheckall:]</a>
+<a href="[var]navigationpath=>url[/var][var]navigationpath=>urlquerychar[/var]start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var]&amp;check=false">[var]language=>uncheckall[/var]</a>

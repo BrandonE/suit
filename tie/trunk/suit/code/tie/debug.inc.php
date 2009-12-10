@@ -30,8 +30,8 @@ if ($suit->tie->config['flag']['debug'])
                 'id2' => $key2,
                 'ifcode' => ($value2[1]),
                 'ifcodefile' => ($value2[2] !== false),
-                'code' => htmlspecialchars($value2[0]),
-                'codefile' => htmlspecialchars($value2[2])
+                'codefile' => htmlspecialchars($value2[2]),
+                'codename' => htmlspecialchars($value2[0])
             );
         }
         $templates[] = array

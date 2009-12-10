@@ -25,12 +25,12 @@ __version__ = '0.0.2'
 class SUIT(object):
     """An open-source templating framework that allows you to define your own
     syntax through nodes."""
-    def __init__(self, config):
+    def __init__(self, escapestring = '\\', insensitive = True):
         """http://www.suitframework.com/docs/SUIT+Construct"""
         self.helper = helper.Helper(self)
         self.section = section.Section(self)
-        self.config = config
-        self.template = ''
+        self.escapestring = escapestring
+        self.insensitive = insensitive
         self.cache = {
             'escape': {},
             'explodeunescape': {},
@@ -58,12 +58,13 @@ class SUIT(object):
             },
             'template': []
         }
+        self.template = ''
         self.vars = {}
 
     def escape(self, strings, returnvalue, escape = None):
         """http://www.suitframework.com/docs/escape"""
         if escape == None:
-            escape = self.config['parse']['escape']
+            escape = self.escapestring
         cache = hash((returnvalue, pickle.dumps(strings)))
         #If positions are cached for this case, load them
         if cache in self.cache['escape']:
@@ -136,7 +137,7 @@ class SUIT(object):
         """http://www.suitframework.com/docs/explodeunescape"""
         array = []
         if escape == None:
-            escape = self.config['parse']['escape']
+            escape = self.escapestring
         cache = hash((glue, explode))
         #If positions are cached for this case, load them
         if cache in self.cache['explodeunescape']:
@@ -242,7 +243,7 @@ class SUIT(object):
                     ])
         #If a label was provided, log this function
         if label != None:
-            self.debug['parse'].append(debug)
+            self.debug['template'].append(debug)
         return returnvalue
 
     def parse(self, nodes, returnvalue, config = None):

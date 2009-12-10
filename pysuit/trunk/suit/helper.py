@@ -78,7 +78,7 @@ class Helper(object):
         if config == None:
             config = {}
         if not 'escape' in config:
-            config['escape'] = self.owner.config['parse']['escape']
+            config['escape'] = self.owner.escapestring
         if not 'preparse' in config:
             config['preparse'] = False
         if not 'taken' in config:
@@ -168,7 +168,7 @@ class Helper(object):
             self.owner.debug['strpos'][function]['call'] += 1
         #Find the position insensitively or sensitively based on the
         #configuration
-        if self.owner.config['flag']['insensitive']:
+        if self.owner.insensitive:
             return haystack.upper().find(needle.upper(), offset)
         else:
             return haystack.find(needle, offset)

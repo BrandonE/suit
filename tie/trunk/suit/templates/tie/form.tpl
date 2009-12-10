@@ -1,25 +1,25 @@
-        [if condition="[:condition=>code:]" else="true"]
+        [if condition="[var]condition=>code[/var]" else="true"]
         <form action="#" method="post">
-        [if condition="[:condition=>error:]"]
-        <p>[:error:]</p>
+        [if condition="[var]condition=>error[/var]"]
+        <p>[var]error[/var]</p>
         [/if]
         [/if]
-        <p><label for="title">[:language=>inputtitle:]</label>: <input type="text" name="title" id="title" value="[:title:]"[if condition="[:condition=>code:]" trim=""] readonly="readonly"[/if] /></p>
-        [if condition="[:condition=>box:]"]
-        [if condition="[:condition=>code:]" else="true"]
-        <p><label for="template">[:language=>templates:]</label>: <textarea name="template" id="template" rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea">
-[:template:]</textarea></p>
+        <p><label for="title">[var]language=>inputtitle[/var]</label>: <input type="text" name="title" id="title" value="[var]title[/var]"[if condition="[var]condition=>code[/var]" trim=""] readonly="readonly"[/if] /></p>
+        [if condition="[var]condition=>box[/var]"]
+        [if condition="[var]condition=>code[/var]" else="true"]
+        <p><label for="template">[var]language=>templates[/var]</label>: <textarea name="template" id="template" rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea">
+[var]template[/var]</textarea></p>
         [/if]
-        [if condition="[:condition=>code:]"]
-        <p><label for="code">[:language=>code:]</label>: <textarea id="code" rows="40" cols="100" wrap="off" style="width: 100%;" readonly="readonly">
-[:template:]</textarea></p>
+        [if condition="[var]condition=>code[/var]"]
+        <p><label for="code">[var]language=>code[/var]</label>: <textarea id="code" rows="40" cols="100" wrap="off" style="width: 100%;" readonly="readonly">
+[var]template[/var]</textarea></p>
         [/if]
         [/if]
-        [if condition="[:condition=>code:]" else="true"]
+        [if condition="[var]condition=>code[/var]" else="true"]
         <p>
-        <input type="submit" name="[:name:]" value="[:value:]" tabindex="0" />
-        [if condition="[:condition=>editing:]"]
-        <input type="submit" name="editandcontinue" value="[:language=>editandcontinue:]" />
+        <input type="submit" name="[var]name[/var]" value="[var]value[/var]" tabindex="0" />
+        [if condition="[var]condition=>editing[/var]"]
+        <input type="submit" name="editandcontinue" value="[var]language=>editandcontinue[/var]" />
         [/if]
         </p>
         </form>

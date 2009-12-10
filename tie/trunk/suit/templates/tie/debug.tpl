@@ -1,6 +1,6 @@
 <div class="header" id="debug">
     <div class="left">
-        <h1 class="title"><a href="#">[:language=>debug:]</a></h1>
+        <h1 class="title"><a href="#">[var]language=>debug[/var]</a></h1>
     </div>
 </div>
 <div class="nav">
@@ -8,29 +8,29 @@
     <div class="yesscript" style="display: none;">
         <div class="templates">
             <ul>
-                    <li class="selected"><a class="templatestab" href="#debug">[:language=>templates:]</a></li>
-                    <li><a class="parsetab" href="#debug">[:language=>parse:]</a></li>
-                    <li><a class="strpostab" href="#debug">[:language=>strpos:]</a></li>
+                    <li class="selected"><a class="templatestab" href="#debug">[var]language=>templates[/var]</a></li>
+                    <li><a class="parsetab" href="#debug">[var]language=>parse[/var]</a></li>
+                    <li><a class="strpostab" href="#debug">[var]language=>strpos[/var]</a></li>
             </ul>
         </div>
         <div class="parse" style="display: none;">
             <ul>
-                    <li><a class="templatestab" href="#debug">[:language=>templates:]</a></li>
-                    <li class="selected"><a class="parsetab" href="#debug">[:language=>parse:]</a></li>
-                    <li><a class="strpostab" href="#debug">[:language=>strpos:]</a></li>
+                    <li><a class="templatestab" href="#debug">[var]language=>templates[/var]</a></li>
+                    <li class="selected"><a class="parsetab" href="#debug">[var]language=>parse[/var]</a></li>
+                    <li><a class="strpostab" href="#debug">[var]language=>strpos[/var]</a></li>
             </ul>
         </div>
         <div class="strpos" style="display: none;">
             <ul>
-                    <li><a class="templatestab" href="#debug">[:language=>templates:]</a></li>
-                    <li><a class="parsetab" href="#debug">[:language=>parse:]</a></li>
-                    <li class="selected"><a class="strpostab" href="#debug">[:language=>strpos:]</a></li>
+                    <li><a class="templatestab" href="#debug">[var]language=>templates[/var]</a></li>
+                    <li><a class="parsetab" href="#debug">[var]language=>parse[/var]</a></li>
+                    <li class="selected"><a class="strpostab" href="#debug">[var]language=>strpos[/var]</a></li>
             </ul>
         </div>
     </div>
     <noscript>
         <ul>
-                <li class="selected"><a href="#debug">[:language=>empty:]</a></li>
+                <li class="selected"><a href="#debug">[var]language=>empty[/var]</a></li>
         </ul>
     </noscript>
 </div>
@@ -38,208 +38,208 @@
     <div class="section">
         <div class="yesscript" style="display: none;">
             <div class="templates">
-                <h2>[:language=>templates:]</h2>
+                <h2>[var]language=>templates[/var]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop vars="[:loop=>templates:]"]
+                    [loop vars="[var]loop=>templates[/var]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
-                                <a class="templateshow" id="template[|id|]0" href="#NULL" onclick="tab('template[|id|]', true);">[:language=>expand:]</a>
-                                <a class="templatehide" id="template[|id|]1" href="#NULL" onclick="tab('template[|id|]', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="templateshow" id="template[loopvar]id[/loopvar]0" href="#NULL" onclick="tab('template[loopvar]id[/loopvar]', true);">[var]language=>expand[/var]</a>
+                                <a class="templatehide" id="template[loopvar]id[/loopvar]1" href="#NULL" onclick="tab('template[loopvar]id[/loopvar]', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td width="75%">
-                            [|title|]
+                            [loopvar]title[/loopvar]
                         </td>
                     </tr>
-                    <tr class="list-entry templatehide template[|id|]" style="display: none;">
+                    <tr class="list-entry templatehide template[loopvar]id[/loopvar]" style="display: none;">
                         <td>
                             <span class="list-hidden">
-                                <a class="templateboxshow template[|id|]boxshow" id="template[|id|]templatebox0" href="#template[|id|]templatebox" onclick="box('template', '[|id|]', 'template', true);">[:language=>expand:]</a>
-                                <a class="templateboxhide template[|id|]boxhide" id="template[|id|]templatebox1" href="#NULL" onclick="box('template', '[|id|]', 'template', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="templateboxshow template[loopvar]id[/loopvar]boxshow" id="template[loopvar]id[/loopvar]templatebox0" href="#template[loopvar]id[/loopvar]templatebox" onclick="box('template', '[loopvar]id[/loopvar]', 'template', true);">[var]language=>expand[/var]</a>
+                                <a class="templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]templatebox1" href="#NULL" onclick="box('template', '[loopvar]id[/loopvar]', 'template', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td>
-                            [:language=>template:]
+                            [var]language=>template[/var]
                         </td>
                     </tr>
-                    [loop vars="[|code|]"]
-                    <tr class="list-entry templatehide template[|id|]" style="display: none;">
+                    [loop vars="[loopvar]code[/loopvar]"]
+                    <tr class="list-entry templatehide template[loopvar]id[/loopvar]" style="display: none;">
                         <td>
-                            [if condition="[|ifcode|]"]
+                            [if condition="[loopvar]ifcode[/loopvar]"]
                             <span class="list-hidden">
-                                <a class="templateboxshow template[|id|]boxshow" id="template[|id|]code[|id2|]box0" href="#template[|id|]code[|id2|]box" onclick="box('template', '[|id|]', 'code[|id2|]', true);">[:language=>expand:]</a>
-                                <a class="templateboxhide template[|id|]boxhide" id="template[|id|]code[|id2|]box1" href="#NULL" onclick="box('template', '[|id|]', 'code[|id2|]', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="templateboxshow template[loopvar]id[/loopvar]boxshow" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box0" href="#template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box" onclick="box('template', '[loopvar]id[/loopvar]', 'code[loopvar]id2[/loopvar]', true);">[var]language=>expand[/var]</a>
+                                <a class="templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box1" href="#NULL" onclick="box('template', '[loopvar]id[/loopvar]', 'code[loopvar]id2[/loopvar]', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                             [/if]
                         </td>
                         <td>
-                            [:language=>code:]:
-                            [if condition="[|ifcode|]"]
-                            [|code|]
+                            [var]language=>code[/var]:
+                            [if condition="[loopvar]ifcode[/loopvar]"]
+                            [loopvar]codename[/loopvar]
                             [/if]
-                            [if condition="[|ifcode|]" else="true"]
-                            "[|code|]" - [:language=>notfound:]
+                            [if condition="[loopvar]ifcode[/loopvar]" else="true"]
+                            "[loopvar]codename[/loopvar]" - [var]language=>notfound[/var]
                             [/if]
                         </td>
                     </tr>
                     [/loop]
-                    <tr class="list-entry templatehide template[|id|]" style="display: none;">
+                    <tr class="list-entry templatehide template[loopvar]id[/loopvar]" style="display: none;">
                         <td />
                         <td>
-                            [:language=>file:]: [|file|]
+                            [var]language=>file[/var]: [loopvar]file[/loopvar]
                         </td>
                     </tr>
-                    <tr class="list-entry templatehide template[|id|]" style="display: none;">
+                    <tr class="list-entry templatehide template[loopvar]id[/loopvar]" style="display: none;">
                         <td />
                         <td>
-                            [:language=>line:]: [|line|]
+                            [var]language=>line[/var]: [loopvar]line[/loopvar]
                         </td>
                     </tr>
                     [/loop]
-                    [if condition="[:condition=>templates:]" else="true"]
+                    [if condition="[var]condition=>templates[/var]" else="true"]
                     <tr class="list-entry-folder">
                         <td width="25%" />
                         <td width="75%">
-                            [:language=>empty:]
+                            [var]language=>empty[/var]
                         </td>
                     </tr>
                     [/if]
                 </table>
-                [loop vars="[:loop=>templates:]"]
-                <p class="templatehide templateboxhide template[|id|]boxhide" id="template[|id|]templatebox" style="display: none;">
+                [loop vars="[var]loop=>templates[/var]"]
+                <p class="templatehide templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[|template|]</textarea>
+[loopvar]template[/loopvar]</textarea>
                 </p>
-                [loop vars="[|code|]"]
-                [if condition="[|ifcode|]"]
-                <p class="templatehide templateboxhide template[|id|]boxhide" id="template[|id|]code[|id2|]box" style="display: none;">
+                [loop vars="[loopvar]code[/loopvar]"]
+                [if condition="[loopvar]ifcode[/loopvar]"]
+                <p class="templatehide templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[if condition="[|ifcodefile|]"][|codefile|][/if][if condition="[|ifcodefile|]" else="true"][:language=>na:][/if]</textarea>
+[if condition="[loopvar]ifcodefile[/loopvar]"][loopvar]codefile[/loopvar][/if][if condition="[loopvar]ifcodefile[/loopvar]" else="true"][var]language=>na[/var][/if]</textarea>
                 </p>
                 [/if]
                 [/loop]
                 [/loop]
             </div>
             <div class="parse" style="display: none;">
-            <h2>[:language=>parse:]</h2>
+            <h2>[var]language=>parse[/var]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop vars="[:loop=>parse:]"]
+                    [loop vars="[var]loop=>parse[/var]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
-                                <a class="parseshow" id="parse[|id|]0" href="#NULL" onclick="tab('parse[|id|]', true);">[:language=>expand:]</a>
-                                <a class="parsehide" id="parse[|id|]1" href="#NULL" onclick="tab('parse[|id|]', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="parseshow" id="parse[loopvar]id[/loopvar]0" href="#NULL" onclick="tab('parse[loopvar]id[/loopvar]', true);">[var]language=>expand[/var]</a>
+                                <a class="parsehide" id="parse[loopvar]id[/loopvar]1" href="#NULL" onclick="tab('parse[loopvar]id[/loopvar]', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td width="75%">
-                            [|title|]
+                            [loopvar]title[/loopvar]
                         </td>
                     </tr>
-                    <tr class="list-entry parsehide parse[|id|]" style="display: none;">
+                    <tr class="list-entry parsehide parse[loopvar]id[/loopvar]" style="display: none;">
                         <td>
                             <span class="list-hidden">
-                                <a class="parseboxshow parse[|id|]boxshow" id="parse[|id|]templatebox0" href="#parse[|id|]templatebox" onclick="box('parse', '[|id|]', 'template', true);">[:language=>expand:]</a>
-                                <a class="parseboxhide parse[|id|]boxhide" id="parse[|id|]templatebox1" href="#NULL" onclick="box('parse', '[|id|]', 'template', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="parseboxshow parse[loopvar]id[/loopvar]boxshow" id="parse[loopvar]id[/loopvar]templatebox0" href="#parse[loopvar]id[/loopvar]templatebox" onclick="box('parse', '[loopvar]id[/loopvar]', 'template', true);">[var]language=>expand[/var]</a>
+                                <a class="parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]templatebox1" href="#NULL" onclick="box('parse', '[loopvar]id[/loopvar]', 'template', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td>
-                            [:language=>template:]
+                            [var]language=>template[/var]
                         </td>
                     </tr>
-                    <tr class="list-entry parsehide parse[|id|]" style="display: none;">
+                    <tr class="list-entry parsehide parse[loopvar]id[/loopvar]" style="display: none;">
                         <td>
                             <span class="list-hidden">
-                                <a class="parseboxshow parse[|id|]boxshow" id="parse[|id|]returnbox0" href="#parse[|id|]returnbox" onclick="box('parse', '[|id|]', 'return', true);">[:language=>expand:]</a>
-                                <a class="parseboxhide parse[|id|]boxhide" id="parse[|id|]returnbox1" href="#NULL" onclick="box('parse', '[|id|]', 'return', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="parseboxshow parse[loopvar]id[/loopvar]boxshow" id="parse[loopvar]id[/loopvar]returnbox0" href="#parse[loopvar]id[/loopvar]returnbox" onclick="box('parse', '[loopvar]id[/loopvar]', 'return', true);">[var]language=>expand[/var]</a>
+                                <a class="parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]returnbox1" href="#NULL" onclick="box('parse', '[loopvar]id[/loopvar]', 'return', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td>
-                            [:language=>parse:]
+                            [var]language=>parse[/var]
                         </td>
                     </tr>
-                    [if condition="[|ifpreparse|]"]
-                    <tr class="list-entry parsehide parse[|id|]" style="display: none;">
+                    [if condition="[loopvar]ifpreparse[/loopvar]"]
+                    <tr class="list-entry parsehide parse[loopvar]id[/loopvar]" style="display: none;">
                         <td>
                             <span class="list-hidden">
-                                <a class="parseboxshow parse[|id|]boxshow" id="parse[|id|]preparsebox0" href="#parse[|id|]preparsebox" onclick="box('parse', '[|id|]', 'preparse', true);">[:language=>expand:]</a>
-                                <a class="parseboxhide parse[|id|]boxhide" id="parse[|id|]preparsebox1" href="#NULL" onclick="box('parse', '[|id|]', 'preparse', false);" style="display: none;">[:language=>collapse:]</a>
+                                <a class="parseboxshow parse[loopvar]id[/loopvar]boxshow" id="parse[loopvar]id[/loopvar]preparsebox0" href="#parse[loopvar]id[/loopvar]preparsebox" onclick="box('parse', '[loopvar]id[/loopvar]', 'preparse', true);">[var]language=>expand[/var]</a>
+                                <a class="parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]preparsebox1" href="#NULL" onclick="box('parse', '[loopvar]id[/loopvar]', 'preparse', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td>
-                            [:language=>preparse:]
+                            [var]language=>preparse[/var]
                         </td>
                     </tr>
                     [/if]
-                    <tr class="list-entry parsehide parse[|id|]" style="display: none;">
+                    <tr class="list-entry parsehide parse[loopvar]id[/loopvar]" style="display: none;">
                         <td />
                         <td>
-                            [:language=>file:]: [|file|]
+                            [var]language=>file[/var]: [loopvar]file[/loopvar]
                         </td>
                     </tr>
-                    <tr class="list-entry parsehide parse[|id|]" style="display: none;">
+                    <tr class="list-entry parsehide parse[loopvar]id[/loopvar]" style="display: none;">
                         <td />
                         <td>
-                            [:language=>line:]: [|line|]
+                            [var]language=>line[/var]: [loopvar]line[/loopvar]
                         </td>
                     </tr>
                     [/loop]
-                    [if condition="[:condition=>parse:]" else="true"]
+                    [if condition="[var]condition=>parse[/var]" else="true"]
                     <tr class="list-entry-folder">
                         <td width="25%" />
                         <td width="75%">
-                            [:language=>empty:]
+                            [var]language=>empty[/var]
                         </td>
                     </tr>
                     [/if]
                 </table>
-                [loop vars="[:loop=>parse:]"]
-                <p class="parsehide parseboxhide parse[|id|]boxhide" id="parse[|id|]templatebox" style="display: none;">
+                [loop vars="[var]loop=>parse[/var]"]
+                <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[|before|]</textarea>
+[loopvar]before[/loopvar]</textarea>
                 </p>
-                <p class="parsehide parseboxhide parse[|id|]boxhide" id="parse[|id|]returnbox" style="display: none;">
+                <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]returnbox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[|return|]</textarea>
+[loopvar]return[/loopvar]</textarea>
                 </p>
-                [if condition="[|ifpreparse|]"]
-                <p class="parsehide parseboxhide parse[|id|]boxhide" id="parse[|id|]preparsebox" style="display: none;">
+                [if condition="[loopvar]ifpreparse[/loopvar]"]
+                <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]preparsebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[|preparse|]</textarea>
+[loopvar]preparse[/loopvar]</textarea>
                 </p>
                 [/if]
                 [/loop]
             </div>
             <div class="strpos" style="display: none;">
-                <h2>[:language=>strpos:]</h2>
+                <h2>[var]language=>strpos[/var]</h2>
                 <table class="dashboard">
                     <tr>
-                        <th>[:language=>strpos:]</th>
+                        <th>[var]language=>strpos[/var]</th>
                     </tr>
                     <tr>
-                        <td class="category">[:language=>function:]</td>
-                        <td class="category">[:language=>call:]</td>
-                        <td class="category">[:language=>cache:]</td>
+                        <td class="category">[var]language=>function[/var]</td>
+                        <td class="category">[var]language=>call[/var]</td>
+                        <td class="category">[var]language=>cache[/var]</td>
                     </tr>
                     <tr>
-                        <td class="category">[:language=>escape:]</td>
-                        <td>[:escapecall:]</td>
-                        <td>[:escapecache:]</td>
+                        <td class="category">[var]language=>escape[/var]</td>
+                        <td>[var]escapecall[/var]</td>
+                        <td>[var]escapecache[/var]</td>
                     </tr>
                     <tr>
-                        <td class="category">[:language=>explodeunescape:]</td>
-                        <td>[:explodeunescapecall:]</td>
-                        <td>[:explodeunescapecache:]</td>
+                        <td class="category">[var]language=>explodeunescape[/var]</td>
+                        <td>[var]explodeunescapecall[/var]</td>
+                        <td>[var]explodeunescapecache[/var]</td>
                     </tr>
                     <tr>
-                        <td class="category">[:language=>parse:]</td>
-                        <td>[:parsecall:]</td>
-                        <td>[:parsecache:]</td>
+                        <td class="category">[var]language=>parse[/var]</td>
+                        <td>[var]parsecall[/var]</td>
+                        <td>[var]parsecache[/var]</td>
                     </tr>
                     <tr>
-                        <td class="category">[:language=>total:]</td>
-                        <td>[:totalcall:]</td>
-                        <td>[:totalcache:]</td>
+                        <td class="category">[var]language=>total[/var]</td>
+                        <td>[var]totalcall[/var]</td>
+                        <td>[var]totalcache[/var]</td>
                     </tr>
                 </table>
             </div>
@@ -247,7 +247,7 @@
         <noscript>
             <center>
                 <p>
-                    [:language=>enablejavascript:]
+                    [var]language=>enablejavascript[/var]
                 </p>
             </center>
         </noscript>

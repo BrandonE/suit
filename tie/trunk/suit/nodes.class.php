@@ -21,7 +21,7 @@ class Nodes
     {
         $node = $params['nodes'][$params['open']['node']['attribute']];
         //Define the variables
-        $split = $params['suit']->explodeunescape($params['var']['quote'] . $params['var']['separator'], $params['case'], $params['var']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['quote'] . $params['var']['separator'], $params['case'], $params['escape']);
         $size = count($split);
         for ($i = 0; $i < $size; $i++)
         {
@@ -227,6 +227,14 @@ class Nodes
             $size = count($iterationvars);
             for ($i = 0; $i < $size; $i++)
             {
+                $config = array
+                (
+                    'taken' => $result['taken']
+                );
+                if (array_key_exists('label', $params['var']))
+                {
+                    $config['label'] = $params['var']['label'] . $i;
+                }
                 //Parse for this iteration
                 $thiscase = $params['suit']->parse(array_merge($realnodes, $result['nodes'], $iterationvars[$i]), $result['return'], $config);
                 //Trim the result if requested
@@ -289,7 +297,7 @@ class Nodes
     public function loopvariables($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['escape']);
         $params['case'] = $params['var']['var'];
         foreach ($split as $value)
         {
@@ -358,7 +366,7 @@ class Nodes
     public function templates($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['escape']);
         $code = array();
         $size = count($split);
         for ($i = 0; $i < $size; $i++)
@@ -366,22 +374,29 @@ class Nodes
             //If this is the template file, get the file's content
             if ($i == 0)
             {
-                $template = file_get_contents($params['suit']->config['files']['templates'] . '/' . $split[$i] . '.' . $params['suit']->config['filetypes']['templates']);
+                $template = file_get_contents($params['var']['files']['templates'] . '/' . $split[$i] . '.' . $params['var']['filetypes']['templates']);
             }
             //Else, prepare to include the file
             else
             {
-                $code[] = str_replace(array('../', '..\\'), '', $params['suit']->config['files']['code'] . '/' . $split[$i] . '.' . $params['suit']->config['filetypes']['code']);
+                $code[] = str_replace(array('../', '..\\'), '', $params['var']['files']['code'] . '/' . $split[$i] . '.' . $params['var']['filetypes']['code']);
             }
         }
-        $params['case'] = $params['suit']->gettemplate($template, $code);
+        if (array_key_exists('label', $params['var']))
+        {
+            $params['case'] = $params['suit']->gettemplate($template, $code, $params['var']['label']);
+        }
+        else
+        {
+            $params['case'] = $params['suit']->gettemplate($template, $code);
+        }
         return $params;
     }
 
     public function variables($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['var']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['separator'], $params['case'], $params['escape']);
         $params['case'] = $params['suit']->vars;
         foreach ($split as $value)
         {

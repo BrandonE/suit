@@ -1,7 +1,7 @@
-        [if condition="[:condition=>error:]"]
-        <p>[:error:]</p>
+        [if condition="[var]condition=>error[/var]"]
+        <p>[var]error[/var]</p>
         [/if]
-        <p>[:message:]</p>
+        <p>[var]message[/var]</p>
         <form action="#" method="post">
-        <input type="submit" name="[:name:]" value="[:value:]" />
+        <input type="submit" name="[var]name[/var]" value="[var]value[/var]" />
         </form>

@@ -21,7 +21,12 @@ require 'nodes.class.php';
 
 class SUIT
 {
-    public $config = array();
+    public $cache = array
+    (
+        'escape' => array(),
+        'explodeunescape' => array(),
+        'parse' => array()
+    );
 
     public $debug = array
     (
@@ -47,14 +52,11 @@ class SUIT
         )
     );
 
-    public $cache = array
-    (
-        'escape' => array(),
-        'explodeunescape' => array(),
-        'parse' => array()
-    );
+    public $escape = '\\';
 
     public $filepath = '';
+
+    public $insensitive = true;
 
     public $offset = 0;
 
@@ -65,12 +67,13 @@ class SUIT
     /**
     http://www.suitframework.com/docs/SUIT+Construct
     **/
-    public function __construct($config)
+    public function __construct($escape = '\\', $insensitive = true)
     {
         $this->helper = new Helper($this);
         $this->section = new Section($this);
         $this->nodes = new Nodes($this);
-        $this->config = $config;
+        $this->escape = $escape;
+        $this->insensitive = $insensitive;
     }
 
     /**

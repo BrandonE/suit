@@ -31,7 +31,7 @@ def attribute(params):
     split = params['suit'].explodeunescape(
         ''.join((params['var']['quote'], params['var']['separator'])),
         params['case'],
-        params['var']['escape']
+        params['escape']
     )
     for key, value in enumerate(split):
         splitequal = value.split(params['var']['equal'], 1)
@@ -205,6 +205,11 @@ def loop(params):
             config
         )
         for key, value in enumerate(iterationvars):
+            config = {
+                'taken': result['taken']
+            }
+            if 'label' in params['var']:
+                config['label'] = ''.join((params['var']['label'], str(key)))
             #Parse for this iteration
             thiscase = params['suit'].parse(
                 dict(
@@ -213,7 +218,7 @@ def loop(params):
                     value.items()
                 ),
                 result['return'],
-                value
+                config
             )
             #Trim the result if requested
             thiscase = thiscase.lstrip(params['var']['trim'])
@@ -261,7 +266,7 @@ def loopvariables(params):
     split = params['suit'].explodeunescape(
         params['var']['separator'],
         params['case'],
-        params['var']['escape']
+        params['escape']
     )
     params['case'] = params['var']['var']
     for value in split:
@@ -305,7 +310,7 @@ def templates(params):
     split = params['suit'].explodeunescape(
         params['var']['separator'],
         params['case'],
-        params['var']['escape']
+        params['escape']
     )
     code = []
     for key, value in enumerate(split):
@@ -314,11 +319,11 @@ def templates(params):
             template = open(
                 ''.join
                 ((
-                    params['suit'].config['files']['templates'],
+                    params['var']['files']['templates'],
                     '/',
                     value,
                     '.',
-                    params['suit'].config['filetypes']['templates']
+                    params['var']['filetypes']['templates']
                 ))
             ).read()
         #Else, prepare to include the file
@@ -326,14 +331,17 @@ def templates(params):
             code.append(
                 ''.join
                 ((
-                    params['suit'].config['files']['code'],
+                    params['var']['files']['code'],
                     '/',
                     value,
                     '.',
-                    params['suit'].config['filetypes']['code']
+                    params['var']['filetypes']['code']
                 )).replace('../', '').replace('..\\', '')
             )
-    params['case'] = params['suit'].gettemplate(template, code)
+    if 'label' in params['var']:
+        params['case'] = params['suit'].gettemplate(template, code, params['var']['label'])
+    else:
+        params['case'] = params['suit'].gettemplate(template, code)
     return params
 
 def variables(params):
@@ -342,7 +350,7 @@ def variables(params):
     split = params['suit'].explodeunescape(
         params['var']['separator'],
         params['case'],
-        params['var']['escape']
+        params['escape']
     )
     params['case'] = params['suit'].vars
     for value in split:
