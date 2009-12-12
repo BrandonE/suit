@@ -96,11 +96,11 @@ $suit->config['parse']['nodes'] = array
         ),
         'attribute' => '[if]',
         'skip' => true,
+        'skipescape' => true,
         'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
-            'separator' => ' ',
             'quote' => '"'
         )
     ),
@@ -142,13 +142,51 @@ $suit->config['parse']['nodes'] = array
         ),
         'attribute' => '[loop]',
         'skip' => true,
+        'skipescape' => true,
         'skipignore' => true,
         'var' => array
         (
             'blacklist' => true,
             'equal' => '=',
             'list' => array('node'),
-            'separator' => ' ',
+            'quote' => '"'
+        )
+    ),
+    '[replace]' => array
+    (
+        'close' => '[/replace]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'replace',
+                'class' => $suit->nodes
+            )
+        ),
+        'var' => array
+        (
+            'replace' => '',
+            'search' => ''
+        )
+    ),
+    '[replace ' => array
+    (
+        'close' => '"]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $suit->nodes
+            )
+        ),
+        'attribute' => '[replace]',
+        'skip' => true,
+        'skipescape' => true,
+        'skipignore' => true,
+        'var' => array
+        (
+            'equal' => '=',
             'quote' => '"'
         )
     ),
@@ -196,12 +234,12 @@ $suit->config['parse']['nodes'] = array
         ),
         'attribute' => '[template]',
         'skip' => true,
+        'skipescape' => true,
         'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
             'list' => array('label'),
-            'separator' => ' ',
             'quote' => '"'
         )
     ),

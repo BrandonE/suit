@@ -29,42 +29,43 @@ def attribute(params):
         node['var'][value[0]] = value[1]
     #Define the variables
     split = params['suit'].explodeunescape(
-        ''.join((params['var']['quote'], params['var']['separator'])),
+        params['var']['quote'],
         params['case'],
         params['escape']
     )
     for key, value in enumerate(split):
-        splitequal = value.split(params['var']['equal'], 1)
-        #If the syntax is valid and the variable is not whitelisted or
-        #blacklisted, define the variable
-        if (len(splitequal) == 2 and
-        splitequal[1][0] == params['var']['quote'] and
-        (not 'list' in params['var'] or
-        ((not 'blacklist' in params['var'] or
-        not params['var']['blacklist']) and
-        splitequal[0] in params['var']['list']) or
-        ('blacklist' in params['var'] and
-        params['var']['blacklist'] and
-        not splitequal[0] in params['var']['list']))):
-            nodes = params['nodes']
-            splitequal[1] = params['suit'].parse(nodes, splitequal[1])
-            splitequal[0] = params['suit'].parse(nodes, splitequal[0])
-            node['var'][splitequal[0]] = splitequal[1][1:len(splitequal[1])]
-        split[key] = params['var']['equal'].join(splitequal)
+        #If this is the first iteration of the pair
+        if key % 2 == 0:
+            split[key] = split[key].strip()
+            last = split[key][0:len(split[key]) - 1]
+            #If the syntax is not valid or the variable is whitelisted or
+            #blacklisted, do not prepare to define the variable
+            if (split[key][len(split[key]) - 1] != params['var']['equal'] or
+            (not (not 'list' in params['var'] or
+            ((not 'blacklist' in params['var'] or
+            not params['var']['blacklist']) and
+            last in params['var']['list']) or
+            ('blacklist' in params['var'] and
+            params['var']['blacklist'] and
+            not last in params['var']['list'])))):
+                last = ''
+        elif last:
+            #Define the variable
+            split[key] = params['suit'].parse(params['nodes'], split[key])
+            node['var'][last] = split[key]
+    #Add the new node to the stack
     stack = {
         'node': ''.join((
             params['open']['open'],
-            ''.join((
-                params['var']['quote'],
-                params['var']['separator']
-            )).join(split),
+            params['var']['quote'].join(split),
+            params['var']['quote'],
             params['open']['node']['close']
         )),
         'nodes': {},
         'position': params['open']['position'],
-        'stack': [],
         'skipnode': [],
-        'skipignore': False
+        'skipignore': params['skipignore'],
+        'stack': []
     }
     stack['nodes'][stack['node']] = node
     stack = helper.stack(stack)
@@ -73,6 +74,7 @@ def attribute(params):
     params['skipignore'] = stack['skipignore']
     params['preparsenodes'][stack['node']] = node
     params['case'] = stack['node']
+    params['usetaken'] = False
     return params
 
 def comments(params):
@@ -257,7 +259,15 @@ def looppreparse(iterationvars, returnvalue):
 
 def loopvariable(params):
     """Parse a particular variable in a loop"""
-    params['case'] = params['var']
+    if not params['case']:
+        params['case'] = params['var']
+    else:
+        params['case'] = ''.join((
+            params['open']['open'],
+            params['case'],
+            params['open']['node']['close']
+        ))
+        params['usetaken'] = False
     return params
 
 def loopvariables(params):
@@ -271,6 +281,14 @@ def loopvariables(params):
     params['case'] = params['var']['var']
     for value in split:
         params['case'] = params['case'][value]
+    return params
+
+def replace(params):
+    """Replace in the case"""
+    params['case'] = params['case'].replace(
+        params['var']['search'],
+        params['var']['replace']
+    )
     return params
 
 def returning(params):
@@ -339,7 +357,11 @@ def templates(params):
                 )).replace('../', '').replace('..\\', '')
             )
     if 'label' in params['var']:
-        params['case'] = params['suit'].gettemplate(template, code, params['var']['label'])
+        params['case'] = params['suit'].gettemplate(
+            template,
+            code,
+            params['var']['label']
+        )
     else:
         params['case'] = params['suit'].gettemplate(template, code)
     return params

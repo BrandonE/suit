@@ -1047,16 +1047,7 @@ class TIE
         else
         {
             $return = $this->owner->gettemplate(file_get_contents($config['entries']['template']), $config['entries']['code']);
-            $page = $this->owner->section->get('section page', &$return);
-            if (!empty($page))
-            {
-                $page = $page[0];
-            }
-            else
-            {
-                $page = '';
-            }
-            $section = array($this->owner->vars['language']['page'] . $page . ($this->settings['start'] / $this->settings['list'] + 1));
+            $section = array($this->owner->vars['language']['page'] . ($this->settings['start'] / $this->settings['list'] + 1));
             $templates = array_diff(scandir($this->owner->vars['files'][$type] . $directory['string']), array('.', '..'));
             $files = array();
             $directories = array();
@@ -1116,24 +1107,7 @@ class TIE
             $entries = array();
             if (!empty($templates))
             {
-                $highlightstart = $this->owner->section->get('section highlightstart', &$return);
-                $highlightend = $this->owner->section->get('section highlightend', &$return);
-                if (!empty($highlightstart))
-                {
-                    $highlightstart = $highlightstart[0];
-                }
-                else
-                {
-                    $highlightstart = '';
-                }
-                if (!empty($highlightend))
-                {
-                    $highlightend = $highlightend[0];
-                }
-                else
-                {
-                    $highlightend = '';
-                }
+                $this->owner->vars['highlight'] = htmlspecialchars($this->settings['search']);
                 foreach ($templates as $value)
                 {
                     if ($iterations >= $this->settings['start'])
@@ -1146,11 +1120,10 @@ class TIE
                         {
                             $title = $value;
                         }
-                        $displaytitle = str_replace(htmlspecialchars($this->settings['search']), $highlightstart . $this->settings['search'] . $highlightend, htmlspecialchars($title));
                         $entries[] = array
                         (
                             'file' => (is_file($this->owner->vars['files'][$type] . $directory['string'] . '/' . $value)),
-                            'displaytitle' => $displaytitle,
+                            'displaytitle' => htmlspecialchars($title),
                             'title' => urlencode($title),
                             'up' => ($value == '..')
                         );

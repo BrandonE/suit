@@ -314,21 +314,21 @@ class Helper
             //If this reserved range is in this case
             if ($params['open']['position'] < $params['taken'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['taken'][$key[$i]][1])
             {
-                //If the node does not just strip the opening and closing string, remove the range
-                if (!$params['open']['node']['strip'])
-                {
-                    unset($params['taken'][$key[$i]]);
-                }
-                //Else, adjust the range to the removal of the opening string and trimming
-                else
+                //If the node just strips the opening and closing strings, adjust the range to the removal of the opening string and trimming
+                if (array_key_exists('strip', $params['open']['node']) || $params['open']['node']['strip'])
                 {
                     $params['taken'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
                     $params['taken'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
                 }
+                //Else, if this case should be taken, remove the range
+                elseif ($params['usetaken'])
+                {
+                    unset($params['taken'][$key[$i]]);
+                }
             }
         }
-        //If the node does not just strip the opening and closing string, this is not an attribute node, and the case is not empty, reserve the transformed case
-        if ((!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip']) && !array_key_exists('attribute', $params['open']['node']) && $params['case'])
+        //If the node does not just strip the opening and closing strings, this case should be taken, and the case is not empty, reserve the transformed case
+        if ((!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip']) && $params['usetaken'] && $params['case'])
         {
             $params['taken'][] = array($params['open']['position'], $params['last']);
         }
@@ -443,10 +443,27 @@ class Helper
             {
                 $params['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
             }
-            //If this is an attribute node, put the popped value back
+            //If this is an attribute node
             if (array_key_exists('attribute', $params['open']['node']))
             {
+                //Put the popped value back
                 $params['stack'][] = $params['open'];
+                //If the node is a skipping node and does not just strip the opening and closing strings, skip
+                if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]) && $params['nodes'][$params['open']['node']['attribute']]['skip'] && (!array_key_exists('strip', $params['nodes'][$params['open']['node']['attribute']]) || !$params['nodes'][$params['open']['node']['attribute']]['strip']))
+                {
+                    $stack = array
+                    (
+                        'node' => $params['open']['open'],
+                        'nodes' => $params['nodes'],
+                        'position' => $params['open']['position'],
+                        'skipnode' => array(),
+                        'skipignore' => $params['skipignore'],
+                        'stack' => array()
+                    );
+                    $stack = $this->stack($stack);
+                    $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
+                    $params['skipignore'] = $stack['skipignore'];
+                }
             }
         }
         return $params;

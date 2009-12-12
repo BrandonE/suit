@@ -21,27 +21,37 @@ class Nodes
     {
         $node = $params['nodes'][$params['open']['node']['attribute']];
         //Define the variables
-        $split = $params['suit']->explodeunescape($params['var']['quote'] . $params['var']['separator'], $params['case'], $params['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['quote'], $params['case'], $params['escape']);
         $size = count($split);
         for ($i = 0; $i < $size; $i++)
         {
-            $splitequal = explode($params['var']['equal'], $split[$i], 2);
-            //If the syntax is valid and the variable is not whitelisted or blacklisted, define the variable
-            if (count($splitequal) == 2 && substr($splitequal[1], 0, 1) == $params['var']['quote'] && (!array_key_exists('list', $params['var']) || ((!array_key_exists('blacklist', $params['var']) || !$params['var']['blacklist']) && in_array($splitequal[0], $params['var']['list'])) || (array_key_exists('blacklist', $params['var']) && $params['var']['blacklist'] && !in_array($splitequal[0], $params['var']['list']))))
+            //If this is the first iteration of the pair
+            if ($i % 2 == 0)
             {
-                $splitequal[1] = $params['suit']->parse($params['nodes'], $splitequal[1]);
-                $splitequal[0] = $params['suit']->parse($params['nodes'], $splitequal[0]);
-                $node['var'][$splitequal[0]] = substr($splitequal[1], 1);
+                $split[$i] = trim($split[$i]);
+                $last = substr_replace($split[$i], '', strlen($split[$i]) - 1);
+                //If the syntax is not valid or the variable is whitelisted or blacklisted, do not prepare to define the variable
+                if (substr($split[$i], strlen($split[$i]) - 1) != $params['var']['equal'] || (!(!array_key_exists('list', $params['var']) || ((!array_key_exists('blacklist', $params['var']) || !$params['var']['blacklist']) && in_array($last, $params['var']['list'])) || (array_key_exists('blacklist', $params['var']) && $params['var']['blacklist'] && !in_array($last, $params['var']['list'])))))
+                {
+                    $last = '';
+                }
             }
-            $split[$i] = implode($params['var']['equal'], $splitequal);
+            elseif ($last)
+            {
+                //Define the variable
+                $split[$i] = $params['suit']->parse($params['nodes'], $split[$i]);
+                $node['var'][$last] = $split[$i];
+            }
         }
+        //Add the new node to the stack
         $stack = array
         (
-            'node' => $params['open']['open'] . implode($params['var']['quote'] . $params['var']['separator'], $split) . $params['open']['node']['close'],
+            'node' => $params['open']['open'] . implode($params['var']['quote'], $split) . $params['var']['quote'] . $params['open']['node']['close'],
             'nodes' => array(),
             'position' => $params['open']['position'],
             'skipnode' => array(),
-            'skipignore' => false
+            'skipignore' => $params['skipignore'],
+            'stack' => array()
         );
         $stack['nodes'][$stack['node']] = $node;
         $stack = $params['suit']->helper->stack($stack);
@@ -50,6 +60,7 @@ class Nodes
         $params['skipignore'] = $stack['skipignore'];
         $params['preparsenodes'][$stack['node']] = $node;
         $params['case'] = $stack['node'];
+        $params['usetaken'] = false;
         return $params;
     }
 
@@ -290,7 +301,15 @@ class Nodes
 
     public function loopvariable($params)
     {
-        $params['case'] = $params['var'];
+        if (!$params['case'])
+        {
+            $params['case'] = $params['var'];
+        }
+        else
+        {
+            $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
+            $params['usetaken'] = false;
+        }
         return $params;
     }
 
@@ -303,6 +322,12 @@ class Nodes
         {
             $params['case'] = $params['case'][$value];
         }
+        return $params;
+    }
+
+    public function replace($params)
+    {
+        $params['case'] = str_replace($params['var']['search'], $params['var']['replace'], $params['case']);
         return $params;
     }
 

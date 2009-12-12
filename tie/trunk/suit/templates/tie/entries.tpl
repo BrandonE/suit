@@ -78,7 +78,9 @@
                     </span>
                 </td>
                 <td>
-                    [if condition="[loopvar]up[/loopvar]" else="true"]<label for="[if condition="[loopvar]file[/loopvar]" else="true"]directory[/if][loopvar]title[/loopvar]">[/if][loopvar]displaytitle[/loopvar][if condition="[loopvar]up[/loopvar]" else="true"]</label>[/if]
+                    [if condition="[loopvar]up[/loopvar]" else="true"]<label for="[if condition="[loopvar]file[/loopvar]" else="true"]directory[/if][loopvar]title[/loopvar]">[/if]
+                    [replace search="[var]highlight[/var]" replace="<strong>[var]highlight[/var]</strong>"][loopvar]displaytitle[/loopvar][/replace]
+                    [if condition="[loopvar]up[/loopvar]" else="true"]</label>[/if]
                 </td>
             </tr>
             [/loop]
@@ -103,6 +105,3 @@
         [if condition="[var]condition=>code[/var]" else="true"]
         </form>
         [/if]
-[section highlightstart]<strong>[/section highlightstart]
-[section highlightend]</strong>[/section highlightend]
-[section page] [/section page]

@@ -19,15 +19,6 @@ http://www.suitframework.com/docs/credits
 $path = $suit->tie->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'check', 'section', 'start', 'title'));
 $suit->vars['sitetitle'] = $suit->vars['language']['title'];
 $suit->vars['path'] = $path;
-$separator = $suit->section->get('section separator', &$template);
-if (!empty($separator))
-{
-    $separator = $separator[0];
-}
-else
-{
-    $separator = '';
-}
 if (in_array($_GET['section'], array('code', 'templates')))
 {
     $suit->vars['condition']['dashboard'] = false;
@@ -38,7 +29,20 @@ if (in_array($_GET['section'], array('code', 'templates')))
         array($suit->vars['language'][$_GET['section']]),
         $return['section']
     );
-    $section = implode($separator, $section);
+    $section = array
+    (
+        array
+        (
+            'title' => $suit->vars['language'][$_GET['section']]
+        )
+    );
+    foreach ($return['section'] as $value)
+    {
+        $section[] = array
+        (
+            'title' => $value
+        );
+    }
 }
 elseif ($_GET['section'] == 'phpinfo')
 {
@@ -54,7 +58,13 @@ elseif ($_GET['section'] == 'phpinfo')
 }
 else
 {
-    $section = $suit->vars['language']['dashboard'];
+    $section = array
+    (
+        array
+        (
+            'title' => $suit->vars['language']['dashboard']
+        )
+    );
     if ($_GET['tieversion'] == 'true')
     {
         $version = @file_get_contents('http://suitframework.sourceforge.net/tieversion.txt');
@@ -92,8 +102,7 @@ else
     $suit->vars['phpversion'] = PHP_VERSION;
     $suit->vars['servertype'] = PHP_OS;
 }
-$suit->vars['name'] = $section;
-$suit->vars['section'] = $section;
 $suit->vars['condition']['version'] = false;
+$suit->vars['loop']['section'] = serialize($section);
 $template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

@@ -238,9 +238,27 @@ class Helper(object):
                     params['open']['position'],
                     params['position'] + len(params['open']['node']['close'])
                 ])
-            #If this is an attribute node, put the popped value back
+            #If this is an attribute node
             if 'attribute' in params['open']['node']:
+                #Put the popped value back
                 params['stack'].append(params['open'])
+                #If the node is a skipping node and does not just strip the
+                #opening and closing strings, skip
+                if ('skip' in params['nodes'][params['open']['node']['attribute']] and
+                params['nodes'][params['open']['node']['attribute']]['skip'] and
+                (not 'strip' in params['nodes'][params['open']['node']['attribute']] or
+                not params['nodes'][params['open']['node']['attribute']]['strip'])):
+                    stack = {
+                        'node': params['open']['open'],
+                        'nodes': params['nodes'],
+                        'position': params['open']['position'],
+                        'skipnode': [],
+                        'skipignore': params['skipignore'],
+                        'stack': array()
+                    }
+                    stack = self.stack(stack)
+                    params['skipnode'].update(stack['skipnode'])
+                    params['skipignore'] = stack['skipignore']
         return params
 
 def openingstring(params):
@@ -361,25 +379,23 @@ def preparse(params):
         #If this reserved range is in this case
         if (params['open']['position'] < value[0] and
         params['position'] + length > value[1]):
-            #If the node does not just strip the opening and closing
-            #string, remove the range
-            if (not 'strip' in params['open']['node'] or
+            #If the node just strips the opening and closing strings, adjust
+            #the range to the removal of the opening string and trimming
+            if ('strip' in params['open']['node'] and
             not params['open']['node']['strip']):
-                success = False
-            #Else, adjust the range to the removal of the opening string
-            #and trimming
-            else:
                 value[0] += params['offset'] - len(params['open']['open'])
                 value[1] += params['offset'] - len(params['open']['open'])
+            #Else, if this case should be taken, remove the range
+            elif params['usetaken']:
+                success = False
         if success:
             clone.append(value)
     params['taken'] = clone
-    #If the node does not just strip the opening and closing string, this is
-    #not an attribute node, and the case is not empty, reserve the transformed
-    #case
+    #If the node does not just strip the opening and closing strings, this case
+    #should be taken, and the case is not empty, reserve the transformed case
     if ((not 'strip' in params['open']['node'] or
-    not params['open']['node']['strip']) and
-    not 'attribute' in params['open']['node'] and
+    params['open']['node']['strip']) and
+    params['usetaken'] and
     params['case']):
         params['taken'].append([
             params['open']['position'],

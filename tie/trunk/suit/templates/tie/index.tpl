@@ -1,7 +1,7 @@
 [if condition="[var]condition=>version[/var]" else="true"]
 [template]tie/header=>tie/header=>tie/parse[/template]
     <div class="section">
-        <h2>[var]section[/var]</h2>
+        <h2>[loop vars="[var]loop=>section[/var]" delimiter=" - "][loopvar]title[/loopvar][/loop]</h2>
         [if condition="[var]condition=>dashboard[/var]"]
         <table class="dashboard">
             <tr>
@@ -50,7 +50,6 @@
         [/if]
     </div>
 [template]tie/footer=>tie/parse[/template]
-[section separator] - [/section separator]
 [/if]
 [if condition="[var]condition=>version[/var]"]
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

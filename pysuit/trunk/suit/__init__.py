@@ -307,6 +307,7 @@ class SUIT(object):
                 config['escape'],
                 returnvalue
             )
+            params['usetaken'] = True
             function = self.helper.closingstring
             #If this is the opening string and it should not be skipped over
             if value[1][1] == 0:

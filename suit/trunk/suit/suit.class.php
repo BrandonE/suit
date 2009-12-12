@@ -342,6 +342,7 @@ class SUIT
             $params['position'] = $position;
             $params['return'] = $return;
             $params['unescape'] = $this->helper->parseunescape($position, $config['escape'], $return);
+            $params['usetaken'] = true;
             $function = 'closingstring';
             //If this is the opening string and it should not be skipped over
             if ($pos[$key[$i]][1] == 0)
