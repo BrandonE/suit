@@ -30,6 +30,43 @@ $suit->vars['filetypes'] = array
 );
 $suit->config['parse']['nodes'] = array
 (
+    '[assign]' => array
+    (
+        'close' => '[/assign]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'assign',
+                'class' => $suit->nodes
+            )
+        ),
+        'var' => array
+        (
+            'var' => ''
+        )
+    ),
+    '[assign ' => array
+    (
+        'close' => '"]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $suit->nodes
+            )
+        ),
+        'attribute' => '[assign]',
+        'skip' => true,
+        'skipescape' => true,
+        'skipignore' => true,
+        'var' => array
+        (
+            'equal' => '=',
+            'quote' => '"'
+        )
+    ),
     '[comment]' => array
     (
         'close' => '[/comment]',
@@ -58,6 +95,20 @@ $suit->config['parse']['nodes'] = array
         'skipescape' => true,
         'var' => "\r.\n.\t ."
     ),
+    /*
+    '[eval]' => array
+    (
+        'close' => '[/eval]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'evaluation',
+                'class' => $suit->nodes
+            )
+        )
+    ),
+    */
     '[if]' => array
     (
         'close' => '[/if]',

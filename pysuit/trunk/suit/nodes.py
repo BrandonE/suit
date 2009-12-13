@@ -17,6 +17,12 @@ http://www.suitframework.com/docs/credits
 import helper
 import pickle
 
+def assign(params):
+    """Assign variable in template"""
+    params['suit'].vars[params['var']['var']] = params['case']
+    params['case'] = ''
+    return params
+
 def attribute(params):
     """Create node out of attributes"""
     node = params['nodes'][params['open']['node']['attribute']]
@@ -37,10 +43,12 @@ def attribute(params):
         #If this is the first iteration of the pair
         if key % 2 == 0:
             split[key] = split[key].strip()
-            last = split[key][0:len(split[key]) - 1]
+            last = split[key][0:len(split[key]) - len(params['var']['equal'])]
             #If the syntax is not valid or the variable is whitelisted or
             #blacklisted, do not prepare to define the variable
-            if (split[key][len(split[key]) - 1] != params['var']['equal'] or
+            if (split[key][
+                len(split[key]) - len(params['var']['equal'])
+            ] != params['var']['equal'] or
             (not (not 'list' in params['var'] or
             ((not 'blacklist' in params['var'] or
             not params['var']['blacklist']) and
@@ -117,6 +125,11 @@ def escape(params):
     params['offset'] = len(params['offset']) - len(params['case'])
     #Trim the case if requested
     params['case'] = params['case'].strip(params['var'])
+    return params
+
+def evaluation(params):
+    """Evaluate a Python statement"""
+    params['case'] = eval(params['case'])
     return params
 
 def getsection(params):

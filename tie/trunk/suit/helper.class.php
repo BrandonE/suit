@@ -431,6 +431,7 @@ class Helper
                 $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
                 $params['offset'] = len($params['open']['open']);
             }
+            $params['case'] = strval($params['case']);
             //Replace everything including and between the opening and closing strings with the transformed string
             $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
             $params['last'] = $params['open']['position'] + strlen($params['case']);
@@ -451,7 +452,7 @@ class Helper
                 //If the node is a skipping node and does not just strip the opening and closing strings, skip
                 if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]) && $params['nodes'][$params['open']['node']['attribute']]['skip'] && (!array_key_exists('strip', $params['nodes'][$params['open']['node']['attribute']]) || !$params['nodes'][$params['open']['node']['attribute']]['strip']))
                 {
-                    $stack = array
+                    $newstack = array
                     (
                         'node' => $params['open']['open'],
                         'nodes' => $params['nodes'],
@@ -460,9 +461,9 @@ class Helper
                         'skipignore' => $params['skipignore'],
                         'stack' => array()
                     );
-                    $stack = $this->stack($stack);
-                    $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
-                    $params['skipignore'] = $stack['skipignore'];
+                    $newstack = $this->stack($newstack);
+                    $params['skipnode'] = array_merge($params['skipnode'], $newstack['skipnode']);
+                    $params['skipignore'] = $newstack['skipignore'];
                 }
             }
         }

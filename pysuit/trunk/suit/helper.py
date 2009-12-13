@@ -220,6 +220,7 @@ class Helper(object):
                     params['open']['node']['close']
                 ))
                 params['offset'] = len(params['open']['open'])
+            params['case'] = str(params['case'])
             start = params['position'] + len(params['open']['node']['close'])
             #Replace everything including and between the opening and closing
             #strings with the transformed string
@@ -244,21 +245,29 @@ class Helper(object):
                 params['stack'].append(params['open'])
                 #If the node is a skipping node and does not just strip the
                 #opening and closing strings, skip
-                if ('skip' in params['nodes'][params['open']['node']['attribute']] and
-                params['nodes'][params['open']['node']['attribute']]['skip'] and
-                (not 'strip' in params['nodes'][params['open']['node']['attribute']] or
-                not params['nodes'][params['open']['node']['attribute']]['strip'])):
-                    stack = {
+                if ('skip' in params['nodes'][
+                    params['open']['node']['attribute']
+                ] and
+                params['nodes'][
+                    params['open']['node']['attribute']]['skip'
+                ] and
+                (not 'strip' in params['nodes'][
+                    params['open']['node']['attribute']
+                ] or
+                not params['nodes'][
+                    params['open']['node']['attribute']
+                ]['strip'])):
+                    newstack = {
                         'node': params['open']['open'],
                         'nodes': params['nodes'],
                         'position': params['open']['position'],
                         'skipnode': [],
                         'skipignore': params['skipignore'],
-                        'stack': array()
+                        'stack': []
                     }
-                    stack = self.stack(stack)
-                    params['skipnode'].update(stack['skipnode'])
-                    params['skipignore'] = stack['skipignore']
+                    newstack = stack(newstack)
+                    params['skipnode'].update(newstack['skipnode'])
+                    params['skipignore'] = newstack['skipignore']
         return params
 
 def openingstring(params):

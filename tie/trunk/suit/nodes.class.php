@@ -17,6 +17,13 @@ http://www.suitframework.com/docs/credits
 **/
 class Nodes
 {
+    public function assign($params)
+    {
+        $params['suit']->vars[$params['var']['var']] = $params['case'];
+        $params['case'] = '';
+        return $params;
+    }
+
     public function attribute($params)
     {
         $node = $params['nodes'][$params['open']['node']['attribute']];
@@ -29,9 +36,9 @@ class Nodes
             if ($i % 2 == 0)
             {
                 $split[$i] = trim($split[$i]);
-                $last = substr_replace($split[$i], '', strlen($split[$i]) - 1);
+                $last = substr_replace($split[$i], '', strlen($split[$i]) - strlen($params['var']['equal']));
                 //If the syntax is not valid or the variable is whitelisted or blacklisted, do not prepare to define the variable
-                if (substr($split[$i], strlen($split[$i]) - 1) != $params['var']['equal'] || (!(!array_key_exists('list', $params['var']) || ((!array_key_exists('blacklist', $params['var']) || !$params['var']['blacklist']) && in_array($last, $params['var']['list'])) || (array_key_exists('blacklist', $params['var']) && $params['var']['blacklist'] && !in_array($last, $params['var']['list'])))))
+                if (substr($split[$i], strlen($split[$i]) - strlen($params['var']['equal'])) != $params['var']['equal'] || (!(!array_key_exists('list', $params['var']) || ((!array_key_exists('blacklist', $params['var']) || !$params['var']['blacklist']) && in_array($last, $params['var']['list'])) || (array_key_exists('blacklist', $params['var']) && $params['var']['blacklist'] && !in_array($last, $params['var']['list'])))))
                 {
                     $last = '';
                 }
@@ -107,6 +114,12 @@ class Nodes
         $params['offset'] = strlen($params['offset']) - strlen($params['case']);
         //Trim the case if requested
         $params['case'] = trim($params['case'], $params['var']);
+        return $params;
+    }
+
+    public function evaluation($params)
+    {
+        $params['case'] = eval($params['case']);
         return $params;
     }
 
@@ -244,7 +257,7 @@ class Nodes
                 );
                 if (array_key_exists('label', $params['var']))
                 {
-                    $config['label'] = $params['var']['label'] . $i;
+                    $config['label'] = $params['var']['label'] . strval($i);
                 }
                 //Parse for this iteration
                 $thiscase = $params['suit']->parse(array_merge($realnodes, $result['nodes'], $iterationvars[$i]), $result['return'], $config);
