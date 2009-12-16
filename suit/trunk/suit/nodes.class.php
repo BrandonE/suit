@@ -19,7 +19,10 @@ class Nodes
 {
     public function assign($params)
     {
-        $params['suit']->vars[$params['var']['var']] = $params['case'];
+        if ($params['var']['var'])
+        {
+            $params['suit']->vars[$params['var']['var']] = $params['case'];
+        }
         $params['case'] = '';
         return $params;
     }
@@ -160,7 +163,12 @@ class Nodes
             'ignore' => array(),
             'same' => array()
         );
-        foreach (unserialize($params['var']['vars']) as $value)
+        $vars = unserialize($params['var']['vars']);
+        if (!is_array($vars))
+        {
+            throw new Exception();
+        }
+        foreach ($vars as $value)
         {
             $var = array
             (
@@ -427,6 +435,23 @@ class Nodes
         else
         {
             $params['case'] = $params['suit']->gettemplate($template, $code);
+        }
+        return $params;
+    }
+
+    public function trying($params)
+    {
+        try
+        {
+            $params['case'] = $params['suit']->parse($params['nodes'], $params['case']);
+        }
+        catch (Exception $e)
+        {
+            if ($params['var']['var'])
+            {
+                $params['suit']->vars[$params['var']['var']] = $e;
+            }
+            $params['case'] = '';
         }
         return $params;
     }

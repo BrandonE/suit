@@ -16,10 +16,12 @@ http://www.suitframework.com/docs/credits
 """
 import helper
 import pickle
+import sys
 
 def assign(params):
     """Assign variable in template"""
-    params['suit'].vars[params['var']['var']] = params['case']
+    if params['var']['var']:
+        params['suit'].vars[params['var']['var']] = params['case']
     params['case'] = ''
     return params
 
@@ -377,6 +379,21 @@ def templates(params):
         )
     else:
         params['case'] = params['suit'].gettemplate(template, code)
+    return params
+
+def trying(params):
+    """Try and use exceptions on parsing"""
+    try:
+        params['case'] = params['suit'].parse(params['nodes'], params['case'])
+    except:
+        if params['var']['var']:
+            info = sys.exc_info()
+            params['suit'].vars[params['var']['var']] = {
+                'type': info[0],
+                'value': info[1],
+                'traceback': info[2]
+            }
+        params['case'] = ''
     return params
 
 def variables(params):

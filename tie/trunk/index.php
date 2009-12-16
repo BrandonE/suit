@@ -294,6 +294,57 @@ $suit->config['parse']['nodes'] = array
             'quote' => '"'
         )
     ),
+    '[return ' => array
+    (
+        'close' => '/]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'returning',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true
+    ),
+    '[try]' => array
+    (
+        'close' => '[/try]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'trying',
+                'class' => $suit->nodes
+            )
+        ),
+        'skip' => true,
+        'var' => array
+        (
+            'var' => ''
+        )
+    ),
+    '[try ' => array
+    (
+        'close' => '"]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $suit->nodes
+            )
+        ),
+        'attribute' => '[try]',
+        'skip' => true,
+        'skipescape' => true,
+        'skipignore' => true,
+        'var' => array
+        (
+            'equal' => '=',
+            'quote' => '"'
+        )
+    ),
     '[var]' => array
     (
         'close' => '[/var]',
