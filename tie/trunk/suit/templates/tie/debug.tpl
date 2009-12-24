@@ -40,7 +40,7 @@
             <div class="templates">
                 <h2>[var]language=>templates[/var]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop vars="[var]loop=>templates[/var]"]
+                    [loop vars="[var serialize=\"true\"]loop=>templates[/var]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
@@ -63,7 +63,7 @@
                             [var]language=>template[/var]
                         </td>
                     </tr>
-                    [loop vars="[loopvar]code[/loopvar]"]
+                    [loop vars="[loopvar serialize=\"true\"]code[/loopvar]"]
                     <tr class="list-entry templatehide template[loopvar]id[/loopvar]" style="display: none;">
                         <td>
                             [if condition="[loopvar]ifcode[/loopvar]"]
@@ -106,12 +106,12 @@
                     </tr>
                     [/if]
                 </table>
-                [loop vars="[var]loop=>templates[/var]"]
+                [loop vars="[var serialize=\"true\"]loop=>templates[/var]"]
                 <p class="templatehide templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [loopvar]template[/loopvar]</textarea>
                 </p>
-                [loop vars="[loopvar]code[/loopvar]"]
+                [loop vars="[loopvar serialize=\"true\"]code[/loopvar]"]
                 [if condition="[loopvar]ifcode[/loopvar]"]
                 <p class="templatehide templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
@@ -124,7 +124,7 @@
             <div class="parse" style="display: none;">
             <h2>[var]language=>parse[/var]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop vars="[var]loop=>parse[/var]"]
+                    [loop vars="[var serialize=\"true\"]loop=>parse[/var]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
@@ -193,7 +193,7 @@
                     </tr>
                     [/if]
                 </table>
-                [loop vars="[var]loop=>parse[/var]"]
+                [loop vars="[var serialize=\"true\"]loop=>parse[/var]"]
                 <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [loopvar]before[/loopvar]</textarea>

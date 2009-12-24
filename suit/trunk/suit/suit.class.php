@@ -17,7 +17,6 @@ http://www.suitframework.com/docs/credits
 **/
 require 'helper.class.php';
 require 'section.class.php';
-require 'nodes.class.php';
 
 class SUIT
 {
@@ -52,7 +51,7 @@ class SUIT
         )
     );
 
-    public $escape = '\\';
+    public $escapestring = '\\';
 
     public $filepath = '';
 
@@ -71,7 +70,6 @@ class SUIT
     {
         $this->helper = new Helper($this);
         $this->section = new Section($this);
-        $this->nodes = new Nodes($this);
         $this->escape = $escape;
         $this->insensitive = $insensitive;
     }
@@ -310,23 +308,23 @@ class SUIT
         }
         $preparse = array
         (
-            'taken' => array(),
-            'ignored' => array()
+            'ignored' => array(),
+            'taken' => array()
         );
         $params = array
         (
-            'escape' => $config['escape'],
-            'ignored' => array(),
+            'config' => $config,
             'last' => 0,
             'nodes' => $nodes,
-            'preparse' => $config['preparse'],
-            'preparsenodes' => array(),
-            'skipignore' => false,
-            'skipignorestack' => array(),
+            'preparse' => array
+            (
+                'ignored' => array(),
+                'nodes' => array(),
+                'taken' => array()
+            ),
             'skipnode' => array(),
             'skipoffset' => 0,
-            'stack' => array(),
-            'taken' => array()
+            'stack' => array()
         );
         $offset = 0;
         $temp = $return;
@@ -337,12 +335,13 @@ class SUIT
             //Adjust position to changes in length
             $position = $key[$i] + $offset;
             $params['break'] = false;
+            $params['ignore'] = false;
             $params['node'] = $pos[$key[$i]][0];
             $params['offset'] = 0;
             $params['position'] = $position;
             $params['return'] = $return;
-            $params['unescape'] = $this->helper->parseunescape($position, $config['escape'], $return);
-            $params['usetaken'] = true;
+            $params['taken'] = true;
+            $params['unescape'] = $this->helper->parseunescape($position, $params['config']['escape'], $return);
             $function = 'closingstring';
             //If this is the opening string and it should not be skipped over
             if ($pos[$key[$i]][1] == 0)
@@ -354,15 +353,15 @@ class SUIT
             //If the stack is empty
             if (empty($params['stack']))
             {
-                //It is impossible that a skipped over node is in another node
-                $preparse['ignored'] = array_merge($preparse['ignored'], $params['ignored']);
-                $params['ignored'] = array();
+                //It is impossible that a skipped over node is in another node, so permanently reserve it and start the process over again
+                $preparse['ignored'] = array_merge($preparse['ignored'], $params['preparse']['ignored']);
+                $params['preparse']['ignored'] = array();
                 //If we are preparsing
-                if ($config['preparse'])
+                if ($params['config']['preparse'])
                 {
                     //The ranges can not be inside another node, so permanently reserve it and start the process over again
-                    $preparse['taken'] = array_merge($preparse['taken'], $params['taken']);
-                    $params['taken'] = array();
+                    $preparse['taken'] = array_merge($preparse['taken'], $params['preparse']['taken']);
+                    $params['preparse']['taken'] = array();
                 }
             }
             //Adjust the offset
@@ -373,12 +372,13 @@ class SUIT
             }
         }
         $debug['return'] = $return;
-        if ($config['preparse'])
+        if ($params['config']['preparse'])
         {
             $return = array
             (
+                'ignored' => $preparse['ignored'],
+                'nodes' => $params['preparse']['nodes'],
                 'return' => $return,
-                'nodes' => $params['preparsenodes'],
                 'taken' => $preparse['taken']
             );
             $debug['preparse'] = $preparse;

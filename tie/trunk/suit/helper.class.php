@@ -32,12 +32,11 @@ class Helper
         {
             $skippop = false;
         }
-        $skipignore = false;
         //If a value was not popped or the closing string for this node matches it
         if ($skippop === false || $params['nodes'][$params['node']]['close'] == $skippop)
         {
-            //If a value was not popped or this position should not be overlooked or we explictly say to escape
-            if ($skippop === false || !$params['unescape']['condition'] || (array_key_exists('skipescape', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skipescape']))
+            //If a value was not popped or it explictly says to escape
+            if ($skippop === false || (array_key_exists('skipescape', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skipescape']))
             {
                 $params['position'] = $params['unescape']['position'];
                 $params['return'] = $params['unescape']['string'];
@@ -49,7 +48,6 @@ class Helper
                 if ($params['skipoffset'])
                 {
                     $params['skipoffset']--;
-                    $skipignore = true;
                 }
                 //If the stack is not empty
                 elseif (!empty($params['stack']))
@@ -60,7 +58,6 @@ class Helper
                     {
                         $params = $this->transform($params);
                     }
-                    $params['skipignore'] = false;
                 }
             }
         }
@@ -68,17 +65,6 @@ class Helper
         else
         {
             $params['skipnode'][] = $skippop;
-            $skipignore = true;
-        }
-        //If the ignoring should not be skipped, this position should not be overlooked, and the stack is not empty
-        if ($skipignore && $params['skipignore'] && !$params['unescape']['condition'] && !empty($params['skipignorestack']))
-        {
-            $pop = array_pop($params['skipignorestack']);
-            //If this closing string matches the last node's, reserve the space
-            if ($pop['close'] == $params['nodes'][$params['node']]['close'])
-            {
-                $params['ignored'][] = array($pop['position'], $params['position'] + strlen($params['nodes'][$params['node']]['close']));
-            }
         }
         return $params;
     }
@@ -124,8 +110,8 @@ class Helper
             //If the closing string for this node matches it
             if (in_array($skippop, $skipclose))
             {
-                //If this position should not be overlooked or we explictly say to escape
-                if (!$params['unescape']['condition'] || (array_key_exists('skipescape', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skipescape']))
+                //If it explictly says to escape
+                if (array_key_exists('skipescape', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skipescape'])
                 {
                     $params['position'] = $params['unescape']['position'];
                     $params['return'] = $params['unescape']['string'];
@@ -137,15 +123,6 @@ class Helper
                     $params['skipnode'][] = $skippop;
                     $params['skipoffset']++;
                 }
-            }
-            //If the ignoring should not be skipped and this node should be ignored and this position should not be overlooked, prepare to reserve the space
-            if ($params['skipignore'] && array_key_exists('ignore', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['ignore'] && !$params['unescape']['condition'])
-            {
-                $params['skipignorestack'][] = array
-                (
-                    'close' => $params['nodes'][$params['node']]['close'],
-                    'position' => $params['position']
-                );
             }
         }
         return $params;
@@ -172,7 +149,7 @@ class Helper
     {
         if (!array_key_exists('escape', $config))
         {
-            $config['escape'] = $this->owner->config['parse']['escape'];
+            $config['escape'] = $this->owner->escapestring;
         }
         if (!array_key_exists('preparse', $config))
         {
@@ -291,46 +268,46 @@ class Helper
 
     public function preparse($params)
     {
-        $key = array_keys($params['ignored']);
+        $key = array_keys($params['preparse']['ignored']);
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
             //If this reserved range is in this case, adjust the range to the removal of the opening string and trimming
-            if ($params['open']['position'] < $params['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['ignored'][$key[$i]][1])
+            if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['ignored'][$key[$i]][1])
             {
-                $params['ignored'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
-                $params['ignored'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
+                $params['preparse']['ignored'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
+                $params['preparse']['ignored'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
             }
         }
         //Only continue if we are preparsing
-        if (!$params['preparse'])
+        if (!$params['config']['preparse'])
         {
             return $params;
         }
-        $key = array_keys($params['taken']);
+        $key = array_keys($params['preparse']['taken']);
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
             //If this reserved range is in this case
-            if ($params['open']['position'] < $params['taken'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['taken'][$key[$i]][1])
+            if ($params['open']['position'] < $params['preparse']['taken'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['taken'][$key[$i]][1])
             {
                 //If the node just strips the opening and closing strings, adjust the range to the removal of the opening string and trimming
                 if (array_key_exists('strip', $params['open']['node']) || $params['open']['node']['strip'])
                 {
-                    $params['taken'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
-                    $params['taken'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
+                    $params['preparse']['taken'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
+                    $params['preparse']['taken'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
                 }
                 //Else, if this case should be taken, remove the range
-                elseif ($params['usetaken'])
+                elseif ($params['taken'])
                 {
-                    unset($params['taken'][$key[$i]]);
+                    unset($params['preparse']['taken'][$key[$i]]);
                 }
             }
         }
         //If the node does not just strip the opening and closing strings, this case should be taken, and the case is not empty, reserve the transformed case
-        if ((!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip']) && $params['usetaken'] && $params['case'])
+        if ((!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip']) && $params['taken'] && $params['case'])
         {
-            $params['taken'][] = array($params['open']['position'], $params['last']);
+            $params['preparse']['taken'][] = array($params['open']['position'], $params['last']);
         }
         return $params;
     }
@@ -353,29 +330,19 @@ class Helper
         if (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip'])
         {
             $params['skipnode'][] = $params['nodes'][$params['node']]['close'];
-            if (array_key_exists('skipignore', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skipignore'])
-            {
-                $params['skipignore'] = true;
-            }
         }
         return $params;
     }
 
     public function strpos($haystack, $needle, $offset = 0, $function = NULL)
     {
-        if (!is_string($needle))
-        {
-            $debug = debug_backtrace();
-            print $debug[0]['line'];
-            print $debug[0]['file'];
-        }
         //If a function name was provided, increment the number of times that the function called strpos by 1
         if (isset($function))
         {
             $this->owner->debug['strpos'][$function]['call']++;
         }
         //Find the position insensitively or sensitively based on the configuration
-        if ($this->owner->config['flag']['insensitive'])
+        if ($this->owner->insensitive)
         {
             return stripos($haystack, $needle, $offset);
         }
@@ -388,30 +355,26 @@ class Helper
     public function transform($params)
     {
         $success = true;
-        $key = array_keys($params['ignored']);
+        $key = array_keys($params['preparse']['ignored']);
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
             //If this ignored node is in this case
-            if ($params['open']['position'] < $params['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['ignored'][$key[$i]][1])
+            if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['ignored'][$key[$i]][1])
             {
                 $success = false;
-                //If this node should be ignored, remove the original reservation
-                if (array_key_exists('ignore', $params['open']['node']) && $params['open']['node']['ignore'])
-                {
-                    unset($params['ignored'][$key[$i]]);
-                }
+                break;
             }
         }
-        //If the node should not be ignored, and either this does not contain a ignored node or the node strips the opening and closing string, parse
-        if ((!array_key_exists('ignore', $params['open']['node']) || !$params['open']['node']['ignore']) && ($success || (array_key_exists('strip', $params['open']['node']) && $params['open']['node']['strip'])))
+        //If either this does not contain a ignored node or the node strips the opening and closing string, parse
+        if ($success || (array_key_exists('strip', $params['open']['node']) && $params['open']['node']['strip']))
         {
             $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
-            $params['suit'] = $this->owner;
-            $params['var'] = $params['open']['node']['var'];
             //If functions are provided
             if (array_key_exists('function', $params['open']['node']))
             {
+                $params['suit'] = $this->owner;
+                $params['var'] = $params['open']['node']['var'];
                 foreach ($params['open']['node']['function'] as $value)
                 {
                     //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
@@ -429,7 +392,7 @@ class Helper
             {
                 //Replace the opening and closing strings
                 $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-                $params['offset'] = len($params['open']['open']);
+                $params['offset'] = strlen($params['open']['open']);
             }
             $params['case'] = strval($params['case']);
             //Replace everything including and between the opening and closing strings with the transformed string
@@ -437,12 +400,13 @@ class Helper
             $params['last'] = $params['open']['position'] + strlen($params['case']);
             $params = $this->preparse($params);
         }
-        else
+        //If the node should be ignored, or this contains a ignored node and the node does not just strip the opening and closing string
+        if ($params['ignore'] || (!$success && (!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip'])))
         {
             //If the node should be ignored, reserve the space
-            if (array_key_exists('ignore', $params['open']['node']) && $params['open']['node']['ignore'])
+            if ($params['ignore'])
             {
-                $params['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+                $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
             }
             //If this is an attribute node
             if (array_key_exists('attribute', $params['open']['node']))
@@ -458,12 +422,10 @@ class Helper
                         'nodes' => $params['nodes'],
                         'position' => $params['open']['position'],
                         'skipnode' => array(),
-                        'skipignore' => $params['skipignore'],
                         'stack' => array()
                     );
                     $newstack = $this->stack($newstack);
                     $params['skipnode'] = array_merge($params['skipnode'], $newstack['skipnode']);
-                    $params['skipignore'] = $newstack['skipignore'];
                 }
             }
         }

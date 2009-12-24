@@ -38,7 +38,7 @@ foreach ($languages as $key => $value)
         'title' => htmlspecialchars($value[0])
     );
 }
-$suit->vars['loop']['languages'] = serialize($languagesloop);
+$suit->vars['loop']['languages'] = $languagesloop;
 $suit->vars['test'] = '[|test|]';
 $template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

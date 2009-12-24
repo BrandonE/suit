@@ -26,15 +26,15 @@
                 </td>
                 <td width="75%" style="text-align: right;">
                     [if condition="[var]condition=>code[/var]" else="true"]
-                    <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=add&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=">[var]language=>add[/var]</a> |
-                    <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=create&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=">[var]language=>createdirectory[/var]</a>
+                    <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=add&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=">[var]language=>add[/var]</a> |
+                    <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=create&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=">[var]language=>createdirectory[/var]</a>
                     <input name="file" type="file" />
                     <input type="submit" name="import" value="[var]language=>import[/var]" />
                     [/if]
                 </td>
             </tr>
             [if condition="entries"]
-            [loop vars="[var]loop=>entries[/var]"]
+            [loop vars="[var serialize=\"true\"]loop=>entries[/var]"]
             <tr class="list-entry[if condition="[loopvar]file[/loopvar]" else="true"]-folder[/if]">
                 <td>
                     [if condition="[var]condition=>code[/var]" else="true"]
@@ -44,10 +44,10 @@
                 <td>
                     [if condition="[var]condition=>code[/var]" else="true"]
                     [if condition="[loopvar]file[/loopvar]"]
-                    <input name="entry[]" id="[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]" trim=""] checked="checked"[/if] />
+                    <input name="entry[]" id="[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]" trim="false"] checked="checked"[/if] />
                     [/if]
                     [if condition="[loopvar]file[/loopvar]" else="true"]
-                    [if condition="[loopvar]up[/loopvar]"]<div style="visibility: hidden">[/if]<input name="directoryentry[]" id="directory[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]"][if condition="[loopvar]up[/loopvar]" else="true" trim=""] checked="checked"[/if][/if] />[if condition="[loopvar]up[/loopvar]"]</div>[/if]
+                    [if condition="[loopvar]up[/loopvar]"]<div style="visibility: hidden">[/if]<input name="directoryentry[]" id="directory[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]"][if condition="[loopvar]up[/loopvar]" else="true" trim="false"] checked="checked"[/if][/if] />[if condition="[loopvar]up[/loopvar]"]</div>[/if]
                     [/if]
                     [/if]
                 </td>
@@ -55,23 +55,23 @@
                     <span class="list-hidden">
                         [if condition="[loopvar]file[/loopvar]"]
                         [if condition="[var]condition=>code[/var]"]
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=view&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>view[/var]</a>
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=view&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>view[/var]</a>
                         [/if]
                         [if condition="[var]condition=>code[/var]" else="true"]
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=edit&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>edit[/var]</a> |
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=delete&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title[]=[loopvar]title[/loopvar]">[var]language=>delete[/var]</a> |
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=add&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>clone[/var]</a> |
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=export[loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title[]=[loopvar]title[/loopvar]">[var]language=>export[/var]</a>
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=edit&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>edit[/var]</a> |
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=delete&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title[]=[loopvar]title[/loopvar]">[var]language=>delete[/var]</a> |
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=add&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>clone[/var]</a> |
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=export[loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title[]=[loopvar]title[/loopvar]">[var]language=>export[/var]</a>
                         [/if]
                         [/if]
                         [if condition="[loopvar]file[/loopvar]" else="true"]
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][if condition="[loopvar]up[/loopvar]"][loop vars="[var]loop=>updirectories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop][/if][if condition="[loopvar]up[/loopvar]" else="true"][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;directory[]=[loopvar]title[/loopvar][/if]">[var]language=>expand[/var]</a>
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][if condition="[loopvar]up[/loopvar]"][loop vars="[var serialize=\"true\"]loop=>updirectories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop][/if][if condition="[loopvar]up[/loopvar]" else="true"][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;directory[]=[loopvar]title[/loopvar][/if]">[var]language=>expand[/var]</a>
                         [if condition="[var]condition=>code[/var]" else="true"]
                         [if condition="[loopvar]up[/loopvar]" else="true"]
-                        | <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=rename&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>rename[/var]</a> |
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=delete&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;directorytitle[]=[loopvar]title[/loopvar]">[var]language=>delete[/var]</a> |
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=copy&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>copy[/var]</a> |
-                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=export[loop vars="[var]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;directorytitle[]=[loopvar]title[/loopvar]">[var]language=>export[/var]</a>
+                        | <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=rename&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>rename[/var]</a> |
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=delete&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;directorytitle[]=[loopvar]title[/loopvar]">[var]language=>delete[/var]</a> |
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=copy&amp;start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var][loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;title=[loopvar]title[/loopvar]">[var]language=>copy[/var]</a> |
+                        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]cmd=export[loop vars="[var serialize=\"true\"]loop=>directories[/var]"]&amp;directory[]=[loopvar]directory[/loopvar][/loop]&amp;directorytitle[]=[loopvar]title[/loopvar]">[var]language=>export[/var]</a>
                         [/if]
                         [/if]
                         [/if]

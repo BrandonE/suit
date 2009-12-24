@@ -14,8 +14,6 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import nodes
-
 class Section(object):
     """Functions that generate nodes or use custom ones"""
     def __init__(self, owner):
@@ -47,7 +45,7 @@ class Section(object):
                     string,
                     config['close']
                 )),
-                'function': [nodes.getsection],
+                'function': [getsection],
                 'var':
                 {
                     'open': ''.join((
@@ -72,3 +70,10 @@ class Section(object):
             'content': content,
             'sections': self.sections
         }
+
+def getsection(params):
+    """Function used by the node generated in Section.get"""
+    #Add the case to the sections array
+    params['suit'].section.sections.append(params['case'])
+    params['case'] = ''
+    return params

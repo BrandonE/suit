@@ -274,22 +274,22 @@ class SUIT(object):
             #Cache the positions
             self.cache['parse'][cache] = pos
         preparse = {
-            'taken': [],
-            'ignored': []
+            'ignored': [],
+            'taken': []
         }
         params = {
-            'escape': config['escape'],
+            'config': config,
             'ignored': [],
             'last': 0,
             'nodes': nodes,
-            'preparse': config['preparse'],
-            'preparsenodes': {},
-            'skipignore': False,
-            'skipignorestack': [],
+            'preparse': {
+                'ignored': [],
+                'nodes': {},
+                'taken': []
+            },
             'skipnode': [],
             'skipoffset': 0,
-            'stack': [],
-            'taken': []
+            'stack': []
         }
         offset = 0
         temp = returnvalue
@@ -298,13 +298,15 @@ class SUIT(object):
             position = value[0] + offset
 
             params['break'] = False
+            params['ignore'] = False
             params['node'] = value[1][0]
             params['offset'] = 0
             params['position'] = position
             params['return'] = returnvalue
+            params['taken'] = True
             params['unescape'] = helper.parseunescape(
                 position,
-                config['escape'],
+                params['config']['escape'],
                 returnvalue
             )
             params['usetaken'] = True
@@ -316,25 +318,27 @@ class SUIT(object):
             returnvalue = params['return']
             #If the stack is empty
             if not params['stack']:
-                #It is impossible that a skipped over node is in another node
-                preparse['ignored'].extend(params['ignored'])
-                params['ignored'] = []
+                #It is impossible that a skipped over node is in another node,
+                #so permanently reserve it and start the process over again
+                preparse['ignored'].extend(params['preparse']['ignored'])
+                params['preparse']['ignored'] = []
                 #If we are preparsing
-                if config['preparse']:
+                if params['config']['preparse']:
                     #The ranges can not be inside another node, so permanently
                     #reserve it and start the process over again
-                    preparse['taken'].extend(params['taken'])
-                    params['taken'] = []
+                    preparse['taken'].extend(params['preparse']['taken'])
+                    params['preparse']['taken'] = []
             #Adjust the offset
             offset = len(returnvalue) - len(temp)
             if params['break']:
                 break
         debug['return'] = returnvalue
-        if config['preparse']:
+        if params['config']['preparse']:
             returnvalue = {
+                'ignored': preparse['ignored'],
+                'nodes': params['preparse']['nodes'],
                 'return': returnvalue,
-                'nodes': params['preparsenodes'],
-                'taken': params['taken']
+                'taken': preparse['taken']
             }
             debug['preparse'] = preparse
         #If a label was provided, log this function

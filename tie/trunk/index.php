@@ -17,7 +17,9 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
 require 'suit/suit.class.php';
-$suit = new SUIT($config);
+require 'suit/nodes.class.php';
+$suit = new SUIT();
+$nodes = new Nodes();
 $suit->vars['files'] = array
 (
     'code' => 'suit/code',
@@ -30,6 +32,10 @@ $suit->vars['filetypes'] = array
 );
 $suit->config['parse']['nodes'] = array
 (
+    '[' => array
+    (
+        'close' => ']'
+    ),
     '[assign]' => array
     (
         'close' => '[/assign]',
@@ -38,7 +44,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'assign',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'var' => array
@@ -46,21 +52,20 @@ $suit->config['parse']['nodes'] = array
             'var' => ''
         )
     ),
-    '[assign ' => array
+    '[assign' => array
     (
-        'close' => '"]',
+        'close' => ']',
         'function' => array
         (
             array
             (
                 'function' => 'attribute',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'attribute' => '[assign]',
         'skip' => true,
         'skipescape' => true,
-        'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
@@ -75,7 +80,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'comments',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true
@@ -88,7 +93,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'escape',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true,
@@ -104,7 +109,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'evaluation',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         )
     ),
@@ -117,7 +122,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'condition',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true,
@@ -129,26 +134,25 @@ $suit->config['parse']['nodes'] = array
             'trim' => "\r.\n.\t ."
         )
     ),
-    '[if ' => array
+    '[if' => array
     (
-        'close' => '"]',
+        'close' => ']',
         'function' => array
         (
             array
             (
                 'function' => 'attribute',
-                'class' => $suit->nodes
+                'class' => $nodes
             ),
             array
             (
                 'function' => 'conditionskip',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'attribute' => '[if]',
         'skip' => true,
         'skipescape' => true,
-        'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
@@ -163,7 +167,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'loop',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true,
@@ -172,34 +176,68 @@ $suit->config['parse']['nodes'] = array
             'vars' => serialize(array()),
             'delimiter' => '',
             'trim' => "\r.\n.\t .",
-            'node' => array
-            (
-                'open' => '[loopvar]',
-                'close' => '[/loopvar]',
-                'separator' => '=>'
-            )
+            'node' => '[loopvar]'
         )
     ),
-    '[loop ' => array
+    '[loop' => array
     (
-        'close' => '"]',
+        'close' => ']',
         'function' => array
         (
             array
             (
                 'function' => 'attribute',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'attribute' => '[loop]',
         'skip' => true,
         'skipescape' => true,
-        'skipignore' => true,
         'var' => array
         (
             'blacklist' => true,
             'equal' => '=',
             'list' => array('node'),
+            'quote' => '"'
+        )
+    ),
+    '[loopvar]' => array
+    (
+        'close' => '[/loopvar]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'loopvariables',
+                'class' => $nodes
+            )
+        ),
+        'var' => array
+        (
+            'delimiter' => '=>',
+            'ignore' => array(),
+            'serialize' => false,
+            'var' => array()
+        )
+    ),
+    '[loopvar' => array
+    (
+        'close' => ']',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $nodes
+            )
+        ),
+        'attribute' => '[loopvar]',
+        'skip' => true,
+        'skipescape' => true,
+        'var' => array
+        (
+            'equal' => '=',
+            'list' => array('serialize'),
             'quote' => '"'
         )
     ),
@@ -211,7 +249,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'replace',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'var' => array
@@ -220,28 +258,27 @@ $suit->config['parse']['nodes'] = array
             'search' => ''
         )
     ),
-    '[replace ' => array
+    '[replace' => array
     (
-        'close' => '"]',
+        'close' => ']',
         'function' => array
         (
             array
             (
                 'function' => 'attribute',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'attribute' => '[replace]',
         'skip' => true,
         'skipescape' => true,
-        'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
             'quote' => '"'
         )
     ),
-    '[return ' => array
+    '[return' => array
     (
         'close' => '/]',
         'function' => array
@@ -249,7 +286,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'returning',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true
@@ -262,31 +299,30 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'templates',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'var' => array
         (
             'files' => $suit->vars['files'],
             'filetypes' => $suit->vars['filetypes'],
-            'separator' => '=>'
+            'delimiter' => '=>'
         )
     ),
-    '[template ' => array
+    '[template' => array
     (
-        'close' => '"]',
+        'close' => ']',
         'function' => array
         (
             array
             (
                 'function' => 'attribute',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'attribute' => '[template]',
         'skip' => true,
         'skipescape' => true,
-        'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
@@ -302,7 +338,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'returning',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true
@@ -315,7 +351,7 @@ $suit->config['parse']['nodes'] = array
             array
             (
                 'function' => 'trying',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'skip' => true,
@@ -324,21 +360,20 @@ $suit->config['parse']['nodes'] = array
             'var' => ''
         )
     ),
-    '[try ' => array
+    '[try' => array
     (
-        'close' => '"]',
+        'close' => ']',
         'function' => array
         (
             array
             (
                 'function' => 'attribute',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'attribute' => '[try]',
         'skip' => true,
         'skipescape' => true,
-        'skipignore' => true,
         'var' => array
         (
             'equal' => '=',
@@ -348,18 +383,40 @@ $suit->config['parse']['nodes'] = array
     '[var]' => array
     (
         'close' => '[/var]',
-        'class' => $suit->nodes,
+        'class' => $nodes,
         'function' => array
         (
             array
             (
                 'function' => 'variables',
-                'class' => $suit->nodes
+                'class' => $nodes
             )
         ),
         'var' => array
         (
-            'separator' => '=>'
+            'delimiter' => '=>',
+            'serialize' => false
+        )
+    ),
+    '[var' => array
+    (
+        'close' => ']',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $nodes
+            )
+        ),
+        'attribute' => '[var]',
+        'skip' => true,
+        'skipescape' => true,
+        'var' => array
+        (
+            'equal' => '=',
+            'list' => array('serialize'),
+            'quote' => '"'
         )
     )
 );

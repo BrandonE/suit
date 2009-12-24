@@ -24,11 +24,6 @@ if (in_array($_GET['section'], array('code', 'templates')))
     $suit->vars['condition']['dashboard'] = false;
     $return = $suit->tie->adminarea($_GET['section']);
     $suit->vars['tie'] = $return['return'];
-    $section = array_merge
-    (
-        array($suit->vars['language'][$_GET['section']]),
-        $return['section']
-    );
     $section = array
     (
         array
@@ -103,6 +98,6 @@ else
     $suit->vars['servertype'] = PHP_OS;
 }
 $suit->vars['condition']['version'] = false;
-$suit->vars['loop']['section'] = serialize($section);
+$suit->vars['loop']['section'] = $section;
 $template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

@@ -55,7 +55,7 @@ class Section
                     array
                     (
                         'function' => 'getsection',
-                        'class' => $this->owner->nodes
+                        'class' => $this
                     )
                 )
             )
@@ -64,6 +64,14 @@ class Section
         //Unescape when applicable, and populate sections with the inside of each section
         $content = $this->owner->parse($nodes, $content, $config);
         return $this->sections;
+    }
+
+    public function getsection($params)
+    {
+        //Add the case to the sections array
+        $params['suit']->section->sections[] = $params['case'];
+        $params['case'] = '';
+        return $params;
     }
 }
 ?>

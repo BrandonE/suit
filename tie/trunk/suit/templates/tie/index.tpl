@@ -1,11 +1,11 @@
 [if condition="[var]condition=>version[/var]" else="true"]
 [template]tie/header=>tie/header=>tie/parse[/template]
     <div class="section">
-        <h2>[loop vars="[var]loop=>section[/var]" delimiter=" - "][loopvar]title[/loopvar][/loop]</h2>
+        <h2>[loop vars="[var serialize=\"true\"]loop=>section[/var]" delimiter=" - "][loopvar]title[/loopvar][/loop]</h2>
         [if condition="[var]condition=>dashboard[/var]"]
         <table class="dashboard">
             <tr>
-                <th>[var]language=>dashboardinfo[/var]</th>
+                <th>[var]language=>serverinfo[/var]</th>
             </tr>
             <tr>
                 <td class="category">[var]language=>currentsuitversion[/var]</td>

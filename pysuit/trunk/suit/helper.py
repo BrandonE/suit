@@ -14,7 +14,9 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import copy
 import pickle
+
 class Helper(object):
     """Functions that help the SUIT class"""
     def __init__(self, owner):
@@ -26,15 +28,12 @@ class Helper(object):
             skippop = params['skipnode'].pop()
         else:
             skippop = False
-        skipignore = False
         #If a value was not popped or the closing string for this node matches
         #it
         if (skippop == False or
         params['nodes'][params['node']]['close'] == skippop):
-            #If a value was not popped or this position should not be
-            #overlooked or we explictly say to escape
+            #If a value was not popped or it explictly says to escape
             if (skippop == False or
-            not params['unescape']['condition'] or
             ('skipescape' in params['nodes'][params['node']] and
             params['nodes'][params['node']]['skipescape'])):
                 params['position'] = params['unescape']['position']
@@ -44,7 +43,6 @@ class Helper(object):
                 #If there is an offset, decrement it
                 if params['skipoffset']:
                     params['skipoffset'] -= 1
-                    skipignore = True
                 #If the stack is not empty
                 elif params['stack']:
                     params['open'] = params['stack'].pop()
@@ -52,25 +50,9 @@ class Helper(object):
                     #If this closing string matches the last node's
                     if params['open']['node']['close'] == close:
                         params = self.transform(params)
-                    params['skipignore'] = False
         #Else, put the popped value back
         else:
             params['skipnode'].append(skippop)
-            skipignore = True
-        #If the ignoring should not be skipped, this position should not be
-        #overlooked, and the stack is not empty
-        if (skipignore and
-        params['skipignore'] and
-        not params['unescape']['condition'] and
-        params['skipignorestack']):
-            pop = params['skipignorestack'].pop()
-            #If this closing string matches the last node's, reserve the space
-            if pop['close'] == params['nodes'][params['node']]['close']:
-                params['ignored'].append((
-                    pop['position'],
-                    params['position'] +
-                    len(params['nodes'][params['node']]['close'])
-                ))
         return params
 
     def parseconfig(self, config):
@@ -176,38 +158,25 @@ class Helper(object):
     def transform(self, params):
         """Transform the string in between the opening and closing strings"""
         success = True
-        clone = []
-        for value in params['ignored']:
-            thissuccess = True
+        for value in params['preparse']['ignored']:
             length = len(params['open']['node']['close'])
             #If this ignored node is in this case
             if (params['open']['position'] < value[0] and
             params['position'] + length > value[1]):
                 success = False
-                if ('ignore' in params['open']['node'] and
-                params['open']['node']['ignore']):
-                    thissuccess = False
-            if thissuccess:
-                clone.append(value)
-        params['ignored'] = clone
-        #If the node should not be ignored, and either this does not contain a
-        #ignored node or the node strips the opening and closing string, parse
-        if ((
-            not 'ignore' in params['open']['node'] or
-            not params['open']['node']['ignore']
-        ) and
-        (
-            success or
-            ('strip' in params['open']['node'] and
-            params['open']['node']['strip'])
-        )):
+                break
+        #If either this does not contain a ignored node or the node strips the
+        #opening and closing string, parse
+        if (success or
+        ('strip' in params['open']['node'] and
+        params['open']['node']['strip'])):
             start = params['open']['position'] + len(params['open']['open'])
             params['case'] = params['return'][start:params['position']]
-            params['suit'] = self.owner
-            if 'var' in params['open']['node']:
-                params['var'] = params['open']['node']['var']
             #If a function is provided
             if 'function' in params['open']['node']:
+                params['suit'] = self.owner
+                if 'var' in params['open']['node']:
+                    params['var'] = params['open']['node']['var']
                 for value in params['open']['node']['function']:
                     #Transform the string in between the opening and closing
                     #strings.
@@ -231,11 +200,21 @@ class Helper(object):
             ))
             params['last'] = params['open']['position'] + len(params['case'])
             params = preparse(params)
-        else:
+        #If the node should be ignored, or this contains a ignored node and the
+        #node does not just strip the opening and closing string
+        if (
+            params['ignore'] or
+            (
+                not success and
+                (
+                    not 'strip' in params['open']['node'] or
+                    not params['open']['node']['strip']
+                )
+            )
+        ):
             #If the node should be ignored, reserve the space
-            if ('ignore' in params['open']['node'] and
-            params['open']['node']['ignore']):
-                params['ignored'].append([
+            if params['ignore']:
+                params['preparse']['ignored'].append([
                     params['open']['position'],
                     params['position'] + len(params['open']['node']['close'])
                 ])
@@ -262,12 +241,10 @@ class Helper(object):
                         'nodes': params['nodes'],
                         'position': params['open']['position'],
                         'skipnode': [],
-                        'skipignore': params['skipignore'],
                         'stack': []
                     }
                     newstack = stack(newstack)
                     params['skipnode'].update(newstack['skipnode'])
-                    params['skipignore'] = newstack['skipignore']
         return params
 
 def openingstring(params):
@@ -292,11 +269,9 @@ def openingstring(params):
             skipclose.append(params['nodes'][attribute]['close'])
         #If the closing string for this node matches it
         if skippop in skipclose:
-            #If this position should not be overlooked or we explictly say to
-            #escape
-            if (not params['unescape']['condition'] or
-            ('skipescape' in params['nodes'][params['node']] and
-            params['nodes'][params['node']]['skipescape'])):
+            #If it explictly says to escape
+            if ('skipescape' in params['nodes'][params['node']] and
+            params['nodes'][params['node']]['skipescape']):
                 params['position'] = params['unescape']['position']
                 params['return'] = params['unescape']['string']
             #If this position should not be overlooked
@@ -304,23 +279,12 @@ def openingstring(params):
                 #Account for it
                 params['skipnode'].append(skippop)
                 params['skipoffset'] += 1
-        #If the ignoring should not be skipped and this node should be ignored
-        #and this position should not be overlooked, prepare to reserve the
-        #space
-        if (params['skipignore'] and
-        'ignore' in params['nodes'][params['node']] and
-        params['nodes'][params['node']]['ignore'] and
-        not params['unescape']['condition']):
-            params['skipignorestack'].append({
-                'close': params['nodes'][params['node']]['close'],
-                'position': params['position']
-            })
     return params
 
 def parsecache(nodes, returnvalue, config):
     """Generate the cache key for the parse function"""
     values = []
-    for value in nodes:
+    for value in nodes.items():
         array = [value[0]]
         if 'close' in value[1]:
             array.append(value[1]['close'])
@@ -367,46 +331,48 @@ def parseunescape(position, escape, string):
 
 def preparse(params):
     """Adjust ignored and taken ranges"""
-    clone = []
-    for value in params['ignored']:
-        length = len(params['open']['node']['close'])
+    for key, value in enumerate(params['preparse']['ignored']):
         #If this reserved range is in this case, adjust the range to the
         #removal of the opening string and trimming
-        if (params['open']['position'] < value[0] and
-        params['position'] + length > value[1]):
-            value[0] += params['offset'] - len(params['open']['open'])
-            value[1] += params['offset'] - len(params['open']['open'])
-        clone.append(value)
-    params['ignored'] = clone
+        if (
+            params['open']['position'] < value[0] and
+            params['position'] + len(
+                params['open']['node']['close']
+            ) > value[1]
+        ):
+            params['preparse']['ignored'][key][0] += params['offset'] - len(
+                params['open']['open']
+            )
+            params['preparse']['ignored'][key][1] += params['offset'] - len(
+                params['open']['open']
+            )
     #Only continue if we are preparsing
-    if not params['preparse']:
+    if not params['config']['preparse']:
         return params
     clone = []
-    for value in params['taken']:
-        success = True
-        length = len(params['open']['node']['close'])
+    for value in params['preparse']['taken']:
         #If this reserved range is in this case
-        if (params['open']['position'] < value[0] and
-        params['position'] + length > value[1]):
+        if (
+            params['open']['position'] < value[0] and
+            params['position'] + len(
+                params['open']['node']['close']
+            ) > value[1]
+        ):
             #If the node just strips the opening and closing strings, adjust
             #the range to the removal of the opening string and trimming
             if ('strip' in params['open']['node'] and
             not params['open']['node']['strip']):
                 value[0] += params['offset'] - len(params['open']['open'])
                 value[1] += params['offset'] - len(params['open']['open'])
-            #Else, if this case should be taken, remove the range
-            elif params['usetaken']:
-                success = False
-        if success:
-            clone.append(value)
-    params['taken'] = clone
+                clone.append(value)
+    params['preparse']['taken'] = clone
     #If the node does not just strip the opening and closing strings, this case
     #should be taken, and the case is not empty, reserve the transformed case
     if ((not 'strip' in params['open']['node'] or
     params['open']['node']['strip']) and
-    params['usetaken'] and
+    params['taken'] and
     params['case']):
-        params['taken'].append([
+        params['preparse']['taken'].append([
             params['open']['position'],
             params['last']
         ])
@@ -415,16 +381,8 @@ def preparse(params):
 def stack(params):
     """Add the opening string to the stack"""
     #Add the opening string to the stack
-    clone = {}
-    for value in params['nodes'][params['node']].items():
-        clone[value[0]] = value[1]
-    if 'function' in clone:
-        function = clone['function']
-        clone['function'] = []
-        for value in function:
-            clone['function'].append(value)
     params['stack'].append({
-        'node': clone,
+        'node': copy.deepcopy(params['nodes'][params['node']]),
         'open': params['node'],
         'position': params['position']
     })
@@ -433,7 +391,4 @@ def stack(params):
     if ('skip' in params['nodes'][params['node']] and
     params['nodes'][params['node']]['skip']):
         params['skipnode'].append(params['nodes'][params['node']]['close'])
-        if ('skipignore' in params['nodes'][params['node']] and
-        params['nodes'][params['node']]['skipignore']):
-            params['skipignore'] = True
     return params

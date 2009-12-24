@@ -857,7 +857,7 @@ class TIE
                         $directoriesarray[] = array
                         (
                             'titletoken' => $this->owner->escape($strings, $value, '\\'),
-                            'array' => serialize($array)
+                            'array' => $array
                         );
                     }
                     foreach ($files as $value)
@@ -878,13 +878,13 @@ class TIE
                         $title = basename($value, '.' . $filetype);
                         $filesarray[] = array
                         (
-                            'array' => serialize($array),
+                            'array' => $array,
                             'templatetoken' => $this->owner->escape($strings, $content, '\\'),
                             'titletoken' => $this->owner->escape($strings, $title, '\\')
                         );
                     }
-                    $this->owner->vars['loop']['directories'] = serialize($directoriesarray);
-                    $this->owner->vars['loop']['files'] = serialize($filesarray);
+                    $this->owner->vars['loop']['directories'] = $directoriesarray;
+                    $this->owner->vars['loop']['files'] = $filesarray;
                     $xml = $this->owner->parse($this->owner->config['parse']['nodes'], $xml);
                     header('Pragma: public');
                     header('Expires: 0');
@@ -912,6 +912,25 @@ class TIE
                     {
                         $directorytitles = '';
                     }
+                    $section = array
+                    (
+                        array
+                        (
+                            'title' => $this->owner->vars['language'][$_GET['section']]
+                        )
+                    );
+                    foreach ($directory['array'] as $value)
+                    {
+                        $section[] = array
+                        (
+                            'title' => htmlspecialchars($value)
+                        );
+                    }
+                    $section[] = array
+                    (
+                        'title' => $this->owner->vars['language'][$_GET['cmd']]
+                    );
+                    $this->owner->vars['loop']['section'] = $section;
                     $config = array
                     (
                         'refresh' => 0
@@ -941,9 +960,27 @@ class TIE
                     $start = 0;
                 }
                 $redirect = $this->path(array('boxes', 'cmd', 'directory', 'check', 'start', 'title'));
-                $directory['url'] = substr($directory['url'], 1);
-                $redirect = $redirect[0] . $redirect[2] . $directory['url'] . '&start=' . $start;
+                $redirect = $redirect['regular'] . $directory['url'] . '&start=' . $start;
             }
+            $section = array
+            (
+                array
+                (
+                    'title' => $this->owner->vars['language'][$_GET['section']]
+                )
+            );
+            foreach ($directory['array'] as $value)
+            {
+                $section[] = array
+                (
+                    'title' => htmlspecialchars($value)
+                );
+            }
+            $section[] = array
+            (
+                'title' => $this->owner->vars['language'][$_GET['cmd']]
+            );
+            $this->owner->vars['loop']['section'] = $section;
             $this->redirect($redirect, $redirectmessage);
         }
         if((in_array($_GET['cmd'], array('add', 'copy', 'create', 'delete', 'edit', 'remove', 'rename')) && $type != 'code') || ($_GET['cmd'] == 'view' && $type == 'code'))
@@ -1019,8 +1056,8 @@ class TIE
                 $this->owner->vars['condition']['directorytitles'] = (!empty($directorytitles));
                 $this->owner->vars['condition']['plural'] = (count($titles) != 1);
                 $this->owner->vars['condition']['directoryplural'] = (count($directorytitles) != 1);
-                $this->owner->vars['loop']['titles'] = serialize($titles);
-                $this->owner->vars['loop']['directorytitles'] = serialize($directorytitles);
+                $this->owner->vars['loop']['titles'] = $titles;
+                $this->owner->vars['loop']['directorytitles'] = $directorytitles;
                 $message = $this->owner->parse($this->owner->config['parse']['nodes'], $message);
                 $this->owner->vars['message'] = $message;
             }
@@ -1135,10 +1172,11 @@ class TIE
                     }
                 }
             }
-            $this->owner->vars['loop']['directories'] = serialize($directory['loop']);
+            $this->owner->vars['loop']['directories'] = $directory['loop'];
             unset($directory['loop'][count($directory['loop']) - 1]);
-            $this->owner->vars['loop']['updirectories'] = serialize($directory['loop']);
-            $this->owner->vars['loop']['entries'] = serialize($entries);
+            $this->owner->vars['loop']['updirectories'] = $directory['loop'];
+            $this->owner->vars['loop']['entries'] = $entries;
+            $this->owner->vars['condition']['entries'] = (!empty($entries));
             $this->owner->vars['condition']['checked'] = ($this->settings['check']);
             $this->owner->vars['count'] = $count;
             $this->owner->vars['display'] = ($this->settings['start'] / $this->settings['list']) + 1;

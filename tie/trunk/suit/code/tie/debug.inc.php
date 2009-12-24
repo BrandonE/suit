@@ -36,7 +36,7 @@ if ($suit->tie->config['flag']['debug'])
         }
         $templates[] = array
         (
-            'code' => serialize($code),
+            'code' => $code,
             'file' => htmlspecialchars($value['file']),
             'id' => $key,
             'line' => htmlspecialchars($value['line']),
@@ -97,8 +97,8 @@ if ($suit->tie->config['flag']['debug'])
             'title' => htmlspecialchars($value['label'])
         );
     }
-    $suit->vars['loop']['templates'] = serialize($templates);
-    $suit->vars['loop']['parse'] = serialize($parse);
+    $suit->vars['loop']['templates'] = $templates;
+    $suit->vars['loop']['parse'] = $parse;
     $suit->vars['condition']['templates'] = (!empty($templates));
     $suit->vars['condition']['parse'] = (!empty($parse));
     $suit->vars['escapecall'] = $suit->vars['debug']['strpos']['escape']['call'];

@@ -14,9 +14,9 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import copy
 import helper
 import pickle
-import sys
 
 def assign(params):
     """Assign variable in template"""
@@ -27,64 +27,85 @@ def assign(params):
 
 def attribute(params):
     """Create node out of attributes"""
-    node = params['nodes'][params['open']['node']['attribute']]
-    node = {}
-    for value in params['nodes'][params['open']['node']['attribute']].items():
-        node[value[0]] = value[1]
-    var = node['var']
-    node['var'] = {}
-    for value in var.items():
-        node['var'][value[0]] = value[1]
+    node = copy.deepcopy(params['nodes'][params['open']['node']['attribute']])
     #Define the variables
     split = params['suit'].explodeunescape(
         params['var']['quote'],
         params['case'],
-        params['escape']
+        params['config']['escape']
     )
+    del split[-1]
+    ignore = False
     for key, value in enumerate(split):
         #If this is the first iteration of the pair
         if key % 2 == 0:
-            split[key] = split[key].strip()
-            last = split[key][0:len(split[key]) - len(params['var']['equal'])]
-            #If the syntax is not valid or the variable is whitelisted or
-            #blacklisted, do not prepare to define the variable
-            if (split[key][
-                len(split[key]) - len(params['var']['equal'])
-            ] != params['var']['equal'] or
-            (not (not 'list' in params['var'] or
-            ((not 'blacklist' in params['var'] or
-            not params['var']['blacklist']) and
-            last in params['var']['list']) or
-            ('blacklist' in params['var'] and
-            params['var']['blacklist'] and
-            not last in params['var']['list'])))):
-                last = ''
-        elif last:
+            name = value.strip()
+            #If the syntax is valid
+            if (name[
+                len(name) - len(params['var']['equal'])
+            ] == params['var']['equal']):
+                name = name[
+                    0:len(name) - len(params['var']['equal'])
+                ]
+                #If the variable is whitelisted or blacklisted, do not prepare
+                #to define the variable
+                if (
+                    'list' in params['var'] and
+                    (
+                        (
+                            (
+                                not 'blacklist' in params['var'] or
+                                not params['var']['blacklist']
+                            ) and
+                            not name in params['var']['list']
+                        ) or
+                        (
+                            'blacklist' in params['var'] and
+                            params['var']['blacklist'] and
+                            name in params['var']['list']
+                        )
+                    )
+                ):
+                    name = ''
+            else:
+                name = ''
+        elif name:
+            config = {
+                'escape': params['config']['escape'],
+                'preparse': True
+            }
             #Define the variable
-            split[key] = params['suit'].parse(params['nodes'], split[key])
-            node['var'][last] = split[key]
-    #Add the new node to the stack
-    stack = {
-        'node': ''.join((
+            result = params['suit'].parse(params['nodes'], value, config)
+            if not result['ignored']:
+                if (result['return'].lower() == 'false'):
+                    result['return'] = ''
+                node['var'][name] = result['return']
+            else:
+                ignore = True
+                break
+    params['case'] = ''.join((
             params['open']['open'],
-            params['var']['quote'].join(split),
-            params['var']['quote'],
+            params['case'],
             params['open']['node']['close']
-        )),
-        'nodes': {},
-        'position': params['open']['position'],
-        'skipnode': [],
-        'skipignore': params['skipignore'],
-        'stack': []
-    }
-    stack['nodes'][stack['node']] = node
-    stack = helper.stack(stack)
-    params['stack'].extend(stack['stack'])
-    params['skipnode'].extend(stack['skipnode'])
-    params['skipignore'] = stack['skipignore']
-    params['preparsenodes'][stack['node']] = node
-    params['case'] = stack['node']
-    params['usetaken'] = False
+        ))
+    params['taken'] = False
+    if not ignore:
+        #Add the new node to the stack
+        stack = {
+            'node': params['case'],
+            'nodes': {},
+            'position': params['open']['position'],
+            'skipnode': [],
+            'stack': []
+        }
+        stack['nodes'][stack['node']] = node
+        stack = helper.stack(stack)
+        params['stack'].extend(stack['stack'])
+        params['skipnode'].extend(stack['skipnode'])
+        params['preparse']['nodes'][stack['node']] = node
+    #Else, ignore this case
+    else:
+        params['ignore'] = True
     return params
 
 def comments(params):
@@ -134,26 +155,8 @@ def evaluation(params):
     params['case'] = eval(params['case'])
     return params
 
-def getsection(params):
-    """Function used by the node generated in Section.get"""
-    #Add the case to the sections array
-    params['suit'].section.sections.append(params['case'])
-    params['case'] = ''
-    return params
-
 def loop(params):
     """Loop a string with different variables"""
-    realnodes = {}
-    loopvars = {}
-    for key, value in params['nodes'].items():
-        #If the node should not be ignored
-        if not 'ignore' in value or not value['ignore']:
-            #If the node exists already, merge its loopvars later
-            if key == params['var']['node']['open']:
-                loopvars = value['var']['var']
-            #Else, add it to the array
-            else:
-                realnodes[key] = value
     iterationvars = []
     result = {
         'ignore': {},
@@ -161,53 +164,37 @@ def loop(params):
     }
     for value in pickle.loads(params['var']['vars']):
         var = {
-            params['var']['node']['open']:
-            {
-                'close': params['var']['node']['close'],
-                'function': [loopvariables],
-                'var':
-                {
-                    'escape': params['escape'],
-                    'separator': params['var']['node']['separator'],
-                    'var': dict(value.items() + loopvars.items())
-                } #This will be used by the function
-            }
+            params['var']['node']: copy.deepcopy(
+                params['nodes'][params['var']['node']]
+            )
         }
+        try:
+            for value2 in value.items():
+                var[params['var']['node']]['var']['var'][value2[0]] = value2[1]
+        except (AttributeError, TypeError):
+            for value2 in dir(value):
+                if (not value2.startswith('_') and
+                not callable(getattr(value, value2))):
+                    var[params['var']['node']]['var']['var'][value2] = getattr(
+                        value,
+                        value2
+                    )
         result = looppreparse(
-            var[params['var']['node']['open']]['var']['var'],
+            var[params['var']['node']]['var']['var'],
             result
         )
         iterationvars.append(var)
     iterations = []
     if iterationvars:
+        nodes = {
+            params['var']['node']: copy.deepcopy(
+                iterationvars[0][params['var']['node']]
+            )
+        }
         if result['ignore']:
-            nodes = {
-                params['var']['node']['open']:
-                {
-                    'close': params['var']['node']['close'],
-                    'function': [loopvariables],
-                    'ignore': True
-                }
-            }
-            for value in result['same'].items():
-                nodes[
-                    ''.join((
-                        params['var']['node']['open'],
-                        value[0]
-                    ))
-                ] = {
-                    'close': params['var']['node']['close'],
-                    'function': [loopvariable],
-                    'var': value[1] #This will be used by the function
-                }
-        else:
-            nodes = {
-                params['var']['node']['open']: iterationvars[0][
-                    params['var']['node']['open']
-                ]
-            }
+            nodes[params['var']['node']]['var']['ignore'] = result['ignore']
         config = {
-            'escape': params['escape'],
+            'escape': params['config']['escape'],
             'preparse': True
         }
         if 'label' in params['var']:
@@ -215,7 +202,7 @@ def loop(params):
         #Parse everything possible without iteration
         result = params['suit'].parse(
             dict(
-                realnodes.items() +
+                params['nodes'].items() +
                 nodes.items()
             ),
             params['case'],
@@ -223,6 +210,7 @@ def loop(params):
         )
         for key, value in enumerate(iterationvars):
             config = {
+                'escape': params['config']['escape'],
                 'taken': result['taken']
             }
             if 'label' in params['var']:
@@ -230,7 +218,7 @@ def loop(params):
             #Parse for this iteration
             thiscase = params['suit'].parse(
                 dict(
-                    realnodes.items() +
+                    params['nodes'].items() +
                     result['nodes'].items() +
                     value.items()
                 ),
@@ -272,30 +260,35 @@ def looppreparse(iterationvars, returnvalue):
                 returnvalue['same'][value[0]] = value[1]
     return returnvalue
 
-def loopvariable(params):
-    """Parse a particular variable in a loop"""
-    if not params['case']:
-        params['case'] = params['var']
+def loopvariables(params):
+    """Parse variables in a loop"""
+    if not params['case'] in params['var']['ignore']:
+        #Split up the file, paying attention to escape strings
+        split = params['suit'].explodeunescape(
+            params['var']['delimiter'],
+            params['case'],
+            params['config']['escape']
+        )
+        params['case'] = params['var']['var']
+        for value in split:
+            try:
+                params['case'] = params['case'][value]
+            except AttributeError:
+                try:
+                    params['case'] = params['case'][int(value)]
+                except AttributeError:
+                    print params['var']['var']
+                    params['case'] = getattr(params['case'], value)
     else:
         params['case'] = ''.join((
             params['open']['open'],
             params['case'],
             params['open']['node']['close']
         ))
-        params['usetaken'] = False
-    return params
-
-def loopvariables(params):
-    """Parse variables in a loop"""
-    #Split up the file, paying attention to escape strings
-    split = params['suit'].explodeunescape(
-        params['var']['separator'],
-        params['case'],
-        params['escape']
-    )
-    params['case'] = params['var']['var']
-    for value in split:
-        params['case'] = params['case'][value]
+        params['ignore'] = True
+        params['taken'] = False
+    if params['var']['serialize']:
+        params['case'] = pickle.dumps(params['case'])
     return params
 
 def replace(params):
@@ -341,9 +334,9 @@ def templates(params):
     """Include a template"""
     #Split up the file, paying attention to escape strings
     split = params['suit'].explodeunescape(
-        params['var']['separator'],
+        params['var']['delimiter'],
         params['case'],
-        params['escape']
+        params['config']['escape']
     )
     code = []
     for key, value in enumerate(split):
@@ -383,16 +376,32 @@ def templates(params):
 
 def trying(params):
     """Try and use exceptions on parsing"""
+    if params['var']['var']:
+        params['suit'].vars[params['var']['var']] = ''
     try:
-        params['case'] = params['suit'].parse(params['nodes'], params['case'])
-    except:
+        config = {
+            'escape': params['config']['escape'],
+            'preparse': True
+        }
+        result = params['suit'].parse(
+            params['nodes'],
+            params['case'],
+            config
+        )
+        if not result['ignored']:
+            params['case'] = result['return']
+        #Else, ignore this case
+        else:
+            params['case'] = ''.join((
+                params['open']['open'],
+                params['case'],
+                params['open']['node']['close']
+            ))
+            params['ignore'] = True
+            params['taken'] = False
+    except Exception as inst:
         if params['var']['var']:
-            info = sys.exc_info()
-            params['suit'].vars[params['var']['var']] = {
-                'type': info[0],
-                'value': info[1],
-                'traceback': info[2]
-            }
+            params['suit'].vars[params['var']['var']] = inst
         params['case'] = ''
     return params
 
@@ -400,11 +409,19 @@ def variables(params):
     """Parse variables"""
     #Split up the file, paying attention to escape strings
     split = params['suit'].explodeunescape(
-        params['var']['separator'],
+        params['var']['delimiter'],
         params['case'],
-        params['escape']
+        params['config']['escape']
     )
     params['case'] = params['suit'].vars
     for value in split:
-        params['case'] = params['case'][value]
+        try:
+            params['case'] = params['case'][value]
+        except (AttributeError, TypeError):
+            try:
+                params['case'] = params['case'][int(value)]
+            except (AttributeError, TypeError, ValueError):
+                params['case'] = getattr(params['case'], value)
+    if params['var']['serialize']:
+        params['case'] = pickle.dumps(params['case'])
     return params
