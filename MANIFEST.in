@@ -1,0 +1,3 @@
+include pysuitlons/config/deployment.ini_tmpl
+recursive-include pysuitlons/public *
+recursive-include pysuitlons/templates *
