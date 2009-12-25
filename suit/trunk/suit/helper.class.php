@@ -272,11 +272,11 @@ class Helper
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
-            //If this reserved range is in this case, adjust the range to the removal of the opening string and trimming
+            //If this reserved range is in this case, adjust the range to the removal of the opening string
             if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['ignored'][$key[$i]][1])
             {
-                $params['preparse']['ignored'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
-                $params['preparse']['ignored'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
+                $params['preparse']['ignored'][$key[$i]][0] += $params['offset'];
+                $params['preparse']['ignored'][$key[$i]][1] += $params['offset'];
             }
         }
         //Only continue if we are preparsing
@@ -291,11 +291,11 @@ class Helper
             //If this reserved range is in this case
             if ($params['open']['position'] < $params['preparse']['taken'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['taken'][$key[$i]][1])
             {
-                //If the node just strips the opening and closing strings, adjust the range to the removal of the opening string and trimming
-                if (array_key_exists('strip', $params['open']['node']) || $params['open']['node']['strip'])
+                //If the node does not transform the case, adjust the range to the removal of the opening string
+                if (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform'])
                 {
-                    $params['preparse']['taken'][$key[$i]][0] += $params['offset'] - strlen($params['open']['open']);
-                    $params['preparse']['taken'][$key[$i]][1] += $params['offset'] - strlen($params['open']['open']);
+                    $params['preparse']['taken'][$key[$i]][0] += $params['offset'];
+                    $params['preparse']['taken'][$key[$i]][1] += $params['offset'];
                 }
                 //Else, if this case should be taken, remove the range
                 elseif ($params['taken'])
@@ -304,8 +304,8 @@ class Helper
                 }
             }
         }
-        //If the node does not just strip the opening and closing strings, this case should be taken, and the case is not empty, reserve the transformed case
-        if ((!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip']) && $params['taken'] && $params['case'])
+        //If the node transforms the case, this case should be taken, and the case is not empty, reserve the transformed case
+        if ((!array_key_exists('transform', $params['open']['node']) || $params['open']['node']['transform']) && $params['taken'] && $params['case'])
         {
             $params['preparse']['taken'][] = array($params['open']['position'], $params['last']);
         }
@@ -366,8 +366,8 @@ class Helper
                 break;
             }
         }
-        //If either this does not contain a ignored node or the node strips the opening and closing string, parse
-        if ($success || (array_key_exists('strip', $params['open']['node']) && $params['open']['node']['strip']))
+        //If either this does not contain a ignored node or the node does not transform the case, parse
+        if ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform']))
         {
             $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
             //If functions are provided
@@ -392,7 +392,6 @@ class Helper
             {
                 //Replace the opening and closing strings
                 $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-                $params['offset'] = strlen($params['open']['open']);
             }
             $params['case'] = strval($params['case']);
             //Replace everything including and between the opening and closing strings with the transformed string
@@ -400,8 +399,8 @@ class Helper
             $params['last'] = $params['open']['position'] + strlen($params['case']);
             $params = $this->preparse($params);
         }
-        //If the node should be ignored, or this contains a ignored node and the node does not just strip the opening and closing string
-        if ($params['ignore'] || (!$success && (!array_key_exists('strip', $params['open']['node']) || !$params['open']['node']['strip'])))
+        //If the node should be ignored, or this contains a ignored node and the node transforms the case
+        if ($params['ignore'] || (!$success && (!array_key_exists('transform', $params['open']['node']) || $params['open']['node']['transform'])))
         {
             //If the node should be ignored, reserve the space
             if ($params['ignore'])
@@ -413,8 +412,8 @@ class Helper
             {
                 //Put the popped value back
                 $params['stack'][] = $params['open'];
-                //If the node is a skipping node and does not just strip the opening and closing strings, skip
-                if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]) && $params['nodes'][$params['open']['node']['attribute']]['skip'] && (!array_key_exists('strip', $params['nodes'][$params['open']['node']['attribute']]) || !$params['nodes'][$params['open']['node']['attribute']]['strip']))
+                //If the node is a skipping node and it transforms the case, skip
+                if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]) && $params['nodes'][$params['open']['node']['attribute']]['skip'] && (!array_key_exists('transform', $params['nodes'][$params['open']['node']['attribute']]) || $params['nodes'][$params['open']['node']['attribute']]['transform']))
                 {
                     $newstack = array
                     (

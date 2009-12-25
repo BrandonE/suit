@@ -52,16 +52,27 @@ if ($suit->tie->config['flag']['debug'])
             $pos = array();
             foreach ($value['preparse']['taken'] as $value2)
             {
-                if (!array_key_exists($value2[0], $pos))
-                {
-                    $pos[$value2[0]] = '';
-                }
                 if (!array_key_exists($value2[1], $pos))
                 {
                     $pos[$value2[1]] = '';
                 }
-                $pos[$value2[0]] .= '[taken]';
                 $pos[$value2[1]] .= '[/taken]';
+            }
+            foreach ($value['preparse']['ignored'] as $value2)
+            {
+                if (!array_key_exists($value2[1], $pos))
+                {
+                    $pos[$value2[1]] = '';
+                }
+                $pos[$value2[1]] .= '[/ignored]';
+            }
+            foreach ($value['preparse']['taken'] as $value2)
+            {
+                if (!array_key_exists($value2[0], $pos))
+                {
+                    $pos[$value2[0]] = '';
+                }
+                $pos[$value2[0]] .= '[taken]';
             }
             foreach ($value['preparse']['ignored'] as $value2)
             {
@@ -69,12 +80,7 @@ if ($suit->tie->config['flag']['debug'])
                 {
                     $pos[$value2[0]] = '';
                 }
-                if (!array_key_exists($value2[1], $pos))
-                {
-                    $pos[$value2[1]] = '';
-                }
                 $pos[$value2[0]] .= '[ignored]';
-                $pos[$value2[1]] .= '[/ignored]';
             }
             ksort($pos);
             $offset = 0;

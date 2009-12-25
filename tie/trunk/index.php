@@ -126,12 +126,11 @@ $suit->config['parse']['nodes'] = array
             )
         ),
         'skip' => true,
-        'strip' => true,
+        'transform' => false,
         'var' => array
         (
             'condition' => false,
-            'else' => false,
-            'trim' => "\r.\n.\t ."
+            'else' => false
         )
     ),
     '[if' => array
@@ -175,7 +174,6 @@ $suit->config['parse']['nodes'] = array
         (
             'vars' => serialize(array()),
             'delimiter' => '',
-            'trim' => "\r.\n.\t .",
             'node' => '[loopvar]'
         )
     ),
@@ -309,6 +307,19 @@ $suit->config['parse']['nodes'] = array
             'delimiter' => '=>'
         )
     ),
+    '[return ' => array
+    (
+        'close' => '/]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'returning',
+                'class' => $nodes
+            )
+        ),
+        'skip' => true
+    ),
     '[template' => array
     (
         'close' => ']',
@@ -330,18 +341,17 @@ $suit->config['parse']['nodes'] = array
             'quote' => '"'
         )
     ),
-    '[return ' => array
+    '[trim]' => array
     (
-        'close' => '/]',
+        'close' => '[/trim]',
         'function' => array
         (
             array
             (
-                'function' => 'returning',
+                'function' => 'trim',
                 'class' => $nodes
             )
-        ),
-        'skip' => true
+        )
     ),
     '[try]' => array
     (

@@ -1,3 +1,4 @@
+[trim]
 [if condition="[var]condition=>version[/var]" else="true"]
 [template]tie/header=>tie/header=>tie/parse[/template]
     <div class="section">
@@ -63,3 +64,4 @@
 </body>
 </html>
 [/if]
+[/trim]

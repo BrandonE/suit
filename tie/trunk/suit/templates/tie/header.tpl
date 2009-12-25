@@ -3,7 +3,6 @@
 <head>
 [template]tie/head=>tie/parse[/template]
 </head>
-
 <body>
 <div class="header">
     <div class="left">
@@ -16,9 +15,9 @@
 </div>
 <div class="welcome">
     <div class="menu">
-        <b>[var]language=>welcome[/var]</b> | 
-        <a href="[var]path=>url[/var]">[var]language=>dashboard[/var]</a> | 
-        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]section=templates">[var]language=>templates[/var]</a> | 
+        <b>[var]language=>welcome[/var]</b> |
+        <a href="[var]path=>url[/var]">[var]language=>dashboard[/var]</a> |
+        <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]section=templates">[var]language=>templates[/var]</a> |
         <a href="[var]path=>url[/var][var]path=>urlquerychar[/var]section=code">[var]language=>code[/var]</a>
     </div>
 </div>

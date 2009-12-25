@@ -17,6 +17,7 @@ http://www.suitframework.com/docs/credits
 import copy
 import helper
 import pickle
+import re
 
 def assign(params):
     """Assign variable in template"""
@@ -115,11 +116,7 @@ def comments(params):
 
 def condition(params):
     """Strip node tags or hide a string"""
-    #Calculate how many characters were stripped
-    params['offset'] = params['case'].lstrip(params['var']['trim'])
-    params['offset'] = len(params['offset']) - len(params['case'])
-    #Trim the case if requested
-    params['case'] = params['case'].strip(params['var']['trim'])
+    params['offset'] = -len(params['open']['open'])
     #Hide the case if necessary
     if ((params['var']['condition'] and
     params['var']['else']) or
@@ -142,12 +139,7 @@ def conditionskip(params):
     return params
 
 def escape(params):
-    """Create an escaped area"""
-    #Calculate how many characters were stripped
-    params['offset'] = params['case'].lstrip(params['var'])
-    params['offset'] = len(params['offset']) - len(params['case'])
-    #Trim the case if requested
-    params['case'] = params['case'].strip(params['var'])
+    """Escape the case"""
     return params
 
 def evaluation(params):
@@ -216,7 +208,7 @@ def loop(params):
             if 'label' in params['var']:
                 config['label'] = ''.join((params['var']['label'], str(key)))
             #Parse for this iteration
-            thiscase = params['suit'].parse(
+            iterations.append(params['suit'].parse(
                 dict(
                     params['nodes'].items() +
                     result['nodes'].items() +
@@ -224,13 +216,7 @@ def loop(params):
                 ),
                 result['return'],
                 config
-            )
-            #Trim the result if requested
-            thiscase = thiscase.lstrip(params['var']['trim'])
-            if len(iterationvars) == key + 1:
-                thiscase = thiscase.rstrip(params['var']['trim'])
-            #Append the result
-            iterations.append(thiscase)
+            ))
     #Implode the iterations
     params['case'] = params['var']['delimiter'].join(iterations)
     return params
@@ -372,6 +358,11 @@ def templates(params):
         )
     else:
         params['case'] = params['suit'].gettemplate(template, code)
+    return params
+
+def trim(params):
+    """Trim all unnecessary whitespace"""
+    params['case'] = re.sub('(?m)[\s]+$', '', params['case'].lstrip())
     return params
 
 def trying(params):

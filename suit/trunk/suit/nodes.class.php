@@ -115,11 +115,7 @@ class Nodes
 
     public function condition($params)
     {
-        //Calculate the left offset created by trimming
-        $params['offset'] = ltrim($params['case'], $params['var']['trim']);
-        $params['offset'] = strlen($params['offset']) - strlen($params['case']);
-        //Trim the case if requested
-        $params['case'] = trim($params['case'], $params['var']['trim']);
+        $params['offset'] = -strlen($params['open']['open']);
         //Hide the case if necessary
         if (($params['var']['condition'] && $params['var']['else']) || (!$params['var']['condition'] && !$params['var']['else']))
         {
@@ -145,11 +141,6 @@ class Nodes
 
     public function escape($params)
     {
-        //Calculate the left offset created by trimming
-        $params['offset'] = ltrim($params['case'], $params['var']);
-        $params['offset'] = strlen($params['offset']) - strlen($params['case']);
-        //Trim the case if requested
-        $params['case'] = trim($params['case'], $params['var']);
         return $params;
     }
 
@@ -227,15 +218,7 @@ class Nodes
                     $config['label'] = $params['var']['label'] . strval($i);
                 }
                 //Parse for this iteration
-                $thiscase = $params['suit']->parse(array_merge($params['nodes'], $result['nodes'], $iterationvars[$i]), $result['return'], $config);
-                //Trim the result if requested
-                $thiscase = ltrim($thiscase, $params['var']['trim']);
-                if ($size == $i + 1)
-                {
-                    $thiscase = rtrim($thiscase, $params['var']['trim']);
-                }
-                //Append the result
-                $iterations[] = $thiscase;
+                $iterations[] = $params['suit']->parse(array_merge($params['nodes'], $result['nodes'], $iterationvars[$i]), $result['return'], $config);
             }
         }
         //Implode the iterations
@@ -399,6 +382,12 @@ class Nodes
         {
             $params['case'] = $params['suit']->gettemplate($template, $code);
         }
+        return $params;
+    }
+
+    public function trim($params)
+    {
+        $params['case'] = preg_replace('/[\s]+$/m', '', ltrim($params['case']));
         return $params;
     }
 

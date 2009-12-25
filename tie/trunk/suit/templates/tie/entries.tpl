@@ -44,10 +44,10 @@
                 <td>
                     [if condition="[var]condition=>code[/var]" else="true"]
                     [if condition="[loopvar]file[/loopvar]"]
-                    <input name="entry[]" id="[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]" trim="false"] checked="checked"[/if] />
+                    <input name="entry[]" id="[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]"] checked="checked"[/if] />
                     [/if]
                     [if condition="[loopvar]file[/loopvar]" else="true"]
-                    [if condition="[loopvar]up[/loopvar]"]<div style="visibility: hidden">[/if]<input name="directoryentry[]" id="directory[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]"][if condition="[loopvar]up[/loopvar]" else="true" trim="false"] checked="checked"[/if][/if] />[if condition="[loopvar]up[/loopvar]"]</div>[/if]
+                    [if condition="[loopvar]up[/loopvar]"]<div style="visibility: hidden">[/if]<input name="directoryentry[]" id="directory[loopvar]title[/loopvar]" type="checkbox" value="[loopvar]title[/loopvar]"[if condition="[var]condition=>checked[/var]"][if condition="[loopvar]up[/loopvar]" else="true"] checked="checked"[/if][/if] />[if condition="[loopvar]up[/loopvar]"]</div>[/if]
                     [/if]
                     [/if]
                 </td>

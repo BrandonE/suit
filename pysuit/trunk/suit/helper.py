@@ -165,11 +165,11 @@ class Helper(object):
             params['position'] + length > value[1]):
                 success = False
                 break
-        #If either this does not contain a ignored node or the node strips the
-        #opening and closing string, parse
+        #If either this does not contain a ignored node or it does not
+        #transform the case
         if (success or
-        ('strip' in params['open']['node'] and
-        params['open']['node']['strip'])):
+        ('transform' in params['open']['node'] and
+        not params['open']['node']['transform'])):
             start = params['open']['position'] + len(params['open']['open'])
             params['case'] = params['return'][start:params['position']]
             #If a function is provided
@@ -201,14 +201,14 @@ class Helper(object):
             params['last'] = params['open']['position'] + len(params['case'])
             params = preparse(params)
         #If the node should be ignored, or this contains a ignored node and the
-        #node does not just strip the opening and closing string
+        #node transforms the case
         if (
             params['ignore'] or
             (
                 not success and
                 (
-                    not 'strip' in params['open']['node'] or
-                    not params['open']['node']['strip']
+                    not 'transform' in params['open']['node'] or
+                    params['open']['node']['transform']
                 )
             )
         ):
@@ -222,20 +222,19 @@ class Helper(object):
             if 'attribute' in params['open']['node']:
                 #Put the popped value back
                 params['stack'].append(params['open'])
-                #If the node is a skipping node and does not just strip the
-                #opening and closing strings, skip
+                #If the node is a skipping node and it transforms the case, skip
                 if ('skip' in params['nodes'][
                     params['open']['node']['attribute']
                 ] and
                 params['nodes'][
                     params['open']['node']['attribute']]['skip'
                 ] and
-                (not 'strip' in params['nodes'][
+                (not 'transform' in params['nodes'][
                     params['open']['node']['attribute']
                 ] or
-                not params['nodes'][
+                params['nodes'][
                     params['open']['node']['attribute']
-                ]['strip'])):
+                ]['transform'])):
                     newstack = {
                         'node': params['open']['open'],
                         'nodes': params['nodes'],
@@ -340,12 +339,8 @@ def preparse(params):
                 params['open']['node']['close']
             ) > value[1]
         ):
-            params['preparse']['ignored'][key][0] += params['offset'] - len(
-                params['open']['open']
-            )
-            params['preparse']['ignored'][key][1] += params['offset'] - len(
-                params['open']['open']
-            )
+            params['preparse']['ignored'][key][0] += params['offset']
+            params['preparse']['ignored'][key][1] += params['offset']
     #Only continue if we are preparsing
     if not params['config']['preparse']:
         return params
@@ -358,18 +353,20 @@ def preparse(params):
                 params['open']['node']['close']
             ) > value[1]
         ):
-            #If the node just strips the opening and closing strings, adjust
-            #the range to the removal of the opening string and trimming
-            if ('strip' in params['open']['node'] and
-            not params['open']['node']['strip']):
-                value[0] += params['offset'] - len(params['open']['open'])
-                value[1] += params['offset'] - len(params['open']['open'])
+            #If the node does not transform the case, adjust the range to the
+            #removal of the opening string and trimming
+            if ('transform' in params['open']['node'] and
+            not params['open']['node']['transform']):
+                value[0] += params['offset']
+                value[1] += params['offset']
                 clone.append(value)
+        else:
+            clone.append(value)
     params['preparse']['taken'] = clone
-    #If the node does not just strip the opening and closing strings, this case
-    #should be taken, and the case is not empty, reserve the transformed case
-    if ((not 'strip' in params['open']['node'] or
-    params['open']['node']['strip']) and
+    #If the node transforms the case, this case should be taken, and the case
+    #is not empty, reserve the transformed case
+    if ((not 'transform' in params['open']['node'] or
+    params['open']['node']['transform']) and
     params['taken'] and
     params['case']):
         params['preparse']['taken'].append([
