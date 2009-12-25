@@ -1,1 +1,0 @@
-suit.template = suit.parse(suit.vars['nodes'], suit.template)
