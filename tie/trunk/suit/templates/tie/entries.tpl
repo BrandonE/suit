@@ -33,7 +33,7 @@
                     [/if]
                 </td>
             </tr>
-            [if condition="entries"]
+            [if condition="[var]condition=>entries[/var]"]
             [loop vars="[var serialize=\"true\"]loop=>entries[/var]"]
             <tr class="list-entry[if condition="[loopvar]file[/loopvar]" else="true"]-folder[/if]">
                 <td>
@@ -85,7 +85,7 @@
             </tr>
             [/loop]
             [/if]
-            [if condition="entries" else="true"]
+            [if condition="[var]condition=>entries[/var]" else="true"]
             <tr class="list-entry-folder">
                 <td />
                 <td />

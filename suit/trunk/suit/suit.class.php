@@ -16,7 +16,6 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
 require 'helper.class.php';
-require 'section.class.php';
 
 class SUIT
 {
@@ -69,7 +68,6 @@ class SUIT
     public function __construct($escape = '\\', $insensitive = true)
     {
         $this->helper = new Helper($this);
-        $this->section = new Section($this);
         $this->escape = $escape;
         $this->insensitive = $insensitive;
     }

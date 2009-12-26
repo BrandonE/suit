@@ -213,57 +213,42 @@ class TIE
             {
                 if (((isset($_POST['add']) || isset($_POST['edit']) || isset($_POST['editandcontinue'])) && isset($posted['title']) && isset($posted['template'])) || ((isset($_POST['copy']) || isset($_POST['create']) || isset($_POST['rename'])) && isset($posted['title'])) || (isset($_POST['import']) && isset($_FILES['file'])) || (((isset($_POST['move']) && isset($_POST['moveto'])) || (isset($_POST['replace']) && isset($_POST['find']) && isset($_POST['replacewith']))) && (isset($_POST['entry']) || isset($_POST['directoryentry']))) || isset($_POST['delete']))
                 {
-                    $getconfig = array
-                    (
-                        'close' => '>',
-                        'end' => '/',
-                        'escape' => '\\',
-                        'open' => '<'
-                    );
                     $files = array();
                     $directories = array();
                     if (isset($_POST['import']))
                     {
-                        $files = $this->owner->section->get('file', &$upload, $getconfig);
-                        foreach ($files as $key => $value)
+                        $files = array();
+                        $xml = new SimpleXMLElement($upload);
+                        $getfiles = $xml->xpath('/import/file');
+                        foreach ($getfiles as $key => $value)
                         {
-                            $files[$key] = array
-                            (
-                                'template' => $this->owner->section->get('template', $value, $getconfig),
-                                'directory' => array_merge
-                                (
-                                    $directory['array'],
-                                    $this->owner->section->get('array', $value, $getconfig)
-                                ),
-                                'title' => $this->owner->section->get('title', $value, $getconfig)
-                            );
-                            if (isset($files[$key]['title'][0]) && isset($files[$key]['template'][0]))
+                            $filearray = array();
+                            foreach ($value as $key2 => $value2)
                             {
-                                $files[$key]['title'] = str_replace($illegal, '', $files[$key]['title'][0]);
-                                $files[$key]['template'] = $files[$key]['template'][0];
-                                $this->owner->section->get('template', &$files[$key]['title'], $getconfig);
-                                $this->owner->section->get('array', &$files[$key]['title'], $getconfig);
-                                $this->owner->section->get('directory', &$files[$key]['title'], $getconfig);
-                                $this->owner->section->get('array', &$files[$key]['template'], $getconfig);
-                                $this->owner->section->get('title', &$files[$key]['template'], $getconfig);
-                                $this->owner->section->get('directory', &$files[$key]['template'], $getconfig);
-                                foreach ($files[$key]['directory'] as $key2 => $value2)
+                                $filearray[$key2] = $value2;
+                            }
+                            $array = $directory['array'];
+                            if (isset($value->sub))
+                            {
+                                foreach ($value->sub as $value2)
                                 {
-                                    $this->owner->section->get('template', &$files[$key]['directory'][$key2], $getconfig);
-                                    $this->owner->section->get('title', &$files[$key]['directory'][$key2], $getconfig);
-                                    $this->owner->section->get('directory', &$files[$key]['directory'][$key2], $getconfig);
+                                    $array[] = $value2;
                                 }
                             }
-                            else
+                            $filearray['directory'] = $array;
+                            if (!isset($value->title) && !isset($value->template))
                             {
                                 $error = $this->owner->vars['language']['filenotvalid'];
+                                break;
                             }
-                            $thisdirectory = $this->helper->directorydata($files[$key]['directory']);
-                            $filepath = $this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $files[$key]['title'] . '.' . $filetype;
+                            $value->title = str_replace($illegal, '', $value->title);
+                            $thisdirectory = $this->helper->directorydata($array);
+                            $filepath = $this->owner->vars['files'][$type] . $thisdirectory['string'] . '/' . $value->title . '.' . $filetype;
                             if (is_file($filepath))
                             {
                                 $error = $this->owner->vars['language']['duplicatetitle'];
                             }
+                            $files[] = $filearray;
                         }
                     }
                     elseif (isset($_POST['delete']) && is_array($_GET['title']))
@@ -347,7 +332,7 @@ class TIE
                     }
                     $strippedget = str_replace($illegal, '', $_GET['title']);
                     $strippedposted = str_replace($illegal, '', $posted['title']);
-                    if (isset($_POST['copy']) || isset($_POST['create']) || isset($_POST['delete']) || isset($_POST['import']) || isset($_POST['move']) || isset($_POST['rename']) || isset($_POST['replace']))
+                    if ($error === false && (isset($_POST['copy']) || isset($_POST['create']) || isset($_POST['delete']) || isset($_POST['import']) || isset($_POST['move']) || isset($_POST['rename']) || isset($_POST['replace'])))
                     {
                         if (isset($_POST['delete']))
                         {
@@ -359,36 +344,31 @@ class TIE
                         }
                         elseif (isset($_POST['import']))
                         {
-                            $directories = $this->owner->section->get('directory', &$upload, $getconfig);
-                            foreach ($directories as $key => $value)
+                            $directories = array();
+                            $getdirectories = $xml->xpath('/import/directory');
+                            foreach ($getdirectories as $key => $value)
                             {
-                                $directories[$key] = array
-                                (
-                                    'directory' => array_merge
-                                    (
-                                        $directory['array'],
-                                        $this->owner->section->get('array', &$value, $getconfig)
-                                    ),
-                                    'title' => $this->owner->section->get('title', $value, $getconfig)
-                                );
-                                if (isset($directories[$key]['title'][0]))
+                                $directoryarray = array();
+                                $array = $directory['array'];
+                                if (isset($value->sub))
                                 {
-                                    $directories[$key]['title'] = str_replace($illegal, '', $directories[$key]['title'][0]);
-                                    $this->owner->section->get('template', &$directories[$key]['title'], $getconfig);
-                                    $this->owner->section->get('array', &$directories[$key]['title'], $getconfig);
-                                    $this->owner->section->get('directory', &$directories[$key]['title'], $getconfig);
-                                    foreach ($directories[$key]['directory'] as $key2 => $value2)
+                                    foreach ($value->sub as $value2)
                                     {
-                                        $this->owner->section->get('template', &$directories[$key]['directory'][$key2], $getconfig);
-                                        $this->owner->section->get('title', &$directories[$key]['directory'][$key2], $getconfig);
-                                        $this->owner->section->get('directory', &$directories[$key]['directory'][$key2], $getconfig);
+                                        $array[] = $value2;
                                     }
                                 }
-                                else
+                                $directoryarray['directory'] = $array;
+                                $value->title = str_replace($illegal, '', $value->title);
+                                if (!isset($value->title))
                                 {
                                     $error = $this->owner->vars['language']['filenotvalid'];
                                     break;
                                 }
+                                foreach ($value as $key2 => $value2)
+                                {
+                                    $directoryarray[$key2] = $value2;
+                                }
+                                $directories[] = $directoryarray;
                             }
                         }
                         else
@@ -833,7 +813,6 @@ class TIE
                     {
                         $this->owner->gettemplate(file_get_contents($config['badrequest']['template']), $config['badrequest']['code']);
                     }
-                    $strings = array('<array>', '<template>', '<directory>', '<file>', '<title>', '</array>', '</template>', '</directory>', '</file>', '</title>');
                     foreach ($directories as $value)
                     {
                         $dir = $value;
@@ -850,13 +829,13 @@ class TIE
                         {
                             $array[] = array
                             (
-                                'arraytoken' => $this->owner->escape($strings, $value2, '\\')
+                                'arraytoken' => htmlentities($value2)
                             );
                         }
                         $value = basename($value);
                         $directoriesarray[] = array
                         (
-                            'titletoken' => $this->owner->escape($strings, $value, '\\'),
+                            'titletoken' => htmlentities($value),
                             'array' => $array
                         );
                     }
@@ -872,15 +851,15 @@ class TIE
                         {
                             $array[] = array
                             (
-                                'arraytoken' => $this->owner->escape($strings, $value2, '\\')
+                                'arraytoken' => htmlentities($value2)
                             );
                         }
                         $title = basename($value, '.' . $filetype);
                         $filesarray[] = array
                         (
                             'array' => $array,
-                            'templatetoken' => $this->owner->escape($strings, $content, '\\'),
-                            'titletoken' => $this->owner->escape($strings, $title, '\\')
+                            'templatetoken' => htmlentities($content),
+                            'titletoken' => htmlentities($title)
                         );
                     }
                     $this->owner->vars['loop']['directories'] = $directoriesarray;
@@ -912,25 +891,6 @@ class TIE
                     {
                         $directorytitles = '';
                     }
-                    $section = array
-                    (
-                        array
-                        (
-                            'title' => $this->owner->vars['language'][$_GET['section']]
-                        )
-                    );
-                    foreach ($directory['array'] as $value)
-                    {
-                        $section[] = array
-                        (
-                            'title' => htmlspecialchars($value)
-                        );
-                    }
-                    $section[] = array
-                    (
-                        'title' => $this->owner->vars['language'][$_GET['cmd']]
-                    );
-                    $this->owner->vars['loop']['section'] = $section;
                     $config = array
                     (
                         'refresh' => 0
@@ -978,7 +938,7 @@ class TIE
             }
             $section[] = array
             (
-                'title' => $this->owner->vars['language'][$_GET['cmd']]
+                'title' => $redirectmessage
             );
             $this->owner->vars['loop']['section'] = $section;
             $this->redirect($redirect, $redirectmessage);
@@ -1474,7 +1434,7 @@ class TIEHelper
             if (is_dir($base . $value))
             {
                 $data[] = $base . $value . '/';
-                $data = $this->owner->rscandir($base . $value . '/', $data);
+                $data = $this->rscandir($base . $value . '/', $data);
             }
             elseif (is_file($base . $value))
             {

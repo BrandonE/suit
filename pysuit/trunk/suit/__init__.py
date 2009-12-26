@@ -18,7 +18,6 @@ import inspect
 import os
 import pickle
 import helper
-import section
 
 __version__ = '0.0.2'
 
@@ -28,7 +27,6 @@ class SUIT(object):
     def __init__(self, escapestring = '\\', insensitive = True):
         """http://www.suitframework.com/docs/SUIT+Construct"""
         self.helper = helper.Helper(self)
-        self.section = section.Section(self)
         self.escapestring = escapestring
         self.insensitive = insensitive
         self.cache = {
