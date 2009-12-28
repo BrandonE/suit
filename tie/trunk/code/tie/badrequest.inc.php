@@ -16,14 +16,32 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$nodes = $suit->config['parse']['nodes'];
-$path = $suit->tie->path(array('check', 'list', 'order', 'search', 'start'));
-$suit->vars['condition']['checked'] = ($suit->tie->settings['check']);
-$suit->vars['condition']['desc'] = ($suit->tie->settings['order'] == 'desc');
-$suit->vars['list'] = urlencode($suit->tie->settings['list']);
-$suit->vars['order'] = urlencode($suit->tie->settings['order']);
-$suit->vars['navigationpath'] = $path;
-$suit->vars['search'] = urlencode($suit->tie->settings['search']);
-$suit->vars['start'] = urlencode($suit->tie->settings['start']);
-$template = $suit->parse($nodes, $template);
+$suit->vars['name'] = $suit->vars['language']['badrequest'];
+$template = $suit->parse($suit->vars['nodes'], $template);
+$suit->vars['debug'] = $suit->debug;
+$debug = $suit->gettemplate(
+    file_get_contents($suit->vars['files']['templates'] . '/tie/debug.tpl'),
+    array
+    (
+        $suit->vars['files']['code'] . '/tie/debug.inc.php',
+        $suit->vars['files']['code'] . '/tie/parse.inc.php'
+    )
+);
+$nodes = array
+(
+    '<debug' => array
+    (
+        'close' => ' />',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'nodedebug'
+            )
+        ),
+        'skip' => true,
+        'var' => $debug
+    )
+);
+exit($suit->parse($nodes, $template));
 ?>

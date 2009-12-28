@@ -106,7 +106,29 @@ def attribute(params):
         params['preparse']['nodes'][stack['node']] = node
     #Else, ignore this case
     else:
-        params['ignore'] = True
+        params['preparse']['ignored'].append([
+            params['open']['position'],
+            params['position'] + len(params['open']['node']['close'])
+        ])
+        node = {
+            'close': params['nodes'][
+                params['open']['node'
+            ]['attribute']]['close']
+        }
+        if 'skip' in params['nodes'][params['open']['node']['attribute']]:
+            node['skip'] = params['nodes'][
+                params['open']['node']['attribute']
+            ]['skip']
+        stack = {
+            'node': params['open']['node']['attribute'],
+            'nodes': {},
+            'position': params['open']['position'],
+            'skipnode': [],
+            'stack': []
+        }
+        stack['nodes'][params['open']['node']['attribute']] = node
+        stack = helper.stack(stack)
+        params['stack'].extend(stack['stack'])
     return params
 
 def comments(params):
@@ -118,9 +140,15 @@ def condition(params):
     """Strip node tags or hide a string"""
     params['offset'] = -len(params['open']['open'])
     #Hide the case if necessary
-    if ((params['var']['condition'] and
-    params['var']['else']) or
-    (not params['var']['condition'] and not params['var']['else'])):
+    if (
+        (
+            params['var']['condition'] and
+            params['var']['else']
+        ) or
+        (
+            not params['var']['condition'] and not params['var']['else']
+        )
+    ):
         params['case'] = ''
     return params
 
@@ -130,10 +158,19 @@ def conditionskip(params):
         pop = params['stack'].pop()
         #If the case was not hidden, do not skip over everything between this
         #opening string and its closing string
-        if ((pop['node']['var']['condition'] and
-        not pop['node']['var']['else']) or
-        (not pop['node']['var']['condition'] and
-        pop['node']['var']['else'])):
+        if (
+            'var' in pop['node'] and
+            (
+                (
+                    pop['node']['var']['condition'] and
+                    not pop['node']['var']['else']
+                ) or
+                (
+                    not pop['node']['var']['condition'] and
+                    pop['node']['var']['else']
+                )
+            )
+        ):
             params['skipnode'].pop()
         params['stack'].append(pop)
     return params
@@ -266,12 +303,15 @@ def loopvariables(params):
                     print params['var']['var']
                     params['case'] = getattr(params['case'], value)
     else:
+        params['preparse']['ignored'].append([
+            params['open']['position'],
+            params['position'] + len(params['open']['node']['close'])
+        ])
         params['case'] = ''.join((
             params['open']['open'],
             params['case'],
             params['open']['node']['close']
         ))
-        params['ignore'] = True
         params['taken'] = False
     if params['var']['serialize']:
         params['case'] = pickle.dumps(params['case'])

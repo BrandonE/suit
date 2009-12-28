@@ -32,24 +32,37 @@ class Helper(object):
         #it
         if (skippop == False or
         params['nodes'][params['node']]['close'] == skippop):
-            #If a value was not popped or it explictly says to escape
-            if (skippop == False or
-            ('skipescape' in params['nodes'][params['node']] and
-            params['nodes'][params['node']]['skipescape'])):
-                params['position'] = params['unescape']['position']
-                params['return'] = params['unescape']['string']
-            #If this position should not be overlooked
-            if not params['unescape']['condition']:
-                #If there is an offset, decrement it
-                if params['skipoffset']:
-                    params['skipoffset'] -= 1
-                #If the stack is not empty
-                elif params['stack']:
-                    params['open'] = params['stack'].pop()
-                    close = params['nodes'][params['node']]['close']
+            #If the stack is not empty
+            if params['stack']:
+                params['open'] = params['stack'].pop()
+                #If a value was not popped or it explictly says to escape
+                if (skippop == False or
+                ('skipescape' in params['open']['node'] and
+                params['open']['node']['skipescape'])):
+                    params['position'] = params['unescape']['position']
+                    params['return'] = params['unescape']['string']
+                #If this position should not be overlooked
+                if not params['unescape']['condition']:
+                    #If there is an offset, decrement it
+                    if params['skipoffset']:
+                        params['skipoffset'] -= 1
+                        params['stack'].append(params['open'])
                     #If this closing string matches the last node's
-                    if params['open']['node']['close'] == close:
+                    elif params['open']['node']['close'] == params['nodes'][
+                        params['node']
+                    ]['close']:
                         params = self.transform(params)
+                    else:
+                        params['stack'].append(params['open'])
+                #Else, reserve the range
+                else:
+                    params['preparse']['taken'].append((
+                        params['position'] - 1,
+                        params['position'] + len(
+                            params['nodes'][params['node']]['close']
+                        ) + 1
+                    ))
+                    params['stack'].append(params['open'])
         #Else, put the popped value back
         else:
             params['skipnode'].append(skippop)
@@ -165,30 +178,30 @@ class Helper(object):
             params['position'] + length > value[1]):
                 success = False
                 break
-        #If either this does not contain a ignored node or it does not
-        #transform the case
-        if (success or
-        ('transform' in params['open']['node'] and
-        not params['open']['node']['transform'])):
-            start = params['open']['position'] + len(params['open']['open'])
-            params['case'] = params['return'][start:params['position']]
-            #If a function is provided
-            if 'function' in params['open']['node']:
-                params['suit'] = self.owner
-                if 'var' in params['open']['node']:
-                    params['var'] = params['open']['node']['var']
-                for value in params['open']['node']['function']:
-                    #Transform the string in between the opening and closing
-                    #strings.
-                    params = value(params)
-            else:
-                #Replace the opening and closing strings
-                params['case'] = ''.join((
-                    params['open']['open'],
-                    params['case'],
-                    params['open']['node']['close']
-                ))
-                params['offset'] = len(params['open']['open'])
+        #If functions are provided, and either this does not contain a ignored
+        #node or the node does not transform the case, parse
+        if (
+            'function' in params['open']['node'] and
+            (
+                success or
+                (
+                    'transform' in params['open']['node'] and
+                    not params['open']['node']['transform']
+                )
+            )
+        ):
+            params['case'] = params['return'][
+                params['open']['position'] + len(
+                    params['open']['open']
+                ):params['position']
+            ]
+            params['suit'] = self.owner
+            if 'var' in params['open']['node']:
+                params['var'] = params['open']['node']['var']
+            for value in params['open']['node']['function']:
+                #Transform the string in between the opening and closing
+                #strings.
+                params = value(params)
             params['case'] = str(params['case'])
             start = params['position'] + len(params['open']['node']['close'])
             #Replace everything including and between the opening and closing
@@ -200,50 +213,6 @@ class Helper(object):
             ))
             params['last'] = params['open']['position'] + len(params['case'])
             params = preparse(params)
-        #If the node should be ignored, or this contains a ignored node and the
-        #node transforms the case
-        if (
-            params['ignore'] or
-            (
-                not success and
-                (
-                    not 'transform' in params['open']['node'] or
-                    params['open']['node']['transform']
-                )
-            )
-        ):
-            #If the node should be ignored, reserve the space
-            if params['ignore']:
-                params['preparse']['ignored'].append([
-                    params['open']['position'],
-                    params['position'] + len(params['open']['node']['close'])
-                ])
-            #If this is an attribute node
-            if 'attribute' in params['open']['node']:
-                #Put the popped value back
-                params['stack'].append(params['open'])
-                #If the node is a skipping node and it transforms the case, skip
-                if ('skip' in params['nodes'][
-                    params['open']['node']['attribute']
-                ] and
-                params['nodes'][
-                    params['open']['node']['attribute']]['skip'
-                ] and
-                (not 'transform' in params['nodes'][
-                    params['open']['node']['attribute']
-                ] or
-                params['nodes'][
-                    params['open']['node']['attribute']
-                ]['transform'])):
-                    newstack = {
-                        'node': params['open']['open'],
-                        'nodes': params['nodes'],
-                        'position': params['open']['position'],
-                        'skipnode': [],
-                        'stack': []
-                    }
-                    newstack = stack(newstack)
-                    params['skipnode'].update(newstack['skipnode'])
         return params
 
 def openingstring(params):
@@ -259,6 +228,11 @@ def openingstring(params):
         #If this position should not be overlooked
         if not params['unescape']['condition']:
             params = stack(params)
+        #Else, reserve the range
+        else:
+            params['preparse']['taken'].append((
+                params['position'] - 1,
+                params['position'] + len(params['node']) + 1))
     else:
         #Put it back
         params['skipnode'].append(skippop)

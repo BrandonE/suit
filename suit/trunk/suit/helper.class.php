@@ -35,29 +35,40 @@ class Helper
         //If a value was not popped or the closing string for this node matches it
         if ($skippop === false || $params['nodes'][$params['node']]['close'] == $skippop)
         {
-            //If a value was not popped or it explictly says to escape
-            if ($skippop === false || (array_key_exists('skipescape', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skipescape']))
+            //If the stack is not empty
+            if (!empty($params['stack']))
             {
-                $params['position'] = $params['unescape']['position'];
-                $params['return'] = $params['unescape']['string'];
-            }
-            //If this position should not be overlooked
-            if (!$params['unescape']['condition'])
-            {
-                //If there is an offset, decrement it
-                if ($params['skipoffset'])
+                $params['open'] = array_pop($params['stack']);
+                //If a value was not popped or it explictly says to escape
+                if ($skippop === false || (array_key_exists('skipescape', $params['open']['node']) && $params['open']['node']['skipescape']))
                 {
-                    $params['skipoffset']--;
+                    $params['position'] = $params['unescape']['position'];
+                    $params['return'] = $params['unescape']['string'];
                 }
-                //If the stack is not empty
-                elseif (!empty($params['stack']))
+                //If this position should not be overlooked
+                if (!$params['unescape']['condition'])
                 {
-                    $params['open'] = array_pop($params['stack']);
+                    //If there is an offset, decrement it
+                    if ($params['skipoffset'])
+                    {
+                        $params['skipoffset']--;
+                        $params['stack'][] = $params['open'];
+                    }
                     //If this closing string matches the last node's
-                    if ($params['open']['node']['close'] == $params['nodes'][$params['node']]['close'])
+                    elseif ($params['open']['node']['close'] == $params['nodes'][$params['node']]['close'])
                     {
                         $params = $this->transform($params);
                     }
+                    else
+                    {
+                        $params['stack'][] = $params['open'];
+                    }
+                }
+                //Else, reserve the range
+                else
+                {
+                    $params['preparse']['taken'][] = array($params['position'] - 1, $params['position'] + strlen($params['nodes'][$params['node']]['close']) + 1);
+                    $params['stack'][] = $params['open'];
                 }
             }
         }
@@ -96,6 +107,11 @@ class Helper
             if (!$params['unescape']['condition'])
             {
                 $params = $this->stack($params);
+            }
+            //Else, reserve the range
+            else
+            {
+                $params['preparse']['taken'][] = array($params['position'] - 1, $params['position'] + strlen($params['node']) + 1);
             }
         }
         else
@@ -366,67 +382,29 @@ class Helper
                 break;
             }
         }
-        //If either this does not contain a ignored node or the node does not transform the case, parse
-        if ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform']))
+        //If functions are provided, and either this does not contain a ignored node or the node does not transform the case
+        if (array_key_exists('function', $params['open']['node']) && ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform'])))
         {
             $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
-            //If functions are provided
-            if (array_key_exists('function', $params['open']['node']))
+            $params['suit'] = $this->owner;
+            $params['var'] = $params['open']['node']['var'];
+            foreach ($params['open']['node']['function'] as $value)
             {
-                $params['suit'] = $this->owner;
-                $params['var'] = $params['open']['node']['var'];
-                foreach ($params['open']['node']['function'] as $value)
+                //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
+                if (array_key_exists('class', $value))
                 {
-                    //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
-                    if (array_key_exists('class', $value))
-                    {
-                        $params = $value['class']->$value['function']($params);
-                    }
-                    else
-                    {
-                        $params = $value['function']($params);
-                    }
+                    $params = $value['class']->$value['function']($params);
                 }
-            }
-            else
-            {
-                //Replace the opening and closing strings
-                $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
+                else
+                {
+                    $params = $value['function']($params);
+                }
             }
             $params['case'] = strval($params['case']);
             //Replace everything including and between the opening and closing strings with the transformed string
             $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
             $params['last'] = $params['open']['position'] + strlen($params['case']);
             $params = $this->preparse($params);
-        }
-        //If the node should be ignored, or this contains a ignored node and the node transforms the case
-        if ($params['ignore'] || (!$success && (!array_key_exists('transform', $params['open']['node']) || $params['open']['node']['transform'])))
-        {
-            //If the node should be ignored, reserve the space
-            if ($params['ignore'])
-            {
-                $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
-            }
-            //If this is an attribute node
-            if (array_key_exists('attribute', $params['open']['node']))
-            {
-                //Put the popped value back
-                $params['stack'][] = $params['open'];
-                //If the node is a skipping node and it transforms the case, skip
-                if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]) && $params['nodes'][$params['open']['node']['attribute']]['skip'] && (!array_key_exists('transform', $params['nodes'][$params['open']['node']['attribute']]) || $params['nodes'][$params['open']['node']['attribute']]['transform']))
-                {
-                    $newstack = array
-                    (
-                        'node' => $params['open']['open'],
-                        'nodes' => $params['nodes'],
-                        'position' => $params['open']['position'],
-                        'skipnode' => array(),
-                        'stack' => array()
-                    );
-                    $newstack = $this->stack($newstack);
-                    $params['skipnode'] = array_merge($params['skipnode'], $newstack['skipnode']);
-                }
-            }
         }
         return $params;
     }

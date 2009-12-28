@@ -16,9 +16,9 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$path = $suit->tie->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'check', 'section', 'start', 'title'));
+$suit->vars['condition']['version'] = false;
 $suit->vars['sitetitle'] = $suit->vars['language']['title'];
-$suit->vars['path'] = $path;
+$suit->vars['path'] = $suit->tie->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'check', 'section', 'start', 'title'));
 if (in_array($_GET['section'], array('code', 'templates')))
 {
     $suit->vars['condition']['dashboard'] = false;
@@ -41,13 +41,6 @@ if (in_array($_GET['section'], array('code', 'templates')))
 }
 elseif ($_GET['section'] == 'phpinfo')
 {
-    if ($suit->tie->config['flag']['debug'])
-    {
-        echo $suit->template(
-            file_get_contents($suit->vars['files']['templates'] . '/tie/debug.tpl'),
-            array($suit->vars['files']['code'] . '/tie/debug.inc.php')
-        );
-    }
     phpinfo();
     exit;
 }
@@ -70,10 +63,8 @@ else
         $suit->vars['condition']['currentversion'] = ($suit->tie->version != $version);
         $suit->vars['condition']['version'] = true;
         $suit->vars['version'] = $version;
-        $template = $suit->parse($suit->config['parse']['nodes'], $template);
-        exit($template);
     }
-    if ($_GET['suitversion'] == 'true')
+    elseif ($_GET['suitversion'] == 'true')
     {
         $version = @file_get_contents('http://suitframework.sourceforge.net/suitversion.txt');
         if (!$version)
@@ -83,21 +74,20 @@ else
         $suit->vars['condition']['currentversion'] = ($suit->version != $version);
         $suit->vars['condition']['version'] = true;
         $suit->vars['version'] = $version;
-        $template = $suit->parse($suit->config['parse']['nodes'], $template);
-        exit($template);
     }
-    $suit->vars['condition']['dashboard'] = true;
-    $suit->vars['condition']['fileuploads'] = (ini_get('file_uploads'));
-    $suit->vars['condition']['magicquotesgpc'] = (ini_get('magic_quotes_gpc'));
-    $suit->vars['condition']['magicquotesruntime'] = (ini_get('magic_quotes_runtime'));
-    $suit->vars['condition']['magicquotessybase'] = (ini_get('magic_quotes_sybase'));
-    $suit->vars['condition']['registerglobals'] = (ini_get('register_globals'));
-    $suit->vars['currentsuitversion'] = $suit->version;
-    $suit->vars['currenttieversion'] = $suit->tie->version;
-    $suit->vars['phpversion'] = PHP_VERSION;
-    $suit->vars['servertype'] = PHP_OS;
+    else
+    {
+        $suit->vars['condition']['dashboard'] = true;
+        $suit->vars['condition']['fileuploads'] = (ini_get('file_uploads'));
+        $suit->vars['condition']['magicquotesgpc'] = (ini_get('magic_quotes_gpc'));
+        $suit->vars['condition']['magicquotesruntime'] = (ini_get('magic_quotes_runtime'));
+        $suit->vars['condition']['magicquotessybase'] = (ini_get('magic_quotes_sybase'));
+        $suit->vars['condition']['registerglobals'] = (ini_get('register_globals'));
+        $suit->vars['currentsuitversion'] = $suit->version;
+        $suit->vars['currenttieversion'] = $suit->tie->version;
+        $suit->vars['phpversion'] = PHP_VERSION;
+        $suit->vars['servertype'] = PHP_OS;
+    }
 }
-$suit->vars['condition']['version'] = false;
 $suit->vars['loop']['section'] = $section;
-$template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

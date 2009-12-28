@@ -22,7 +22,7 @@
                 <td />
                 <td />
                 <td width="25%">
-                    [template]tie/order=>tie/order[/template][if condition="[var]condition=>code[/var]" else="true"] | [template]tie/checkall=>tie/all=>tie/parse[/template] | [template]tie/uncheckall=>tie/all=>tie/parse[/template][/if]
+                    [template]tie/order=>tie/order=>tie/parse[/template][if condition="[var]condition=>code[/var]" else="true"] | [template]tie/checkall=>tie/all=>tie/parse[/template] | [template]tie/uncheckall=>tie/all=>tie/parse[/template][/if]
                 </td>
                 <td width="75%" style="text-align: right;">
                     [if condition="[var]condition=>code[/var]" else="true"]

@@ -39,6 +39,4 @@ foreach ($languages as $key => $value)
     );
 }
 $suit->vars['loop']['languages'] = $languagesloop;
-$suit->vars['test'] = '[|test|]';
-$template = $suit->parse($suit->config['parse']['nodes'], $template);
 ?>

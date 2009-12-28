@@ -313,7 +313,6 @@ class SUIT
         (
             'config' => $config,
             'last' => 0,
-            'nodes' => $nodes,
             'preparse' => array
             (
                 'ignored' => array(),
@@ -333,8 +332,8 @@ class SUIT
             //Adjust position to changes in length
             $position = $key[$i] + $offset;
             $params['break'] = false;
-            $params['ignore'] = false;
             $params['node'] = $pos[$key[$i]][0];
+            $params['nodes'] = $nodes;
             $params['offset'] = 0;
             $params['position'] = $position;
             $params['return'] = $return;

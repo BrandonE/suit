@@ -115,7 +115,6 @@ if ($suit->tie->config['flag']['debug'])
     $suit->vars['parsecache'] = $suit->vars['debug']['strpos']['parse']['cache'];
     $suit->vars['totalcall'] = $suit->vars['debug']['strpos']['escape']['call'] + $suit->vars['debug']['strpos']['explodeunescape']['call'] + $suit->vars['debug']['strpos']['parse']['call'];
     $suit->vars['totalcache'] = $suit->vars['debug']['strpos']['escape']['cache'] + $suit->vars['debug']['strpos']['explodeunescape']['cache'] + $suit->vars['debug']['strpos']['parse']['cache'];
-    $template = $suit->parse($suit->config['parse']['nodes'], $template);
 }
 else
 {

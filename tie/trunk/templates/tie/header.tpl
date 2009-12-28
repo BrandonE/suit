@@ -10,7 +10,7 @@
         <div class="slogan">[var]language=>slogan[/var]</div>
     </div>
     <div class="right">
-[template]tie/language=>tie/language[/template]
+[template]tie/language=>tie/language=>tie/parse[/template]
     </div>
 </div>
 <div class="welcome">

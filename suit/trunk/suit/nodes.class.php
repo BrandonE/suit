@@ -99,10 +99,30 @@ class Nodes
             $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
             $params['preparse']['nodes'][$stack['node']] = $node;
         }
-        //Else, ignore this case
         else
         {
-            $params['ignore'] = true;
+            //Reserve the space
+            $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+            //Prepare for the closing string
+            $node = array
+            (
+                'close' => $params['nodes'][$params['open']['node']['attribute']]['close']
+            );
+            if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]))
+            {
+                $node['skip'] = $params['nodes'][$params['open']['node']['attribute']]['skip'];
+            }
+            $stack = array
+            (
+                'node' => $params['open']['node']['attribute'],
+                'nodes' => array(),
+                'position' => $params['open']['position'],
+                'skipnode' => array(),
+                'stack' => array()
+            );
+            $stack['nodes'][$params['open']['node']['attribute']] = $node;
+            $stack = $params['suit']->helper->stack($stack);
+            $params['stack'] = array_merge($params['stack'], $stack['stack']);
         }
         return $params;
     }
@@ -130,7 +150,7 @@ class Nodes
         {
             $pop = array_pop($params['stack']);
             //If the case was not hidden, do not skip over everything between this opening string and its closing string
-            if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']))
+            if (array_key_exists('var', $pop['node']) && (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else'])))
             {
                 array_pop($params['skipnode']);
             }
@@ -278,16 +298,17 @@ class Nodes
                     $params['case'] = $params['case']->$value;
                 }
             }
+            if ($params['var']['serialize'])
+            {
+                $params['case'] = serialize($params['case']);
+            }
         }
         else
         {
+            //Reserve the space
+            $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
             $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-            $params['ignore'] = true;
             $params['taken'] = false;
-        }
-        if ($params['var']['serialize'])
-        {
-            $params['case'] = serialize($params['case']);
         }
         return $params;
     }

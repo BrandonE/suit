@@ -864,7 +864,7 @@ class TIE
                     }
                     $this->owner->vars['loop']['directories'] = $directoriesarray;
                     $this->owner->vars['loop']['files'] = $filesarray;
-                    $xml = $this->owner->parse($this->owner->config['parse']['nodes'], $xml);
+                    $xml = $this->owner->parse($this->owner->vars['nodes'], $xml);
                     header('Pragma: public');
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -1018,7 +1018,7 @@ class TIE
                 $this->owner->vars['condition']['directoryplural'] = (count($directorytitles) != 1);
                 $this->owner->vars['loop']['titles'] = $titles;
                 $this->owner->vars['loop']['directorytitles'] = $directorytitles;
-                $message = $this->owner->parse($this->owner->config['parse']['nodes'], $message);
+                $message = $this->owner->parse($this->owner->vars['nodes'], $message);
                 $this->owner->vars['message'] = $message;
             }
             else
@@ -1039,7 +1039,7 @@ class TIE
                 $this->owner->vars['template'] = htmlspecialchars(strval($posted['template']));
                 $this->owner->vars['title'] = htmlspecialchars(strval($posted['title']));
             }
-            $return = $this->owner->parse($this->owner->config['parse']['nodes'], $return);
+            $return = $this->owner->parse($this->owner->vars['nodes'], $return);
         }
         else
         {
@@ -1144,7 +1144,7 @@ class TIE
             $this->owner->vars['order'] = urlencode($this->settings['order']);
             $this->owner->vars['search'] = urlencode($this->settings['search']);
             $this->owner->vars['start'] = urlencode($this->settings['start']);
-            $return = $this->owner->parse($this->owner->config['parse']['nodes'], $return);
+            $return = $this->owner->parse($this->owner->vars['nodes'], $return);
         }
         $array = array();
         foreach ($directory['array'] as $value)
@@ -1196,7 +1196,7 @@ class TIE
         $this->owner->vars['navigationpath'] = $path;
         $this->owner->vars['search'] = urlencode($this->settings['search']);
         $this->owner->vars['start'] = urlencode($this->settings['start']);
-        $return['current'] = $this->owner->parse($this->owner->config['parse']['nodes'], $return['current']);
+        $return['current'] = $this->owner->parse($this->owner->vars['nodes'], $return['current']);
         $num = $this->reduce($count - 1);
         $array = array();
         $result = $this->helper->pagelink($count, ($this->settings['start'] - ($this->settings['list'] * ($config['pages'] + 1))), 0, $this->owner->vars['language']['first'], false, $pagelink);
@@ -1297,15 +1297,19 @@ class TIE
             $this->owner->vars['condition']['s'] = ($config['refresh'] != 1);
             $this->owner->vars['seconds'] = $this->owner->vars['language']['seconds'];
             $this->owner->vars['refresh'] = $config['refresh'];
-            $this->owner->vars['seconds'] = $this->owner->parse($this->owner->config['parse']['nodes'], $this->owner->vars['seconds']);
+            $this->owner->vars['seconds'] = $this->owner->parse($this->owner->vars['nodes'], $this->owner->vars['seconds']);
             $this->owner->vars['message'] = $message;
             $this->owner->vars['name'] = $this->owner->vars['language']['redirecting'];
             $this->owner->vars['url'] = htmlspecialchars($url);
-            $content = $this->owner->parse($this->owner->config['parse']['nodes'], $content);
+            $content = $this->owner->parse($this->owner->vars['nodes'], $content);
             $this->owner->vars['debug'] = $this->owner->debug;
             $debug = $this->owner->gettemplate(
                 file_get_contents($this->owner->vars['files']['templates'] . '/tie/debug.tpl'),
-                array($this->owner->vars['files']['code'] . '/tie/debug.inc.php')
+                array
+                (
+                    $this->owner->vars['files']['code'] . '/tie/debug.inc.php',
+                    $this->owner->vars['files']['code'] . '/tie/parse.inc.php'
+                )
             );
             $nodes = array
             (
@@ -1421,7 +1425,7 @@ class TIEHelper
             $this->owner->owner->vars['navigationpath'] = $path;
             $this->owner->owner->vars['search'] = urlencode($this->owner->settings['search']);
             $this->owner->owner->vars['start'] = urlencode($start);
-            $return = $this->owner->owner->parse($this->owner->owner->config['parse']['nodes'], $return);
+            $return = $this->owner->owner->parse($this->owner->owner->vars['nodes'], $return);
         }
         return $return;
     }
