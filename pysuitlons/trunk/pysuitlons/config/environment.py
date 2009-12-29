@@ -147,7 +147,7 @@ def load_environment(global_conf, app_conf):
             'function': [nodes.loopvariables],
             'var':
             {
-                'delimiter': '=>',
+                'delimiter': '.',
                 'ignore': {},
                 'serialize': False,
                 'var': {}
@@ -214,7 +214,7 @@ def load_environment(global_conf, app_conf):
             {
                 'files': paths['templates'],
                 'filetypes': {'code':'py', 'templates': 'tpl'},
-                'delimiter': '=>'
+                'delimiter': '.'
             }
         },
         '[template':

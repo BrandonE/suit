@@ -20,8 +20,8 @@ import os
 import pickle
 import helper
 
-from pylons import config, request, response, session, c, url
-from pylons.i18n import gettext as _
+from pylons import config, request, response, session, c, g, url
+from pylons.i18n import N_, gettext as _
 
 __version__ = '0.0.2'
 

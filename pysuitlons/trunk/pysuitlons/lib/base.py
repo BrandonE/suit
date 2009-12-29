@@ -4,7 +4,7 @@ Provides the BaseController class for subclassing.
 """
 from pylons.controllers import WSGIController
 
-from pysuitlons.lib.helpers import render
+from pysuitlons.lib.templating import render
 from pysuitlons.model import meta
 
 class BaseController(WSGIController):
