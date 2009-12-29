@@ -190,11 +190,21 @@ def load_environment(global_conf, app_conf):
                 'quote': '"'
             }
         },
-        '[return':
+        '[return': 
         {
             'close': '/]',
-            'function': [nodes.returning],
-            'skip': True
+            'function': [nodes.attribute, nodes.returning], 
+            'skip': True,
+            'var':
+            {
+                'equal': '=',
+                'onesided': True,
+                'quote': '"',
+                'var': 
+                {
+                    'stack': False
+                }
+            } 
         },
         '[template]':
         {
@@ -244,13 +254,14 @@ def load_environment(global_conf, app_conf):
                 'quote': '"'
             }
         },
+        # pysuitlons custom nodes are defined here.
         '[c]':
         {
             'close': '[/c]',
             'function': [nodes_pylons.tmpl_context],
             'var':
             {
-                'delimiter': '=>',
+                'delimiter': '.',
                 'serialize': False
             }
         },
@@ -265,6 +276,35 @@ def load_environment(global_conf, app_conf):
             {
                 'equal': '=',
                 'quote': '"'
+            }
+        },
+        '[url': 
+        { 
+            'close': '/]',
+            'function': [nodes.attribute, nodes_pylons.url], 
+            'skip': True,
+            'var':
+            {
+                'equal': '=',
+                'onesided': True,
+                'quote': '"',
+                'var': {}
+            } 
+        },
+        '[gettext': 
+        { 
+            'close': '/]',
+            'function': [nodes.attribute, nodes_pylons.gettext], 
+            'skip': True,
+            'var':
+            {
+                'equal': '=',
+                'onesided': True,
+                'quote': '"',
+                'var': 
+                {
+                    'text': ''
+                }
             }
         }
     }

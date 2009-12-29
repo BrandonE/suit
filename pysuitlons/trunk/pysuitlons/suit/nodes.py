@@ -17,6 +17,7 @@ http://www.suitframework.com/docs/credits
 import copy
 import helper
 import pickle
+import re
 
 def assign(params):
     """Assign variable in template"""
@@ -27,7 +28,70 @@ def assign(params):
 
 def attribute(params):
     """Create node out of attributes"""
-    node = copy.deepcopy(params['nodes'][params['open']['node']['attribute']])
+    #If this node is one sided, modify this node
+    if 'onesided' in params['var'] and params['var']['onesided']:
+        node = {
+            'var': copy.deepcopy(params['open']['node']['var']['var'])
+        }
+    #Else, modify the node this is creating
+    else:
+        node = copy.deepcopy(
+            params['nodes'][params['open']['node']['attribute']]
+        )
+    result = attributedefine(params, node)
+    params['case'] = ''.join((
+            params['open']['open'],
+            params['case'],
+            params['open']['node']['close']
+        ))
+    params['taken'] = False
+    if not result['ignore']:
+        if 'onesided' in params['var'] and params['var']['onesided']:
+            params['var'] = result['node']['var']
+        else:
+            #Add the new node to the stack
+            stack = {
+                'node': params['case'],
+                'nodes': {},
+                'position': params['open']['position'],
+                'skipnode': [],
+                'stack': []
+            }
+            stack['nodes'][stack['node']] = result['node']
+            stack = helper.stack(stack)
+            params['stack'].extend(stack['stack'])
+            params['skipnode'].extend(stack['skipnode'])
+            params['preparse']['nodes'][stack['node']] = result['node']
+    #Else, ignore this case
+    else:
+        params['preparse']['ignored'].append([
+            params['open']['position'],
+            params['position'] + len(params['open']['node']['close'])
+        ])
+        if not 'onesided' in params['var'] or not params['var']['onesided']:
+            node = {
+                'close': params['nodes'][
+                    params['open']['node'
+                ]['attribute']]['close']
+            }
+            if 'skip' in params['nodes'][params['open']['node']['attribute']]:
+                node['skip'] = params['nodes'][
+                    params['open']['node']['attribute']
+                ]['skip']
+            stack = {
+                'node': params['open']['node']['attribute'],
+                'nodes': {},
+                'position': params['open']['position'],
+                'skipnode': [],
+                'stack': []
+            }
+            stack['nodes'][params['open']['node']['attribute']] = node
+            stack = helper.stack(stack)
+            params['stack'].extend(stack['stack'])
+    return params
+
+def attributedefine(params, node):
+    """Define the variables"""
     #Define the variables
     split = params['suit'].explodeunescape(
         params['var']['quote'],
@@ -83,30 +147,10 @@ def attribute(params):
             else:
                 ignore = True
                 break
-    params['case'] = ''.join((
-            params['open']['open'],
-            params['case'],
-            params['open']['node']['close']
-        ))
-    params['taken'] = False
-    if not ignore:
-        #Add the new node to the stack
-        stack = {
-            'node': params['case'],
-            'nodes': {},
-            'position': params['open']['position'],
-            'skipnode': [],
-            'stack': []
-        }
-        stack['nodes'][stack['node']] = node
-        stack = helper.stack(stack)
-        params['stack'].extend(stack['stack'])
-        params['skipnode'].extend(stack['skipnode'])
-        params['preparse']['nodes'][stack['node']] = node
-    #Else, ignore this case
-    else:
-        params['ignore'] = True
-    return params
+    return {
+        'ignore': ignore,
+        'node': node
+    }
 
 def comments(params):
     """Hide a string"""
@@ -115,15 +159,17 @@ def comments(params):
 
 def condition(params):
     """Strip node tags or hide a string"""
-    #Calculate how many characters were stripped
-    params['offset'] = params['case'].lstrip(params['var']['trim'])
-    params['offset'] = len(params['offset']) - len(params['case'])
-    #Trim the case if requested
-    params['case'] = params['case'].strip(params['var']['trim'])
+    params['offset'] = -len(params['open']['open'])
     #Hide the case if necessary
-    if ((params['var']['condition'] and
-    params['var']['else']) or
-    (not params['var']['condition'] and not params['var']['else'])):
+    if (
+        (
+            params['var']['condition'] and
+            params['var']['else']
+        ) or
+        (
+            not params['var']['condition'] and not params['var']['else']
+        )
+    ):
         params['case'] = ''
     return params
 
@@ -133,21 +179,25 @@ def conditionskip(params):
         pop = params['stack'].pop()
         #If the case was not hidden, do not skip over everything between this
         #opening string and its closing string
-        if ((pop['node']['var']['condition'] and
-        not pop['node']['var']['else']) or
-        (not pop['node']['var']['condition'] and
-        pop['node']['var']['else'])):
+        if (
+            'var' in pop['node'] and
+            (
+                (
+                    pop['node']['var']['condition'] and
+                    not pop['node']['var']['else']
+                ) or
+                (
+                    not pop['node']['var']['condition'] and
+                    pop['node']['var']['else']
+                )
+            )
+        ):
             params['skipnode'].pop()
         params['stack'].append(pop)
     return params
 
 def escape(params):
-    """Create an escaped area"""
-    #Calculate how many characters were stripped
-    params['offset'] = params['case'].lstrip(params['var'])
-    params['offset'] = len(params['offset']) - len(params['case'])
-    #Trim the case if requested
-    params['case'] = params['case'].strip(params['var'])
+    """Escape the case"""
     return params
 
 def evaluation(params):
@@ -216,7 +266,7 @@ def loop(params):
             if 'label' in params['var']:
                 config['label'] = ''.join((params['var']['label'], str(key)))
             #Parse for this iteration
-            thiscase = params['suit'].parse(
+            iterations.append(params['suit'].parse(
                 dict(
                     params['nodes'].items() +
                     result['nodes'].items() +
@@ -224,13 +274,7 @@ def loop(params):
                 ),
                 result['return'],
                 config
-            )
-            #Trim the result if requested
-            thiscase = thiscase.lstrip(params['var']['trim'])
-            if len(iterationvars) == key + 1:
-                thiscase = thiscase.rstrip(params['var']['trim'])
-            #Append the result
-            iterations.append(thiscase)
+            ))
     #Implode the iterations
     params['case'] = params['var']['delimiter'].join(iterations)
     return params
@@ -280,12 +324,15 @@ def loopvariables(params):
                     print params['var']['var']
                     params['case'] = getattr(params['case'], value)
     else:
+        params['preparse']['ignored'].append([
+            params['open']['position'],
+            params['position'] + len(params['open']['node']['close'])
+        ])
         params['case'] = ''.join((
             params['open']['open'],
             params['case'],
             params['open']['node']['close']
         ))
-        params['ignore'] = True
         params['taken'] = False
     if params['var']['serialize']:
         params['case'] = pickle.dumps(params['case'])
@@ -302,18 +349,39 @@ def replace(params):
 def returning(params):
     """Return early from a parse call"""
     params['case'] = ''
-    for key, value in enumerate(params['stack']):
-        if not 'function' in value['node']:
-            params['stack'][key]['node']['function'] = []
-        #Make all of the nodes remove all content in the case that takes place
-        #after this return.
-        params['stack'][key]['node']['function'].insert(0, returningfirst)
-        #Make the last node to be closed remove everything after this return.
-        if key == 0:
-            params['stack'][key]['node']['function'].append(returninglast)
-        params['skipnode'].append(value['node']['close'])
-    #If the stack is empty, remove everything after this return.
-    if not params['stack']:
+    stack = copy.deepcopy(params['stack'])
+    stack.reverse()
+    skipnode = []
+    for key, value in enumerate(stack):
+        #If the stack count has not been modified or it specifies this many
+        #stacks
+        if not params['var']['stack'] or int(params['var']['stack']) > key:
+            if not 'function' in value['node']:
+                params['stack'][len(stack) - 1 - key]['node']['function'] = []
+            #Make all of the nodes remove all content in the case that takes
+            #place after this return.
+            params['stack'][len(stack) - 1 - key]['node']['function'].insert(
+                0,
+                returningfirst
+            )
+            #Make the last node to be closed remove everything after this
+            #return
+            if key == len(stack) - 1:
+                params['stack'][0]['node']['function'].append(returninglast)
+            skipnode.append(value['node']['close'])
+        else:
+            break
+    skipnode.reverse()
+    params['skipnode'].extend(skipnode)
+    #If the stack is empty, and the stack count has not been modified or it
+    #specifies at least one stack, remove everything after this return.
+    if (
+        not params['stack'] and 
+        (
+            not params['var']['stack'] or
+            int(params['var']['stack']) > 0
+        )
+    ):
         params['last'] = params['open']['position']
         params = returninglast(params)
     return params
@@ -372,6 +440,11 @@ def templates(params):
         )
     else:
         params['case'] = params['suit'].gettemplate(template, code)
+    return params
+
+def trim(params):
+    """Trim all unnecessary whitespace"""
+    params['case'] = re.sub('(?m)[\s]+$', '', params['case'].lstrip())
     return params
 
 def trying(params):

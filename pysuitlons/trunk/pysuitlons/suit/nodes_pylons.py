@@ -1,29 +1,44 @@
-from pylons import c, url
-from pylons.i18n import gettext
+import pickle
+
+from pylons import c, url as _url
+from pylons.i18n import gettext as _gettext
 
 def tmpl_context(params):
-    """Parse variables"""
-    #Split up the file, paying attention to escape strings
+    """Rip-off of SUIT's default [var] node. Parses variables in the Pylons
+    template context.
+    """
+    # Split up the file, paying attention to escape strings
     split = params['suit'].explodeunescape(
-        params['var']['separator'],
+        params['var']['delimiter'],
         params['case'],
-        params['escape']
+        params['config']['escape']
     )
-    #params['case'] = params['suit'].vars
-    for value in split:
-        params['case'] = getattr(c, value)
+    for key, value in enumerate(split): 
+        if key == 0:
+            params['case'] = getattr(c, value) 
+        else:
+            try:
+                params['case'] = params['case'][value] 
+            except (AttributeError, TypeError):
+                try:
+                    params['case'] = params['case'][int(value)] 
+                except (AttributeError, TypeError, ValueError):
+                    params['case'] = getattr(params['case'], value)
+    if params['var']['serialize']:
+        params['case'] = pickle.dumps(params['case'])
     return params
 
-def url_for(params):
-    """"""
-    args = {}
-    case = str(params['case']).split('; ')
-    for argument in case:
-        k, v = argument.split('=')
-        args[k] = v
-    if not 'id' in args:
-        args['id'] = ''
-    params['case'] = u'%s' % url(**args).rstrip('/')
+def url(params):
+    """Pass attributes specified in the [url ... /] node to URL and generate
+    a routes URL.
+    """
+    try:
+        params['case'] = u'%s' % (_url(**params['var']))
+    except TypeError:
+        params['case'] = ''
     return params
 
-__all__ = ['tmpl_context', 'url_for']
+def gettext(params):
+    """Grabs a gettext string."""
+    params['case'] = _gettext(params['var']['text'])
+    return params

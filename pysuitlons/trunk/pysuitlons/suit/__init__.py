@@ -14,14 +14,14 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import copy
 import inspect
 import os
 import pickle
 import helper
-import section
 
-from pylons import config, request, response, session, tmpl_context as c, url
-from pylons.controllers.util import redirect_to
+from pylons import config, request, response, session, c, url
+from pylons.i18n import gettext as _
 
 __version__ = '0.0.2'
 
@@ -31,7 +31,6 @@ class SUIT(object):
     def __init__(self, escapestring = '\\', insensitive = True):
         """http://www.suitframework.com/docs/SUIT+Construct"""
         self.helper = helper.Helper(self)
-        self.section = section.Section(self)
         self.escapestring = escapestring
         self.insensitive = insensitive
         self.cache = {
@@ -284,7 +283,6 @@ class SUIT(object):
             'config': config,
             'ignored': [],
             'last': 0,
-            'nodes': nodes,
             'preparse': {
                 'ignored': [],
                 'nodes': {},
@@ -299,10 +297,9 @@ class SUIT(object):
         for value in pos:
             #Adjust position to changes in length
             position = value[0] + offset
-
             params['break'] = False
-            params['ignore'] = False
             params['node'] = value[1][0]
+            params['nodes'] = copy.deepcopy(nodes)
             params['offset'] = 0
             params['position'] = position
             params['return'] = returnvalue
