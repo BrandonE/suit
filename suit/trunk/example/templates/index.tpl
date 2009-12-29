@@ -180,16 +180,15 @@ $suit->vars['nodes'] = array
         <p>This node matches everything in between \[template] and \[/template], and runs gettemplate using the case as instructions. Let's take the following example:</p>
         <fieldset>
             <legend>Template</legend>
-            \[template]header=>parse\[/template]
+            \[template]menu=>parse\[/template]
             <br />Test
-            <br />\[template]footer=>parse\[/template]
         </fieldset>
         <p>The result would be:</p>
         <fieldset>
-            The template templates/header.tpl after code/parse.inc.php has been run
+            [template]menu=>parse[/template]
             <br />Test
-            <br />The template templates/footer.tpl after code/parse.inc.php has been run
         </fieldset>
+        <p>The template node grabbed templates/menu.tpl and ran code/parse.inc.php on it which parsed all of its nodes.</p>
         <p>'files' shows the directories to restrict to for both templates and code. 'filetypes' shows the filetypes to restrict to for both templates and code. 'separator' shows what symbol separates the elements. You might be thinking that with the attribute node, all of these values can be modified. To prevent them from being modified, we defined 'list' in the attribute to say that we can only define 'label'. When we define label as an attribute, this gettemplate call will be logged in suit->debug. No other attribute can be defined.</p>
     </div>
 [template]footer=>parse[/template]

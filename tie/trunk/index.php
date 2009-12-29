@@ -278,24 +278,26 @@ $suit->vars['nodes'] = array
         (
             array
             (
-                'function' => 'returning',
+                'function' => 'attribute',
                 'class' => $nodes
-            )
-        ),
-        'skip' => true
-    ),
-    '[return ' => array
-    (
-        'close' => '/]',
-        'function' => array
-        (
+            ),
             array
             (
                 'function' => 'returning',
                 'class' => $nodes
             )
         ),
-        'skip' => true
+        'skip' => true,
+        'var' => array
+        (
+            'equal' => '=',
+            'onesided' => true,
+            'quote' => '"',
+            'var' => array
+            (
+                'stack' => false
+            )
+        )
     ),
     '[template]' => array
     (

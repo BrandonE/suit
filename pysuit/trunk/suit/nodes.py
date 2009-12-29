@@ -28,7 +28,70 @@ def assign(params):
 
 def attribute(params):
     """Create node out of attributes"""
-    node = copy.deepcopy(params['nodes'][params['open']['node']['attribute']])
+    #If this node is one sided, modify this node
+    if 'onesided' in params['var'] and params['var']['onesided']:
+        node = {
+            'var': copy.deepcopy(params['open']['node']['var']['var'])
+        }
+    #Else, modify the node this is creating
+    else:
+        node = copy.deepcopy(
+            params['nodes'][params['open']['node']['attribute']]
+        )
+    result = attributedefine(params, node)
+    params['case'] = ''.join((
+            params['open']['open'],
+            params['case'],
+            params['open']['node']['close']
+        ))
+    params['taken'] = False
+    if not result['ignore']:
+        if 'onesided' in params['var'] and params['var']['onesided']:
+            params['var'] = result['node']['var']
+        else:
+            #Add the new node to the stack
+            stack = {
+                'node': params['case'],
+                'nodes': {},
+                'position': params['open']['position'],
+                'skipnode': [],
+                'stack': []
+            }
+            stack['nodes'][stack['node']] = result['node']
+            stack = helper.stack(stack)
+            params['stack'].extend(stack['stack'])
+            params['skipnode'].extend(stack['skipnode'])
+            params['preparse']['nodes'][stack['node']] = result['node']
+    #Else, ignore this case
+    else:
+        params['preparse']['ignored'].append([
+            params['open']['position'],
+            params['position'] + len(params['open']['node']['close'])
+        ])
+        if not 'onesided' in params['var'] or not params['var']['onesided']:
+            node = {
+                'close': params['nodes'][
+                    params['open']['node'
+                ]['attribute']]['close']
+            }
+            if 'skip' in params['nodes'][params['open']['node']['attribute']]:
+                node['skip'] = params['nodes'][
+                    params['open']['node']['attribute']
+                ]['skip']
+            stack = {
+                'node': params['open']['node']['attribute'],
+                'nodes': {},
+                'position': params['open']['position'],
+                'skipnode': [],
+                'stack': []
+            }
+            stack['nodes'][params['open']['node']['attribute']] = node
+            stack = helper.stack(stack)
+            params['stack'].extend(stack['stack'])
+    return params
+
+def attributedefine(params, node):
+    """Define the variables"""
     #Define the variables
     split = params['suit'].explodeunescape(
         params['var']['quote'],
@@ -84,52 +147,10 @@ def attribute(params):
             else:
                 ignore = True
                 break
-    params['case'] = ''.join((
-            params['open']['open'],
-            params['case'],
-            params['open']['node']['close']
-        ))
-    params['taken'] = False
-    if not ignore:
-        #Add the new node to the stack
-        stack = {
-            'node': params['case'],
-            'nodes': {},
-            'position': params['open']['position'],
-            'skipnode': [],
-            'stack': []
-        }
-        stack['nodes'][stack['node']] = node
-        stack = helper.stack(stack)
-        params['stack'].extend(stack['stack'])
-        params['skipnode'].extend(stack['skipnode'])
-        params['preparse']['nodes'][stack['node']] = node
-    #Else, ignore this case
-    else:
-        params['preparse']['ignored'].append([
-            params['open']['position'],
-            params['position'] + len(params['open']['node']['close'])
-        ])
-        node = {
-            'close': params['nodes'][
-                params['open']['node'
-            ]['attribute']]['close']
-        }
-        if 'skip' in params['nodes'][params['open']['node']['attribute']]:
-            node['skip'] = params['nodes'][
-                params['open']['node']['attribute']
-            ]['skip']
-        stack = {
-            'node': params['open']['node']['attribute'],
-            'nodes': {},
-            'position': params['open']['position'],
-            'skipnode': [],
-            'stack': []
-        }
-        stack['nodes'][params['open']['node']['attribute']] = node
-        stack = helper.stack(stack)
-        params['stack'].extend(stack['stack'])
-    return params
+    return {
+        'ignore': ignore,
+        'node': node
+    }
 
 def comments(params):
     """Hide a string"""
@@ -328,18 +349,39 @@ def replace(params):
 def returning(params):
     """Return early from a parse call"""
     params['case'] = ''
-    for key, value in enumerate(params['stack']):
-        if not 'function' in value['node']:
-            params['stack'][key]['node']['function'] = []
-        #Make all of the nodes remove all content in the case that takes place
-        #after this return.
-        params['stack'][key]['node']['function'].insert(0, returningfirst)
-        #Make the last node to be closed remove everything after this return.
-        if key == 0:
-            params['stack'][key]['node']['function'].append(returninglast)
-        params['skipnode'].append(value['node']['close'])
-    #If the stack is empty, remove everything after this return.
-    if not params['stack']:
+    stack = copy.deepcopy(params['stack'])
+    stack.reverse()
+    skipnode = []
+    for key, value in enumerate(stack):
+        #If the stack count has not been modified or it specifies this many
+        #stacks
+        if not params['var']['stack'] or int(params['var']['stack']) > key:
+            if not 'function' in value['node']:
+                params['stack'][len(stack) - 1 - key]['node']['function'] = []
+            #Make all of the nodes remove all content in the case that takes
+            #place after this return.
+            params['stack'][len(stack) - 1 - key]['node']['function'].insert(
+                0,
+                returningfirst
+            )
+            #Make the last node to be closed remove everything after this
+            #return
+            if key == len(stack) - 1:
+                params['stack'][0]['node']['function'].append(returninglast)
+            skipnode.append(value['node']['close'])
+        else:
+            break
+    skipnode.reverse()
+    params['skipnode'].extend(skipnode)
+    #If the stack is empty, and the stack count has not been modified or it
+    #specifies at least one stack, remove everything after this return.
+    if (
+        not params['stack'] and 
+        (
+            not params['var']['stack'] or
+            int(params['var']['stack']) > 0
+        )
+    ):
         params['last'] = params['open']['position']
         params = returninglast(params)
     return params

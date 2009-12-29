@@ -29,7 +29,77 @@ class Nodes
 
     public function attribute($params)
     {
-        $node = $params['nodes'][$params['open']['node']['attribute']];
+        if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
+        {
+            $node = array
+            (
+                'var' => $params['open']['node']['var']['var']
+            );
+        }
+        else
+        {
+            $node = $params['nodes'][$params['open']['node']['attribute']];
+        }
+        $result = $this->attributedefine($params, $node);
+        $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
+        $params['taken'] = false;
+        if (!$result['ignore'])
+        {
+            if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
+            {
+                $params['var'] = $result['node']['var'];
+            }
+            else
+            {
+                //Add the new node to the stack
+                $stack = array
+                (
+                    'node' => $params['case'],
+                    'nodes' => array(),
+                    'position' => $params['open']['position'],
+                    'skipnode' => array(),
+                    'stack' => array()
+                );
+                $stack['nodes'][$stack['node']] = $result['node'];
+                $stack = $params['suit']->helper->stack($stack);
+                $params['stack'] = array_merge($params['stack'], $stack['stack']);
+                $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
+                $params['preparse']['nodes'][$stack['node']] = $result['node'];
+            }
+        }
+        else
+        {
+            //Reserve the space
+            $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+            if (!array_key_exists('onesided', $params['var']) || !$params['var']['onesided'])
+            {
+                //Prepare for the closing string
+                $node = array
+                (
+                    'close' => $params['nodes'][$params['open']['node']['attribute']]['close']
+                );
+                if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]))
+                {
+                    $node['skip'] = $params['nodes'][$params['open']['node']['attribute']]['skip'];
+                }
+                $stack = array
+                (
+                    'node' => $params['open']['node']['attribute'],
+                    'nodes' => array(),
+                    'position' => $params['open']['position'],
+                    'skipnode' => array(),
+                    'stack' => array()
+                );
+                $stack['nodes'][$params['open']['node']['attribute']] = $node;
+                $stack = $params['suit']->helper->stack($stack);
+                $params['stack'] = array_merge($params['stack'], $stack['stack']);
+            }
+        }
+        return $params;
+    }
+
+    public function attributedefine($params, $node)
+    {
         //Define the variables
         $split = $params['suit']->explodeunescape($params['var']['quote'], $params['case'], $params['config']['escape']);
         unset($split[count($split) - 1]);
@@ -80,51 +150,11 @@ class Nodes
                 }
             }
         }
-        $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-        $params['taken'] = false;
-        if (!$ignore)
-        {
-            //Add the new node to the stack
-            $stack = array
-            (
-                'node' => $params['case'],
-                'nodes' => array(),
-                'position' => $params['open']['position'],
-                'skipnode' => array(),
-                'stack' => array()
-            );
-            $stack['nodes'][$stack['node']] = $node;
-            $stack = $params['suit']->helper->stack($stack);
-            $params['stack'] = array_merge($params['stack'], $stack['stack']);
-            $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
-            $params['preparse']['nodes'][$stack['node']] = $node;
-        }
-        else
-        {
-            //Reserve the space
-            $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
-            //Prepare for the closing string
-            $node = array
-            (
-                'close' => $params['nodes'][$params['open']['node']['attribute']]['close']
-            );
-            if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]))
-            {
-                $node['skip'] = $params['nodes'][$params['open']['node']['attribute']]['skip'];
-            }
-            $stack = array
-            (
-                'node' => $params['open']['node']['attribute'],
-                'nodes' => array(),
-                'position' => $params['open']['position'],
-                'skipnode' => array(),
-                'stack' => array()
-            );
-            $stack['nodes'][$params['open']['node']['attribute']] = $node;
-            $stack = $params['suit']->helper->stack($stack);
-            $params['stack'] = array_merge($params['stack'], $stack['stack']);
-        }
-        return $params;
+        return array
+        (
+            'ignore' => $ignore,
+            'node' => $node
+        );
     }
 
     public function comments($params)
@@ -322,40 +352,51 @@ class Nodes
     public function returning($params)
     {
         $params['case'] = '';
-        $size = count($params['stack']);
+        $stack = array_reverse($params['stack']);
+        $skipnode = array();
+        $size = count($stack);
         for ($i = 0; $i < $size; $i++)
         {
-            if (!array_key_exists('function', $params['stack'][$i]['node']))
+            //If the stack count has not been modified or it specifies this many stacks
+            if (!$params['var']['stack'] || intval($params['var']['stack']) > $i)
             {
-                $params['stack'][$i]['node']['function'] = array();
-            }
-            //Make all of the nodes remove all content in the case that takes place after this return.
-            array_splice(
-                $params['stack'][$i]['node']['function'],
-                0,
-                0,
-                array
-                (
+                if (!array_key_exists('function', $params['stack'][count($stack) - 1 - $i]['node']))
+                {
+                    $params['stack'][count($stack) - 1 - $i]['node']['function'] = array();
+                }
+                //Make all of the nodes remove all content in the case that takes place after this return.
+                array_splice(
+                    $params['stack'][count($stack) - 1 - $i]['node']['function'],
+                    0,
+                    0,
                     array
                     (
-                        'class' => $this,
-                        'function' => 'returningfirst'
+                        array
+                        (
+                            'class' => $this,
+                            'function' => 'returningfirst'
+                        )
                     )
-                )
-            );
-            //Make the last node to be closed remove everything after this return.
-            if ($i == 0)
-            {
-                $params['stack'][$i]['node']['function'][] = array
-                (
-                    'class' => $this,
-                    'function' => 'returninglast'
                 );
+                //Make the last node to be closed remove everything after this return
+                if ($i == count($stack) - 1)
+                {
+                    $params['stack'][0]['node']['function'][] = array
+                    (
+                        'class' => $this,
+                        'function' => 'returninglast'
+                    );
+                }
+                $skipnode[] = $params['stack'][count($stack) - 1 - $i]['node']['close'];
             }
-            $params['skipnode'][] = $params['stack'][$i]['node']['close'];
+            else
+            {
+                break;
+            }
         }
-        //If the stack is empty, remove everything after this return.
-        if (empty($params['stack']))
+        $params['skipnode'] = array_merge($params['skipnode'], array_reverse($skipnode));
+        //If the stack is empty, and if the stack count has not been modified or it specifies at least one stack
+        if (empty($params['stack']) && (!$params['var']['stack'] || intval($params['var']['stack']) > 0))
         {
             $params['last'] = $params['open']['position'];
             $params = $this->returninglast($params);

@@ -295,7 +295,7 @@ class Helper
                 $params['preparse']['ignored'][$key[$i]][1] += $params['offset'];
             }
         }
-        //Only continue if we are preparsing
+        //Only continue if the call specifies to preparse
         if (!$params['config']['preparse'])
         {
             return $params;

@@ -315,7 +315,7 @@ def preparse(params):
         ):
             params['preparse']['ignored'][key][0] += params['offset']
             params['preparse']['ignored'][key][1] += params['offset']
-    #Only continue if we are preparsing
+    #Only continue if the call specifies to preparse
     if not params['config']['preparse']:
         return params
     clone = []
