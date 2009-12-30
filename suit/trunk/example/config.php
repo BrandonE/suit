@@ -160,6 +160,11 @@ $suit->vars['nodes'] = array
         (
             array
             (
+                'function' => 'unserialize',
+                'class' => $nodes
+            ),
+            array
+            (
                 'function' => 'loop',
                 'class' => $nodes
             )
@@ -167,9 +172,10 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
-            'vars' => serialize(array()),
             'delimiter' => '',
-            'node' => '[loopvar]'
+            'node' => '[loopvar]',
+            'unserialize' => 'vars',
+            'vars' => serialize(array())
         )
     ),
     '[loop' => array
@@ -187,9 +193,8 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
-            'blacklist' => true,
             'equal' => '=',
-            'list' => array('node'),
+            'list' => array('vars'),
             'quote' => '"'
         )
     ),

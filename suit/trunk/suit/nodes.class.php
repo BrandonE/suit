@@ -208,12 +208,11 @@ class Nodes
             'ignore' => array(),
             'same' => array()
         );
-        $vars = unserialize($params['var']['vars']);
-        if (!is_array($vars))
+        if (!is_array($params['var'][$params['var']['unserialize']]))
         {
             throw new Exception();
         }
-        foreach ($vars as $value)
+        foreach ($params['var'][$params['var']['unserialize']] as $value)
         {
             $var = array
             (
@@ -487,6 +486,12 @@ class Nodes
             }
             $params['case'] = '';
         }
+        return $params;
+    }
+
+    public function unserialize($params)
+    {
+        $params['var'][$params['var']['unserialize']] = unserialize($params['var'][$params['var']['unserialize']]);
         return $params;
     }
 

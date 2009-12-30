@@ -14,7 +14,6 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import copy
 import helper
 import pickle
 import re
@@ -31,13 +30,12 @@ def attribute(params):
     #If this node is one sided, modify this node
     if 'onesided' in params['var'] and params['var']['onesided']:
         node = {
-            'var': copy.deepcopy(params['open']['node']['var']['var'])
+            'var': params['open']['node']['var']['var'].copy()
         }
     #Else, modify the node this is creating
     else:
-        node = copy.deepcopy(
-            params['nodes'][params['open']['node']['attribute']]
-        )
+        node = params['nodes'][params['open']['node']['attribute']].copy()
+        node['var'] = node['var'].copy()
     result = attributedefine(params, node)
     params['case'] = ''.join((
             params['open']['open'],
@@ -212,12 +210,18 @@ def loop(params):
         'ignore': {},
         'same': {}
     }
-    for value in pickle.loads(params['var']['vars']):
+    for value in params['var']['vars']:
         var = {
-            params['var']['node']: copy.deepcopy(
-                params['nodes'][params['var']['node']]
-            )
+            params['var']['node']: params['nodes'][
+                params['var']['node']
+            ].copy()
         }
+        var[params['var']['node']]['var'] = var[
+            params['var']['node']
+        ]['var'].copy()
+        var[params['var']['node']]['var']['var'] = var[
+            params['var']['node']
+        ]['var']['var'].copy()
         try:
             for value2 in value.items():
                 var[params['var']['node']]['var']['var'][value2[0]] = value2[1]
@@ -237,10 +241,13 @@ def loop(params):
     iterations = []
     if iterationvars:
         nodes = {
-            params['var']['node']: copy.deepcopy(
-                iterationvars[0][params['var']['node']]
-            )
+            params['var']['node']: iterationvars[0][
+                params['var']['node']
+            ].copy()
         }
+        nodes[params['var']['node']]['var'] = nodes[
+            params['var']['node']
+        ]['var'].copy()
         if result['ignore']:
             nodes[params['var']['node']]['var']['ignore'] = result['ignore']
         config = {
@@ -349,7 +356,7 @@ def replace(params):
 def returning(params):
     """Return early from a parse call"""
     params['case'] = ''
-    stack = copy.deepcopy(params['stack'])
+    stack = params['stack'][:]
     stack.reverse()
     skipnode = []
     for key, value in enumerate(stack):
@@ -476,6 +483,13 @@ def trying(params):
         if params['var']['var']:
             params['suit'].vars[params['var']['var']] = inst
         params['case'] = ''
+    return params
+
+def unserialize(params):
+    """Unserialize a variable"""
+    params['var'][params['var']['unserialize']] = pickle.loads(
+        params['var'][params['var']['unserialize']]
+    )
     return params
 
 def variables(params):

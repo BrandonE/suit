@@ -14,7 +14,6 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import copy
 import inspect
 import os
 import pickle
@@ -296,7 +295,7 @@ class SUIT(object):
             position = value[0] + offset
             params['break'] = False
             params['node'] = value[1][0]
-            params['nodes'] = copy.deepcopy(nodes)
+            params['nodes'] = nodes
             params['offset'] = 0
             params['position'] = position
             params['return'] = returnvalue

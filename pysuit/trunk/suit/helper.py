@@ -14,7 +14,6 @@ Copyright (C) 2008-2009 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import copy
 import pickle
 
 class Helper(object):
@@ -352,8 +351,11 @@ def preparse(params):
 def stack(params):
     """Add the opening string to the stack"""
     #Add the opening string to the stack
+    clone = params['nodes'][params['node']].copy()
+    if 'function' in clone:
+        clone['function'] = clone['function'][:]
     params['stack'].append({
-        'node': copy.deepcopy(params['nodes'][params['node']]),
+        'node': clone,
         'open': params['node'],
         'position': params['position']
     })
