@@ -141,7 +141,7 @@ $suit->vars['nodes'] = array
             ),
             array
             (
-                'function' => 'conditionskip',
+                'function' => 'conditionstack',
                 'class' => $nodes
             )
         ),
@@ -194,7 +194,7 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
-            'list' => array('vars'),
+            'list' => array('delimiter', 'vars'),
             'quote' => '"'
         )
     ),

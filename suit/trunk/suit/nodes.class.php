@@ -137,10 +137,6 @@ class Nodes
                 $result = $params['suit']->parse($params['nodes'], $split[$i], $config);
                 if (empty($result['ignored']))
                 {
-                    if (strtolower($result['return']) == 'false')
-                    {
-                        $result['return'] = '';
-                    }
                     $node['var'][$name] = $result['return'];
                 }
                 else
@@ -174,15 +170,22 @@ class Nodes
         return $params;
     }
 
-    public function conditionskip($params)
+    public function conditionstack($params)
     {
         if (!empty($params['stack']))
         {
             $pop = array_pop($params['stack']);
-            //If the case was not hidden, do not skip over everything between this opening string and its closing string
-            if (array_key_exists('var', $pop['node']) && (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else'])))
+            if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
             {
-                array_pop($params['skipnode']);
+                if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'false' || strtolower($pop['node']['var']['condition']) == 'empty')
+                {
+                    $pop['node']['var']['condition'] = '';
+                }
+                //If the case was not hidden, do not skip over everything between this opening string and its closing string
+                if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']))
+                {
+                    array_pop($params['skipnode']);
+                }
             }
             $params['stack'][] = $pop;
         }
@@ -239,10 +242,7 @@ class Nodes
             (
                 $params['var']['node'] => $iterationvars[0][$params['var']['node']]
             );
-            if (!empty($result['ignore']))
-            {
-                $nodes[$params['var']['node']]['var']['ignore'] = $result['ignore'];
-            }
+            $nodes[$params['var']['node']]['var']['ignore'] = $result['ignore'];
             $config = array
             (
                 'escape' => $params['config']['escape'],

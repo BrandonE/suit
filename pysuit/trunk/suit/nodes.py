@@ -139,8 +139,6 @@ def attributedefine(params, node):
             #Define the variable
             result = params['suit'].parse(params['nodes'], value, config)
             if not result['ignored']:
-                if (result['return'].lower() == 'false'):
-                    result['return'] = ''
                 node['var'][name] = result['return']
             else:
                 ignore = True
@@ -171,15 +169,20 @@ def condition(params):
         params['case'] = ''
     return params
 
-def conditionskip(params):
+def conditionstack(params):
     """Skip if the string should be hidden"""
     if params['stack']:
         pop = params['stack'].pop()
-        #If the case was not hidden, do not skip over everything between this
-        #opening string and its closing string
-        if (
-            'var' in pop['node'] and
-            (
+        if ('var' in pop['node'] and
+        'condition' in pop['node']['var'] and
+        'else' in pop['node']['var']):
+            if (pop['node']['var']['condition'] == '0' or
+            pop['node']['var']['condition'].lower() == 'false' or
+            pop['node']['var']['condition'].lower() == 'empty'):
+                pop['node']['var']['condition'] = ''
+            #If the case was not hidden, do not skip over everything between
+            #this opening string and its closing string
+            if (
                 (
                     pop['node']['var']['condition'] and
                     not pop['node']['var']['else']
@@ -188,9 +191,8 @@ def conditionskip(params):
                     not pop['node']['var']['condition'] and
                     pop['node']['var']['else']
                 )
-            )
-        ):
-            params['skipnode'].pop()
+            ):
+                params['skipnode'].pop()
         params['stack'].append(pop)
     return params
 
@@ -248,8 +250,7 @@ def loop(params):
         nodes[params['var']['node']]['var'] = nodes[
             params['var']['node']
         ]['var'].copy()
-        if result['ignore']:
-            nodes[params['var']['node']]['var']['ignore'] = result['ignore']
+        nodes[params['var']['node']]['var']['ignore'] = result['ignore']
         config = {
             'escape': params['config']['escape'],
             'preparse': True
@@ -324,10 +325,10 @@ def loopvariables(params):
         for value in split:
             try:
                 params['case'] = params['case'][value]
-            except AttributeError:
+            except (AttributeError, TypeError):
                 try:
                     params['case'] = params['case'][int(value)]
-                except AttributeError:
+                except (AttributeError, TypeError, ValueError):
                     print params['var']['var']
                     params['case'] = getattr(params['case'], value)
     else:
