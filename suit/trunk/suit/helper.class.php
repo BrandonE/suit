@@ -59,10 +59,6 @@ class Helper
                     {
                         $params = $this->transform($params);
                     }
-                    else
-                    {
-                        $params['stack'][] = $params['open'];
-                    }
                 }
                 //Else, reserve the range
                 else

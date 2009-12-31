@@ -51,8 +51,6 @@ class Helper(object):
                         params['node']
                     ]['close']:
                         params = self.transform(params)
-                    else:
-                        params['stack'].append(params['open'])
                 #Else, reserve the range
                 else:
                     params['preparse']['taken'].append((
