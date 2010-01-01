@@ -10,7 +10,7 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
@@ -139,6 +139,8 @@ def attributedefine(params, node):
             #Define the variable
             result = params['suit'].parse(params['nodes'], value, config)
             if not result['ignored']:
+                if result['return'].lower() == 'false':
+                    result['return'] = ''
                 node['var'][name] = result['return']
             else:
                 ignore = True
@@ -170,27 +172,30 @@ def condition(params):
     return params
 
 def conditionstack(params):
-    """Skip if the string should be hidden"""
+    """Do not skip if the string should not be hidden"""
     if params['stack']:
         pop = params['stack'].pop()
         if ('var' in pop['node'] and
         'condition' in pop['node']['var'] and
         'else' in pop['node']['var']):
             if (pop['node']['var']['condition'] == '0' or
-            pop['node']['var']['condition'].lower() == 'false' or
             pop['node']['var']['condition'].lower() == 'empty'):
                 pop['node']['var']['condition'] = ''
-            #If the case was not hidden, do not skip over everything between
-            #this opening string and its closing string
+            #If the case should not be hidden, do not skip over everything
+            #between this opening string and its closing string
             if (
                 (
-                    pop['node']['var']['condition'] and
-                    not pop['node']['var']['else']
-                ) or
-                (
-                    not pop['node']['var']['condition'] and
-                    pop['node']['var']['else']
-                )
+                    (
+                        pop['node']['var']['condition'] and
+                        not pop['node']['var']['else']
+                    ) or
+                    (
+                        not pop['node']['var']['condition'] and
+                        pop['node']['var']['else']
+                    )
+                ) and
+                'skip' in params['open']['node'] and
+                params['open']['node']['skip']
             ):
                 params['skipnode'].pop()
         params['stack'].append(pop)
@@ -229,12 +234,10 @@ def loop(params):
                 var[params['var']['node']]['var']['var'][value2[0]] = value2[1]
         except (AttributeError, TypeError):
             for value2 in dir(value):
-                if (not value2.startswith('_') and
-                not callable(getattr(value, value2))):
-                    var[params['var']['node']]['var']['var'][value2] = getattr(
-                        value,
-                        value2
-                    )
+                var[params['var']['node']]['var']['var'][value2] = getattr(
+                    value,
+                    value2
+                )
         result = looppreparse(
             var[params['var']['node']]['var']['var'],
             result
@@ -298,11 +301,15 @@ def looppreparse(iterationvars, returnvalue):
                 #If this node has the same opening string as the one we are
                 #checking but is different overall, remove the checking string
                 #and note the difference
-                if value[1] != value2[1] and value[0] == value2[0]:
+                if value[0] == value2[0] and value[1] != value2[1]:
                     different = True
                 else:
                     clone[value2[0]] = value2[1]
             returnvalue['same'] = clone
+            #If this is a new value, and this is not the first iteration,
+            #remove the checking string and note the difference
+            if not value[0] in returnvalue['same'] and len(iterationvars) > 1:
+                different = True
             #If there is an instance of a node that has the same opening string
             #but is different overall, same it
             if different:
@@ -312,15 +319,31 @@ def looppreparse(iterationvars, returnvalue):
                 returnvalue['same'][value[0]] = value[1]
     return returnvalue
 
+def loopstack(params):
+    """Do not skip if specified"""
+    if params['stack']:
+        pop = params['stack'].pop()
+        #If specified, do not skip over everything between
+        #this opening string and its closing string
+        if ('var' in pop['node'] and
+        'skip' in pop['node']['var'] and
+        not pop['node']['var']['skip'] and
+        'skip' in params['open']['node'] and
+        params['open']['node']['skip']):
+            params['skipnode'].pop()
+        params['stack'].append(pop)
+    return params
+
 def loopvariables(params):
     """Parse variables in a loop"""
-    if not params['case'] in params['var']['ignore']:
-        #Split up the file, paying attention to escape strings
-        split = params['suit'].explodeunescape(
-            params['var']['delimiter'],
-            params['case'],
-            params['config']['escape']
-        )
+    #Split up the file, paying attention to escape strings
+    split = params['suit'].explodeunescape(
+        params['var']['delimiter'],
+        params['case'],
+        params['config']['escape']
+    )
+    #If the case should not be ignored
+    if not split[0] in params['var']['ignore']:
         params['case'] = params['var']['var']
         for value in split:
             try:
@@ -331,6 +354,8 @@ def loopvariables(params):
                 except (AttributeError, TypeError, ValueError):
                     print params['var']['var']
                     params['case'] = getattr(params['case'], value)
+        if params['var']['serialize']:
+            params['case'] = pickle.dumps(params['case'])
     else:
         params['preparse']['ignored'].append([
             params['open']['position'],
@@ -342,8 +367,6 @@ def loopvariables(params):
             params['open']['node']['close']
         ))
         params['taken'] = False
-    if params['var']['serialize']:
-        params['case'] = pickle.dumps(params['case'])
     return params
 
 def replace(params):

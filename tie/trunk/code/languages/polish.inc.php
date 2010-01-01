@@ -12,7 +12,7 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with TIE.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
@@ -32,7 +32,7 @@ $language = array
 'collapse' => 'Zredukuj',
 'copiedsuccessfully' => 'Kopiowanie wykonane z sukcesem',
 'copy' => 'Kopiuj',
-'copyright' => 'Copyright &copy; 2008-2009 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
+'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
 'count' => 'Ilość',
 'create' => 'Twórz',
 'createdirectory' => 'Stwórz katalog',

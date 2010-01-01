@@ -10,7 +10,7 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
@@ -167,49 +167,52 @@ class Helper(object):
 
     def transform(self, params):
         """Transform the string in between the opening and closing strings"""
-        success = True
-        for value in params['preparse']['ignored']:
-            length = len(params['open']['node']['close'])
-            #If this ignored node is in this case
-            if (params['open']['position'] < value[0] and
-            params['position'] + length > value[1]):
-                success = False
-                break
-        #If functions are provided, and either this does not contain a ignored
-        #node or the node does not transform the case, parse
-        if (
-            'function' in params['open']['node'] and
-            (
+        #If functions are provided
+        if 'function' in params['open']['node']:
+            success = True
+            for value in params['preparse']['ignored']:
+                length = len(params['open']['node']['close'])
+                #If this ignored node is in this case
+                if (params['open']['position'] < value[0] and
+                params['position'] + length > value[1]):
+                    success = False
+                    break
+            #If either this does not contain a ignored node or the node does
+            #not transform the case
+            if (
                 success or
                 (
                     'transform' in params['open']['node'] and
                     not params['open']['node']['transform']
                 )
-            )
-        ):
-            params['case'] = params['return'][
-                params['open']['position'] + len(
-                    params['open']['open']
-                ):params['position']
-            ]
-            params['suit'] = self.owner
-            if 'var' in params['open']['node']:
-                params['var'] = params['open']['node']['var']
-            for value in params['open']['node']['function']:
-                #Transform the string in between the opening and closing
-                #strings.
-                params = value(params)
-            params['case'] = str(params['case'])
-            start = params['position'] + len(params['open']['node']['close'])
-            #Replace everything including and between the opening and closing
-            #strings with the transformed string
-            params['return'] = ''.join((
-                params['return'][0:params['open']['position']],
-                params['case'],
-                params['return'][start:len(params['return'])]
-            ))
-            params['last'] = params['open']['position'] + len(params['case'])
-            params = preparse(params)
+            ):
+                params['case'] = params['return'][
+                    params['open']['position'] + len(
+                        params['open']['open']
+                    ):params['position']
+                ]
+                params['suit'] = self.owner
+                if 'var' in params['open']['node']:
+                    params['var'] = params['open']['node']['var']
+                for value in params['open']['node']['function']:
+                    #Transform the string in between the opening and closing
+                    #strings.
+                    params = value(params)
+                params['case'] = str(params['case'])
+                start = params['position'] + len(
+                    params['open']['node']['close']
+                )
+                #Replace everything including and between the opening and
+                #closing strings with the transformed string
+                params['return'] = ''.join((
+                    params['return'][0:params['open']['position']],
+                    params['case'],
+                    params['return'][start:len(params['return'])]
+                ))
+                params['last'] = params['open']['position'] + len(
+                    params['case']
+                )
+                params = preparse(params)
         return params
 
 def openingstring(params):

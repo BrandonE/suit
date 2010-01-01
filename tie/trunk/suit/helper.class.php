@@ -11,7 +11,7 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
@@ -366,41 +366,45 @@ class Helper
 
     public function transform($params)
     {
-        $success = true;
-        $key = array_keys($params['preparse']['ignored']);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
+        //If functions are provided
+        if (array_key_exists('function', $params['open']['node']))
         {
-            //If this ignored node is in this case
-            if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['ignored'][$key[$i]][1])
+            $success = true;
+            $key = array_keys($params['preparse']['ignored']);
+            $size = count($key);
+            for ($i = 0; $i < $size; $i++)
             {
-                $success = false;
-                break;
-            }
-        }
-        //If functions are provided, and either this does not contain a ignored node or the node does not transform the case
-        if (array_key_exists('function', $params['open']['node']) && ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform'])))
-        {
-            $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
-            $params['suit'] = $this->owner;
-            $params['var'] = $params['open']['node']['var'];
-            foreach ($params['open']['node']['function'] as $value)
-            {
-                //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
-                if (array_key_exists('class', $value))
+                //If this ignored node is in this case
+                if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['ignored'][$key[$i]][1])
                 {
-                    $params = $value['class']->$value['function']($params);
-                }
-                else
-                {
-                    $params = $value['function']($params);
+                    $success = false;
+                    break;
                 }
             }
-            $params['case'] = strval($params['case']);
-            //Replace everything including and between the opening and closing strings with the transformed string
-            $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
-            $params['last'] = $params['open']['position'] + strlen($params['case']);
-            $params = $this->preparse($params);
+            //If either this does not contain a ignored node or the node does not transform the case
+            if ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform']))
+            {
+                $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
+                $params['suit'] = $this->owner;
+                $params['var'] = $params['open']['node']['var'];
+                foreach ($params['open']['node']['function'] as $value)
+                {
+                    //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
+                    if (array_key_exists('class', $value))
+                    {
+                        $params = $value['class']->$value['function']($params);
+                    }
+                    else
+                    {
+                        $params = $value['function']($params);
+                    }
+                }
+                $params['case'] = strval($params['case']);
+                //Replace everything including and between the opening and closing strings with the transformed string
+                $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
+                $params['last'] = $params['open']['position'] + strlen($params['case']);
+                $params = $this->preparse($params);
+            }
         }
         return $params;
     }

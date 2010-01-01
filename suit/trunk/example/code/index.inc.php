@@ -12,13 +12,13 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with SUIT.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
 $suit->vars['language'] = array
 (
-    'copyright' => 'Copyright &copy; 2008-2009 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
+    'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
     'example' => 'Example',
     'item' => 'Item',
@@ -37,7 +37,7 @@ switch ($_GET['language'])
         $suit->vars['languagename'] = 'spanish';
         $suit->vars['language'] = array
         (
-            'copyright' => 'Copyright &copy; 2008-2009 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
+            'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
             'default' => 'Predeterminado',
             'example' => 'Example',
             'item' => 'Item',

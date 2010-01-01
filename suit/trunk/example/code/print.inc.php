@@ -12,7 +12,7 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with SUIT.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/

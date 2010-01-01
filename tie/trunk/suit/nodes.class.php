@@ -11,7 +11,7 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2009 The SUIT Group.
+Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
@@ -137,6 +137,10 @@ class Nodes
                 $result = $params['suit']->parse($params['nodes'], $split[$i], $config);
                 if (empty($result['ignored']))
                 {
+                    if (strtolower($result['return']) == 'false')
+                    {
+                        $result['return'] = '';
+                    }
                     $node['var'][$name] = $result['return'];
                 }
                 else
@@ -177,12 +181,12 @@ class Nodes
             $pop = array_pop($params['stack']);
             if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
             {
-                if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'false' || strtolower($pop['node']['var']['condition']) == 'empty')
+                if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'empty')
                 {
                     $pop['node']['var']['condition'] = '';
                 }
-                //If the case was not hidden, do not skip over everything between this opening string and its closing string
-                if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']))
+                //If the case should not be hidden, do not skip over everything between this opening string and its closing string
+                if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']) && array_key_exists('skip', $params['open']['node']) && $params['open']['node']['skip'])
                 {
                     array_pop($params['skipnode']);
                 }
@@ -294,6 +298,11 @@ class Nodes
                         unset($return['same'][$key2[$j]]);
                     }
                 }
+                //If this is a new value, and this is not the first iteration, remove the checking string and note the difference
+                if (!array_key_exists($key, $return['same']) and count($iterationvars) > 1)
+                {
+                    $different = true;
+                }
                 //If there is an instance of a node that has the same opening string but is different overall, ignore it
                 if ($different)
                 {
@@ -309,12 +318,28 @@ class Nodes
         return $return;
     }
 
+    public function loopstack($params)
+    {
+        if ($params['stack'])
+        {
+            $pop = array_pop($params['stack']);
+            //If specified, do not skip over everything between this opening string and its closing string
+            if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !$pop['node']['var']['skip'] && array_key_exists('skip', $params['open']['node']) && $params['open']['node']['skip'])
+            {
+                array_pop($params['skipnode']);
+            }
+            $params['stack'][] = $pop;
+        }
+        return $params;
+    }
+
     public function loopvariables($params)
     {
-        if (!array_key_exists($params['case'], $params['var']['ignore']))
+        //Split up the file, paying attention to escape strings
+        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape']);
+        //If the case should not be ignored
+        if (!array_key_exists($split[0], $params['var']['ignore']))
         {
-            //Split up the file, paying attention to escape strings
-            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape']);
             $params['case'] = $params['var']['var'];
             foreach ($split as $value)
             {
