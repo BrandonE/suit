@@ -1,0 +1,1 @@
+<strong>[var]case[/var]</strong>

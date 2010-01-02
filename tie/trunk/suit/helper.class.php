@@ -1,15 +1,16 @@
 <?php
 /**
-**@This program is free software: you can redistribute it and/or modify
-**@it under the terms of the GNU Lesser General Public License as published by
+**@This file is part of SUIT.
+**@SUIT is free software: you can redistribute it and/or modify
+**@it under the terms of the GNU General Public License as published by
 **@the Free Software Foundation, either version 3 of the License, or
 **@(at your option) any later version.
-**@This program is distributed in the hope that it will be useful,
+**@SUIT is distributed in the hope that it will be useful,
 **@but WITHOUT ANY WARRANTY; without even the implied warranty of
 **@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**@GNU Lesser General Public License for more details.
-**@You should have received a copy of the GNU Lesser General Public License
-**@along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**@GNU General Public License for more details.
+**@You should have received a copy of the GNU General Public License
+**@along with SUIT.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
@@ -237,14 +238,16 @@ class Helper
 
     public function positions($params)
     {
-        foreach ($params['strings'] as $params['key'] => $params['value'])
+        $params['key'] = array_keys($params['strings']);
+        $size = count($params['key']);
+        for ($params['i'] = 0; $params['i'] < $size; $params['i']++)
         {
             //If the string has not already been used
             if (!in_array($params['key'], $params['repeated']))
             {
                 $params = $this->positionsloop($params);
                 //Make sure this string is not repeated
-                $params['repeated'][] = $params['key'];
+                $params['repeated'][] = $params['key'][$params['i']];
             }
         }
         return $params['pos'];
@@ -254,13 +257,13 @@ class Helper
     {
         $position = -1;
         //Find the next position of the string
-        while (($position = $this->strpos($params['return'], $params['key'], $position + 1, $params['function'])) !== false)
+        while (($position = $this->strpos($params['return'], $params['key'][$params['i']], $position + 1, $params['function'])) !== false)
         {
             $success = true;
             foreach ($params['taken'] as $value)
             {
                 //If this string instance is in this reserved range
-                if (($position > $value[0] && $position < $value[1]) || ($position + strlen($params['key']) > $value[0] && $position + strlen($params['key']) < $value[1]))
+                if (($position > $value[0] && $position < $value[1]) || ($position + strlen($params['key'][$params['i']]) > $value[0] && $position + strlen($params['key'][$params['i']]) < $value[1]))
                 {
                     $success = false;
                     break;
@@ -270,9 +273,9 @@ class Helper
             if ($success)
             {
                 //Add the position
-                $params['pos'][$position] = $params['value'];
+                $params['pos'][$position] = $params['strings'][$params['key'][$params['i']]];
                 //Reserve all positions taken up by this string instance
-                $params['taken'][] = array($position, $position + strlen($params['key']));
+                $params['taken'][] = array($position, $position + strlen($params['key'][$params['i']]));
             }
         }
         return $params;

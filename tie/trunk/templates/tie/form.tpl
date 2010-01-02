@@ -7,7 +7,7 @@
         <p><label for="title">[var]language=>inputtitle[/var]</label>: <input type="text" name="title" id="title" value="[var]title[/var]"[if condition="[var]condition=>code[/var]"] readonly="readonly"[/if] /></p>
         [if condition="[var]condition=>box[/var]"]
         [if condition="[var]condition=>code[/var]" else="true"]
-        <p><label for="template">[var]language=>templates[/var]</label>: <textarea name="template" id="template" rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea">
+        <p><label for="template">[var]language=>templates[/var]</label>: <textarea name="template" id="template" rows="20" wrap="off" style="width: 100%;" class="textarea">
 [var]template[/var]</textarea></p>
         [/if]
         [if condition="[var]condition=>code[/var]"]

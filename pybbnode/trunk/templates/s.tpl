@@ -1,0 +1,1 @@
+<del>[var]case[/var]</del>

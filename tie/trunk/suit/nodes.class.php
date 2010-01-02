@@ -1,15 +1,16 @@
 <?php
 /**
-**@This program is free software: you can redistribute it and/or modify
-**@it under the terms of the GNU Lesser General Public License as published by
+**@This file is part of SUIT.
+**@SUIT is free software: you can redistribute it and/or modify
+**@it under the terms of the GNU General Public License as published by
 **@the Free Software Foundation, either version 3 of the License, or
 **@(at your option) any later version.
-**@This program is distributed in the hope that it will be useful,
+**@SUIT is distributed in the hope that it will be useful,
 **@but WITHOUT ANY WARRANTY; without even the implied warranty of
 **@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**@GNU Lesser General Public License for more details.
-**@You should have received a copy of the GNU Lesser General Public License
-**@along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**@GNU General Public License for more details.
+**@You should have received a copy of the GNU General Public License
+**@along with SUIT.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
@@ -181,7 +182,7 @@ class Nodes
             $pop = array_pop($params['stack']);
             if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
             {
-                if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'empty')
+                if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'null' || strtolower($pop['node']['var']['condition']) == 'array()')
                 {
                     $pop['node']['var']['condition'] = '';
                 }

@@ -1,0 +1,1 @@
+<a href="mailto:[var]equal[/var]" target="_blank">[var]case[/var]</a>
