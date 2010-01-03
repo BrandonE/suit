@@ -23,12 +23,6 @@ $suit->vars['loop']['languages'] = array
         'name' => 'english',
         'title' => 'English',
         'selected' => ($suit->vars['languagename'] == 'english')
-    ),
-    array
-    (
-        'name' => 'spanish',
-        'title' => 'Spanish',
-        'selected' => ($suit->vars['languagename'] == 'spanish')
     )
 );
 ?>

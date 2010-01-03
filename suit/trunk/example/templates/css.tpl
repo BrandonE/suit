@@ -103,6 +103,11 @@ table.dashboard td
     padding: 1em;
 }
 
+ul, ol
+{
+    margin-left: 15px;
+}
+
 .content
 {
     padding: 8px 8px 0;

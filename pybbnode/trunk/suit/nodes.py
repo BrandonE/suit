@@ -15,7 +15,6 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import helper
 import pickle
 import re
 
@@ -57,7 +56,7 @@ def attribute(params):
                 'stack': []
             }
             stack['nodes'][stack['node']] = result['node']
-            stack = helper.stack(stack)
+            stack = params['suit'].helpermodule.stack(stack)
             params['stack'].extend(stack['stack'])
             params['skipnode'].extend(stack['skipnode'])
             params['preparse']['nodes'][stack['node']] = result['node']
@@ -85,7 +84,7 @@ def attribute(params):
                 'stack': []
             }
             stack['nodes'][params['open']['node']['attribute']] = node
-            stack = helper.stack(stack)
+            stack = params['suit'].helpermodule.stack(stack)
             params['stack'].extend(stack['stack'])
     return params
 
@@ -479,7 +478,55 @@ def templates(params):
 
 def trim(params):
     """Trim all unnecessary whitespace"""
-    params['case'] = re.sub('(?m)[\s]+$', '', params['case'].lstrip())
+    nodes = {
+        '<pre':
+        {
+            'close': '</pre>',
+            'function': [trimbefore],
+            'skip': True
+        },
+        '<textarea':
+        {
+            'close': '</textarea>',
+            'function': [trimbefore],
+            'skip': True
+        }
+    }
+    params['suit'].vars['last'] = 0
+    params['case'] = params['suit'].parse(nodes, params['case'])
+    copy = params['case'][params['suit'].vars['last']:len(params['case'])]
+    if not params['suit'].vars['last']:
+        copy = copy.lstrip()
+    replaced = re.sub('(?m)[\s]+$', '', copy)
+    params['case'] = ''.join((
+        params['case'][0:params['suit'].vars['last']],
+        replaced
+    ))
+    return params
+
+def trimbefore(params):
+    """Trim the whitespace before this instance"""
+    original = params['return'][params['last']:params['open']['position']]
+    copy = original
+    if not params['last']:
+        copy = copy.lstrip()
+    replaced = re.sub('(?m)[\s]+$', '', original.lstrip())
+    params['return'] = ''.join((
+        params['return'][0:params['last']],
+        replaced,
+        params['return'][params['open']['position']:len(params['return'])]
+    ))
+    params['open']['position'] += len(replaced) - len(original)
+    params['position'] += len(replaced) - len(original)
+    params['case'] = ''.join((
+        params['open']['open'],
+        params['case'],
+        params['open']['node']['close']
+    ))
+    params['taken'] = False
+    params['suit'].vars['last'] = params['open']['position'] + len(
+        params['case']
+    )
     return params
 
 def trying(params):

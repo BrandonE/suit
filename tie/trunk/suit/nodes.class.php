@@ -474,7 +474,62 @@ class Nodes
 
     public function trim($params)
     {
-        $params['case'] = preg_replace('/[\s]+$/m', '', ltrim($params['case']));
+        $nodes = array
+        (
+            '<pre' => array
+            (
+                'close' => '</pre>',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'trimbefore',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true
+            ),
+            '<textarea' => array
+            (
+                'close' => '</textarea>',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'trimbefore',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true
+            )
+        );
+        $params['suit']->vars['last'] = 0;
+        $params['case'] = $params['suit']->parse($nodes, $params['case']);
+        $copy = substr($params['case'], $params['suit']->vars['last']);
+        if (!$params['suit']->vars['last'])
+        {
+            $copy = ltrim($copy);
+        }
+        $replaced = preg_replace('/[\s]+$/m', '', $copy);
+        $params['case'] = substr_replace($params['case'], $replaced, $params['suit']->vars['last']);
+        return $params;
+    }
+
+    public function trimbefore($params)
+    {
+        $original = substr($params['return'], $params['last'], $params['open']['position']);
+        $copy = $original;
+        if (!$params['suit']->vars['last'])
+        {
+            $copy = ltrim($copy);
+        }
+        $replaced = preg_replace('/[\s]+$/m', '', $copy);
+        $params['return'] = substr_replace($params['return'], $replaced, $params['last'], $params['open']['position']);
+        $params['open']['position'] += strlen($replaced) - strlen($original);
+        $params['position'] += strlen($replaced) - strlen($original);
+        $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
+        $params['taken'] = false;
+        $params['suit']->vars['last'] = $params['open']['position'] + strlen($params['case']);
         return $params;
     }
 

@@ -28,6 +28,7 @@ class SUIT(object):
     def __init__(self, escapestring = '\\', insensitive = True):
         """http://www.suitframework.com/docs/SUIT+Construct"""
         self.helper = helper.Helper(self)
+        self.helpermodule = helper
         self.escapestring = escapestring
         self.insensitive = insensitive
         self.cache = {

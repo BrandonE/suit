@@ -1,3 +1,4 @@
+[trim]
 <div class="header" id="debug">
     <div class="left">
         <h1 class="title"><a href="#">[var]language=>debug[/var]</a></h1>
@@ -253,3 +254,4 @@
         </noscript>
     </div>
 </div>
+[/trim]

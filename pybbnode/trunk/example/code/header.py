@@ -1,5 +1,4 @@
-<?php
-/**
+"""
 **@This file is part of BBNode.
 **@BBNode is free software: you can redistribute it and/or modify
 **@it under the terms of the GNU Lesser General Public License as published by
@@ -15,6 +14,11 @@
 Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
-**/
-$template = $suit->parse($suit->vars['nodes'], $template);
-?>
+"""
+suit.vars['loop']['languages'] = [
+    {
+        'name': 'english',
+        'title': 'English',
+        'selected': (suit.vars['languagename'] == 'english')
+    }
+]

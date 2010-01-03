@@ -1,286 +1,20 @@
 """
-**@This program is free software: you can redistribute it and/or modify
+**@This file is part of BBNode.
+**@BBNode is free software: you can redistribute it and/or modify
 **@it under the terms of the GNU Lesser General Public License as published by
 **@the Free Software Foundation, either version 3 of the License, or
 **@(at your option) any later version.
-**@This program is distributed in the hope that it will be useful,
+**@BBNode is distributed in the hope that it will be useful,
 **@but WITHOUT ANY WARRANTY; without even the implied warranty of
 **@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 **@GNU Lesser General Public License for more details.
 **@You should have received a copy of the GNU Lesser General Public License
-**@along with this program.  If not, see <http://www.gnu.org/licenses/>.
+**@along with BBNode.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import pickle
-import sys
-sys.path.append('')
-from suit import SUIT
-from suit import helper
-from suit import nodes
-
-suitclass = SUIT()
-suitclass.vars['files'] = {
-    'code': 'code',
-    'templates': 'templates'
-}
-suitclass.vars['filetypes'] = {
-    'code': 'py',
-    'templates': 'tpl'
-}
-suitclass.vars['nodes'] = {
-    '[':
-    {
-        'close': ']'
-    },
-    '[assign]':
-    {
-        'close': '[/assign]',
-        'function': [nodes.assign],
-        'var':
-        {
-            'var': ''
-        }
-    },
-    '[assign':
-    {
-        'close': ']',
-        'function': [nodes.attribute],
-        'attribute': '[assign]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': '"'
-        }
-    },
-    '[comment]':
-    {
-        'close': '[/comment]',
-        'function': [nodes.comments],
-        'skip': True
-    },
-    '[escape]':
-    {
-        'close': '[/escape]',
-        'function': [nodes.escape],
-        'skip': True,
-        'skipescape': True,
-        'var': '\r\n\t '
-    },
-    #'[eval]':
-    #{
-        #'close': '[/eval]',
-        #'function': [nodes.evaluation]
-    #},
-    '[if]':
-    {
-        'close': '[/if]',
-        'function': [nodes.condition],
-        'skip': True,
-        'transform': False,
-        'var':
-        {
-            'condition': False,
-            'else': False
-        }
-    },
-    '[if':
-    {
-        'close': ']',
-        'function':
-        [
-            nodes.attribute,
-            nodes.conditionstack
-        ],
-        'attribute': '[if]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': '"'
-        }
-    },
-    '[loop]':
-    {
-        'close': '[/loop]',
-        'function': [
-            nodes.unserialize,
-            nodes.loop
-        ],
-        'skip': True,
-        'var':
-        {
-            'delimiter': '',
-            'node': '[loopvar]',
-            'skip': True,
-            'unserialize': 'vars',
-            'vars': pickle.dumps([])
-        }
-    },
-    '[loop':
-    {
-        'close': ']',
-        'function': [
-            nodes.attribute,
-            nodes.loopstack
-        ],
-        'attribute': '[loop]',
-        'skip': True,
-        'var':
-        {
-            'blacklist': True,
-            'equal': '=',
-            'list': ('node', 'unserialize'),
-            'quote': '"'
-        }
-    },
-    '[loopvar]':
-    {
-        'close': '[/loopvar]',
-        'function': [nodes.loopvariables],
-        'var':
-        {
-            'delimiter': '=>',
-            'ignore': {},
-            'serialize': False,
-            'var': {}
-        }
-    },
-    '[loopvar':
-    {
-        'close': ']',
-        'function': [nodes.attribute],
-        'attribute': '[loopvar]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'list': ('serialize',),
-            'quote': '"'
-        }
-    },
-    '[replace]':
-    {
-        'close': '[/replace]',
-        'function': [nodes.replace],
-        'var':
-        {
-            'replace': '',
-            'search': ''
-        }
-    },
-    '[replace':
-    {
-        'close': ']',
-        'function': [nodes.attribute],
-        'attribute': '[replace]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': '"'
-        }
-    },
-    '[return':
-    {
-        'close': '/]',
-        'function':
-        [
-            nodes.attribute,
-            nodes.returning
-        ],
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'onesided': True,
-            'quote': '"',
-            'var':
-            {
-                'stack': False
-            }
-        }
-    },
-    '[template]':
-    {
-        'close': '[/template]',
-        'function': [nodes.templates],
-        'var':
-        {
-            'files': suitclass.vars['files'],
-            'filetypes': suitclass.vars['filetypes'],
-            'delimiter': '=>'
-        }
-    },
-    '[template':
-    {
-        'close': ']',
-        'function': [nodes.attribute],
-        'attribute': '[template]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'list': ('label',),
-            'quote': '"'
-        }
-    },
-    '[trim]':
-    {
-        'close': '[/trim]',
-        'function': [nodes.trim],
-    },
-    '[try]':
-    {
-        'close': '[/try]',
-        'function': [nodes.trying],
-        'skip': True,
-        'var':
-        {
-            'var': ''
-        }
-    },
-    '[try':
-    {
-        'close': ']',
-        'function': [nodes.attribute],
-        'attribute': '[try]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': '"'
-        }
-    },
-    '[var]':
-    {
-        'close': '[/var]',
-        'function': [nodes.variables],
-        'var':
-        {
-            'delimiter': '=>',
-            'serialize': False
-        }
-    },
-    '[var':
-    {
-        'close': ']',
-        'function': [nodes.attribute],
-        'attribute': '[var]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': '"'
-        }
-    }
-}
-suitclass.vars['condition'] = {}
-suitclass.vars['loop'] = {}
-
 def attribute(params):
     """Create node out of attribute"""
     params['var']['node'] = params['nodes'][
@@ -289,13 +23,6 @@ def attribute(params):
     params['var']['node']['var'] = params['var']['node']['var'].copy()
     params['var']['node']['var']['equal'] = params['case']
     return params
-
-def parse(bbcode):
-    """Parse the BBcode"""
-    config = {
-        'escape': ''
-    }
-    return suitclass.parse(nodes, bbcode, config)
 
 def size(params):
     """Define the correct size"""
@@ -321,7 +48,7 @@ def stack(params):
         'stack': []
     }
     newstack['nodes'][newstack['node']] = params['var']['node']
-    newstack = helper.stack(newstack)
+    newstack = params['suit'].helpermodule.stack(newstack)
     params['stack'].extend(newstack['stack'])
     params['skipnode'].extend(newstack['skipnode'])
     params['preparse']['nodes'][newstack['node']] = params['var']['node']
@@ -377,7 +104,7 @@ def listitems(params):
         ))
     return params
 
-nodes = {
+bbnode = {
     '[':
     {
         'close': ']'
@@ -393,13 +120,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/align.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'align',
+            'template': ''
         }
     },
     '[align=':
@@ -410,7 +132,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[align]'
+        'attribute': '[align]',
+        'var': {
+            'node': {}
+        }
     },
     '[b]':
     {
@@ -419,13 +144,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/b.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'b',
+            'template': ''
         }
     },
     '[code]':
@@ -436,13 +156,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/code.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'code',
+            'template': ''
         }
     },
     '[color]':
@@ -456,13 +171,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/color.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'color',
+            'template': ''
         }
     },
     '[color=':
@@ -473,7 +183,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[color]'
+        'attribute': '[color]',
+        'var': {
+            'node': {}
+        }
     },
     '[email]':
     {
@@ -482,13 +195,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/email.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read(),
+            'label': 'email',
+            'template': ''
         }
     },
     '[email=':
@@ -499,7 +207,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[email]'
+        'attribute': '[email]',
+        'var': {
+            'node': {}
+        }
     },
     '[font]':
     {
@@ -512,13 +223,8 @@ nodes = {
         'var':
         {
             'equal': 'serif',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/font.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'font',
+            'template': ''
         }
     },
     '[font=':
@@ -529,7 +235,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[font]'
+        'attribute': '[font]',
+        'var': {
+            'node': {}
+        }
     },
     '[i]':
     {
@@ -538,13 +247,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/i.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'i',
+            'template': ''
         }
     },
     '[img]':
@@ -554,13 +258,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/img.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'img',
+            'template': ''
         }
     },
     '[list]':
@@ -576,14 +275,9 @@ nodes = {
             'close': '</li>',
             'delimiter': '[*]',
             'equal': '',
+            'label': 'list',
             'open': '<li>',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/list.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'template': ''
         }
     },
     '[list=':
@@ -594,7 +288,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[list]'
+        'attribute': '[list]',
+        'var': {
+            'node': {}
+        }
     },
     '[s]':
     {
@@ -603,13 +300,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/s.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 's',
+            'template': ''
         }
     },
     '[size]':
@@ -624,13 +316,8 @@ nodes = {
         'var':
         {
             'equal': '3',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/size.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'size',
+            'template': ''
         }
     },
     '[size=':
@@ -641,7 +328,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[size]'
+        'attribute': '[size]',
+        'var': {
+            'node': {}
+        }
     },
     '[quote]':
     {
@@ -650,13 +340,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/quote.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read(),
+            'label': 'quote',
+            'template': ''
         }
     },
     '[quote=':
@@ -667,7 +352,10 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[quote]'
+        'attribute': '[quote]',
+        'var': {
+            'node': {}
+        }
     },
     '[u]':
     {
@@ -676,13 +364,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/u.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'u',
+            'template': ''
         }
     },
     '[url]':
@@ -692,13 +375,8 @@ nodes = {
         'var':
         {
             'equal': '',
-            'template': open(
-                ''.join((
-                    suitclass.vars['files']['templates'],
-                    '/url.',
-                    suitclass.vars['filetypes']['templates']
-                ))
-            ).read()
+            'label': 'url',
+            'template': ''
         }
     },
     '[url=':
@@ -709,6 +387,9 @@ nodes = {
             attribute,
             stack
         ],
-        'attribute': '[url]'
+        'attribute': '[url]',
+        'var': {
+            'node': {}
+        }
     },
 }

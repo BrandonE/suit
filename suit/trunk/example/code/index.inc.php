@@ -28,24 +28,10 @@ $suit->vars['language'] = array
     'title' => 'SUIT Framework',
     'update' => 'Update'
 );
-switch ($_GET['language'])
+switch (strtolower($_GET['language']))
 {
     case 'english':
         $suit->vars['languagename'] = 'english';
-        break;
-    case 'spanish':
-        $suit->vars['languagename'] = 'spanish';
-        $suit->vars['language'] = array
-        (
-            'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
-            'default' => 'Predeterminado',
-            'example' => 'Example',
-            'item' => 'Item',
-            'slogan' => 'Scripting Using Integrated Templates',
-            'suit' => 'SUIT',
-            'title' => 'SUIT Framework',
-            'update' => 'Actualizar'
-        );
         break;
     default:
         $suit->vars['languagename'] = 'default';
