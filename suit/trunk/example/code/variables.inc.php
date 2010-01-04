@@ -16,19 +16,19 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-require '../suit/suit.class.php';
-require '../suit/nodes.class.php';
-$suit = new SUIT();
-require 'config.php';
-require $suit->vars['files']['code'] . '/print.inc.php';
-echo $suit->gettemplate(
-    file_get_contents($suit->vars['files']['templates'] . '/index.tpl'),
+$suit->vars['version'] = $suit->version;
+$suit->vars['condition']['legitimatecopy'] = true;
+$suit->vars['loop']['members'] = array
+(
     array
     (
-        $suit->vars['files']['code'] . '/index.inc.php',
-        $suit->vars['files']['code'] . '/variables.inc.php',
-        $suit->vars['files']['code'] . '/parse.inc.php'
+        'name' => 'Brandon',
+        'group' => 'Adminstrator'
+    ),
+    array
+    (
+        'name' => 'Chris',
+        'group' => 'Banned'
     )
 );
-unset($suit);
 ?>

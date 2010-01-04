@@ -22,9 +22,11 @@ $suit->vars['language'] = array
     'default' => 'Default',
     'example' => 'Example',
     'item' => 'Item',
+    'parsed' => 'Parsed',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'slogan' => 'Scripting Using Integrated Templates',
     'suit' => 'SUIT',
+    'template' => 'Template',
     'title' => 'SUIT Framework',
     'update' => 'Update'
 );
@@ -101,4 +103,13 @@ $suit->vars['nodes']['<?php'] = array
     ),
     'skip' => true
 );
+if (array_key_exists('submit', $_POST))
+{
+    $suit->vars['template'] = $_POST['template'];
+}
+else
+{
+    $suit->vars['template'] = file_get_contents($suit->vars['files']['templates'] . '/example.tpl');
+}
+$suit->vars['templateentities'] = htmlentities($suit->vars['template']);
 ?>

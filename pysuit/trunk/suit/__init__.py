@@ -16,7 +16,6 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
 import inspect
-import os
 import pickle
 import helper
 
@@ -216,31 +215,23 @@ class SUIT(object):
         }
         if code:
             for value in code:
-                #If the code file exists
-                if os.path.exists(value):
-                    debug['code'].append([
-                        value,
-                        True,
-                        False
-                    ])
-                    last = len(debug['code']) - 1
-                    suit = self
-                    suit.template = returnvalue
-                    #Execute the code file and set the return value to the
-                    #modified template
-                    execfile(value)
-                    returnvalue = suit.template
-                    debug['code'][last] = [
-                        debug['code'][last][1],
-                        debug['code'][last][2],
-                        returnvalue
-                    ]
-                else:
-                    debug['code'].append([
-                        value,
-                        False,
-                        returnvalue
-                    ])
+                debug['code'].append([
+                    value,
+                    True,
+                    False
+                ])
+                last = len(debug['code']) - 1
+                suit = self
+                suit.template = returnvalue
+                #Execute the code file and set the return value to the
+                #modified template
+                execfile(value)
+                returnvalue = suit.template
+                debug['code'][last] = [
+                    debug['code'][last][1],
+                    debug['code'][last][2],
+                    returnvalue
+                ]
         #If a label was provided, log this function
         if label != None:
             self.debug['template'].append(debug)
@@ -295,10 +286,11 @@ class SUIT(object):
         for value in pos:
             #Adjust position to changes in length
             position = value[0] + offset
-            params['break'] = False
+            params['function'] = True
             params['node'] = value[1][0]
             params['nodes'] = nodes
             params['offset'] = 0
+            params['parse'] = True
             params['position'] = position
             params['return'] = returnvalue
             params['taken'] = True
@@ -328,7 +320,7 @@ class SUIT(object):
                     params['preparse']['taken'] = []
             #Adjust the offset
             offset = len(returnvalue) - len(temp)
-            if params['break']:
+            if not params['parse']:
                 break
         debug['return'] = returnvalue
         if params['config']['preparse']:

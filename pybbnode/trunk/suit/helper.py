@@ -199,6 +199,8 @@ class Helper(object):
                     #Transform the string in between the opening and closing
                     #strings.
                     params = value(params)
+                    if not params['function']:
+                        break
                 params['case'] = str(params['case'])
                 start = params['position'] + len(
                     params['open']['node']['close']

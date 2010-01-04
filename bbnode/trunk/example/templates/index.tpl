@@ -9,7 +9,7 @@
         </fieldset>
         [/if]
         <form action="#" method="post">
-        <p>Message: <textarea name="message" style="width: 100%;" rows="20">
+        <p>[var]language=>message[/var]: <textarea name="message" style="width: 100%;" rows="20">
 [var]message[/var]</textarea></p>
         <p><input type="submit" name="submit" value="Submit" /></p>
         </form>

@@ -237,6 +237,18 @@ $suit->vars['nodes'] = array
             'quote' => '"'
         )
     ),
+    '[parse]' => array
+    (
+        'close' => '[/parse]',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'parse',
+                'class' => $nodes
+            )
+        )
+    ),
     '[replace]' => array
     (
         'close' => '[/replace]',

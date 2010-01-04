@@ -401,6 +401,10 @@ class Helper
                     {
                         $params = $value['function']($params);
                     }
+                    if (!$params['function'])
+                    {
+                        break;
+                    }
                 }
                 $params['case'] = strval($params['case']);
                 //Replace everything including and between the opening and closing strings with the transformed string

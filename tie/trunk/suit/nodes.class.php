@@ -49,6 +49,7 @@ class Nodes
             if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
             {
                 $params['var'] = $result['node']['var'];
+                $params['taken'] = true;
             }
             else
             {
@@ -94,6 +95,10 @@ class Nodes
                 $stack['nodes'][$params['open']['node']['attribute']] = $node;
                 $stack = $params['suit']->helper->stack($stack);
                 $params['stack'] = array_merge($params['stack'], $stack['stack']);
+            }
+            else
+            {
+                $params['function'] = false;
             }
         }
         return $params;
@@ -218,7 +223,7 @@ class Nodes
         );
         if (!is_array($params['var'][$params['var']['unserialize']]))
         {
-            throw new Exception();
+            return $params;
         }
         foreach ($params['var'][$params['var']['unserialize']] as $value)
         {
@@ -368,6 +373,12 @@ class Nodes
         return $params;
     }
 
+    public function parse($params)
+    {
+        $params['case'] = $params['suit']->parse($params['nodes'], $params['case']);
+        return $params;
+    }
+
     public function replace($params)
     {
         $params['case'] = str_replace($params['var']['search'], $params['var']['replace'], $params['case']);
@@ -438,7 +449,7 @@ class Nodes
     public function returninglast($params)
     {
         $params['return'] = substr_replace($params['return'], '', $params['last']);
-        $params['break'] = true;
+        $params['parse'] = false;
         return $params;
     }
 
@@ -450,15 +461,20 @@ class Nodes
         $size = count($split);
         for ($i = 0; $i < $size; $i++)
         {
-            //If this is the template file, get the file's content
+            //If this is the template file, get the file's contents
             if ($i == 0)
             {
-                $template = file_get_contents($params['var']['files']['templates'] . '/' . $split[$i] . '.' . $params['var']['filetypes']['templates']);
+                $filepath = $params['var']['files']['templates'] . '/' . str_replace(array('../', '..\\'), '', $split[$i]) . '.' . $params['var']['filetypes']['templates'];
+                //If the template file exists
+                if (is_file($filepath))
+                {
+                    $template = file_get_contents($filepath);
+                }
             }
             //Else, prepare to include the file
             else
             {
-                $code[] = str_replace(array('../', '..\\'), '', $params['var']['files']['code'] . '/' . $split[$i] . '.' . $params['var']['filetypes']['code']);
+                $code[] = $params['var']['files']['code'] . '/' . str_replace(array('../', '..\\'), '', $split[$i]) . '.' . $params['var']['filetypes']['code'];
             }
         }
         if (array_key_exists('label', $params['var']))
@@ -517,14 +533,14 @@ class Nodes
 
     public function trimbefore($params)
     {
-        $original = substr($params['return'], $params['last'], $params['open']['position']);
+        $original = substr($params['return'], $params['last'], $params['open']['position'] - $params['last']);
         $copy = $original;
         if (!$params['suit']->vars['last'])
         {
             $copy = ltrim($copy);
         }
         $replaced = preg_replace('/[\s]+$/m', '', $copy);
-        $params['return'] = substr_replace($params['return'], $replaced, $params['last'], $params['open']['position']);
+        $params['return'] = substr_replace($params['return'], $replaced, $params['last'], $params['open']['position'] - $params['last']);
         $params['open']['position'] += strlen($replaced) - strlen($original);
         $params['position'] += strlen($replaced) - strlen($original);
         $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
@@ -555,8 +571,9 @@ class Nodes
             else
             {
                 $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-                $params['ignore'] = true;
                 $params['taken'] = false;
+                //Reserve the space
+                $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
             }
         }
         catch (Exception $e)

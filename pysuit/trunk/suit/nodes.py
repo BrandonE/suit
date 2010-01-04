@@ -15,6 +15,7 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import os
 import pickle
 import re
 
@@ -46,6 +47,7 @@ def attribute(params):
     if not result['ignore']:
         if 'onesided' in params['var'] and params['var']['onesided']:
             params['var'] = result['node']['var']
+            params['taken'] = True
         else:
             #Add the new node to the stack
             stack = {
@@ -60,13 +62,14 @@ def attribute(params):
             params['stack'].extend(stack['stack'])
             params['skipnode'].extend(stack['skipnode'])
             params['preparse']['nodes'][stack['node']] = result['node']
-    #Else, ignore this case
     else:
+        #Reserve the space
         params['preparse']['ignored'].append([
             params['open']['position'],
             params['position'] + len(params['open']['node']['close'])
         ])
         if not 'onesided' in params['var'] or not params['var']['onesided']:
+            #Prepare for the closing string
             node = {
                 'close': params['nodes'][
                     params['open']['node'
@@ -86,6 +89,8 @@ def attribute(params):
             stack['nodes'][params['open']['node']['attribute']] = node
             stack = params['suit'].helpermodule.stack(stack)
             params['stack'].extend(stack['stack'])
+        else:
+            params['function'] = False
     return params
 
 def attributedefine(params, node):
@@ -355,7 +360,6 @@ def loopvariables(params):
                 try:
                     params['case'] = params['case'][int(value)]
                 except (AttributeError, TypeError, ValueError):
-                    print params['var']['var']
                     params['case'] = getattr(params['case'], value)
         if params['var']['serialize']:
             params['case'] = pickle.dumps(params['case'])
@@ -370,6 +374,11 @@ def loopvariables(params):
             params['open']['node']['close']
         ))
         params['taken'] = False
+    return params
+
+def parse(params):
+    """Parse the case"""
+    params['case'] = params['suit'].parse(params['nodes'], params['case'])
     return params
 
 def replace(params):
@@ -442,29 +451,29 @@ def templates(params):
     )
     code = []
     for key, value in enumerate(split):
-        #If this is the template file, get the file's content
+        #If this is the template file, get the file's contents
         if key == 0:
             template = open(
-                ''.join
-                ((
+                os.path.normpath(os.path.join(
                     params['var']['files']['templates'],
-                    '/',
-                    value,
-                    '.',
-                    params['var']['filetypes']['templates']
+                    ''.join((
+                        value,
+                        '.',
+                        params['var']['filetypes']['templates']
+                    ))
                 ))
             ).read()
         #Else, prepare to include the file
         else:
             code.append(
-                ''.join
-                ((
+                os.path.normpath(os.path.join(
                     params['var']['files']['code'],
-                    '/',
-                    value,
-                    '.',
-                    params['var']['filetypes']['code']
-                )).replace('../', '').replace('..\\', '')
+                    ''.join((
+                        value,
+                        '.',
+                        params['var']['filetypes']['code']
+                    ))
+                ))
             )
     if 'label' in params['var']:
         params['case'] = params['suit'].gettemplate(
@@ -552,8 +561,12 @@ def trying(params):
                 params['case'],
                 params['open']['node']['close']
             ))
-            params['ignore'] = True
             params['taken'] = False
+            #Reserve the space
+            params['preparse']['ignored'].append([
+                params['open']['position'],
+                params['position'] + len(params['open']['node']['close'])
+            ])
     except Exception as inst:
         if params['var']['var']:
             params['suit'].vars[params['var']['var']] = inst

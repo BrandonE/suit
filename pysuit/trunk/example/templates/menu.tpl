@@ -1,0 +1,1 @@
+<a href="#">[var]language=>item[/var] 1</a> | <a href="#">[var]language=>item[/var] 2</a> | <a href="#">[var]language=>item[/var] 3</a>

@@ -19,11 +19,13 @@ suit.vars['language'] = {
     'copyright': 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default': 'Default',
     'example': 'Example',
-    'message': 'Message',
+    'item': 'Item',
+    'parsed': 'Parsed',
     'poweredby': 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
-    'slogan': 'BBCode Using SUIT Nodes',
+    'slogan': 'Scripting Using Integrated Templates',
     'suit': 'SUIT',
-    'title': 'PyBBNode',
+    'template': 'Template',
+    'title': 'PySUIT',
     'update': 'Update'
 }
 languages = {
@@ -38,27 +40,16 @@ else:
     suit.vars['languagename'] = 'default'
 if ('submit' in suit.vars['request'].POST and
 suit.vars['request'].POST['submit']):
-    from bbnode import bbnode
-    from cgi import escape
-    for value in bbnode.items():
-        if 'var' in value[1] and 'label' in value[1]['var']:
-            bbnode[value[0]]['var']['template'] = open(
-                    ''.join((
-                        '../templates/',
-                        value[1]['var']['label'],
-                        '.tpl'
-                    ))
-                ).read()
-    config = {
-        'escape': ''
-    }
-    suit.vars['message'] = escape(
-        suit.vars['request'].POST['message'],
-        True
-    )
-    suit.vars['parsed'] = suit.parse(
-        bbnode,
-        suit.vars['message'].replace('\n','<br />\n')
-    )
+    suit.vars['template'] = suit.vars['request'].POST['template']
 else:
-    suit.vars['message'] = ''
+    suit.vars['template'] = open(
+        ''.join((
+            suit.vars['files']['templates'],
+            '/example.tpl'
+        ))
+    ).read()
+from cgi import escape
+suit.vars['templateentities'] = escape(
+    suit.vars['template'],
+    True
+)

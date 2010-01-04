@@ -332,10 +332,11 @@ class SUIT
         {
             //Adjust position to changes in length
             $position = $key[$i] + $offset;
-            $params['break'] = false;
+            $params['function'] = true;
             $params['node'] = $pos[$key[$i]][0];
             $params['nodes'] = $nodes;
             $params['offset'] = 0;
+            $params['parse'] = true;
             $params['position'] = $position;
             $params['return'] = $return;
             $params['taken'] = true;
@@ -364,7 +365,7 @@ class SUIT
             }
             //Adjust the offset
             $offset = strlen($return) - strlen($temp);
-            if ($params['break'])
+            if (!$params['parse'])
             {
                 break;
             }
