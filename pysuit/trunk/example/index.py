@@ -22,7 +22,7 @@ import cgitb
 cgitb.enable()
 from webob import Request, Response
 sys.path.append('../')
-from suit import SUIT, __version__
+from suit import SUIT
 suitclass = SUIT()
 sys.path.append('')
 from config import files
@@ -43,7 +43,6 @@ environ['wsgi.run_once'] = True
 environ['wsgi.url_scheme'] = 'http'
 suitclass.vars['request'] = Request(environ)
 suitclass.vars['response'] = Response()
-suitclass.vars['version'] = __version__
 execfile(
     ''.join((
         suitclass.vars['files']['code'],

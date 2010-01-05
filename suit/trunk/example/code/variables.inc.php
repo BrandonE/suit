@@ -17,7 +17,6 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
 $suit->vars['version'] = $suit->version;
-$suit->vars['condition']['legitimatecopy'] = true;
 $suit->vars['loop']['members'] = array
 (
     array

@@ -22,6 +22,7 @@ suit.vars['language'] = {
     'message': 'Message',
     'poweredby': 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'slogan': 'BBCode Using SUIT Nodes',
+    'submit': 'Submit',
     'suit': 'SUIT',
     'title': 'PyBBNode',
     'update': 'Update'

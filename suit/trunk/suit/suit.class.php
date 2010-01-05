@@ -389,5 +389,30 @@ class SUIT
         }
         return $return;
     }
+
+    public function stack($node, $openingstring, $position)
+    {
+        //Add the opening string to the stack
+        $stack = array
+        (
+            array
+            (
+                'node' => $node,
+                'open' => $openingstring,
+                'position' => $position
+            )
+        );
+        $skipnode = array();
+        //If the skip key is true, skip over everything between this opening string and its closing string
+        if (array_key_exists('skip', $node) && $node['skip'])
+        {
+            $skipnode[] = $node['close'];
+        }
+        return array
+        (
+            'stack' => $stack,
+            'skipnode' => $skipnode
+        );
+    }
 }
 ?>

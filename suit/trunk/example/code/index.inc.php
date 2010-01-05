@@ -25,10 +25,12 @@ $suit->vars['language'] = array
     'parsed' => 'Parsed',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'slogan' => 'Scripting Using Integrated Templates',
+    'submit' => 'Submit',
     'suit' => 'SUIT',
     'template' => 'Template',
     'title' => 'SUIT Framework',
-    'update' => 'Update'
+    'update' => 'Update',
+    'variables' => 'Variables defined in code/variables.inc.php'
 );
 switch (strtolower($_GET['language']))
 {

@@ -66,6 +66,51 @@ class Helper(object):
             params['skipnode'].append(skippop)
         return params
 
+    def openingstring(self, params):
+        """Handle an opening string instance in the parser"""
+        if params['skipnode']:
+            skippop = params['skipnode'].pop()
+        else:
+            skippop = False
+        #If a value was not popped from skipnode
+        if skippop == False:
+            params['position'] = params['unescape']['position']
+            params['return'] = params['unescape']['string']
+            #If this position should not be overlooked
+            if not params['unescape']['condition']:
+                result = self.owner.stack(
+                    params['nodes'][params['node']],
+                    params['node'],
+                    params['position']
+                )
+                params['stack'].extend(result['stack'])
+                params['skipnode'].extend(result['skipnode'])
+            #Else, reserve the range
+            else:
+                params['preparse']['taken'].append((
+                    params['position'] - 1,
+                    params['position'] + len(params['node']) + 1))
+        else:
+            #Put it back
+            params['skipnode'].append(skippop)
+            skipclose = [params['nodes'][params['node']]['close']]
+            if 'attribute' in params['nodes'][params['node']]:
+                attribute = params['nodes'][params['node']]['attribute']
+                skipclose.append(params['nodes'][attribute]['close'])
+            #If the closing string for this node matches it
+            if skippop in skipclose:
+                #If it explictly says to escape
+                if ('skipescape' in params['nodes'][params['node']] and
+                params['nodes'][params['node']]['skipescape']):
+                    params['position'] = params['unescape']['position']
+                    params['return'] = params['unescape']['string']
+                #If this position should not be overlooked
+                if not params['unescape']['condition']:
+                    #Account for it
+                    params['skipnode'].append(skippop)
+                    params['skipoffset'] += 1
+        return params
+
     def parseconfig(self, config):
         """Populate the config for the parse function"""
         if config == None:
@@ -218,45 +263,6 @@ class Helper(object):
                 params = preparse(params)
         return params
 
-def openingstring(params):
-    """Handle an opening string instance in the parser"""
-    if params['skipnode']:
-        skippop = params['skipnode'].pop()
-    else:
-        skippop = False
-    #If a value was not popped from skipnode
-    if skippop == False:
-        params['position'] = params['unescape']['position']
-        params['return'] = params['unescape']['string']
-        #If this position should not be overlooked
-        if not params['unescape']['condition']:
-            params = stack(params)
-        #Else, reserve the range
-        else:
-            params['preparse']['taken'].append((
-                params['position'] - 1,
-                params['position'] + len(params['node']) + 1))
-    else:
-        #Put it back
-        params['skipnode'].append(skippop)
-        skipclose = [params['nodes'][params['node']]['close']]
-        if 'attribute' in params['nodes'][params['node']]:
-            attribute = params['nodes'][params['node']]['attribute']
-            skipclose.append(params['nodes'][attribute]['close'])
-        #If the closing string for this node matches it
-        if skippop in skipclose:
-            #If it explictly says to escape
-            if ('skipescape' in params['nodes'][params['node']] and
-            params['nodes'][params['node']]['skipescape']):
-                params['position'] = params['unescape']['position']
-                params['return'] = params['unescape']['string']
-            #If this position should not be overlooked
-            if not params['unescape']['condition']:
-                #Account for it
-                params['skipnode'].append(skippop)
-                params['skipoffset'] += 1
-    return params
-
 def parsecache(nodes, returnvalue, config):
     """Generate the cache key for the parse function"""
     values = []
@@ -350,22 +356,4 @@ def preparse(params):
             params['open']['position'],
             params['last']
         ])
-    return params
-
-def stack(params):
-    """Add the opening string to the stack"""
-    #Add the opening string to the stack
-    clone = params['nodes'][params['node']].copy()
-    if 'function' in clone:
-        clone['function'] = clone['function'][:]
-    params['stack'].append({
-        'node': clone,
-        'open': params['node'],
-        'position': params['position']
-    })
-    #If the skip key is true, skip over everything between this opening string
-    #and its closing string
-    if ('skip' in params['nodes'][params['node']] and
-    params['nodes'][params['node']]['skip']):
-        params['skipnode'].append(params['nodes'][params['node']]['close'])
     return params

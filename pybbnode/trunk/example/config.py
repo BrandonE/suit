@@ -36,6 +36,7 @@ nodes = {
         'function': [nodes.assign],
         'var':
         {
+            'delimiter': '=>',
             'var': ''
         }
     },
@@ -240,6 +241,7 @@ nodes = {
         'skip': True,
         'var':
         {
+            'delimiter': '=>',
             'var': ''
         }
     },

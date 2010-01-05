@@ -27,7 +27,6 @@ class SUIT(object):
     def __init__(self, escapestring = '\\', insensitive = True):
         """http://www.suitframework.com/docs/SUIT+Construct"""
         self.helper = helper.Helper(self)
-        self.helpermodule = helper
         self.escapestring = escapestring
         self.insensitive = insensitive
         self.cache = {
@@ -303,7 +302,7 @@ class SUIT(object):
             function = self.helper.closingstring
             #If this is the opening string and it should not be skipped over
             if value[1][1] == 0:
-                function = helper.openingstring
+                function = self.helper.openingstring
             params = function(params)
             returnvalue = params['return']
             #If the stack is empty
@@ -335,3 +334,26 @@ class SUIT(object):
         if 'label' in config:
             self.debug['parse'].append(debug)
         return returnvalue
+
+    def stack(self, node, openingstring, position):
+        """Add the opening string to the stack"""
+        #Add the opening string to the stack
+        clone = node.copy()
+        if 'function' in clone:
+            clone['function'] = clone['function'][:]
+        stack = [
+            {
+                'node': clone,
+                'open': openingstring,
+                'position': position
+            }
+        ]
+        skipnode = []
+        #If the skip key is true, skip over everything between this opening
+        #string and its closing string
+        if 'skip' in node and node['skip']:
+            skipnode.append(node['close'])
+        return {
+            'stack': stack,
+            'skipnode': skipnode
+        }

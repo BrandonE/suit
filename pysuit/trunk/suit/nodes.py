@@ -21,10 +21,33 @@ import re
 
 def assign(params):
     """Assign variable in template"""
-    if params['var']['var']:
-        params['suit'].vars[params['var']['var']] = params['case']
+    #If a variable is provided and it not is whitelisted or blacklisted
+    if params['var']['var'] and listing(params['var']['var'], params['var']):
+        #Split up the file, paying attention to escape strings
+        split = params['suit'].explodeunescape(
+            params['var']['delimiter'],
+            params['var']['var'],
+            params['config']['escape']
+        )
+        assignvariable(split, params['case'], params['suit'].vars)
     params['case'] = ''
     return params
+
+def assignvariable(split, assignment, var):
+    """Assign a variable based on split"""
+    for key, value in enumerate(split):
+        if key < len(split) - 1:
+            try:
+                var = var[value]
+            except (AttributeError, TypeError):
+                try:
+                    var = var[int(value)]
+                except (AttributeError, TypeError, ValueError):
+                    var = getattr(var, value)
+    try:
+        var[split[len(split) - 1]] = assignment
+    except (AttributeError, TypeError):
+        setattr(var, split[len(split) - 1], assignment)
 
 def attribute(params):
     """Create node out of attributes"""
@@ -50,18 +73,14 @@ def attribute(params):
             params['taken'] = True
         else:
             #Add the new node to the stack
-            stack = {
-                'node': params['case'],
-                'nodes': {},
-                'position': params['open']['position'],
-                'skipnode': [],
-                'stack': []
-            }
-            stack['nodes'][stack['node']] = result['node']
-            stack = params['suit'].helpermodule.stack(stack)
+            stack = params['suit'].stack(
+                result['node'],
+                params['case'],
+                params['open']['position']
+            )
             params['stack'].extend(stack['stack'])
             params['skipnode'].extend(stack['skipnode'])
-            params['preparse']['nodes'][stack['node']] = result['node']
+            params['preparse']['nodes'][params['case']] = result['node']
     else:
         #Reserve the space
         params['preparse']['ignored'].append([
@@ -79,16 +98,13 @@ def attribute(params):
                 node['skip'] = params['nodes'][
                     params['open']['node']['attribute']
                 ]['skip']
-            stack = {
-                'node': params['open']['node']['attribute'],
-                'nodes': {},
-                'position': params['open']['position'],
-                'skipnode': [],
-                'stack': []
-            }
-            stack['nodes'][params['open']['node']['attribute']] = node
-            stack = params['suit'].helpermodule.stack(stack)
+            stack = params['suit'].stack(
+                node,
+                params['open']['node']['attribute'],
+                params['open']['position']
+            )
             params['stack'].extend(stack['stack'])
+            params['skipnode'].extend(stack['skipnode'])
         else:
             params['function'] = False
     return params
@@ -116,23 +132,7 @@ def attributedefine(params, node):
                 ]
                 #If the variable is whitelisted or blacklisted, do not prepare
                 #to define the variable
-                if (
-                    'list' in params['var'] and
-                    (
-                        (
-                            (
-                                not 'blacklist' in params['var'] or
-                                not params['var']['blacklist']
-                            ) and
-                            not name in params['var']['list']
-                        ) or
-                        (
-                            'blacklist' in params['var'] and
-                            params['var']['blacklist'] and
-                            name in params['var']['list']
-                        )
-                    )
-                ):
+                if (not listing(name, params['var'])):
                     name = ''
             else:
                 name = ''
@@ -183,6 +183,9 @@ def conditionstack(params):
         if ('var' in pop['node'] and
         'condition' in pop['node']['var'] and
         'else' in pop['node']['var']):
+            pop['node']['var']['condition'] = str(
+                pop['node']['var']['condition']
+            )
             if (pop['node']['var']['condition'] == '0' or
             pop['node']['var']['condition'].lower() == 'none' or
             pop['node']['var']['condition'] == '[]' or
@@ -202,9 +205,10 @@ def conditionstack(params):
                         pop['node']['var']['else']
                     )
                 ) and
-                'skip' in params['open']['node'] and
-                params['open']['node']['skip']
+                'skip' in pop['node'] and
+                pop['node']['skip']
             ):
+                pop['node']['skip'] = False
                 params['skipnode'].pop()
         params['stack'].append(pop)
     return params
@@ -217,6 +221,30 @@ def evaluation(params):
     """Evaluate a Python statement"""
     params['case'] = eval(params['case'])
     return params
+
+def listing(name, var):
+    """Check if the variable is whitelisted or blacklisted"""
+    returnvalue = True
+    #If the variable is whitelisted or blacklisted
+    if (
+        'list' in var and
+        (
+            (
+                (
+                    not 'blacklist' in var or
+                    not var['blacklist']
+                ) and
+                not name in var['list']
+            ) or
+            (
+                'blacklist' in var and
+                var['blacklist'] and
+                name in var['list']
+            )
+        )
+    ):
+        returnvalue = False
+    return returnvalue
 
 def loop(params):
     """Loop a string with different variables"""
@@ -248,6 +276,7 @@ def loop(params):
                 )
         result = looppreparse(
             var[params['var']['node']]['var']['var'],
+            len(iterationvars),
             result
         )
         iterationvars.append(var)
@@ -298,7 +327,7 @@ def loop(params):
     params['case'] = params['var']['delimiter'].join(iterations)
     return params
 
-def looppreparse(iterationvars, returnvalue):
+def looppreparse(iterationvars, iteration, returnvalue):
     """Populate the vars for preparsing"""
     for value in iterationvars.items():
         #If this node is not already being ignored
@@ -316,7 +345,7 @@ def looppreparse(iterationvars, returnvalue):
             returnvalue['same'] = clone
             #If this is a new value, and this is not the first iteration,
             #remove the checking string and note the difference
-            if not value[0] in returnvalue['same'] and len(iterationvars) > 1:
+            if not value[0] in returnvalue['same'] and iteration > 0:
                 different = True
             #If there is an instance of a node that has the same opening string
             #but is different overall, same it
@@ -567,9 +596,19 @@ def trying(params):
                 params['open']['position'],
                 params['position'] + len(params['open']['node']['close'])
             ])
-    except Exception as inst:
-        if params['var']['var']:
-            params['suit'].vars[params['var']['var']] = inst
+    except Exception, inst:
+        #If a variable is provided and it not is whitelisted or blacklisted
+        if params['var']['var'] and listing(
+            params['var']['var'],
+            params['var']
+        ):
+            #Split up the file, paying attention to escape strings
+            split = params['suit'].explodeunescape(
+                params['var']['delimiter'],
+                params['var']['var'],
+                params['config']['escape']
+            )
+            assignvariable(split, inst, params['suit'].vars)
         params['case'] = ''
     return params
 

@@ -20,12 +20,39 @@ class Nodes
 {
     public function assign($params)
     {
-        if ($params['var']['var'])
+        //If a variable is provided and it not is whitelisted or blacklisted
+        if ($params['var']['var'] && $this->listing($params['var']['var'], $params['var']))
         {
-            $params['suit']->vars[$params['var']['var']] = $params['case'];
+            //Split up the file, paying attention to escape strings
+            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape']);
+            $this->assignvariable($split, $params['case'], $params['suit']->vars);
         }
         $params['case'] = '';
         return $params;
+    }
+
+    public function assignvariable($split, $assign, &$var)
+    {
+        $size = count($split);
+        for ($i = 0; $i < $size - 1; $i++)
+        {
+            if (is_array($var))
+            {
+                $var = &$var[$split[$i]];
+            }
+            else
+            {
+                $var = &$var->$split[$i];
+            }
+        }
+        if (is_array($var))
+        {
+            $var[$split[$size - 1]] = $assign;
+        }
+        else
+        {
+            $var->$split[$size - 1] = $assign;
+        }
     }
 
     public function attribute($params)
@@ -54,16 +81,7 @@ class Nodes
             else
             {
                 //Add the new node to the stack
-                $stack = array
-                (
-                    'node' => $params['case'],
-                    'nodes' => array(),
-                    'position' => $params['open']['position'],
-                    'skipnode' => array(),
-                    'stack' => array()
-                );
-                $stack['nodes'][$stack['node']] = $result['node'];
-                $stack = $params['suit']->helper->stack($stack);
+                $stack = $params['suit']->stack($result['node'], $params['case'], $params['open']['position']);
                 $params['stack'] = array_merge($params['stack'], $stack['stack']);
                 $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
                 $params['preparse']['nodes'][$stack['node']] = $result['node'];
@@ -84,17 +102,9 @@ class Nodes
                 {
                     $node['skip'] = $params['nodes'][$params['open']['node']['attribute']]['skip'];
                 }
-                $stack = array
-                (
-                    'node' => $params['open']['node']['attribute'],
-                    'nodes' => array(),
-                    'position' => $params['open']['position'],
-                    'skipnode' => array(),
-                    'stack' => array()
-                );
-                $stack['nodes'][$params['open']['node']['attribute']] = $node;
-                $stack = $params['suit']->helper->stack($stack);
+                $stack = $params['suit']->stack($node, $params['open']['node']['attribute'], $params['open']['position']);
                 $params['stack'] = array_merge($params['stack'], $stack['stack']);
+                $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
             }
             else
             {
@@ -122,7 +132,7 @@ class Nodes
                 {
                     $name = substr_replace($name, '', strlen($name) - strlen($params['var']['equal']));
                     //If the variable is whitelisted or blacklisted, do not prepare to define the variable
-                    if (array_key_exists('list', $params['var']) && (((!array_key_exists('blacklist', $params['var']) || !$params['var']['blacklist']) && !in_array($name, $params['var']['list'])) || (array_key_exists('blacklist', $params['var']) && $params['var']['blacklist'] && in_array($name, $params['var']['list']))))
+                    if (!$this->listing($name, $params['var']))
                     {
                         $name = '';
                     }
@@ -187,13 +197,15 @@ class Nodes
             $pop = array_pop($params['stack']);
             if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
             {
+                $pop['node']['var']['condition'] = strval($pop['node']['var']['condition']);
                 if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'null' || strtolower($pop['node']['var']['condition']) == 'array()')
                 {
                     $pop['node']['var']['condition'] = '';
                 }
                 //If the case should not be hidden, do not skip over everything between this opening string and its closing string
-                if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']) && array_key_exists('skip', $params['open']['node']) && $params['open']['node']['skip'])
+                if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
                 {
+                    $pop['node']['skip'] = false;
                     array_pop($params['skipnode']);
                 }
             }
@@ -211,6 +223,17 @@ class Nodes
     {
         $params['case'] = eval($params['case']);
         return $params;
+    }
+
+    public function listing($name, $var)
+    {
+        $return = true;
+        //If the variable is whitelisted or blacklisted
+        if (array_key_exists('list', $var) && (((!array_key_exists('blacklist', $var) || !$var['blacklist']) && !in_array($name, $var['list'])) || (array_key_exists('blacklist', $var) && $var['blacklist'] && in_array($name, $var['list']))))
+        {
+            $return = false;
+        }
+        return $return;
     }
 
     public function loop($params)
@@ -242,7 +265,7 @@ class Nodes
                     $var[$params['var']['node']]['var']['var']->$key = $value2;
                 }
             }
-            $result = $this->looppreparse($var[$params['var']['node']]['var']['var'], $result);
+            $result = $this->looppreparse($var[$params['var']['node']]['var']['var'], count($iterationvars), $result);
             $iterationvars[] = $var;
         }
         $iterations = array();
@@ -285,7 +308,7 @@ class Nodes
         return $params;
     }
 
-    public function looppreparse($iterationvars, $return)
+    public function looppreparse($iterationvars, $iteration, $return)
     {
         foreach ($iterationvars as $key => $value)
         {
@@ -294,18 +317,18 @@ class Nodes
             {
                 $different = false;
                 $key2 = array_keys($return['same']);
-                $size2 = count($key2);
-                for ($j = 0; $j < $size2; $j++)
+                $size = count($key2);
+                for ($i = 0; $i < $size; $i++)
                 {
                     //If this node has the same opening string as the one we are checking but is different overall, remove the checking string and note the difference
-                    if ($value != $return['same'][$key2[$j]] && $key == $key2[$j])
+                    if ($value != $return['same'][$key2[$i]] && $key == $key2[$i])
                     {
                         $different = true;
-                        unset($return['same'][$key2[$j]]);
+                        unset($return['same'][$key2[$i]]);
                     }
                 }
                 //If this is a new value, and this is not the first iteration, remove the checking string and note the difference
-                if (!array_key_exists($key, $return['same']) and count($iterationvars) > 1)
+                if (!array_key_exists($key, $return['same']) && $iteration > 0)
                 {
                     $different = true;
                 }
@@ -330,8 +353,9 @@ class Nodes
         {
             $pop = array_pop($params['stack']);
             //If specified, do not skip over everything between this opening string and its closing string
-            if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !$pop['node']['var']['skip'] && array_key_exists('skip', $params['open']['node']) && $params['open']['node']['skip'])
+            if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !$pop['node']['var']['skip'] && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
             {
+                $pop['node']['skip'] = false;
                 array_pop($params['skipnode']);
             }
             $params['stack'][] = $pop;
@@ -578,9 +602,12 @@ class Nodes
         }
         catch (Exception $e)
         {
-            if ($params['var']['var'])
+            //If a variable is provided and it not is whitelisted or blacklisted
+            if ($params['var']['var'] && $this->listing($params['var']['var'], $params['var']))
             {
-                $params['suit']->vars[$params['var']['var']] = $e;
+                //Split up the file, paying attention to escape strings
+                $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape']);
+                $this->assignvariable($split, $e, $params['suit']->vars);
             }
             $params['case'] = '';
         }

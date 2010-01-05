@@ -1,8 +1,10 @@
+[comment]This is an example template[/comment]
 [template]menu=>parse[/template]
 <p>SUIT Version: [var]version[/var]</p>
+[assign var="condition=>legitimatecopy"]true[/assign]
 <p>
     [if condition="[var]condition=>legitimatecopy[/var]"]
-    This is a real copy of SUIT
+    This is a real copy of SUIT.
     [/if]
     [if condition="[var]condition=>legitimatecopy[/var]" else="true"]
     There is no such thing as an illegitimate copy of an open source program.

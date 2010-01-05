@@ -103,7 +103,9 @@ class Helper
             //If this position should not be overlooked
             if (!$params['unescape']['condition'])
             {
-                $params = $this->stack($params);
+                $result = $this->owner->stack($params['nodes'][$params['node']], $params['node'], $params['position']);
+                $params['stack'] = array_merge($params['stack'], $result['stack']);
+                $params['skipnode'] = array_merge($params['skipnode'], $result['skipnode']);
             }
             //Else, reserve the range
             else
@@ -330,23 +332,6 @@ class Helper
     public function sort($a, $b)
     {
         return strlen($b) - strlen($a);
-    }
-
-    public function stack($params)
-    {
-        //Add the opening string to the stack
-        $params['stack'][] = array
-        (
-            'node' => $params['nodes'][$params['node']],
-            'open' => $params['node'],
-            'position' => $params['position']
-        );
-        //If the skip key is true, skip over everything between this opening string and its closing string
-        if (array_key_exists('skip', $params['nodes'][$params['node']]) && $params['nodes'][$params['node']]['skip'])
-        {
-            $params['skipnode'][] = $params['nodes'][$params['node']]['close'];
-        }
-        return $params;
     }
 
     public function strpos($haystack, $needle, $offset = 0, $function = NULL)

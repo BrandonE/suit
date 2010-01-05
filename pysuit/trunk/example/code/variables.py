@@ -15,7 +15,8 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-suit.vars['condition']['legitimatecopy'] = True
+from suit import __version__
+suit.vars['version'] = __version__
 suit.vars['loop']['members'] = [
     {
         'name': 'Brandon',

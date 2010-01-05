@@ -24,6 +24,7 @@ $suit->vars['language'] = array
     'message' => 'Message',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'slogan' => 'BBCode Using SUIT Nodes',
+    'submit' => 'Submit',
     'suit' => 'SUIT',
     'title' => 'BBNode',
     'update' => 'Update'

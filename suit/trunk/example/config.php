@@ -46,6 +46,7 @@ $suit->vars['nodes'] = array
         ),
         'var' => array
         (
+            'delimiter' => '=>',
             'var' => ''
         )
     ),
@@ -186,6 +187,11 @@ $suit->vars['nodes'] = array
             array
             (
                 'function' => 'attribute',
+                'class' => $nodes
+            ),
+            array
+            (
+                'function' => 'loopstack',
                 'class' => $nodes
             )
         ),
@@ -377,6 +383,7 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
+            'delimiter' => '=>',
             'var' => ''
         )
     ),
