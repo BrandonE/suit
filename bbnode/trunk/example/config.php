@@ -199,8 +199,9 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
+            'blacklist' => true,
             'equal' => '=',
-            'list' => array('delimiter', 'vars'),
+            'list' => array('node', 'unserialize'),
             'quote' => '"'
         )
     ),
@@ -217,6 +218,7 @@ $suit->vars['nodes'] = array
         ),
         'var' => array
         (
+            'bool' => false,
             'delimiter' => '=>',
             'ignore' => array(),
             'serialize' => false,
@@ -253,6 +255,26 @@ $suit->vars['nodes'] = array
                 'function' => 'parse',
                 'class' => $nodes
             )
+        ),
+        'var' => array()
+    ),
+    '[parse' => array
+    (
+        'close' => ']',
+        'function' => array
+        (
+            array
+            (
+                'function' => 'attribute',
+                'class' => $nodes
+            )
+        ),
+        'attribute' => '[parse]',
+        'skip' => true,
+        'var' => array
+        (
+            'equal' => '=',
+            'quote' => '"'
         )
     ),
     '[replace]' => array
@@ -420,6 +442,7 @@ $suit->vars['nodes'] = array
         ),
         'var' => array
         (
+            'bool' => false,
             'delimiter' => '=>',
             'serialize' => false
         )
@@ -439,8 +462,9 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
+            'blacklist' => true,
             'equal' => '=',
-            'list' => array('serialize'),
+            'list' => array('delimiter'),
             'quote' => '"'
         )
     )

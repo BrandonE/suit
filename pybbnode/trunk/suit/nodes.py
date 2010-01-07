@@ -210,6 +210,16 @@ def conditionstack(params):
             ):
                 pop['node']['skip'] = False
                 params['skipnode'].pop()
+            params['preparse']['nodes'][params['case']] = pop
+        #Else, if the node was ignored, do not skip over everything between
+        #this opening string and its closing string
+        elif (pop['node']['close'] == params['nodes'][
+            params['open']['node']['attribute']
+        ]['close'] and
+        'skip' in pop['node'] and
+        pop['node']['skip']):
+            pop['node']['skip'] = False
+            params['skipnode'].pop()
         params['stack'].append(pop)
     return params
 
@@ -293,6 +303,7 @@ def loop(params):
         nodes[params['var']['node']]['var']['ignore'] = result['ignore']
         config = {
             'escape': params['config']['escape'],
+            'insensitive': params['config']['insensitive'],
             'preparse': True
         }
         if 'label' in params['var']:
@@ -309,6 +320,7 @@ def loop(params):
         for key, value in enumerate(iterationvars):
             config = {
                 'escape': params['config']['escape'],
+                'insensitive': params['config']['insensitive'],
                 'taken': result['taken']
             }
             if 'label' in params['var']:
@@ -368,6 +380,7 @@ def loopstack(params):
         'skip' in params['open']['node'] and
         params['open']['node']['skip']):
             params['skipnode'].pop()
+        params['preparse']['nodes'][params['case']] = pop
         params['stack'].append(pop)
     return params
 
@@ -390,6 +403,8 @@ def loopvariables(params):
                     params['case'] = params['case'][int(value)]
                 except (AttributeError, TypeError, ValueError):
                     params['case'] = getattr(params['case'], value)
+        if params['var']['bool']:
+            params['case'] = bool(params['case'])
         if params['var']['serialize']:
             params['case'] = pickle.dumps(params['case'])
     else:
@@ -407,7 +422,13 @@ def loopvariables(params):
 
 def parse(params):
     """Parse the case"""
-    params['case'] = params['suit'].parse(params['nodes'], params['case'])
+    config = {
+        'escape': params['config']['escape'],
+        'insensitive': params['config']['insensitive']
+    }
+    if 'label' in params['var']:
+        config['label'] = params['var']['label']
+    params['case'] = params['suit'].parse(params['nodes'], params['case'], config)
     return params
 
 def replace(params):
@@ -636,6 +657,8 @@ def variables(params):
                 params['case'] = params['case'][int(value)]
             except (AttributeError, TypeError, ValueError):
                 params['case'] = getattr(params['case'], value)
+    if params['var']['bool']:
+        params['case'] = bool(params['case'])
     if params['var']['serialize']:
         params['case'] = pickle.dumps(params['case'])
     return params

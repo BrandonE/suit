@@ -164,7 +164,11 @@ class Helper
     {
         if (!array_key_exists('escape', $config))
         {
-            $config['escape'] = $this->owner->escapestring;
+            $config['escape'] = '\\';
+        }
+        if (!array_key_exists('insensitive', $config))
+        {
+            $config['insensitive'] = true;
         }
         if (!array_key_exists('preparse', $config))
         {
@@ -177,7 +181,7 @@ class Helper
         return $config;
     }
 
-    public function parsepositions($nodes, $return, $taken)
+    public function parsepositions($nodes, $return, $taken, $insensitive)
     {
         $strings = array();
         $key = array_keys($nodes);
@@ -196,6 +200,7 @@ class Helper
         $params = array
         (
             'function' => 'parse',
+            'insensitive' => $insensitive,
             'pos' => array(),
             'repeated' => array(),
             'return' => $return,
@@ -245,7 +250,7 @@ class Helper
         for ($params['i'] = 0; $params['i'] < $size; $params['i']++)
         {
             //If the string has not already been used
-            if (!in_array($params['key'], $params['repeated']))
+            if (!in_array($params['key'][$params['i']], $params['repeated']))
             {
                 $params = $this->positionsloop($params);
                 //Make sure this string is not repeated
@@ -259,7 +264,7 @@ class Helper
     {
         $position = -1;
         //Find the next position of the string
-        while (($position = $this->strpos($params['return'], $params['key'][$params['i']], $position + 1, $params['function'])) !== false)
+        while (($position = $this->strpos($params['return'], $params['key'][$params['i']], $position + 1, $params['insensitive'], $params['function'])) !== false)
         {
             $success = true;
             foreach ($params['taken'] as $value)
@@ -334,15 +339,12 @@ class Helper
         return strlen($b) - strlen($a);
     }
 
-    public function strpos($haystack, $needle, $offset = 0, $function = NULL)
+    public function strpos($haystack, $needle, $offset, $insensitive, $function)
     {
-        //If a function name was provided, increment the number of times that the function called strpos by 1
-        if (isset($function))
-        {
-            $this->owner->debug['strpos'][$function]['call']++;
-        }
+        //Log this call
+        $this->owner->debug['strpos'][$function]['call']++;
         //Find the position insensitively or sensitively based on the configuration
-        if ($this->owner->insensitive)
+        if ($insensitive)
         {
             return stripos($haystack, $needle, $offset);
         }

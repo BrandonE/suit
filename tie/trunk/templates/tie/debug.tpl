@@ -1,7 +1,7 @@
 [trim]
-<div class="header" id="debug">
+<div class="header">
     <div class="left">
-        <h1 class="title"><a href="#">[var]language=>debug[/var]</a></h1>
+        <h1 class="title"><a href="#">[var]language=>NULL[/var]</a></h1>
     </div>
 </div>
 <div class="nav">
@@ -9,29 +9,29 @@
     <div class="yesscript" style="display: none;">
         <div class="templates">
             <ul>
-                    <li class="selected"><a class="templatestab" href="#debug">[var]language=>templates[/var]</a></li>
-                    <li><a class="parsetab" href="#debug">[var]language=>parse[/var]</a></li>
-                    <li><a class="strpostab" href="#debug">[var]language=>strpos[/var]</a></li>
+                    <li class="selected"><a class="templatestab" href="#NULL">[var]language=>templates[/var]</a></li>
+                    <li><a class="parsetab" href="#NULL">[var]language=>parse[/var]</a></li>
+                    <li><a class="strpostab" href="#NULL">[var]language=>strpos[/var]</a></li>
             </ul>
         </div>
         <div class="parse" style="display: none;">
             <ul>
-                    <li><a class="templatestab" href="#debug">[var]language=>templates[/var]</a></li>
-                    <li class="selected"><a class="parsetab" href="#debug">[var]language=>parse[/var]</a></li>
-                    <li><a class="strpostab" href="#debug">[var]language=>strpos[/var]</a></li>
+                    <li><a class="templatestab" href="#NULL">[var]language=>templates[/var]</a></li>
+                    <li class="selected"><a class="parsetab" href="#NULL">[var]language=>parse[/var]</a></li>
+                    <li><a class="strpostab" href="#NULL">[var]language=>strpos[/var]</a></li>
             </ul>
         </div>
         <div class="strpos" style="display: none;">
             <ul>
-                    <li><a class="templatestab" href="#debug">[var]language=>templates[/var]</a></li>
-                    <li><a class="parsetab" href="#debug">[var]language=>parse[/var]</a></li>
-                    <li class="selected"><a class="strpostab" href="#debug">[var]language=>strpos[/var]</a></li>
+                    <li><a class="templatestab" href="#NULL">[var]language=>templates[/var]</a></li>
+                    <li><a class="parsetab" href="#NULL">[var]language=>parse[/var]</a></li>
+                    <li class="selected"><a class="strpostab" href="#NULL">[var]language=>strpos[/var]</a></li>
             </ul>
         </div>
     </div>
     <noscript>
         <ul>
-                <li class="selected"><a href="#debug">[var]language=>empty[/var]</a></li>
+                <li class="selected"><a href="#NULL">[var]language=>empty[/var]</a></li>
         </ul>
     </noscript>
 </div>

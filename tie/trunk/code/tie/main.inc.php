@@ -1055,13 +1055,13 @@ class TIE
                     $pos = true;
                     if ($this->settings['search'] != '')
                     {
-                        $pos = $this->owner->helper->strpos(basename($value, '.' . $filetype), $this->settings['search']);
+                        $pos = stripos(basename($value, '.' . $filetype), $this->settings['search']);
                     }
                     $filepath = $this->owner->vars['files'][$type] . $directory['string'] . '/' . $value;
                     if (is_file($filepath) && $value != basename($value, '.' . $filetype))
                     {
                         $file = false;
-                        if ($this->settings['search'] != '' && $this->owner->helper->strpos(file_get_contents($filepath), $this->settings['search']))
+                        if ($this->settings['search'] != '' && stripos(file_get_contents($filepath), $this->settings['search']))
                         {
                             $file = true;
                         }

@@ -51,11 +51,7 @@ class SUIT
         )
     );
 
-    public $escapestring = '\\';
-
     public $filepath = '';
-
-    public $insensitive = true;
 
     public $offset = 0;
 
@@ -66,22 +62,16 @@ class SUIT
     /**
     http://www.suitframework.com/docs/SUIT+Construct
     **/
-    public function __construct($escape = '\\', $insensitive = true)
+    public function __construct()
     {
         $this->helper = new Helper($this);
-        $this->escape = $escape;
-        $this->insensitive = $insensitive;
     }
 
     /**
     http://www.suitframework.com/docs/escape
     **/
-    public function escape($strings, $return, $escape = NULL)
+    public function escape($strings, $return, $escape = '\\', $insensitive = true)
     {
-        if (!isset($escape))
-        {
-            $escape = $this->config['parse']['escape'];
-        }
         $search = array();
         $replace = array();
         //Prepare to escape every string
@@ -109,6 +99,7 @@ class SUIT
             $params = array
             (
                 'function' => 'escape',
+                'insensitive' => $insensitive,
                 'pos' => array(),
                 'repeated' => array(),
                 'return' => $return,
@@ -154,13 +145,9 @@ class SUIT
     /**
     http://www.suitframework.com/docs/explodeunescape
     **/
-    public function explodeunescape($explode, $string, $escape = NULL)
+    public function explodeunescape($explode, $string, $escape = '\\', $insensitive = true)
     {
         $return = array();
-        if (!isset($escape))
-        {
-            $escape = $this->config['parse']['escape'];
-        }
         $cache = md5(md5(serialize($string)) . md5(serialize($explode)));
         //If positions are cached for this case, load them
         if (array_key_exists($cache, $this->cache['explodeunescape']))
@@ -173,7 +160,7 @@ class SUIT
             $pos = array();
             $position = -1;
             //Find the next position of the string
-            while (($position = $this->helper->strpos($string, $explode, $position + 1, 'explodeunescape')) !== false)
+            while (($position = $this->helper->strpos($string, $explode, $position + 1, $insensitive, 'explodeunescape')) !== false)
             {
                 $pos[] = $position;
             }
@@ -299,7 +286,7 @@ class SUIT
         }
         else
         {
-            $pos = $this->helper->parsepositions($nodes, $return, $config['taken']);
+            $pos = $this->helper->parsepositions($nodes, $return, $config['taken'], $config['insensitive']);
             //Order the positions from smallest to biggest
             ksort($pos);
             //Cache the positions

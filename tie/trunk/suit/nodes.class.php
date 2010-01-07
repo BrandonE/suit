@@ -24,7 +24,7 @@ class Nodes
         if ($params['var']['var'] && $this->listing($params['var']['var'], $params['var']))
         {
             //Split up the file, paying attention to escape strings
-            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape']);
+            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
             $this->assignvariable($split, $params['case'], $params['suit']->vars);
         }
         $params['case'] = '';
@@ -84,7 +84,7 @@ class Nodes
                 $stack = $params['suit']->stack($result['node'], $params['case'], $params['open']['position']);
                 $params['stack'] = array_merge($params['stack'], $stack['stack']);
                 $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
-                $params['preparse']['nodes'][$stack['node']] = $result['node'];
+                $params['preparse']['nodes'][$params['case']] = $result['node'];
             }
         }
         else
@@ -117,7 +117,7 @@ class Nodes
     public function attributedefine($params, $node)
     {
         //Define the variables
-        $split = $params['suit']->explodeunescape($params['var']['quote'], $params['case'], $params['config']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['quote'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
         unset($split[count($split) - 1]);
         $ignore = false;
         $size = count($split);
@@ -208,6 +208,13 @@ class Nodes
                     $pop['node']['skip'] = false;
                     array_pop($params['skipnode']);
                 }
+                $params['preparse']['nodes'][$params['case']] = $pop['node'];
+            }
+            //Else, if the node was ignored, do not skip over everything between this opening string and its closing string
+            elseif ($pop['node']['close'] == $params['nodes'][$params['open']['node']['attribute']]['close'] && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
+            {
+                $pop['node']['skip'] = false;
+                array_pop($params['skipnode']);
             }
             $params['stack'][] = $pop;
         }
@@ -279,6 +286,7 @@ class Nodes
             $config = array
             (
                 'escape' => $params['config']['escape'],
+                'insensitive' => $params['config']['insensitive'],
                 'preparse' => true
             );
             if (array_key_exists('label', $params['var']))
@@ -293,6 +301,7 @@ class Nodes
                 $config = array
                 (
                     'escape' => $params['config']['escape'],
+                    'insensitive' => $params['config']['insensitive'],
                     'taken' => $result['taken']
                 );
                 if (array_key_exists('label', $params['var']))
@@ -358,6 +367,7 @@ class Nodes
                 $pop['node']['skip'] = false;
                 array_pop($params['skipnode']);
             }
+            $params['preparse']['nodes'][$params['case']] = $pop['node'];
             $params['stack'][] = $pop;
         }
         return $params;
@@ -366,7 +376,7 @@ class Nodes
     public function loopvariables($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
         //If the case should not be ignored
         if (!array_key_exists($split[0], $params['var']['ignore']))
         {
@@ -381,6 +391,10 @@ class Nodes
                 {
                     $params['case'] = $params['case']->$value;
                 }
+            }
+            if ($params['var']['bool'])
+            {
+                $params['case'] = boolval($params['case']);
             }
             if ($params['var']['serialize'])
             {
@@ -399,7 +413,16 @@ class Nodes
 
     public function parse($params)
     {
-        $params['case'] = $params['suit']->parse($params['nodes'], $params['case']);
+        $config = array
+        (
+            'escape' => $params['config']['escape'],
+            'insensitive' => $params['config']['insensitive']
+        );
+        if (in_array('label', $params['var']))
+        {
+            $config['label'] = $params['var']['label'];
+        }
+        $params['case'] = $params['suit']->parse($params['nodes'], $params['case'], $config);
         return $params;
     }
 
@@ -480,7 +503,7 @@ class Nodes
     public function templates($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
         $code = array();
         $size = count($split);
         for ($i = 0; $i < $size; $i++)
@@ -606,7 +629,7 @@ class Nodes
             if ($params['var']['var'] && $this->listing($params['var']['var'], $params['var']))
             {
                 //Split up the file, paying attention to escape strings
-                $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape']);
+                $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
                 $this->assignvariable($split, $e, $params['suit']->vars);
             }
             $params['case'] = '';
@@ -623,7 +646,7 @@ class Nodes
     public function variables($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape']);
+        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
         $params['case'] = $params['suit']->vars;
         foreach ($split as $value)
         {
@@ -634,6 +657,17 @@ class Nodes
             else
             {
                 $params['case'] = $params['case']->$value;
+            }
+        }
+        if ($params['var']['bool'])
+        {
+            if ($params['case'])
+            {
+                $params['case'] = 'true';
+            }
+            else
+            {
+                $params['case'] = 'false';
             }
         }
         if ($params['var']['serialize'])

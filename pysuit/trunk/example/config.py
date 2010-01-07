@@ -139,6 +139,7 @@ nodes = {
         'function': [nodes.loopvariables],
         'var':
         {
+            'bool': False,
             'delimiter': '=>',
             'ignore': {},
             'serialize': False,
@@ -162,6 +163,19 @@ nodes = {
     {
         'close': '[/parse]',
         'function': [nodes.parse],
+        'var': {}
+    },
+    '[parse':
+    {
+        'close': ']',
+        'function': [nodes.attribute],
+        'attribute': '[parse]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'quote': '"'
+        }
     },
     '[replace]':
     {
@@ -263,6 +277,7 @@ nodes = {
         'function': [nodes.variables],
         'var':
         {
+            'bool': False,
             'delimiter': '=>',
             'serialize': False
         }

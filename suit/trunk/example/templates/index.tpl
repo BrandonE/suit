@@ -3,7 +3,7 @@
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
 [/trim]
-        [if condition="[var]template[/var]"]
+        [if condition="[var bool=\"true\"]template[/var]"]
         <fieldset>
             <legend>[var]language=>parsed[/var]</legend>
             [parse][var]template[/var][/parse]

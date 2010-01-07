@@ -116,14 +116,16 @@ class Helper(object):
         if config == None:
             config = {}
         if not 'escape' in config:
-            config['escape'] = self.owner.escapestring
+            config['escape'] = '\\'
+        if not 'insensitive' in config:
+            config['insensitive'] = True
         if not 'preparse' in config:
             config['preparse'] = False
         if not 'taken' in config:
             config['taken'] = {}
         return config
 
-    def parsepositions(self, nodes, returnvalue, taken):
+    def parsepositions(self, nodes, returnvalue, taken, insensitive):
         """Find the positions of strings for the parse function"""
         strings = {}
         for value in nodes.items():
@@ -137,6 +139,7 @@ class Helper(object):
         strings.sort(key = lambda item: len(item[0]), reverse = True)
         params = {
             'function': 'parse',
+            'insensitive': insensitive,
             'pos': {},
             'repeated': [],
             'return': returnvalue,
@@ -163,6 +166,7 @@ class Helper(object):
             params['return'],
             params['value'][0],
             0,
+            params['insensitive'],
             params['function']
         )
         while position != -1:
@@ -193,11 +197,12 @@ class Helper(object):
                 params['return'],
                 params['value'][0],
                 position + 1,
+                params['insensitive'],
                 params['function']
             )
         return params
 
-    def strpos(self, haystack, needle, offset = 0, function = None):
+    def strpos(self, haystack, needle, offset, insensitive, function):
         """Find the position insensitively or sensitively based on the
         configuration"""
         #If a function name was provided,
@@ -206,7 +211,7 @@ class Helper(object):
             self.owner.debug['strpos'][function]['call'] += 1
         #Find the position insensitively or sensitively based on the
         #configuration
-        if self.owner.insensitive:
+        if insensitive:
             return haystack.upper().find(needle.upper(), offset)
         else:
             return haystack.find(needle, offset)

@@ -24,11 +24,9 @@ __version__ = '0.0.2'
 class SUIT(object):
     """An open-source templating framework that allows you to define your own
     syntax through nodes."""
-    def __init__(self, escapestring = '\\', insensitive = True):
+    def __init__(self):
         """http://www.suitframework.com/docs/SUIT+Construct"""
         self.helper = helper.Helper(self)
-        self.escapestring = escapestring
-        self.insensitive = insensitive
         self.cache = {
             'escape': {},
             'explodeunescape': {},
@@ -59,10 +57,8 @@ class SUIT(object):
         self.template = ''
         self.vars = {}
 
-    def escape(self, strings, returnvalue, escape = None):
+    def escape(self, strings, returnvalue, escape = '\\', insensitive = True):
         """http://www.suitframework.com/docs/escape"""
-        if escape == None:
-            escape = self.escapestring
         cache = hash((returnvalue, pickle.dumps(strings)))
         #If positions are cached for this case, load them
         if cache in self.cache['escape']:
@@ -80,6 +76,7 @@ class SUIT(object):
             )
             params = {
                 'function': 'escape',
+                'insensitive': insensitive,
                 'pos': {},
                 'repeated': [],
                 'return': returnvalue,
@@ -131,11 +128,9 @@ class SUIT(object):
             )
         return returnvalue
 
-    def explodeunescape(self, explode, glue, escape = None):
+    def explodeunescape(self, explode, glue, escape = '\\', insensitive = True):
         """http://www.suitframework.com/docs/explodeunescape"""
         array = []
-        if escape == None:
-            escape = self.escapestring
         cache = hash((glue, explode))
         #If positions are cached for this case, load them
         if cache in self.cache['explodeunescape']:
@@ -143,7 +138,13 @@ class SUIT(object):
             self.debug['strpos']['explodeunescape']['cache'] += 1
         else:
             pos = []
-            position = self.helper.strpos(glue, explode, 0, 'explodeunescape')
+            position = self.helper.strpos(
+                glue,
+                explode,
+                0,
+                insensitive,
+                'explodeunescape'
+            )
             #Find the next position of the string
             while position != -1:
                 pos.append(position)
@@ -151,6 +152,7 @@ class SUIT(object):
                     glue,
                     explode,
                     position + 1,
+                    insensitive,
                     'explodeunescape'
                 )
             #On top of the explode string to be escaped, the last position in
@@ -257,7 +259,8 @@ class SUIT(object):
             pos = self.helper.parsepositions(
                 nodes,
                 returnvalue,
-                config['taken']
+                config['taken'],
+                config['insensitive']
             )
             #Order the positions from smallest to biggest
             pos = sorted(pos.items())

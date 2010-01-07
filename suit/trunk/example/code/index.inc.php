@@ -59,52 +59,6 @@ function php($params)
     return $params;
 }
 $nodes = new Nodes();
-$suit->vars['nodes']['[node]'] = array
-(
-    'close' => '[/node]',
-    'function' => array
-    (
-        array
-        (
-            'function' => 'node'
-        )
-    ),
-    'var' => array
-    (
-        'exception' => 'Test'
-    )
-);
-$suit->vars['nodes']['[node'] = array
-(
-    'close' => ']',
-    'function' => array
-    (
-        array
-        (
-            'function' => 'attribute',
-            'class' => $nodes
-        )
-    ),
-    'attribute' => '[node]',
-    'skip' => true,
-    'var' => array
-    (
-        'equal' => '=',
-        'quote' => '"'
-    )
-);
-$suit->vars['nodes']['<?php'] = array
-(
-    'close' => '?>',
-    'function' => array
-    (
-        array
-        (
-            'function' => 'php'
-        )
-    ),
-    'skip' => true
-);
 if (array_key_exists('submit', $_POST))
 {
     $suit->vars['template'] = $_POST['template'];
