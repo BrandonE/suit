@@ -71,7 +71,7 @@ class Nodes
         $result = $this->attributedefine($params, $node);
         $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
         $params['taken'] = false;
-        if (!$result['ignore'])
+        if (!$result['ignored'])
         {
             if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
             {
@@ -119,7 +119,7 @@ class Nodes
         //Define the variables
         $split = $params['suit']->explodeunescape($params['var']['quote'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
         unset($split[count($split) - 1]);
-        $ignore = false;
+        $ignored = false;
         $size = count($split);
         for ($i = 0; $i < $size; $i++)
         {
@@ -161,14 +161,14 @@ class Nodes
                 }
                 else
                 {
-                    $ignore = true;
+                    $ignored = true;
                     break;
                 }
             }
         }
         return array
         (
-            'ignore' => $ignore,
+            'ignored' => $ignored,
             'node' => $node
         );
     }
@@ -248,7 +248,7 @@ class Nodes
         $iterationvars = array();
         $result = array
         (
-            'ignore' => array(),
+            'ignore' => $params['nodes'][$params['var']['node']]['var']['ignore'],
             'same' => array()
         );
         if (!is_array($params['var'][$params['var']['unserialize']]))
@@ -263,13 +263,9 @@ class Nodes
             );
             foreach ($value as $key => $value2)
             {
-                if (is_array($var[$params['var']['node']]['var']['var']))
+                if (!array_key_exists($key, $var[$params['var']['node']]['var']['var']))
                 {
                     $var[$params['var']['node']]['var']['var'][$key] = $value2;
-                }
-                else
-                {
-                    $var[$params['var']['node']]['var']['var']->$key = $value2;
                 }
             }
             $result = $this->looppreparse($var[$params['var']['node']]['var']['var'], count($iterationvars), $result);
@@ -302,6 +298,7 @@ class Nodes
                 (
                     'escape' => $params['config']['escape'],
                     'insensitive' => $params['config']['insensitive'],
+                    'preparse' => true,
                     'taken' => $result['taken']
                 );
                 if (array_key_exists('label', $params['var']))
@@ -309,7 +306,19 @@ class Nodes
                     $config['label'] = $params['var']['label'] . strval($i);
                 }
                 //Parse for this iteration
-                $iterations[] = $params['suit']->parse(array_merge($params['nodes'], $result['nodes'], $iterationvars[$i]), $result['return'], $config);
+                $result2 = $params['suit']->parse(array_merge($params['nodes'], $result['nodes'], $iterationvars[$i]), $result['return'], $config);
+                if (!$result2['ignored'])
+                {
+                    $iterations[] = $result2['return'];
+                }
+                else
+                {
+                    $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
+                    $params['taken'] = false;
+                    //Reserve the space
+                    $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+                    return $params;
+                }
             }
         }
         //Implode the iterations
@@ -319,37 +328,39 @@ class Nodes
 
     public function looppreparse($iterationvars, $iteration, $return)
     {
-        foreach ($iterationvars as $key => $value)
+        $key = array_keys($iterationvars);
+        $size = count($key);
+        for ($i = 0; $i < $size; $i++)
         {
             //If this node is not already being ignored
-            if (!array_key_exists($key, $return['ignore']))
+            if (!array_key_exists($key[$i], $return['ignore']))
             {
                 $different = false;
                 $key2 = array_keys($return['same']);
-                $size = count($key2);
-                for ($i = 0; $i < $size; $i++)
+                $size2 = count($key2);
+                for ($j = 0; $j < $size2; $j++)
                 {
                     //If this node has the same opening string as the one we are checking but is different overall, remove the checking string and note the difference
-                    if ($value != $return['same'][$key2[$i]] && $key == $key2[$i])
+                    if ($iterationvars[$key[$i]] != $return['same'][$key2[$j]] && $key[$i] == $key2[$j])
                     {
                         $different = true;
-                        unset($return['same'][$key2[$i]]);
+                        unset($return['same'][$key2[$j]]);
                     }
                 }
                 //If this is a new value, and this is not the first iteration, remove the checking string and note the difference
-                if (!array_key_exists($key, $return['same']) && $iteration > 0)
+                if (!array_key_exists($key[$i], $return['same']) && $iteration > 0)
                 {
                     $different = true;
                 }
                 //If there is an instance of a node that has the same opening string but is different overall, ignore it
                 if ($different)
                 {
-                    $return['ignore'][$key] = $value;
+                    $return['ignore'][$key[$i]] = $iterationvars[$key[$i]];
                 }
                 //Else, prepare to preparse it
-                elseif (!array_key_exists($key, $return['same']))
+                elseif (!array_key_exists($key[$i], $return['same']))
                 {
-                    $return['same'][$key] = $value;
+                    $return['same'][$key[$i]] = $iterationvars[$key[$i]];
                 }
             }
         }

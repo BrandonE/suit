@@ -67,7 +67,7 @@ def attribute(params):
             params['open']['node']['close']
         ))
     params['taken'] = False
-    if not result['ignore']:
+    if not result['ignored']:
         if 'onesided' in params['var'] and params['var']['onesided']:
             params['var'] = result['node']['var']
             params['taken'] = True
@@ -118,7 +118,7 @@ def attributedefine(params, node):
         params['config']['escape']
     )
     del split[-1]
-    ignore = False
+    ignored = False
     for key, value in enumerate(split):
         #If this is the first iteration of the pair
         if key % 2 == 0:
@@ -148,10 +148,10 @@ def attributedefine(params, node):
                     result['return'] = ''
                 node['var'][name] = result['return']
             else:
-                ignore = True
+                ignored = True
                 break
     return {
-        'ignore': ignore,
+        'ignored': ignored,
         'node': node
     }
 
@@ -260,7 +260,9 @@ def loop(params):
     """Loop a string with different variables"""
     iterationvars = []
     result = {
-        'ignore': {},
+        'ignore': params['nodes'][
+            params['var']['node']]['var']['ignore'
+        ].copy(),
         'same': {}
     }
     for value in params['var']['vars']:
@@ -277,13 +279,17 @@ def loop(params):
         ]['var']['var'].copy()
         try:
             for value2 in value.items():
-                var[params['var']['node']]['var']['var'][value2[0]] = value2[1]
+                if not value2[0] in var[params['var']['node']]['var']['var']:
+                    var[
+                        params['var']['node']
+                    ]['var']['var'][value2[0]] = value2[1]
         except (AttributeError, TypeError):
             for value2 in dir(value):
-                var[params['var']['node']]['var']['var'][value2] = getattr(
-                    value,
-                    value2
-                )
+                if not hasattr(value, value2):
+                    var[params['var']['node']]['var']['var'][value2] = getattr(
+                        value,
+                        value2
+                    )
         result = looppreparse(
             var[params['var']['node']]['var']['var'],
             len(iterationvars),
@@ -321,12 +327,13 @@ def loop(params):
             config = {
                 'escape': params['config']['escape'],
                 'insensitive': params['config']['insensitive'],
+                'preparse': True,
                 'taken': result['taken']
             }
             if 'label' in params['var']:
                 config['label'] = ''.join((params['var']['label'], str(key)))
             #Parse for this iteration
-            iterations.append(params['suit'].parse(
+            result2 = params['suit'].parse(
                 dict(
                     params['nodes'].items() +
                     result['nodes'].items() +
@@ -334,7 +341,22 @@ def loop(params):
                 ),
                 result['return'],
                 config
-            ))
+            )
+            if not result2['ignored']:
+                iterations.append(result2['return'])
+            else:
+                params['case'] = ''.join((
+                    params['open']['open'],
+                    params['case'],
+                    params['open']['node']['close']
+                ))
+                params['taken'] = False
+                #Reserve the space
+                params['preparse']['ignored'].append([
+                    params['open']['position'],
+                    params['position'] + len(params['open']['node']['close'])
+                ])
+                return params
     #Implode the iterations
     params['case'] = params['var']['delimiter'].join(iterations)
     return params
@@ -428,7 +450,11 @@ def parse(params):
     }
     if 'label' in params['var']:
         config['label'] = params['var']['label']
-    params['case'] = params['suit'].parse(params['nodes'], params['case'], config)
+    params['case'] = params['suit'].parse(
+        params['nodes'],
+        params['case'],
+        config
+    )
     return params
 
 def replace(params):
