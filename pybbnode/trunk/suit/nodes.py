@@ -115,43 +115,51 @@ def attribute(params):
 
 def attributedefine(params, node):
     """Define the variables"""
-    #Define the variables
-    split = params['suit'].explodeunescape(
-        params['var']['quote'],
-        params['case'],
-        params['config']['escape']
-    )
-    del split[-1]
     ignored = False
-    for key, value in enumerate(split):
-        #If this is the first iteration of the pair
-        if key % 2 == 0:
-            name = value.strip()
-            #If the syntax is valid
-            if (name[
-                len(name) - len(params['var']['equal'])
-            ] == params['var']['equal']):
-                name = name[
-                    0:len(name) - len(params['var']['equal'])
-                ]
-                #If the variable is whitelisted or blacklisted, do not prepare
-                #to define the variable
-                if (not listing(name, params['var'])):
+    quote = ''
+    smallest = False
+    for value in params['var']['quote']:
+        position = params['case'].find(value)
+        if position != -1 and (smallest == False or position < smallest):
+            quote = value
+            smallest = position
+    if quote:
+        #Define the variables
+        split = params['suit'].explodeunescape(
+            quote,
+            params['case'],
+            params['config']['escape']
+        )
+        del split[-1]
+        for key, value in enumerate(split):
+            #If this is the first iteration of the pair
+            if key % 2 == 0:
+                name = value.strip()
+                #If the syntax is valid
+                if (name[
+                    len(name) - len(params['var']['equal'])
+                ] == params['var']['equal']):
+                    name = name[
+                        0:len(name) - len(params['var']['equal'])
+                    ]
+                    #If the variable is whitelisted or blacklisted, do not prepare
+                    #to define the variable
+                    if (not listing(name, params['var'])):
+                        name = ''
+                else:
                     name = ''
-            else:
-                name = ''
-        elif name:
-            config = {
-                'escape': params['config']['escape'],
-                'preparse': True
-            }
-            #Define the variable
-            result = params['suit'].parse(params['nodes'], value, config)
-            if not result['ignored']:
-                node['var'][name] = result['return']
-            else:
-                ignored = True
-                break
+            elif name:
+                config = {
+                    'escape': params['config']['escape'],
+                    'preparse': True
+                }
+                #Define the variable
+                result = params['suit'].parse(params['nodes'], value, config)
+                if not result['ignored']:
+                    node['var'][name] = result['return']
+                else:
+                    ignored = True
+                    break
     return {
         'ignored': ignored,
         'node': node

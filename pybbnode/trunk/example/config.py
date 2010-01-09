@@ -49,7 +49,7 @@ nodes = {
         'var':
         {
             'equal': '=',
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[comment]':
@@ -102,7 +102,7 @@ nodes = {
             'blacklist': True,
             'equal': '=',
             'list': ('decode',),
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[loop]':
@@ -136,7 +136,7 @@ nodes = {
             'blacklist': True,
             'equal': '=',
             'list': ('decode', 'node'),
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[loopvar]':
@@ -166,7 +166,7 @@ nodes = {
         {
             'equal': '=',
             'list': ('json', 'serialize'),
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[parse]':
@@ -184,7 +184,7 @@ nodes = {
         'var':
         {
             'equal': '=',
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[replace]':
@@ -206,7 +206,7 @@ nodes = {
         'var':
         {
             'equal': '=',
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[return':
@@ -224,7 +224,7 @@ nodes = {
             'equal': '=',
             'list': ('stack',),
             'onesided': True,
-            'quote': '"',
+            'quote': ('"', '\''),
             'var':
             {
                 'decode': ('stack',),
@@ -253,7 +253,7 @@ nodes = {
         {
             'equal': '=',
             'list': ('label',),
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[trim]':
@@ -281,7 +281,7 @@ nodes = {
         'var':
         {
             'equal': '=',
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     },
     '[var]':
@@ -309,7 +309,7 @@ nodes = {
         {
             'equal': '=',
             'list': ('json', 'serialize'),
-            'quote': '"'
+            'quote': ('"', '\'')
         }
     }
 }

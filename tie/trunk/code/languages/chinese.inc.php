@@ -43,7 +43,7 @@ $language = array
 'debug' => '调试',
 'default' => '默认',
 'delete' => '删除',
-'deleteconfirm' => '您一定想要删除[if condition="[var json=\"true\"]condition=>titles[/var]" trim=""]文件[loop vars="[var json=\"true\"]loop=>titles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][if condition="[var json=\"true\"]condition=>directorytitles[/var]" trim=""]和[/if][/if][if condition="[var json=\"true\"]condition=>directorytitles[/var]" trim=""]目录[loop vars="[var json=\"true\"]loop=>directorytitles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][/if]吗？',
+'deleteconfirm' => '您一定想要删除[if condition="[var json=\'true\']condition=>titles[/var]" trim=""]文件[loop vars="[var json=\'true\']loop=>titles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][if condition="[var json=\'true\']condition=>directorytitles[/var]" trim=""]和[/if][/if][if condition="[var json=\'true\']condition=>directorytitles[/var]" trim=""]目录[loop vars="[var json=\'true\']loop=>directorytitles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][/if]吗？',
 'deletechecked' => '删除所选',
 'deletedsuccessfully' => '删除成功',
 'desc' => '大到小排序',

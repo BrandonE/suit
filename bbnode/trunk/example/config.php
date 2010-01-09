@@ -66,7 +66,7 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[comment]' => array
@@ -159,7 +159,7 @@ $suit->vars['nodes'] = array
             'blacklist' => true,
             'equal' => '=',
             'list' => array('decode'),
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[loop]' => array
@@ -211,7 +211,7 @@ $suit->vars['nodes'] = array
             'blacklist' => true,
             'equal' => '=',
             'list' => array('decode', 'node'),
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[loopvar]' => array
@@ -257,7 +257,7 @@ $suit->vars['nodes'] = array
         (
             'equal' => '=',
             'list' => array('json', 'serialize'),
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[parse]' => array
@@ -289,7 +289,7 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[replace]' => array
@@ -325,7 +325,7 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[return' => array
@@ -355,7 +355,7 @@ $suit->vars['nodes'] = array
             'equal' => '=',
             'list' => array('stack'),
             'onesided' => true,
-            'quote' => '"',
+            'quote' => array('"', '\''),
             'var' => array
             (
                 'decode' => array('stack'),
@@ -398,7 +398,7 @@ $suit->vars['nodes'] = array
         (
             'equal' => '=',
             'list' => array('label'),
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[trim]' => array
@@ -447,7 +447,7 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     ),
     '[var]' => array
@@ -492,7 +492,7 @@ $suit->vars['nodes'] = array
         (
             'equal' => '=',
             'list' => array('json', 'serialize'),
-            'quote' => '"'
+            'quote' => array('"', '\'')
         )
     )
 );

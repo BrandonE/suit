@@ -2,7 +2,7 @@
 [parse][template]header=>header[/template][/parse]
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
-        [if condition="[var json=\"true\"]message[/var]"]
+        [if condition="[var json='true']message[/var]"]
         <fieldset>
             <legend>[var]language=>message[/var]</legend>
             [var]parsed[/var]

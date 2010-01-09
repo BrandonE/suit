@@ -116,49 +116,63 @@ class Nodes
 
     public function attributedefine($params, $node)
     {
-        //Define the variables
-        $split = $params['suit']->explodeunescape($params['var']['quote'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-        unset($split[count($split) - 1]);
         $ignored = false;
-        $size = count($split);
-        for ($i = 0; $i < $size; $i++)
+        $quote = '';
+        $smallest = false;
+        foreach ($params['var']['quote'] as $value)
         {
-            //If this is the first iteration of the pair
-            if ($i % 2 == 0)
+            $position = strpos($params['case'], $value);
+            if ($position !== false && ($smallest === false || $position < $smallest))
             {
-                $name = trim($split[$i]);
-                //If the syntax is valid
-                if (substr($name, strlen($name) - strlen($params['var']['equal'])) == $params['var']['equal'])
+                $quote = $value;
+                $smallest = $position;
+            }
+        }
+        if ($quote)
+        {
+            //Define the variables
+            $split = $params['suit']->explodeunescape($quote, $params['case'], $params['config']['escape'], $params['config']['insensitive']);
+            unset($split[count($split) - 1]);
+            $size = count($split);
+            for ($i = 0; $i < $size; $i++)
+            {
+                //If this is the first iteration of the pair
+                if ($i % 2 == 0)
                 {
-                    $name = substr_replace($name, '', strlen($name) - strlen($params['var']['equal']));
-                    //If the variable is whitelisted or blacklisted, do not prepare to define the variable
-                    if (!$this->listing($name, $params['var']))
+                    $name = trim($split[$i]);
+                    //If the syntax is valid
+                    if (substr($name, strlen($name) - strlen($params['var']['equal'])) == $params['var']['equal'])
+                    {
+                        $name = substr_replace($name, '', strlen($name) - strlen($params['var']['equal']));
+                        //If the variable is whitelisted or blacklisted, do not prepare to define the variable
+                        if (!$this->listing($name, $params['var']))
+                        {
+                            $name = '';
+                        }
+                    }
+                    else
                     {
                         $name = '';
                     }
                 }
-                else
+                elseif ($name)
                 {
-                    $name = '';
-                }
-            }
-            elseif ($name)
-            {
-                $config = array
-                (
-                    'escape' => $params['config']['escape'],
-                    'preparse' => true
-                );
-                //Define the variable
-                $result = $params['suit']->parse($params['nodes'], $split[$i], $config);
-                if (empty($result['ignored']))
-                {
-                    $node['var'][$name] = $result['return'];
-                }
-                else
-                {
-                    $ignored = true;
-                    break;
+                    $config = array
+                    (
+                        'escape' => $params['config']['escape'],
+                        'preparse' => true
+                    );
+                    //Define the variable
+                    $result = $params['suit']->parse($params['nodes'], $split[$i], $config);
+                    if (empty($result['ignored']))
+                    {
+                        $node['var'][$name] = $result['return'];
+                    }
+                    else
+                    {
+                        $ignored = true;
+                        break;
+                    }
                 }
             }
         }

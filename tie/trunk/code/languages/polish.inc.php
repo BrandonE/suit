@@ -43,7 +43,7 @@ $language = array
 'debug' => 'Debug',
 'default' => 'Domyślny',
 'delete' => 'Usuń',
-'deleteconfirm' => 'Napewno chcesz usunąć [if condition="[var json=\"true\"]condition=>titles[/var]" trim=""]plik[if condition="[var json=\"true\"]condition=>plural[/var]"]i[/if] [loop vars="[var json=\"true\"]loop=>titles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][if condition="[var json=\"true\"]condition=>directorytitles[/var]" trim=""] i [/if][/if][if condition="[var json=\"true\"]condition=>directorytitles[/var]" trim=""]katalog[if condition="[var json=\"true\"]condition=>directoryplural[/var]"]i[/if] [loop vars="[var json=\"true\"]loop=>directorytitles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][/if]?',
+'deleteconfirm' => 'Napewno chcesz usunąć [if condition="[var json=\'true\']condition=>titles[/var]" trim=""]plik[if condition="[var json=\'true\']condition=>plural[/var]"]i[/if] [loop vars="[var json=\'true\']loop=>titles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][if condition="[var json=\'true\']condition=>directorytitles[/var]" trim=""] i [/if][/if][if condition="[var json=\'true\']condition=>directorytitles[/var]" trim=""]katalog[if condition="[var json=\'true\']condition=>directoryplural[/var]"]i[/if] [loop vars="[var json=\'true\']loop=>directorytitles[/var]" delimiter=", "]"[loopvar]title[/loopvar]"[/loop][/if]?',
 'deletechecked' => 'Usuń zaznaczone',
 'deletedsuccessfully' => 'Usunięcie wykonane z sukcesem',
 'desc' => 'Porządek malejący',

@@ -1,4 +1,4 @@
-        [if condition="[var json=\"true\"]error[/var]"]
+        [if condition="[var json='true']error[/var]"]
         <p>[var]error[/var]</p>
         [/if]
         <p>[var]message[/var]</p>

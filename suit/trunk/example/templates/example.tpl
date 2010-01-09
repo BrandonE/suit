@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-        [loop vars="[var json=\"true\"]loop=>members[/var]"]
+        [loop vars="[var json='true']loop=>members[/var]"]
         <tr>
             <td>[loopvar]name[/loopvar]</td>
             <td>[loopvar]group[/loopvar]</td>
