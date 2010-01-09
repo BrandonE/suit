@@ -247,16 +247,16 @@ def jsondecode(params):
 def jsonencode(obj, first = True):
     """Encode a JSON String"""
     try:
-        for key, value in enumerate(obj):
-            obj[key] = jsonencode(value, False)
+        json.dumps(obj)
     except TypeError:
         if hasattr(obj, 'items'):
             for value in obj.items():
                 obj[value[0]] = jsonencode(value[1], False)
         else:
             try:
-                json.dumps(obj)
-            except TypeError:
+                for key, value in enumerate(obj):
+                    obj[key] = jsonencode(value, False)
+            except (TypeError, RuntimeError):
                 new = {}
                 for value in dir(obj):
                     if (not value.startswith('_') and
