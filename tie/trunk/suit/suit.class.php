@@ -360,6 +360,10 @@ class SUIT
         $debug['return'] = $return;
         if ($params['config']['preparse'])
         {
+            foreach($params['stack'] as $value)
+            {
+                $preparse['taken'][] = array($value['position'], $value['position'] + strlen($value['open']));
+            }
             $return = array
             (
                 'ignored' => $preparse['ignored'],
@@ -393,7 +397,7 @@ class SUIT
         //If the skip key is true, skip over everything between this opening string and its closing string
         if (array_key_exists('skip', $node) && $node['skip'])
         {
-            $skipnode[] = $node['close'];
+            $skipnode[] = $node;
         }
         return array
         (

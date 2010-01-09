@@ -41,7 +41,7 @@
             <div class="templates">
                 <h2>[var]language=>templates[/var]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop vars="[var serialize=\"true\"]loop=>templates[/var]"]
+                    [loop vars="[var json=\"true\"]loop=>templates[/var]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
@@ -64,10 +64,10 @@
                             [var]language=>template[/var]
                         </td>
                     </tr>
-                    [loop vars="[loopvar serialize=\"true\"]code[/loopvar]"]
+                    [loop vars="[loopvar json=\"true\"]code[/loopvar]"]
                     <tr class="list-entry templatehide template[loopvar]id[/loopvar]" style="display: none;">
                         <td>
-                            [if condition="[loopvar]ifcode[/loopvar]"]
+                            [if condition="[loopvar json=\"true\"]ifcode[/loopvar]"]
                             <span class="list-hidden">
                                 <a class="templateboxshow template[loopvar]id[/loopvar]boxshow" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box0" href="#template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box" onclick="box('template', '[loopvar]id[/loopvar]', 'code[loopvar]id2[/loopvar]', true);">[var]language=>expand[/var]</a>
                                 <a class="templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box1" href="#NULL" onclick="box('template', '[loopvar]id[/loopvar]', 'code[loopvar]id2[/loopvar]', false);" style="display: none;">[var]language=>collapse[/var]</a>
@@ -76,10 +76,10 @@
                         </td>
                         <td>
                             [var]language=>code[/var]:
-                            [if condition="[loopvar]ifcode[/loopvar]"]
+                            [if condition="[loopvar json=\"true\"]ifcode[/loopvar]"]
                             [loopvar]codename[/loopvar]
                             [/if]
-                            [if condition="[loopvar]ifcode[/loopvar]" else="true"]
+                            [if condition="[loopvar json=\"true\"]ifcode[/loopvar]" else="true"]
                             "[loopvar]codename[/loopvar]" - [var]language=>notfound[/var]
                             [/if]
                         </td>
@@ -98,7 +98,7 @@
                         </td>
                     </tr>
                     [/loop]
-                    [if condition="[var]condition=>templates[/var]" else="true"]
+                    [if condition="[var json=\"true\"]condition=>templates[/var]" else="true"]
                     <tr class="list-entry-folder">
                         <td width="25%" />
                         <td width="75%">
@@ -107,16 +107,16 @@
                     </tr>
                     [/if]
                 </table>
-                [loop vars="[var serialize=\"true\"]loop=>templates[/var]"]
+                [loop vars="[var json=\"true\"]loop=>templates[/var]"]
                 <p class="templatehide templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [loopvar]template[/loopvar]</textarea>
                 </p>
-                [loop vars="[loopvar serialize=\"true\"]code[/loopvar]"]
-                [if condition="[loopvar]ifcode[/loopvar]"]
+                [loop vars="[loopvar json=\"true\"]code[/loopvar]"]
+                [if condition="[loopvar json=\"true\"]ifcode[/loopvar]"]
                 <p class="templatehide templateboxhide template[loopvar]id[/loopvar]boxhide" id="template[loopvar]id[/loopvar]code[loopvar]id2[/loopvar]box" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[if condition="[loopvar]ifcodefile[/loopvar]"][loopvar]codefile[/loopvar][/if][if condition="[loopvar]ifcodefile[/loopvar]" else="true"][var]language=>na[/var][/if]</textarea>
+[if condition="[loopvar json=\"true\"]ifcodefile[/loopvar]"][loopvar]codefile[/loopvar][/if][if condition="[loopvar json=\"true\"]ifcodefile[/loopvar]" else="true"][var]language=>na[/var][/if]</textarea>
                 </p>
                 [/if]
                 [/loop]
@@ -125,7 +125,7 @@
             <div class="parse" style="display: none;">
             <h2>[var]language=>parse[/var]</h2>
                 <table class="list" cellpadding="0" cellspacing="0">
-                    [loop vars="[var serialize=\"true\"]loop=>parse[/var]"]
+                    [loop vars="[var json=\"true\"]loop=>parse[/var]"]
                     <tr class="list-entry-folder">
                         <td width="25%">
                             <span class="list-hidden">
@@ -159,16 +159,16 @@
                             [var]language=>parse[/var]
                         </td>
                     </tr>
-                    [if condition="[loopvar]ifpreparse[/loopvar]"]
+                    [if condition="[loopvar json=\"true\"]ifranges[/loopvar]"]
                     <tr class="list-entry parsehide parse[loopvar]id[/loopvar]" style="display: none;">
                         <td>
                             <span class="list-hidden">
-                                <a class="parseboxshow parse[loopvar]id[/loopvar]boxshow" id="parse[loopvar]id[/loopvar]preparsebox0" href="#parse[loopvar]id[/loopvar]preparsebox" onclick="box('parse', '[loopvar]id[/loopvar]', 'preparse', true);">[var]language=>expand[/var]</a>
-                                <a class="parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]preparsebox1" href="#NULL" onclick="box('parse', '[loopvar]id[/loopvar]', 'preparse', false);" style="display: none;">[var]language=>collapse[/var]</a>
+                                <a class="parseboxshow parse[loopvar]id[/loopvar]boxshow" id="parse[loopvar]id[/loopvar]rangesbox0" href="#parse[loopvar]id[/loopvar]rangesbox" onclick="box('parse', '[loopvar]id[/loopvar]', 'ranges', true);">[var]language=>expand[/var]</a>
+                                <a class="parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]rangesbox1" href="#NULL" onclick="box('parse', '[loopvar]id[/loopvar]', 'ranges', false);" style="display: none;">[var]language=>collapse[/var]</a>
                             </span>
                         </td>
                         <td>
-                            [var]language=>preparse[/var]
+                            [var]language=>ranges[/var]
                         </td>
                     </tr>
                     [/if]
@@ -185,7 +185,7 @@
                         </td>
                     </tr>
                     [/loop]
-                    [if condition="[var]condition=>parse[/var]" else="true"]
+                    [if condition="[var json=\"true\"]condition=>parse[/var]" else="true"]
                     <tr class="list-entry-folder">
                         <td width="25%" />
                         <td width="75%">
@@ -194,7 +194,7 @@
                     </tr>
                     [/if]
                 </table>
-                [loop vars="[var serialize=\"true\"]loop=>parse[/var]"]
+                [loop vars="[var json=\"true\"]loop=>parse[/var]"]
                 <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]templatebox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [loopvar]before[/loopvar]</textarea>
@@ -203,10 +203,10 @@
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
 [loopvar]return[/loopvar]</textarea>
                 </p>
-                [if condition="[loopvar]ifpreparse[/loopvar]"]
-                <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]preparsebox" style="display: none;">
+                [if condition="[loopvar json=\"true\"]ifranges[/loopvar]"]
+                <p class="parsehide parseboxhide parse[loopvar]id[/loopvar]boxhide" id="parse[loopvar]id[/loopvar]rangesbox" style="display: none;">
                     <textarea rows="40" cols="100" wrap="off" style="width: 100%;" class="textarea" readonly="readonly">
-[loopvar]preparse[/loopvar]</textarea>
+[loopvar]ranges[/loopvar]</textarea>
                 </p>
                 [/if]
                 [/loop]

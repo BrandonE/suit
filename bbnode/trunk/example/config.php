@@ -118,6 +118,11 @@ $suit->vars['nodes'] = array
         (
             array
             (
+                'function' => 'jsondecode',
+                'class' => $nodes
+            ),
+            array
+            (
                 'function' => 'condition',
                 'class' => $nodes
             )
@@ -126,8 +131,9 @@ $suit->vars['nodes'] = array
         'transform' => false,
         'var' => array
         (
-            'condition' => false,
-            'else' => false
+            'condition' => 'false',
+            'decode' => array('condition', 'else'),
+            'else' => 'false'
         )
     ),
     '[if' => array
@@ -150,7 +156,9 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
+            'blacklist' => true,
             'equal' => '=',
+            'list' => array('decode'),
             'quote' => '"'
         )
     ),
@@ -161,7 +169,7 @@ $suit->vars['nodes'] = array
         (
             array
             (
-                'function' => 'unserialize',
+                'function' => 'jsondecode',
                 'class' => $nodes
             ),
             array
@@ -173,10 +181,11 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
+            'decode' => array('skip', 'vars'),
             'delimiter' => '',
             'node' => '[loopvar]',
-            'unserialize' => 'vars',
-            'vars' => serialize(array())
+            'skip' => 'true',
+            'vars' => '[]'
         )
     ),
     '[loop' => array
@@ -201,7 +210,7 @@ $suit->vars['nodes'] = array
         (
             'blacklist' => true,
             'equal' => '=',
-            'list' => array('node', 'unserialize'),
+            'list' => array('decode', 'node'),
             'quote' => '"'
         )
     ),
@@ -212,16 +221,22 @@ $suit->vars['nodes'] = array
         (
             array
             (
+                'function' => 'jsondecode',
+                'class' => $nodes
+            ),
+            array
+            (
                 'function' => 'loopvariables',
                 'class' => $nodes
             )
         ),
         'var' => array
         (
-            'bool' => false,
+            'decode' => array('json', 'serialize'),
             'delimiter' => '=>',
             'ignore' => array(),
-            'serialize' => false,
+            'json' => 'false',
+            'serialize' => 'false',
             'var' => array()
         )
     ),
@@ -241,7 +256,7 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
-            'list' => array('serialize'),
+            'list' => array('json', 'serialize'),
             'quote' => '"'
         )
     ),
@@ -325,6 +340,11 @@ $suit->vars['nodes'] = array
             ),
             array
             (
+                'function' => 'jsondecode',
+                'class' => $nodes
+            ),
+            array
+            (
                 'function' => 'returning',
                 'class' => $nodes
             )
@@ -333,11 +353,13 @@ $suit->vars['nodes'] = array
         'var' => array
         (
             'equal' => '=',
+            'list' => array('stack'),
             'onesided' => true,
             'quote' => '"',
             'var' => array
             (
-                'stack' => false
+                'decode' => array('stack'),
+                'stack' => 'false'
             )
         )
     ),
@@ -436,15 +458,21 @@ $suit->vars['nodes'] = array
         (
             array
             (
+                'function' => 'jsondecode',
+                'class' => $nodes
+            ),
+            array
+            (
                 'function' => 'variables',
                 'class' => $nodes
             )
         ),
         'var' => array
         (
-            'bool' => false,
+            'decode' => array('json', 'serialize'),
             'delimiter' => '=>',
-            'serialize' => false
+            'json' => 'false',
+            'serialize' => 'false'
         )
     ),
     '[var' => array
@@ -462,9 +490,8 @@ $suit->vars['nodes'] = array
         'skip' => true,
         'var' => array
         (
-            'blacklist' => true,
             'equal' => '=',
-            'list' => array('delimiter'),
+            'list' => array('json', 'serialize'),
             'quote' => '"'
         )
     )

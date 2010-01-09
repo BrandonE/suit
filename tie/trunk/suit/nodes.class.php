@@ -153,10 +153,6 @@ class Nodes
                 $result = $params['suit']->parse($params['nodes'], $split[$i], $config);
                 if (empty($result['ignored']))
                 {
-                    if (strtolower($result['return']) == 'false')
-                    {
-                        $result['return'] = '';
-                    }
                     $node['var'][$name] = $result['return'];
                 }
                 else
@@ -197,13 +193,24 @@ class Nodes
             $pop = array_pop($params['stack']);
             if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
             {
-                $pop['node']['var']['condition'] = strval($pop['node']['var']['condition']);
-                if ($pop['node']['var']['condition'] == '0' || strtolower($pop['node']['var']['condition']) == 'null' || strtolower($pop['node']['var']['condition']) == 'array()')
+                $conditionjson = json_decode($pop['node']['var']['condition']);
+                $elsejson = json_decode($pop['node']['var']['else']);
+                if (is_array($conditionjson))
                 {
-                    $pop['node']['var']['condition'] = '';
+                    $boolean = false;
+                    foreach ($conditionjson as $value)
+                    {
+                        if ($value)
+                        {
+                            $boolean = true;
+                            break;
+                        }
+                    }
+                    $conditionjson = $boolean;
                 }
+                $pop['node']['var']['condition'] = json_encode($conditionjson);
                 //If the case should not be hidden, do not skip over everything between this opening string and its closing string
-                if (($pop['node']['var']['condition'] && !$pop['node']['var']['else']) || (!$pop['node']['var']['condition'] && $pop['node']['var']['else']) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
+                if (($conditionjson && !$elsejson) || (!$conditionjson && $elsejson) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
                 {
                     $pop['node']['skip'] = false;
                     array_pop($params['skipnode']);
@@ -243,6 +250,15 @@ class Nodes
         return $return;
     }
 
+    public function jsondecode($params)
+    {
+        foreach ($params['var']['decode'] as $value)
+        {
+            $params['var'][$value] = json_decode($params['var'][$value]);
+        }
+        return $params;
+    }
+
     public function loop($params)
     {
         $iterationvars = array();
@@ -251,11 +267,11 @@ class Nodes
             'ignore' => $params['nodes'][$params['var']['node']]['var']['ignore'],
             'same' => array()
         );
-        if (!is_array($params['var'][$params['var']['unserialize']]))
+        if (!is_array($params['var']['vars']))
         {
             return $params;
         }
-        foreach ($params['var'][$params['var']['unserialize']] as $value)
+        foreach ($params['var']['vars'] as $value)
         {
             $var = array
             (
@@ -373,7 +389,7 @@ class Nodes
         {
             $pop = array_pop($params['stack']);
             //If specified, do not skip over everything between this opening string and its closing string
-            if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !$pop['node']['var']['skip'] && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
+            if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !json_decode($pop['node']['var']['skip']) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
             {
                 $pop['node']['skip'] = false;
                 array_pop($params['skipnode']);
@@ -403,9 +419,9 @@ class Nodes
                     $params['case'] = $params['case']->$value;
                 }
             }
-            if ($params['var']['bool'])
+            if ($params['var']['json'])
             {
-                $params['case'] = boolval($params['case']);
+                $params['case'] = json_encode($params['case']);
             }
             if ($params['var']['serialize'])
             {
@@ -650,7 +666,10 @@ class Nodes
 
     public function unserialize($params)
     {
-        $params['var'][$params['var']['unserialize']] = unserialize($params['var'][$params['var']['unserialize']]);
+        foreach ($params['var']['decode'] as $value)
+        {
+            $params['var'][$value] = unserialize($params['var'][$value]);
+        }
         return $params;
     }
 
@@ -670,16 +689,9 @@ class Nodes
                 $params['case'] = $params['case']->$value;
             }
         }
-        if ($params['var']['bool'])
+        if ($params['var']['json'])
         {
-            if ($params['case'])
-            {
-                $params['case'] = 'true';
-            }
-            else
-            {
-                $params['case'] = 'false';
-            }
+            $params['case'] = json_encode($params['case']);
         }
         if ($params['var']['serialize'])
         {

@@ -1,8 +1,8 @@
 [trim]
-[template]header=>header=>parse[/template]
+[parse][template]header=>header[/template][/parse]
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
-        [if condition="[var bool=\"true\"]message[/var]"]
+        [if condition="[var json=\"true\"]message[/var]"]
         <fieldset>
             <legend>[var]language=>message[/var]</legend>
             [var]parsed[/var]
@@ -14,5 +14,5 @@
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
     </div>
-[template]footer=>parse[/template]
+[parse][template]footer[/template][/parse]
 [/trim]

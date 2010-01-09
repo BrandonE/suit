@@ -46,7 +46,7 @@ if ($suit->tie->config['flag']['debug'])
     }
     foreach ($suit->vars['debug']['parse'] as $key => $value)
     {
-        $preparse = $value['return'];
+        $ranges = $value['return'];
         if (array_key_exists('preparse', $value))
         {
             $pos = array();
@@ -87,7 +87,7 @@ if ($suit->tie->config['flag']['debug'])
             foreach ($pos as $key2 => $value2)
             {
                 $key2 += $offset;
-                $preparse = substr_replace($preparse, $value2, $key2, 0);
+                $ranges = substr_replace($ranges, $value2, $key2, 0);
                 $offset += strlen($value2);
             }
         }
@@ -96,10 +96,10 @@ if ($suit->tie->config['flag']['debug'])
             'before' => htmlspecialchars($value['before']),
             'file' => htmlspecialchars($value['file']),
             'id' => $key,
-            'ifpreparse' => (array_key_exists('preparse', $value)),
+            'ifranges' => (array_key_exists('preparse', $value)),
             'line' => htmlspecialchars($value['line']),
+            'ranges' => htmlspecialchars($ranges),
             'return' => htmlspecialchars($value['return']),
-            'preparse' => htmlspecialchars($preparse),
             'title' => htmlspecialchars($value['label'])
         );
     }

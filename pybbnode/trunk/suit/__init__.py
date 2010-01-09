@@ -326,6 +326,11 @@ class SUIT(object):
                 break
         debug['return'] = returnvalue
         if params['config']['preparse']:
+            for value in params['stack']:
+                preparse['taken'].append((
+                    value['position'],
+                    value['position'] + len(value['open'])
+                ))
             returnvalue = {
                 'ignored': preparse['ignored'],
                 'nodes': params['preparse']['nodes'],
@@ -355,7 +360,7 @@ class SUIT(object):
         #If the skip key is true, skip over everything between this opening
         #string and its closing string
         if 'skip' in node and node['skip']:
-            skipnode.append(node['close'])
+            skipnode.append(node)
         return {
             'stack': stack,
             'skipnode': skipnode

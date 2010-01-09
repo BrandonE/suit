@@ -18,6 +18,10 @@ http://www.suitframework.com/docs/credits
 import os
 import pickle
 import re
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 def assign(params):
     """Assign variable in template"""
@@ -144,8 +148,6 @@ def attributedefine(params, node):
             #Define the variable
             result = params['suit'].parse(params['nodes'], value, config)
             if not result['ignored']:
-                if result['return'].lower() == 'false':
-                    result['return'] = ''
                 node['var'][name] = result['return']
             else:
                 ignored = True
@@ -183,26 +185,29 @@ def conditionstack(params):
         if ('var' in pop['node'] and
         'condition' in pop['node']['var'] and
         'else' in pop['node']['var']):
-            pop['node']['var']['condition'] = str(
-                pop['node']['var']['condition']
-            )
-            if (pop['node']['var']['condition'] == '0' or
-            pop['node']['var']['condition'].lower() == 'none' or
-            pop['node']['var']['condition'] == '[]' or
-            pop['node']['var']['condition'] == '{}' or
-            pop['node']['var']['condition'] == '()'):
-                pop['node']['var']['condition'] = ''
+            conditionjson = json.loads(pop['node']['var']['condition'])
+            elsejson = json.loads(pop['node']['var']['else'])
+            try:
+                boolean = False
+                for value in conditionjson:
+                    if value:
+                        boolean = True
+                        break
+                conditionjson = boolean
+            except TypeError:
+                pass
+            pop['node']['var']['condition'] = jsonencode(conditionjson)
             #If the case should not be hidden, do not skip over everything
             #between this opening string and its closing string
             if (
                 (
                     (
-                        pop['node']['var']['condition'] and
-                        not pop['node']['var']['else']
+                        conditionjson and
+                        not elsejson
                     ) or
                     (
-                        not pop['node']['var']['condition'] and
-                        pop['node']['var']['else']
+                        not conditionjson and
+                        elsejson
                     )
                 ) and
                 'skip' in pop['node'] and
@@ -231,6 +236,42 @@ def evaluation(params):
     """Evaluate a Python statement"""
     params['case'] = eval(params['case'])
     return params
+
+def jsondecode(params):
+    """Decode a JSON String"""
+    params['var'] = params['var'].copy()
+    for value in params['var']['decode']:
+        params['var'][value] = json.loads(params['var'][value])
+    return params
+
+def jsonencode(obj, first = True):
+    """Encode a JSON String"""
+    try:
+        for key, value in enumerate(obj):
+            obj[key] = jsonencode(value, False)
+    except TypeError:
+        if hasattr(obj, 'items'):
+            for value in obj.items():
+                obj[value[0]] = jsonencode(value[1], False)
+        else:
+            try:
+                json.dumps(obj)
+            except TypeError:
+                new = {}
+                for value in dir(obj):
+                    if (not value.startswith('_') and
+                    not callable(getattr(obj, value))):
+                        new[value] = jsonencode(
+                            getattr(
+                                obj,
+                                value
+                            ),
+                            False
+                        )
+                obj = new
+    if first:
+        obj = json.dumps(obj, separators = (',',':'))
+    return obj
 
 def listing(name, var):
     """Check if the variable is whitelisted or blacklisted"""
@@ -277,18 +318,20 @@ def loop(params):
         var[params['var']['node']]['var']['var'] = var[
             params['var']['node']
         ]['var']['var'].copy()
-        try:
+        if hasattr(value, 'items'):
             for value2 in value.items():
                 if not value2[0] in var[params['var']['node']]['var']['var']:
                     var[
                         params['var']['node']
                     ]['var']['var'][value2[0]] = value2[1]
-        except (AttributeError, TypeError):
+        else:
             for value2 in dir(value):
-                if not hasattr(
+                if (not hasattr(
                     var[params['var']['node']]['var']['var'],
                     value2
-                ):
+                ) and
+                not value2.startswith('_') and
+                not callable(getattr(value, value2))):
                     var[params['var']['node']]['var']['var'][value2] = getattr(
                         value,
                         value2
@@ -401,7 +444,7 @@ def loopstack(params):
         #this opening string and its closing string
         if ('var' in pop['node'] and
         'skip' in pop['node']['var'] and
-        not pop['node']['var']['skip'] and
+        not json.loads(pop['node']['var']['skip']) and
         'skip' in params['open']['node'] and
         params['open']['node']['skip']):
             params['skipnode'].pop()
@@ -428,8 +471,8 @@ def loopvariables(params):
                     params['case'] = params['case'][int(value)]
                 except (AttributeError, TypeError, ValueError):
                     params['case'] = getattr(params['case'], value)
-        if params['var']['bool']:
-            params['case'] = bool(params['case'])
+        if params['var']['json']:
+            params['case'] = jsonencode(params['case'])
         if params['var']['serialize']:
             params['case'] = pickle.dumps(params['case'])
     else:
@@ -517,7 +560,7 @@ def returningfirst(params):
 def returninglast(params):
     """Function appended to the last node to be closed in the stack"""
     params['return'] = params['return'][0:params['last']]
-    params['break'] = True
+    params['parse'] = False
     return params
 
 def templates(params):
@@ -528,6 +571,7 @@ def templates(params):
         params['case'],
         params['config']['escape']
     )
+    template = ''
     code = []
     for key, value in enumerate(split):
         #If this is the template file, get the file's contents
@@ -664,9 +708,9 @@ def trying(params):
 
 def unserialize(params):
     """Unserialize a variable"""
-    params['var'][params['var']['unserialize']] = pickle.loads(
-        params['var'][params['var']['unserialize']]
-    )
+    params['var'] = params['var'].copy()
+    for value in params['var']['decode']:
+        params['var'][value] = pickle.loads(params['var'][value])
     return params
 
 def variables(params):
@@ -686,8 +730,8 @@ def variables(params):
                 params['case'] = params['case'][int(value)]
             except (AttributeError, TypeError, ValueError):
                 params['case'] = getattr(params['case'], value)
-    if params['var']['bool']:
-        params['case'] = bool(params['case'])
+    if params['var']['json']:
+        params['case'] = jsonencode(params['case'])
     if params['var']['serialize']:
         params['case'] = pickle.dumps(params['case'])
     return params

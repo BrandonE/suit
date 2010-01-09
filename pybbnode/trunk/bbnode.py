@@ -15,6 +15,8 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+__version__ = '0.0.0'
+
 def attribute(params):
     """Create node out of attribute"""
     params['var']['node'] = params['nodes'][
@@ -40,18 +42,14 @@ def stack(params):
     ))
     params['taken'] = False
     #Add the new node to the stack
-    newstack = {
-        'node': params['case'],
-        'nodes': {},
-        'position': params['open']['position'],
-        'skipnode': [],
-        'stack': []
-    }
-    newstack['nodes'][newstack['node']] = params['var']['node']
-    newstack = params['suit'].helpermodule.stack(newstack)
+    newstack = params['suit'].stack(
+        params['var']['node'],
+        params['case'],
+        params['open']['position']
+    )
     params['stack'].extend(newstack['stack'])
     params['skipnode'].extend(newstack['skipnode'])
-    params['preparse']['nodes'][newstack['node']] = params['var']['node']
+    params['preparse']['nodes'][params['case']] = params['var']['node']
     return params
 
 def style(params):

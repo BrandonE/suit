@@ -900,7 +900,6 @@ class TIE
             }
         }
         $this->owner->vars['error'] = $error;
-        $this->owner->vars['condition']['error'] = ($error);
         if (isset($redirectmessage))
         {
             $templates = array_diff(scandir($this->owner->vars['files'][$type] . $directory['string']), array('.', '..'));

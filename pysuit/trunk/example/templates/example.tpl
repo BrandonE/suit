@@ -1,5 +1,5 @@
 [comment]This is an example template[/comment]
-[template]menu=>parse[/template]
+[parse][template]menu[/template][/parse]
 <p>PySUIT Version: [var]version[/var]</p>
 [assign var="condition=>legitimatecopy"]true[/assign]
 <p>
@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-        [loop vars="[var serialize=\"true\"]loop=>members[/var]"]
+        [loop vars="[var json=\"true\"]loop=>members[/var]"]
         <tr>
             <td>[loopvar]name[/loopvar]</td>
             <td>[loopvar]group[/loopvar]</td>

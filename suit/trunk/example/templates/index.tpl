@@ -1,9 +1,9 @@
 [trim]
-[template]header=>header=>parse[/template]
+[parse][template]header=>header[/template][/parse]
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
 [/trim]
-        [if condition="[var bool=\"true\"]template[/var]"]
+        [if condition="[var json=\"true\"]template[/var]"]
         <fieldset>
             <legend>[var]language=>parsed[/var]</legend>
             [parse][var]template[/var][/parse]
@@ -17,5 +17,5 @@
         </form>
         <p>[var]language=>variables[/var]</p>
     </div>
-[template]footer=>parse[/template]
+[parse][template]footer[/template][/parse]
 [/trim]

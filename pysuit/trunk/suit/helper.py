@@ -25,42 +25,62 @@ class Helper(object):
     def closingstring(self, params):
         """Handle a closing string instance in the parser"""
         if params['skipnode']:
+            if 'skipescape' in params['skipnode'][
+                len(params['skipnode']) - params['skipoffset'] - 1
+            ]:
+                escape = params['skipnode'][0]['skipescape']
+            else:
+                escape = False
             skippop = params['skipnode'].pop()
         else:
+            escape = True
             skippop = False
         #If a value was not popped or the closing string for this node matches
         #it
         if (skippop == False or
-        params['nodes'][params['node']]['close'] == skippop):
-            #If the stack is not empty
-            if params['stack']:
-                params['open'] = params['stack'].pop()
-                #If a value was not popped or it explictly says to escape
-                if (skippop == False or
-                ('skipescape' in params['open']['node'] and
-                params['open']['node']['skipescape'])):
-                    params['position'] = params['unescape']['position']
-                    params['return'] = params['unescape']['string']
-                #If this position should not be overlooked
-                if not params['unescape']['condition']:
-                    #If there is an offset, decrement it
-                    if params['skipoffset']:
-                        params['skipoffset'] -= 1
-                        params['stack'].append(params['open'])
+        params['nodes'][params['node']]['close'] == skippop['close']):
+            #If it explictly says to escape
+            if (escape):
+                params['position'] = params['unescape']['position']
+                params['return'] = params['unescape']['string']
+            #If this position should not be overlooked
+            if not params['unescape']['condition']:
+                #If there is an offset, decrement it
+                if params['skipoffset']:
+                    params['skipoffset'] -= 1
+                #If the stack is not empty
+                elif params['stack']:
+                    params['open'] = params['stack'].pop()
+                    params['case'] = params['return'][
+                        params['open']['position'] + len(
+                            params['open']['open']
+                        ):params['position']
+                    ]
                     #If this closing string matches the last node's
-                    elif params['open']['node']['close'] == params['nodes'][
+                    if params['open']['node']['close'] == params['nodes'][
                         params['node']
                     ]['close']:
                         params = self.transform(params)
-                #Else, reserve the range
+                    else:
+                        params['last'] = params['position'] + len(
+                            params['nodes'][params['node']]['close']
+                        )
+                        params = preparse(params)
                 else:
                     params['preparse']['taken'].append((
-                        params['position'] - 1,
+                        params['position'],
                         params['position'] + len(
                             params['nodes'][params['node']]['close']
-                        ) + 1
+                        )
                     ))
-                    params['stack'].append(params['open'])
+            #Else, reserve the range
+            else:
+                params['preparse']['taken'].append((
+                    params['position'],
+                    params['position'] + len(
+                        params['nodes'][params['node']]['close']
+                    )
+                ))
         #Else, put the popped value back
         else:
             params['skipnode'].append(skippop)
@@ -69,8 +89,15 @@ class Helper(object):
     def openingstring(self, params):
         """Handle an opening string instance in the parser"""
         if params['skipnode']:
+            if 'skipescape' in params['skipnode'][
+                len(params['skipnode']) - params['skipoffset'] - 1
+            ]:
+                escape = params['skipnode'][0]['skipescape']
+            else:
+                escape = False
             skippop = params['skipnode'].pop()
         else:
+            escape = True
             skippop = False
         #If a value was not popped from skipnode
         if skippop == False:
@@ -88,8 +115,9 @@ class Helper(object):
             #Else, reserve the range
             else:
                 params['preparse']['taken'].append((
-                    params['position'] - 1,
-                    params['position'] + len(params['node']) + 1))
+                    params['position'],
+                    params['position'] + len(params['node'])
+                ))
         else:
             #Put it back
             params['skipnode'].append(skippop)
@@ -98,10 +126,9 @@ class Helper(object):
                 attribute = params['nodes'][params['node']]['attribute']
                 skipclose.append(params['nodes'][attribute]['close'])
             #If the closing string for this node matches it
-            if skippop in skipclose:
+            if skippop['close'] in skipclose:
                 #If it explictly says to escape
-                if ('skipescape' in params['nodes'][params['node']] and
-                params['nodes'][params['node']]['skipescape']):
+                if (escape):
                     params['position'] = params['unescape']['position']
                     params['return'] = params['unescape']['string']
                 #If this position should not be overlooked
@@ -174,7 +201,7 @@ class Helper(object):
             for value in params['taken']:
                 #If this string instance is in this reserved range
                 if ((
-                    position > value[0] and
+                    position >= value[0] and
                     position < value[1]
                 ) or
                 (
@@ -237,11 +264,6 @@ class Helper(object):
                     not params['open']['node']['transform']
                 )
             ):
-                params['case'] = params['return'][
-                    params['open']['position'] + len(
-                        params['open']['open']
-                    ):params['position']
-                ]
                 params['suit'] = self.owner
                 if 'var' in params['open']['node']:
                     params['var'] = params['open']['node']['var']
@@ -324,7 +346,7 @@ def preparse(params):
         if (
             params['open']['position'] < value[0] and
             params['position'] + len(
-                params['open']['node']['close']
+                params['nodes'][params['node']]['close']
             ) > value[1]
         ):
             params['preparse']['ignored'][key][0] += params['offset']
@@ -338,7 +360,7 @@ def preparse(params):
         if (
             params['open']['position'] < value[0] and
             params['position'] + len(
-                params['open']['node']['close']
+                params['nodes'][params['node']]['close']
             ) > value[1]
         ):
             #If the node does not transform the case, adjust the range to the
@@ -357,8 +379,8 @@ def preparse(params):
     params['open']['node']['transform']) and
     params['taken'] and
     params['case']):
-        params['preparse']['taken'].append([
+        params['preparse']['taken'].append((
             params['open']['position'],
             params['last']
-        ])
+        ))
     return params

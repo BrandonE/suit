@@ -74,13 +74,17 @@ nodes = {
     '[if]':
     {
         'close': '[/if]',
-        'function': [nodes.condition],
+        'function': [
+            nodes.jsondecode,
+            nodes.condition
+        ],
         'skip': True,
         'transform': False,
         'var':
         {
-            'condition': False,
-            'else': False
+            'condition': 'false',
+            'decode': ('condition', 'else'),
+            'else': 'false'
         }
     },
     '[if':
@@ -95,7 +99,9 @@ nodes = {
         'skip': True,
         'var':
         {
+            'blacklist': True,
             'equal': '=',
+            'list': ('decode',),
             'quote': '"'
         }
     },
@@ -103,17 +109,17 @@ nodes = {
     {
         'close': '[/loop]',
         'function': [
-            nodes.unserialize,
+            nodes.jsondecode,
             nodes.loop
         ],
         'skip': True,
         'var':
         {
+            'decode': ('skip', 'vars'),
             'delimiter': '',
             'node': '[loopvar]',
-            'skip': True,
-            'unserialize': 'vars',
-            'vars': pickle.dumps([])
+            'skip': 'true',
+            'vars': '[]'
         }
     },
     '[loop':
@@ -129,20 +135,24 @@ nodes = {
         {
             'blacklist': True,
             'equal': '=',
-            'list': ('node', 'unserialize'),
+            'list': ('decode', 'node'),
             'quote': '"'
         }
     },
     '[loopvar]':
     {
         'close': '[/loopvar]',
-        'function': [nodes.loopvariables],
+        'function': [
+            nodes.jsondecode,
+            nodes.loopvariables
+        ],
         'var':
         {
-            'bool': False,
+            'decode': ('json', 'serialize'),
             'delimiter': '=>',
             'ignore': {},
-            'serialize': False,
+            'json': 'false',
+            'serialize': 'false',
             'var': {}
         }
     },
@@ -155,7 +165,7 @@ nodes = {
         'var':
         {
             'equal': '=',
-            'list': ('serialize',),
+            'list': ('json', 'serialize'),
             'quote': '"'
         }
     },
@@ -205,17 +215,20 @@ nodes = {
         'function':
         [
             nodes.attribute,
+            nodes.jsondecode,
             nodes.returning
         ],
         'skip': True,
         'var':
         {
             'equal': '=',
+            'list': ('stack',),
             'onesided': True,
             'quote': '"',
             'var':
             {
-                'stack': False
+                'decode': ('stack',),
+                'stack': 'false'
             }
         }
     },
@@ -274,12 +287,16 @@ nodes = {
     '[var]':
     {
         'close': '[/var]',
-        'function': [nodes.variables],
+        'function': [
+            nodes.jsondecode,
+            nodes.variables
+        ],
         'var':
         {
-            'bool': False,
+            'decode': ('json', 'serialize'),
             'delimiter': '=>',
-            'serialize': False
+            'json': 'false',
+            'serialize': 'false'
         }
     },
     '[var':
@@ -291,6 +308,7 @@ nodes = {
         'var':
         {
             'equal': '=',
+            'list': ('json', 'serialize'),
             'quote': '"'
         }
     }

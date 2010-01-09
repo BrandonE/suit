@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-[template]tie/head=>tie/parse[/template]
+[parse][template]tie/head[/template][/parse]
 </head>
 <body>
 <div class="header">
@@ -10,7 +10,7 @@
         <div class="slogan">[var]language=>slogan[/var]</div>
     </div>
     <div class="right">
-[template]tie/language=>tie/language=>tie/parse[/template]
+[parse][template]tie/language=>tie/language[/template][/parse]
     </div>
 </div>
 <div class="welcome">

@@ -18,6 +18,8 @@ http://www.suitframework.com/docs/credits
 **/
 class BBNode
 {
+    public $version = '0.0.0';
+
     public function attribute($params)
     {
         $params['var']['node'] = $params['nodes'][$params['open']['node']['attribute']];
@@ -63,19 +65,10 @@ class BBNode
         $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
         $params['taken'] = false;
         //Add the new node to the stack
-        $newstack = array
-        (
-            'node' => $params['case'],
-            'nodes' => array(),
-            'position' => $params['open']['position'],
-            'skipnode' => array(),
-            'stack' => array()
-        );
-        $newstack['nodes'][$newstack['node']] = $params['var']['node'];
-        $newstack = $params['suit']->helper->stack($newstack);
+        $newstack = $params['suit']->stack($params['var']['node'], $params['case'], $params['open']['position']);
         $params['stack'] = array_merge($params['stack'], $newstack['stack']);
         $params['skipnode'] = array_merge($params['skipnode'], $newstack['skipnode']);
-        $params['preparse']['nodes'][$newstack['node']] = $params['var']['node'];
+        $params['preparse']['nodes'][$params['case']] = $params['var']['node'];
         return $params;
     }
 
