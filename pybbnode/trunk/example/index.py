@@ -22,13 +22,19 @@ from webob import Request, Response
 sys.path.append('../')
 from suit import SUIT
 suitclass = SUIT()
-sys.path.append('')
-from config import files
-from config import filetypes
-from config import nodes
-suitclass.vars['files'] = files
-suitclass.vars['filetypes'] = filetypes
+from suit.nodes import nodes
+suitclass = SUIT()
+suitclass.vars['files'] = {
+    'code': 'code',
+    'templates': 'templates'
+}
+suitclass.vars['filetypes'] = {
+    'code': 'py',
+    'templates': 'tpl'
+}
 suitclass.vars['nodes'] = nodes
+suitclass.vars['nodes']['[template]']['var']['files'] = suitclass.vars['files']
+suitclass.vars['nodes']['[template]']['var']['filetypes'] = suitclass.vars['filetypes']
 suitclass.vars['condition'] = {}
 suitclass.vars['loop'] = {}
 environ = dict(os.environ.items())

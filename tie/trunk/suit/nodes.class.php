@@ -18,6 +18,482 @@ http://www.suitframework.com/docs/credits
 **/
 class Nodes
 {
+    public function __construct()
+    {
+        $this->nodes = array
+        (
+            '[' => array
+            (
+                'close' => ']'
+            ),
+            '[assign]' => array
+            (
+                'close' => '[/assign]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'assign',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'delimiter' => '=>',
+                    'var' => ''
+                )
+            ),
+            '[assign' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[assign]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'list' => array('var'),
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[comment]' => array
+            (
+                'close' => '[/comment]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'comments',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true
+            ),
+            '[escape]' => array
+            (
+                'close' => '[/escape]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'escape',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true,
+                'skipescape' => true,
+                'var' => "\r.\n.\t ."
+            ),
+            '[if]' => array
+            (
+                'close' => '[/if]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'jsondecode',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'condition',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true,
+                'transform' => false,
+                'var' => array
+                (
+                    'condition' => 'false',
+                    'decode' => array('condition', 'else'),
+                    'else' => 'false'
+                )
+            ),
+            '[if' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'conditionstack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[if]',
+                'skip' => true,
+                'var' => array
+                (
+                    'blacklist' => true,
+                    'equal' => '=',
+                    'list' => array('decode'),
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[loop]' => array
+            (
+                'close' => '[/loop]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'jsondecode',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'loop',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true,
+                'var' => array
+                (
+                    'decode' => array('skip', 'vars'),
+                    'delimiter' => '',
+                    'node' => '[loopvar]',
+                    'skip' => 'true',
+                    'vars' => '[]'
+                )
+            ),
+            '[loop' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'loopstack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[loop]',
+                'skip' => true,
+                'var' => array
+                (
+                    'blacklist' => true,
+                    'equal' => '=',
+                    'list' => array('decode', 'node'),
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[loopvar]' => array
+            (
+                'close' => '[/loopvar]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'jsondecode',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'loopvariables',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'decode' => array('json', 'serialize'),
+                    'delimiter' => '=>',
+                    'ignore' => array(),
+                    'json' => 'false',
+                    'serialize' => 'false',
+                    'var' => array()
+                )
+            ),
+            '[loopvar' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[loopvar]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'list' => array('json', 'serialize'),
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[parse]' => array
+            (
+                'close' => '[/parse]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'parse',
+                        'class' => $this
+                    )
+                ),
+                'var' => array()
+            ),
+            '[parse' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[parse]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[replace]' => array
+            (
+                'close' => '[/replace]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'replace',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'replace' => '',
+                    'search' => ''
+                )
+            ),
+            '[replace' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[replace]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[return' => array
+            (
+                'close' => '/]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'jsondecode',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'returning',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'list' => array('stack'),
+                    'onesided' => true,
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'decode' => array('stack'),
+                        'stack' => 'false'
+                    )
+                )
+            ),
+            '[template]' => array
+            (
+                'close' => '[/template]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'templates',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'files' => '',
+                    'filetypes' => '',
+                    'delimiter' => '=>'
+                )
+            ),
+            '[template' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[template]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'list' => array('label'),
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[trim]' => array
+            (
+                'close' => '[/trim]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'trim',
+                        'class' => $this
+                    )
+                )
+            ),
+            '[try]' => array
+            (
+                'close' => '[/try]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'trying',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true,
+                'var' => array
+                (
+                    'delimiter' => '=>',
+                    'var' => ''
+                )
+            ),
+            '[try' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[try]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'list' => array('var'),
+                    'quote' => array('"', '\'')
+                )
+            ),
+            '[var]' => array
+            (
+                'close' => '[/var]',
+                'class' => $this,
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'jsondecode',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'variables',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'decode' => array('json', 'serialize'),
+                    'delimiter' => '=>',
+                    'json' => 'false',
+                    'serialize' => 'false'
+                )
+            ),
+            '[var' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[var]',
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'list' => array('json', 'serialize'),
+                    'quote' => array('"', '\'')
+                )
+            )
+        );
+        $this->evalnodes = array
+        (
+            '[eval]' => array
+            (
+                'close' => '[/eval]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'evaluation',
+                        'class' => $this
+                    )
+                )
+            )
+        );
+    }
+
     public function assign($params)
     {
         //If a variable is provided and it not is whitelisted or blacklisted
@@ -689,27 +1165,35 @@ class Nodes
 
     public function variables($params)
     {
-        //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-        $params['case'] = $params['suit']->vars;
-        foreach ($split as $value)
+        //If the variable is not whitelisted or blacklisted
+        if ($this->listing($params['case'], $params['var']))
         {
-            if (is_array($params['case']))
+            //Split up the file, paying attention to escape strings
+            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
+            $params['case'] = $params['suit']->vars;
+            foreach ($split as $value)
             {
-                $params['case'] = $params['case'][$value];
+                if (is_array($params['case']))
+                {
+                    $params['case'] = $params['case'][$value];
+                }
+                else
+                {
+                    $params['case'] = $params['case']->$value;
+                }
             }
-            else
+            if ($params['var']['json'])
             {
-                $params['case'] = $params['case']->$value;
+                $params['case'] = json_encode($params['case']);
+            }
+            if ($params['var']['serialize'])
+            {
+                $params['case'] = serialize($params['case']);
             }
         }
-        if ($params['var']['json'])
+        else
         {
-            $params['case'] = json_encode($params['case']);
-        }
-        if ($params['var']['serialize'])
-        {
-            $params['case'] = serialize($params['case']);
+            $params['case'] = '';
         }
         return $params;
     }

@@ -102,7 +102,7 @@ def listitems(params):
         ))
     return params
 
-bbnode = {
+nodes = {
     '[':
     {
         'close': ']'

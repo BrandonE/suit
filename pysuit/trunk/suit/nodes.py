@@ -723,23 +723,321 @@ def unserialize(params):
 
 def variables(params):
     """Parse variables"""
-    #Split up the file, paying attention to escape strings
-    split = params['suit'].explodeunescape(
-        params['var']['delimiter'],
-        params['case'],
-        params['config']['escape']
-    )
-    params['case'] = params['suit'].vars
-    for value in split:
-        try:
-            params['case'] = params['case'][value]
-        except (AttributeError, TypeError):
+    #If the variable is not whitelisted or blacklisted
+    if listing(params['case'], params['var']):
+        #Split up the file, paying attention to escape strings
+        split = params['suit'].explodeunescape(
+            params['var']['delimiter'],
+            params['case'],
+            params['config']['escape']
+        )
+        params['case'] = params['suit'].vars
+        for value in split:
             try:
-                params['case'] = params['case'][int(value)]
-            except (AttributeError, TypeError, ValueError):
-                params['case'] = getattr(params['case'], value)
-    if params['var']['json']:
-        params['case'] = jsonencode(params['case'])
-    if params['var']['serialize']:
-        params['case'] = pickle.dumps(params['case'])
+                params['case'] = params['case'][value]
+            except (AttributeError, TypeError):
+                try:
+                    params['case'] = params['case'][int(value)]
+                except (AttributeError, TypeError, ValueError):
+                    params['case'] = getattr(params['case'], value)
+        if params['var']['json']:
+            params['case'] = jsonencode(params['case'])
+        if params['var']['serialize']:
+            params['case'] = pickle.dumps(params['case'])
+    else:
+        params['case'] = ''
     return params
+
+nodes = {
+    '[':
+    {
+        'close': ']'
+    },
+    '[assign]':
+    {
+        'close': '[/assign]',
+        'function': [assign],
+        'var':
+        {
+            'delimiter': '=>',
+            'var': ''
+        }
+    },
+    '[assign':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[assign]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'list': ('var',),
+            'quote': ('"', '\'')
+        }
+    },
+    '[comment]':
+    {
+        'close': '[/comment]',
+        'function': [comments],
+        'skip': True
+    },
+    '[escape]':
+    {
+        'close': '[/escape]',
+        'function': [escape],
+        'skip': True,
+        'skipescape': True,
+        'var': '\r\n\t '
+    },
+    '[if]':
+    {
+        'close': '[/if]',
+        'function': [
+            jsondecode,
+            condition
+        ],
+        'skip': True,
+        'transform': False,
+        'var':
+        {
+            'condition': 'false',
+            'decode': ('condition', 'else'),
+            'else': 'false'
+        }
+    },
+    '[if':
+    {
+        'close': ']',
+        'function':
+        [
+            attribute,
+            conditionstack
+        ],
+        'attribute': '[if]',
+        'skip': True,
+        'var':
+        {
+            'blacklist': True,
+            'equal': '=',
+            'list': ('decode',),
+            'quote': ('"', '\'')
+        }
+    },
+    '[loop]':
+    {
+        'close': '[/loop]',
+        'function': [
+            jsondecode,
+            loop
+        ],
+        'skip': True,
+        'var':
+        {
+            'decode': ('skip', 'vars'),
+            'delimiter': '',
+            'node': '[loopvar]',
+            'skip': 'true',
+            'vars': '[]'
+        }
+    },
+    '[loop':
+    {
+        'close': ']',
+        'function': [
+            attribute,
+            loopstack
+        ],
+        'attribute': '[loop]',
+        'skip': True,
+        'var':
+        {
+            'blacklist': True,
+            'equal': '=',
+            'list': ('decode', 'node'),
+            'quote': ('"', '\'')
+        }
+    },
+    '[loopvar]':
+    {
+        'close': '[/loopvar]',
+        'function': [
+            jsondecode,
+            loopvariables
+        ],
+        'var':
+        {
+            'decode': ('json', 'serialize'),
+            'delimiter': '=>',
+            'ignore': {},
+            'json': 'false',
+            'serialize': 'false',
+            'var': {}
+        }
+    },
+    '[loopvar':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[loopvar]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'list': ('json', 'serialize'),
+            'quote': ('"', '\'')
+        }
+    },
+    '[parse]':
+    {
+        'close': '[/parse]',
+        'function': [parse],
+        'var': {}
+    },
+    '[parse':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[parse]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'quote': ('"', '\'')
+        }
+    },
+    '[replace]':
+    {
+        'close': '[/replace]',
+        'function': [replace],
+        'var':
+        {
+            'replace': '',
+            'search': ''
+        }
+    },
+    '[replace':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[replace]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'quote': ('"', '\'')
+        }
+    },
+    '[return':
+    {
+        'close': '/]',
+        'function':
+        [
+            attribute,
+            jsondecode,
+            returning
+        ],
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'list': ('stack',),
+            'onesided': True,
+            'quote': ('"', '\''),
+            'var':
+            {
+                'decode': ('stack',),
+                'stack': 'false'
+            }
+        }
+    },
+    '[template]':
+    {
+        'close': '[/template]',
+        'function': [templates],
+        'var':
+        {
+            'files': '',
+            'filetypes': '',
+            'delimiter': '=>'
+        }
+    },
+    '[template':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[template]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'list': ('label',),
+            'quote': ('"', '\'')
+        }
+    },
+    '[trim]':
+    {
+        'close': '[/trim]',
+        'function': [trim],
+    },
+    '[try]':
+    {
+        'close': '[/try]',
+        'function': [trying],
+        'skip': True,
+        'var':
+        {
+            'delimiter': '=>',
+            'var': ''
+        }
+    },
+    '[try':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[try]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'list': ('var',),
+            'quote': ('"', '\'')
+        }
+    },
+    '[var]':
+    {
+        'close': '[/var]',
+        'function': [
+            jsondecode,
+            variables
+        ],
+        'var':
+        {
+            'decode': ('json', 'serialize'),
+            'delimiter': '=>',
+            'json': 'false',
+            'serialize': 'false'
+        }
+    },
+    '[var':
+    {
+        'close': ']',
+        'function': [attribute],
+        'attribute': '[var]',
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'list': ('json', 'serialize'),
+            'quote': ('"', '\'')
+        }
+    }
+}
+
+evalnodes = {
+    '[eval]':
+    {
+        'close': '[/eval]',
+        'function': [evaluation]
+    }
+}

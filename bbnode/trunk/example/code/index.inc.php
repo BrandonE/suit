@@ -41,11 +41,12 @@ switch (strtolower($_GET['language']))
 if (array_key_exists('submit', $_POST) && $_POST['submit'])
 {
     require '../bbnode.class.php';
-    foreach ($bbnode as $key => $value)
+    $bbnode = new BBNode();
+    foreach ($bbnode->nodes as $key => $value)
     {
         if (array_key_exists('var', $value) && array_key_exists('label', $value['var']))
         {
-            $bbnode[$key]['var']['template'] = file_get_contents('../templates/' . $value['var']['label'] . '.tpl');
+            $bbnode->nodes[$key]['var']['template'] = file_get_contents('../templates/' . $value['var']['label'] . '.tpl');
         }
     }
     $config = array
@@ -53,7 +54,7 @@ if (array_key_exists('submit', $_POST) && $_POST['submit'])
         'escape' => ''
     );
     $suit->vars['message'] = htmlentities($_POST['message']);
-    $suit->vars['parsed'] = $suit->parse($bbnode, nl2br(htmlspecialchars($_POST['message'])));
+    $suit->vars['parsed'] = $suit->parse($bbnode->nodes, nl2br(htmlspecialchars($_POST['message'])));
 }
 else
 {

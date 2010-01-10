@@ -39,11 +39,11 @@ else:
     suit.vars['languagename'] = 'default'
 if ('submit' in suit.vars['request'].POST and
 suit.vars['request'].POST['submit']):
-    from bbnode import bbnode
+    from bbnode import nodes
     from cgi import escape
-    for value in bbnode.items():
+    for value in nodes.items():
         if 'var' in value[1] and 'label' in value[1]['var']:
-            bbnode[value[0]]['var']['template'] = open(
+            nodes[value[0]]['var']['template'] = open(
                     ''.join((
                         '../templates/',
                         value[1]['var']['label'],
@@ -58,7 +58,7 @@ suit.vars['request'].POST['submit']):
         True
     )
     suit.vars['parsed'] = suit.parse(
-        bbnode,
+        nodes,
         suit.vars['message'].replace('\n','<br />\n')
     )
 else:

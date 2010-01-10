@@ -19,7 +19,20 @@ http://www.suitframework.com/docs/credits
 require '../suit/suit.class.php';
 require '../suit/nodes.class.php';
 $suit = new SUIT();
-require 'config.php';
+$nodes = new Nodes();
+$suit->vars['files'] = array
+(
+    'code' => 'code',
+    'templates' => 'templates'
+);
+$suit->vars['filetypes'] = array
+(
+    'code' => 'inc.php',
+    'templates' => 'tpl'
+);
+$suit->vars['nodes'] = $nodes->nodes;
+$suit->vars['nodes']['[template]']['var']['files'] = $suit->vars['files'];
+$suit->vars['nodes']['[template]']['var']['filetypes'] = $suit->vars['filetypes'];
 require $suit->vars['files']['code'] . '/print.inc.php';
 echo $suit->gettemplate(
     file_get_contents($suit->vars['files']['templates'] . '/index.tpl'),

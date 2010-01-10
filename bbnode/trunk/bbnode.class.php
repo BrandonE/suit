@@ -20,6 +20,447 @@ class BBNode
 {
     public $version = '0.0.0';
 
+    public function __construct()
+    {
+        $this->nodes = array
+        (
+            '[' => array
+            (
+                'close' => ']'
+            ),
+            '[align]' => array
+            (
+                'close' => '[/align]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'style',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'align',
+                    'template' => ''
+                )
+            ),
+            '[align=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[align]'
+            ),
+            '[b]' => array
+            (
+                'close' => '[/b]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'b',
+                    'template' => ''
+                )
+            ),
+            '[code]' => array
+            (
+                'close' => '[/code]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'code',
+                    'template' => ''
+                )
+            ),
+            '[color]' => array
+            (
+                'close' => '[/color]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'style',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'color',
+                    'template' => ''
+                )
+            ),
+            '[color=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[color]'
+            ),
+            '[email]' => array
+            (
+                'close' => '[/email]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'email',
+                    'template' => ''
+                )
+            ),
+            '[email=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[email]'
+            ),
+            '[font]' => array
+            (
+                'close' => '[/font]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'style',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => 'serif',
+                    'label' => 'font',
+                    'template' => ''
+                )
+            ),
+            '[font=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[font]'
+            ),
+            '[i]' => array
+            (
+                'close' => '[/i]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'i',
+                    'template' => ''
+                )
+            ),
+            '[img]' => array
+            (
+                'close' => '[/img]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'img',
+                    'template' => ''
+                )
+            ),
+            '[list]' => array
+            (
+                'close' => '[/list]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'listitems',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'close' => '</li>',
+                    'delimiter' => '[*]',
+                    'equal' => '',
+                    'label' => 'list',
+                    'open' => '<li>',
+                    'template' => ''
+                )
+            ),
+            '[list=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[list]'
+            ),
+            '[s]' => array
+            (
+                'close' => '[/s]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 's',
+                    'template' => ''
+                )
+            ),
+            '[size]' => array
+            (
+                'close' => '[/size]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'style',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'size',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '3',
+                    'label' => 'size',
+                    'template' => ''
+                )
+            ),
+            '[size=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[size]'
+            ),
+            '[quote]' => array
+            (
+                'close' => '[/quote]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'quote',
+                    'template' => ''
+                )
+            ),
+            '[quote=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[quote]'
+            ),
+            '[u]' => array
+            (
+                'close' => '[/u]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'u',
+                    'template' => ''
+                )
+            ),
+            '[url]' => array
+            (
+                'close' => '[/url]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'template',
+                        'class' => $this
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '',
+                    'label' => 'url',
+                    'template' => ''
+                )
+            ),
+            '[url=' => array
+            (
+                'close' => ']',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'attribute',
+                        'class' => $this
+                    ),
+                    array
+                    (
+                        'function' => 'stack',
+                        'class' => $this
+                    )
+                ),
+                'attribute' => '[url]'
+            ),
+        );
+    }
+
     public function attribute($params)
     {
         $params['var']['node'] = $params['nodes'][$params['open']['node']['attribute']];
@@ -88,442 +529,4 @@ class BBNode
         return $params;
     }
 }
-$bbnodeclass = new BBNode();
-$bbnode = array
-(
-    '[' => array
-    (
-        'close' => ']'
-    ),
-    '[align]' => array
-    (
-        'close' => '[/align]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'style',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'align',
-            'template' => ''
-        )
-    ),
-    '[align=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[align]'
-    ),
-    '[b]' => array
-    (
-        'close' => '[/b]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'b',
-            'template' => ''
-        )
-    ),
-    '[code]' => array
-    (
-        'close' => '[/code]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'skip' => true,
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'code',
-            'template' => ''
-        )
-    ),
-    '[color]' => array
-    (
-        'close' => '[/color]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'style',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'color',
-            'template' => ''
-        )
-    ),
-    '[color=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[color]'
-    ),
-    '[email]' => array
-    (
-        'close' => '[/email]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'email',
-            'template' => ''
-        )
-    ),
-    '[email=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[email]'
-    ),
-    '[font]' => array
-    (
-        'close' => '[/font]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'style',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => 'serif',
-            'label' => 'font',
-            'template' => ''
-        )
-    ),
-    '[font=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[font]'
-    ),
-    '[i]' => array
-    (
-        'close' => '[/i]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'i',
-            'template' => ''
-        )
-    ),
-    '[img]' => array
-    (
-        'close' => '[/img]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'img',
-            'template' => ''
-        )
-    ),
-    '[list]' => array
-    (
-        'close' => '[/list]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'listitems',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'close' => '</li>',
-            'delimiter' => '[*]',
-            'equal' => '',
-            'label' => 'list',
-            'open' => '<li>',
-            'template' => ''
-        )
-    ),
-    '[list=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[list]'
-    ),
-    '[s]' => array
-    (
-        'close' => '[/s]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 's',
-            'template' => ''
-        )
-    ),
-    '[size]' => array
-    (
-        'close' => '[/size]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'style',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'size',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '3',
-            'label' => 'size',
-            'template' => ''
-        )
-    ),
-    '[size=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[size]'
-    ),
-    '[quote]' => array
-    (
-        'close' => '[/quote]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'quote',
-            'template' => ''
-        )
-    ),
-    '[quote=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[quote]'
-    ),
-    '[u]' => array
-    (
-        'close' => '[/u]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'u',
-            'template' => ''
-        )
-    ),
-    '[url]' => array
-    (
-        'close' => '[/url]',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'template',
-                'class' => $bbnodeclass
-            )
-        ),
-        'var' => array
-        (
-            'equal' => '',
-            'label' => 'url',
-            'template' => ''
-        )
-    ),
-    '[url=' => array
-    (
-        'close' => ']',
-        'function' => array
-        (
-            array
-            (
-                'function' => 'attribute',
-                'class' => $bbnodeclass
-            ),
-            array
-            (
-                'function' => 'stack',
-                'class' => $bbnodeclass
-            )
-        ),
-        'attribute' => '[url]'
-    ),
-);
 ?>
