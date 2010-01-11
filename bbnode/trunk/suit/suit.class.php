@@ -27,7 +27,6 @@ class SUIT
 
     public $debug = array
     (
-        'gettemplate' => array(),
         'parse' => array(),
         'strpos' => array
         (
@@ -53,34 +52,32 @@ class SUIT
 
     public $offset = 0;
 
-    public $vars = array();
-
     public $version = '1.3.4';
 
     public function closingstring($params)
     {
-        if (!empty($params['skipnode']))
+        if (!empty($params['skipstack']))
         {
-            if (array_key_exists('skipescape', $params['skipnode'][count($params['skipnode']) - $params['skipoffset'] - 1]))
+            if (array_key_exists('skipescape', $params['skipstack'][count($params['skipstack']) - $params['skipoffset'] - 1]))
             {
-                $escape = $params['skipnode'][0]['skipescape'];
+                $escaping = $params['skipstack'][0]['skipescape'];
             }
             else
             {
-                $escape = false;
+                $escaping = false;
             }
-            $skippop = array_pop($params['skipnode']);
+            $skippop = array_pop($params['skipstack']);
         }
         else
         {
-            $escape = true;
+            $escaping = true;
             $skippop = false;
         }
         //If a value was not popped or the closing string for this node matches it
         if ($skippop === false || $params['nodes'][$params['node']]['close'] == $skippop['close'])
         {
             //If it explictly says to escape
-            if ($escape)
+            if ($escaping)
             {
                 $params['position'] = $params['unescape']['position'];
                 $params['return'] = $params['unescape']['string'];
@@ -94,19 +91,19 @@ class SUIT
                     $params['skipoffset']--;
                 }
                 //If the stack is not empty
-                elseif (!empty($params['stack']))
+                elseif (!empty($params['openingstack']))
                 {
-                    $params['open'] = array_pop($params['stack']);
+                    $params['open'] = array_pop($params['openingstack']);
                     $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
-                    //If this closing string matches the last node's
-                    if ($params['open']['node']['close'] == $params['nodes'][$params['node']]['close'])
+                    //If this closing string matches the last node's or it explicitly says to parse a malformed template
+                    if ($params['open']['node']['close'] == $params['nodes'][$params['node']]['close'] || $params['config']['malformed'])
                     {
                         $params = $this->transform($params);
                     }
                     else
                     {
                         $params['last'] = $params['position'] + strlen($params['nodes'][$params['node']]['close']);
-                        $params = $this->preparse($params);
+                        $params = $this->ranges($params);
                     }
                 }
                 else
@@ -123,12 +120,12 @@ class SUIT
         //Else, put the popped value back
         else
         {
-            $params['skipnode'][] = $skippop;
+            $params['skipstack'][] = $skippop;
         }
         return $params;
     }
 
-    public function escape($strings, $return, $escape = '\\', $insensitive = true)
+    public function escape($strings, $return, $escapestring = '\\', $insensitive = true)
     {
         $search = array();
         $replace = array();
@@ -136,7 +133,7 @@ class SUIT
         foreach ($strings as $value)
         {
             $search[] = $value;
-            $replace[] = $escape . $value;
+            $replace[] = $escapestring . $value;
         }
         $cache = md5(md5(serialize($return)) . md5(serialize($strings)));
         //If positions are cached for this case, load them
@@ -181,26 +178,26 @@ class SUIT
             $position = $key[$i] + $offset;
             $count = 0;
             //If the escape string is not empty
-            if ($escape)
+            if ($escapestring)
             {
                 //Count how many escape characters are directly to the left of this position
-                while (abs($start = $key[$i] - $count - strlen($escape)) == $start && substr($return, $start, strlen($escape)) == $escape)
+                while (abs($start = $key[$i] - $count - strlen($escapestring)) == $start && substr($return, $start, strlen($escapestring)) == $escapestring)
                 {
-                    $count += strlen($escape);
+                    $count += strlen($escapestring);
                 }
                 //Determine how many escape strings are directly to the left of this position
-                $count = $count / strlen($escape);
+                $count = $count / strlen($escapestring);
             }
             //Replace the escape strings with two escape strings, escaping each of them
-            $return = substr_replace($return, str_repeat($escape, $count * 2), $key[$i] - ($count * strlen($escape)), strlen($escape) * $count);
+            $return = substr_replace($return, str_repeat($escapestring, $count * 2), $key[$i] - ($count * strlen($escapestring)), strlen($escapestring) * $count);
             //Adjust the offset
-            $offset += $count * strlen($escape);
+            $offset += $count * strlen($escapestring);
         }
         //Escape every string
         return str_replace($search, $replace, $return);
     }
 
-    public function explodeunescape($explode, $string, $escape = '\\', $insensitive = true)
+    public function explodeunescape($explode, $string, $escapestring = '\\', $insensitive = true)
     {
         $return = array();
         $cache = md5(md5(serialize($string)) . md5(serialize($explode)));
@@ -233,15 +230,15 @@ class SUIT
             $value += $offset;
             $count = 0;
             //If the escape string is not empty
-            if ($escape)
+            if ($escapestring)
             {
                 //Count how many escape characters are directly to the left of this position
-                while (abs($start = $value - $count - strlen($escape)) == $start && substr($string, $start, strlen($escape)) == $escape)
+                while (abs($start = $value - $count - strlen($escapestring)) == $start && substr($string, $start, strlen($escapestring)) == $escapestring)
                 {
-                    $count += strlen($escape);
+                    $count += strlen($escapestring);
                 }
                 //Determine how many escape strings are directly to the left of this position
-                $count = $count / strlen($escape);
+                $count = $count / strlen($escapestring);
             }
             $condition = $count % 2;
             //If the number of escape strings directly to the left of this position are odd, (x + 1) / 2 of them should be removed
@@ -253,9 +250,9 @@ class SUIT
             if ($count)
             {
                 //Remove the decided number of escape strings
-                $string = substr_replace($string, '', $value - (($count / 2) * strlen($escape)), ($count / 2) * strlen($escape));
+                $string = substr_replace($string, '', $value - (($count / 2) * strlen($escapestring)), ($count / 2) * strlen($escapestring));
                 //Adjust the value
-                $value -= ($count / 2) * strlen($escape);
+                $value -= ($count / 2) * strlen($escapestring);
             }
             //If the number of escape strings directly to the left of this position are even
             if (!$condition)
@@ -271,74 +268,26 @@ class SUIT
         return $return;
     }
 
-    public function gettemplate($return, $code = array(), $label = NULL)
-    {
-        //Restrict user to the provided directory
-        $debug = debug_backtrace();
-        $debug = array
-        (
-            'code' => array(),
-            'file' => $debug[0]['file'],
-            'label' => $label,
-            'line' => $debug[0]['line'],
-            'template' => $return
-        );
-        if (!empty($code))
-        {
-            foreach ($code as $value)
-            {
-                //If the code file exists
-                if (is_file($value))
-                {
-                    $debug['code'][] = array($value, true, false);
-                    end($debug['code']);
-                    $last = key($debug['code']);
-                    //Include the code file and set the return value to the modified template
-                    $return = $this->includefile($return, $value);
-                    $debug['code'][$last][2] = $return;
-                }
-                else
-                {
-                    $debug['code'][] = array($value, false, $return);
-                }
-            }
-        }
-        //If a label was provided, log this function
-        if (isset($label))
-        {
-            $this->debug['gettemplate'][] = $debug;
-        }
-        return $return;
-    }
-
-    public function includefile($template, $code)
-    {
-        $suit = $this;
-        //Include the code file without the possibility of affecting the gettemplate function
-        include $code;
-        return $template;
-    }
-
     public function openingstring($params)
     {
-        if (!empty($params['skipnode']))
+        if (!empty($params['skipstack']))
         {
-            if (array_key_exists('skipescape', $params['skipnode'][count($params['skipnode']) - $params['skipoffset'] - 1]))
+            if (array_key_exists('skipescape', $params['skipstack'][count($params['skipstack']) - $params['skipoffset'] - 1]))
             {
-                $escape = $params['skipnode'][0]['skipescape'];
+                $escaping = $params['skipstack'][0]['skipescape'];
             }
             else
             {
-                $escape = false;
+                $escaping = false;
             }
-            $skippop = array_pop($params['skipnode']);
+            $skippop = array_pop($params['skipstack']);
         }
         else
         {
-            $escape = true;
+            $escaping = true;
             $skippop = false;
         }
-        //If a value was not popped from skipnode
+        //If a value was not popped from skipstack
         if ($skippop === false)
         {
             $params['position'] = $params['unescape']['position'];
@@ -347,8 +296,8 @@ class SUIT
             if (!$params['unescape']['condition'])
             {
                 $result = $this->stack($params['nodes'][$params['node']], $params['node'], $params['position']);
-                $params['stack'] = array_merge($params['stack'], $result['stack']);
-                $params['skipnode'] = array_merge($params['skipnode'], $result['skipnode']);
+                $params['openingstack'] = array_merge($params['openingstack'], $result['openingstack']);
+                $params['skipstack'] = array_merge($params['skipstack'], $result['skipstack']);
             }
             //Else, reserve the range
             else
@@ -359,7 +308,7 @@ class SUIT
         else
         {
             //Put it back
-            $params['skipnode'][] = $skippop;
+            $params['skipstack'][] = $skippop;
             $skipclose = array($params['nodes'][$params['node']]['close']);
             if (array_key_exists('attribute', $params['nodes'][$params['node']]))
             {
@@ -369,7 +318,7 @@ class SUIT
             if (in_array($skippop['close'], $skipclose))
             {
                 //If it explictly says to escape
-                if ($escape)
+                if ($escaping)
                 {
                     $params['position'] = $params['unescape']['position'];
                     $params['return'] = $params['unescape']['string'];
@@ -378,7 +327,7 @@ class SUIT
                 if (!$params['unescape']['condition'])
                 {
                     //Account for it
-                    $params['skipnode'][] = $skippop;
+                    $params['skipstack'][] = $skippop;
                     $params['skipoffset']++;
                 }
             }
@@ -431,9 +380,9 @@ class SUIT
                 'nodes' => array(),
                 'taken' => array()
             ),
-            'skipnode' => array(),
+            'skipstack' => array(),
             'skipoffset' => 0,
-            'stack' => array()
+            'openingstack' => array()
         );
         $offset = 0;
         $temp = $return;
@@ -461,7 +410,7 @@ class SUIT
             $params = $this->$function($params);
             $return = $params['return'];
             //If the stack is empty
-            if (empty($params['stack']))
+            if (empty($params['openingstack']))
             {
                 //It is impossible that a skipped over node is in another node, so permanently reserve it and start the process over again
                 $preparse['ignored'] = array_merge($preparse['ignored'], $params['preparse']['ignored']);
@@ -484,7 +433,7 @@ class SUIT
         $debug['return'] = $return;
         if ($params['config']['preparse'])
         {
-            foreach($params['stack'] as $value)
+            foreach($params['openingstack'] as $value)
             {
                 $preparse['taken'][] = array($value['position'], $value['position'] + strlen($value['open']));
             }
@@ -532,6 +481,10 @@ class SUIT
         {
             $config['insensitive'] = true;
         }
+        if (!array_key_exists('malformed', $config))
+        {
+            $config['malformed'] = false;
+        }
         if (!array_key_exists('preparse', $config))
         {
             $config['preparse'] = false;
@@ -572,19 +525,19 @@ class SUIT
         return $this->positions($params);
     }
 
-    public function parseunescape($position, $escape, $string)
+    public function parseunescape($position, $escapestring, $string)
     {
         $count = 0;
         //If the escape string is not empty
-        if ($escape)
+        if ($escapestring)
         {
             //Count how many escape characters are directly to the left of this position
-            while (abs($start = $position - $count - strlen($escape)) == $start && substr($string, $start, strlen($escape)) == $escape)
+            while (abs($start = $position - $count - strlen($escapestring)) == $start && substr($string, $start, strlen($escapestring)) == $escapestring)
             {
-                $count += strlen($escape);
+                $count += strlen($escapestring);
             }
             //Determine how many escape strings are directly to the left of this position
-            $count = $count / strlen($escape);
+            $count = $count / strlen($escapestring);
         }
         //If the number of escape strings directly to the left of this position are odd, the position should be overlooked
         $condition = $count % 2;
@@ -594,9 +547,9 @@ class SUIT
             $count++;
         }
         //Adjust the position
-        $position -= strlen($escape) * ($count / 2);
+        $position -= strlen($escapestring) * ($count / 2);
         //Remove the decided number of escape strings
-        $string = substr_replace($string, '', $position, strlen($escape) * ($count / 2));
+        $string = substr_replace($string, '', $position, strlen($escapestring) * ($count / 2));
         return array
         (
             'condition' => $condition,
@@ -650,7 +603,7 @@ class SUIT
         return $params;
     }
 
-    public function preparse($params)
+    public function ranges($params)
     {
         $key = array_keys($params['preparse']['ignored']);
         $size = count($key);
@@ -701,10 +654,38 @@ class SUIT
         return strlen($b) - strlen($a);
     }
 
-    public function strpos($haystack, $needle, $offset, $insensitive, $function)
+    public function stack($node, $opening, $position)
     {
-        //Log this call
-        $this->debug['strpos'][$function]['call']++;
+        //Add the opening string to the stack
+        $openingstack = array
+        (
+            array
+            (
+                'node' => $node,
+                'open' => $opening,
+                'position' => $position
+            )
+        );
+        $skipstack = array();
+        //If the skip key is true, skip over everything between this opening string and its closing string
+        if (array_key_exists('skip', $node) && $node['skip'])
+        {
+            $skipstack[] = $node;
+        }
+        return array
+        (
+            'openingstack' => $openingstack,
+            'skipstack' => $skipstack
+        );
+    }
+
+    public function strpos($haystack, $needle, $offset, $insensitive, $function = NULL)
+    {
+        if (isset($function))
+        {
+            //Log this call
+            $this->debug['strpos'][$function]['call']++;
+        }
         //Find the position insensitively or sensitively based on the configuration
         if ($insensitive)
         {
@@ -714,31 +695,6 @@ class SUIT
         {
             return strpos($haystack, $needle, $offset);
         }
-    }
-
-    public function stack($node, $openingstring, $position)
-    {
-        //Add the opening string to the stack
-        $stack = array
-        (
-            array
-            (
-                'node' => $node,
-                'open' => $openingstring,
-                'position' => $position
-            )
-        );
-        $skipnode = array();
-        //If the skip key is true, skip over everything between this opening string and its closing string
-        if (array_key_exists('skip', $node) && $node['skip'])
-        {
-            $skipnode[] = $node;
-        }
-        return array
-        (
-            'stack' => $stack,
-            'skipnode' => $skipnode
-        );
     }
 
     public function transform($params)
@@ -765,7 +721,7 @@ class SUIT
                 $params['var'] = $params['open']['node']['var'];
                 foreach ($params['open']['node']['function'] as $value)
                 {
-                    //Transform the string in between the opening and closing strings. Note whether or not the function is in a class.
+                    //Transform the string in between the opening and closing strings. Note whether or not the function is in a class
                     if (array_key_exists('class', $value))
                     {
                         $params = $value['class']->$value['function']($params);
@@ -783,7 +739,7 @@ class SUIT
                 //Replace everything including and between the opening and closing strings with the transformed string
                 $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
                 $params['last'] = $params['open']['position'] + strlen($params['case']);
-                $params = $this->preparse($params);
+                $params = $this->ranges($params);
             }
         }
         return $params;

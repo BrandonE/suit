@@ -20,27 +20,28 @@ require '../suit/suit.class.php';
 require '../suit/nodes.class.php';
 $suit = new SUIT();
 $nodes = new Nodes();
-$suit->vars['files'] = array
-(
-    'code' => 'code',
-    'templates' => 'templates'
-);
-$suit->vars['filetypes'] = array
-(
-    'code' => 'inc.php',
-    'templates' => 'tpl'
-);
-$suit->vars['nodes'] = $nodes->nodes;
-$suit->vars['nodes']['[template]']['var']['files'] = $suit->vars['files'];
-$suit->vars['nodes']['[template]']['var']['filetypes'] = $suit->vars['filetypes'];
-require $suit->vars['files']['code'] . '/print.inc.php';
-echo $suit->gettemplate(
-    file_get_contents($suit->vars['files']['templates'] . '/index.tpl'),
-    array
-    (
-        $suit->vars['files']['code'] . '/index.inc.php',
-        $suit->vars['files']['code'] . '/parse.inc.php'
-    )
-);
+$suit->nodes = $nodes->nodes;
+$suit->nodes['[template]']['var']['list'] = array();
+foreach (scandir('templates') as $value)
+{
+    if (basename($value, '.tpl') != $value)
+    {
+        $suit->nodes['[template]']['var']['list'][] = 'templates/' . $value;
+        $suit->nodes['[template]']['var']['list'][] = realpath('templates/' . $value);
+    }
+}
+$suit->nodes['[code]']['var']['list'] = array();
+foreach (scandir('code') as $value)
+{
+    if (basename($value, '.inc.php') != $value)
+    {
+        $suit->nodes['[code]']['var']['list'][] = 'code/' . $value;
+        $suit->nodes['[code]']['var']['list'][] = realpath('code/' . $value);
+    }
+}
+$suit->condition = array();
+$suit->loop = array();
+include 'code/index.inc.php';
+echo $suit->parse($suit->nodes, file_get_contents('templates/index.tpl'));
 unset($suit);
 ?>

@@ -16,13 +16,13 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->vars['loop']['languages'] = array
+$suit->loop['languages'] = array
 (
     array
     (
         'name' => 'english',
         'title' => 'English',
-        'selected' => ($suit->vars['languagename'] == 'english')
+        'selected' => ($suit->languagename == 'english')
     )
 );
 ?>

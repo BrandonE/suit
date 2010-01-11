@@ -16,7 +16,7 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->vars['language'] = array
+$suit->language = array
 (
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
@@ -32,10 +32,10 @@ $suit->vars['language'] = array
 switch (strtolower($_GET['language']))
 {
     case 'english':
-        $suit->vars['languagename'] = 'english';
+        $suit->languagename = 'english';
         break;
     default:
-        $suit->vars['languagename'] = 'default';
+        $suit->languagename = 'default';
         break;
 }
 if (array_key_exists('submit', $_POST) && $_POST['submit'])
@@ -53,11 +53,11 @@ if (array_key_exists('submit', $_POST) && $_POST['submit'])
     (
         'escape' => ''
     );
-    $suit->vars['message'] = htmlentities($_POST['message']);
-    $suit->vars['parsed'] = $suit->parse($bbnode->nodes, nl2br(htmlspecialchars($_POST['message'])));
+    $suit->message = htmlentities($_POST['message']);
+    $suit->parsed = $suit->parse($bbnode->nodes, nl2br(htmlspecialchars($_POST['message'])));
 }
 else
 {
-    $suit->vars['message'] = '';
+    $suit->message = '';
 }
 ?>

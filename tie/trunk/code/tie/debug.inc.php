@@ -18,33 +18,8 @@ http://www.suitframework.com/docs/credits
 **/
 if ($suit->tie->config['flag']['debug'])
 {
-    $templates = array();
     $parse = array();
-    foreach ($suit->vars['debug']['gettemplate'] as $key => $value)
-    {
-        $code = array();
-        foreach ($value['code'] as $key2 => $value2)
-        {
-            $code[] = array
-            (
-                'id2' => $key2,
-                'ifcode' => ($value2[1]),
-                'ifcodefile' => ($value2[2] !== false),
-                'codefile' => htmlspecialchars($value2[2]),
-                'codename' => htmlspecialchars($value2[0])
-            );
-        }
-        $templates[] = array
-        (
-            'code' => $code,
-            'file' => htmlspecialchars($value['file']),
-            'id' => $key,
-            'line' => htmlspecialchars($value['line']),
-            'template' => htmlspecialchars($value['template']),
-            'title' => htmlspecialchars($value['label'])
-        );
-    }
-    foreach ($suit->vars['debug']['parse'] as $key => $value)
+    foreach ($suit->debugging['parse'] as $key => $value)
     {
         $ranges = $value['return'];
         if (array_key_exists('preparse', $value))
@@ -103,21 +78,15 @@ if ($suit->tie->config['flag']['debug'])
             'title' => htmlspecialchars($value['label'])
         );
     }
-    $suit->vars['loop']['templates'] = $templates;
-    $suit->vars['loop']['parse'] = $parse;
-    $suit->vars['condition']['templates'] = (!empty($templates));
-    $suit->vars['condition']['parse'] = (!empty($parse));
-    $suit->vars['escapecall'] = $suit->vars['debug']['strpos']['escape']['call'];
-    $suit->vars['escapecache'] = $suit->vars['debug']['strpos']['escape']['cache'];
-    $suit->vars['explodeunescapecall'] = $suit->vars['debug']['strpos']['explodeunescape']['call'];
-    $suit->vars['explodeunescapecache'] = $suit->vars['debug']['strpos']['explodeunescape']['cache'];
-    $suit->vars['parsecall'] = $suit->vars['debug']['strpos']['parse']['call'];
-    $suit->vars['parsecache'] = $suit->vars['debug']['strpos']['parse']['cache'];
-    $suit->vars['totalcall'] = $suit->vars['debug']['strpos']['escape']['call'] + $suit->vars['debug']['strpos']['explodeunescape']['call'] + $suit->vars['debug']['strpos']['parse']['call'];
-    $suit->vars['totalcache'] = $suit->vars['debug']['strpos']['escape']['cache'] + $suit->vars['debug']['strpos']['explodeunescape']['cache'] + $suit->vars['debug']['strpos']['parse']['cache'];
-}
-else
-{
-    $template = '';
+    $suit->loop['parse'] = $parse;
+    $suit->condition['parse'] = (!empty($parse));
+    $suit->escapecall = $suit->debugging['strpos']['escape']['call'];
+    $suit->escapecache = $suit->debugging['strpos']['escape']['cache'];
+    $suit->explodeunescapecall = $suit->debugging['strpos']['explodeunescape']['call'];
+    $suit->explodeunescapecache = $suit->debugging['strpos']['explodeunescape']['cache'];
+    $suit->parsecall = $suit->debugging['strpos']['parse']['call'];
+    $suit->parsecache = $suit->debugging['strpos']['parse']['cache'];
+    $suit->totalcall = $suit->debugging['strpos']['escape']['call'] + $suit->debugging['strpos']['explodeunescape']['call'] + $suit->debugging['strpos']['parse']['call'];
+    $suit->totalcache = $suit->debugging['strpos']['escape']['cache'] + $suit->debugging['strpos']['explodeunescape']['cache'] + $suit->debugging['strpos']['parse']['cache'];
 }
 ?>

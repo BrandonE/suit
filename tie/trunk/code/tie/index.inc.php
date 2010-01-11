@@ -16,22 +16,21 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->vars['condition']['version'] = false;
-$suit->vars['sitetitle'] = $suit->vars['language']['title'];
-$suit->vars['path'] = $suit->tie->path(array('boxes', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'check', 'section', 'start', 'title'));
+$suit->condition['version'] = false;
+$suit->sitetitle = $suit->language['title'];
 if (in_array($_GET['section'], array('code', 'templates')))
 {
-    $suit->vars['condition']['dashboard'] = false;
-    $return = $suit->tie->adminarea($_GET['section']);
-    $suit->vars['tie'] = $return['return'];
+    $suit->condition['dashboard'] = false;
+    $result = $suit->tie->adminarea($_GET['section']);
+    $suit->result = $result['return'];
     $section = array
     (
         array
         (
-            'title' => $suit->vars['language'][$_GET['section']]
+            'title' => $suit->language[$_GET['section']]
         )
     );
-    foreach ($return['section'] as $value)
+    foreach ($result['section'] as $value)
     {
         $section[] = array
         (
@@ -50,7 +49,7 @@ else
     (
         array
         (
-            'title' => $suit->vars['language']['dashboard']
+            'title' => $suit->language['dashboard']
         )
     );
     if ($_GET['tieversion'] == 'true')
@@ -58,36 +57,37 @@ else
         $version = @file_get_contents('http://suitframework.sourceforge.net/tieversion.txt');
         if (!$version)
         {
-            $version = $suit->vars['language']['na'];
+            $version = $suit->language['na'];
         }
-        $suit->vars['condition']['currentversion'] = ($suit->tie->version != $version);
-        $suit->vars['condition']['version'] = true;
-        $suit->vars['version'] = $version;
+        $suit->condition['currentversion'] = ($suit->tie->version != $version);
+        $suit->condition['version'] = true;
+        $suit->version = $version;
     }
     elseif ($_GET['suitversion'] == 'true')
     {
         $version = @file_get_contents('http://suitframework.sourceforge.net/suitversion.txt');
         if (!$version)
         {
-            $version = $suit->vars['language']['na'];
+            $version = $suit->language['na'];
         }
-        $suit->vars['condition']['currentversion'] = ($suit->version != $version);
-        $suit->vars['condition']['version'] = true;
+        $suit->condition['currentversion'] = ($suit->version != $version);
+        $suit->condition['version'] = true;
         $suit->vars['version'] = $version;
     }
     else
     {
-        $suit->vars['condition']['dashboard'] = true;
-        $suit->vars['condition']['fileuploads'] = (ini_get('file_uploads'));
-        $suit->vars['condition']['magicquotesgpc'] = (ini_get('magic_quotes_gpc'));
-        $suit->vars['condition']['magicquotesruntime'] = (ini_get('magic_quotes_runtime'));
-        $suit->vars['condition']['magicquotessybase'] = (ini_get('magic_quotes_sybase'));
-        $suit->vars['condition']['registerglobals'] = (ini_get('register_globals'));
-        $suit->vars['currentsuitversion'] = $suit->version;
-        $suit->vars['currenttieversion'] = $suit->tie->version;
-        $suit->vars['phpversion'] = PHP_VERSION;
-        $suit->vars['servertype'] = PHP_OS;
+        $suit->condition['dashboard'] = true;
+        $suit->condition['fileuploads'] = (ini_get('file_uploads'));
+        $suit->condition['magicquotesgpc'] = (ini_get('magic_quotes_gpc'));
+        $suit->condition['magicquotesruntime'] = (ini_get('magic_quotes_runtime'));
+        $suit->condition['magicquotessybase'] = (ini_get('magic_quotes_sybase'));
+        $suit->condition['registerglobals'] = (ini_get('register_globals'));
+        $suit->currentsuitversion = $suit->version;
+        $suit->currenttieversion = $suit->tie->version;
+        $suit->phpversion = PHP_VERSION;
+        $suit->servertype = PHP_OS;
     }
 }
-$suit->vars['loop']['section'] = $section;
+$suit->loop['section'] = $section;
+$suit->path = $suit->tie->path(array('check', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'section', 'start', 'title'));
 ?>

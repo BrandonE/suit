@@ -3,7 +3,7 @@
 <head>
 <title>[var]language=>title[/var] - [var]language=>example[/var]</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="?css=true" rel="stylesheet" type="text/css" />
+<link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div class="header">
@@ -16,7 +16,6 @@
         <p>
             <select name="language">
             <option value="default">[var]language=>default[/var]</option>
-            [var json="true"]loop=>languages[/var]
             [loop vars="[var json='true']loop=>languages[/var]"]
             <option value="[loopvar]name[/loopvar]"[if condition="[loopvar json='true']selected[/loopvar]"] selected="selected"[/if]>[loopvar]title[/loopvar]</option>
             [/loop]

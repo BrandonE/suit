@@ -1,7 +1,9 @@
         <fieldset>
             <legend>[var]language=>options[/var]</legend>
-[parse][template]tie/list=>tie/list[/template][/parse]
-[parse][template]tie/search=>tie/search[/template][/parse]
+[code]code/tie/list.inc.php[/code]
+[parse][template]templates/tie/list.tpl[/template][/parse]
+[code]code/tie/search.inc.php[/code]
+[parse][template]templates/tie/search.tpl[/template][/parse]
         </fieldset>
         [if condition="[var json='true']condition=>code[/var]" else="true"]
         <form enctype="multipart/form-data" action="#" method="post">
@@ -22,7 +24,9 @@
                 <td />
                 <td />
                 <td width="25%">
-                    [parse][template]tie/order=>tie/order[/template][/parse][if condition="[var json='true']condition=>code[/var]" else="true"] | [parse][template]tie/checkall=>tie/all[/template][/parse] | [parse][template]tie/uncheckall=>tie/all[/template][/parse][/if]
+                    [code]code/tie/order.inc.php[/code]
+                    [code]code/tie/all.inc.php[/code]
+                    [parse][template]templates/tie/order.tpl[/template][/parse][if condition="[var json='true']condition=>code[/var]" else="true"] | [parse][template]templates/tie/checkall.tpl[/template][/parse] | [parse][template]templates/tie/uncheckall.tpl[/template][/parse][/if]
                 </td>
                 <td width="75%" style="text-align: right;">
                     [if condition="[var json='true']condition=>code[/var]" else="true"]

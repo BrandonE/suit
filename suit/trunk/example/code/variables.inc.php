@@ -16,8 +16,7 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->vars['version'] = $suit->version;
-$suit->vars['loop']['members'] = array
+$suit->loop['members'] = array
 (
     array
     (

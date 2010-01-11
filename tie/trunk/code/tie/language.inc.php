@@ -19,15 +19,15 @@ http://www.suitframework.com/docs/credits
 if (isset($_POST['languages_update']) && isset($_POST['languages_entry']))
 {
     $language = intval($_POST['languages_entry']);
-    require $suit->vars['files']['code'] . '/languages/main.inc.php';
+    require 'code/languages/main.inc.php';
     if (isset($languages[$language]) || $language == -1)
     {
         setcookie($suit->tie->config['cookie']['prefix'] . 'language', $language, time() + $suit->tie->config['cookie']['length'], $suit->tie->config['cookie']['path'], $suit->tie->config['cookie']['domain']);
-        $suit->tie->redirect($_SERVER['HTTP_REFERER'], $suit->vars['language']['updatedsuccessfully']);
+        $suit->tie->redirect($_SERVER['HTTP_REFERER'], $suit->language['updatedsuccessfully']);
     }
 }
 $languagesloop = array();
-require $suit->vars['files']['code'] . '/languages/main.inc.php';
+require 'code/languages/main.inc.php';
 asort($languages);
 foreach ($languages as $key => $value)
 {
@@ -38,5 +38,5 @@ foreach ($languages as $key => $value)
         'title' => htmlspecialchars($value[0])
     );
 }
-$suit->vars['loop']['languages'] = $languagesloop;
+$suit->loop['languages'] = $languagesloop;
 ?>

@@ -20,38 +20,64 @@ require 'suit/suit.class.php';
 require 'suit/nodes.class.php';
 $suit = new SUIT();
 $nodes = new Nodes();
-$suit->vars['files'] = array
-(
-    'code' => 'code',
-    'templates' => 'templates'
-);
-$suit->vars['filetypes'] = array
-(
-    'code' => 'inc.php',
-    'templates' => 'tpl'
-);
-$suit->vars['nodes'] = $nodes->nodes;
-$suit->vars['nodes']['[template]']['var']['files'] = $suit->vars['files'];
-$suit->vars['nodes']['[template]']['var']['filetypes'] = $suit->vars['filetypes'];
-require $suit->vars['files']['code'] . '/tie/main.inc.php';
-require $suit->vars['files']['code'] . '/tie/print.inc.php';
-$content = $suit->gettemplate(
-    file_get_contents($suit->vars['files']['templates'] . '/tie/index.tpl'),
-    array
-    (
-        $suit->vars['files']['code'] . '/tie/index.inc.php',
-        $suit->vars['files']['code'] . '/tie/parse.inc.php'
-    )
-);
-$suit->vars['debug'] = $suit->debug;
-$debug = $suit->gettemplate(
-    file_get_contents($suit->vars['files']['templates'] . '/tie/debug.tpl'),
-    array
-    (
-        $suit->vars['files']['code'] . '/tie/debug.inc.php',
-        $suit->vars['files']['code'] . '/tie/parse.inc.php'
-    )
-);
+$suit->nodes = $nodes->nodes;
+$suit->nodes['[template]']['var']['list'] = array();
+foreach (scandir('templates') as $value)
+{
+    if (basename($value, '.tpl') != $value)
+    {
+        $suit->nodes['[template]']['var']['list'][] = 'templates/' . $value;
+        $suit->nodes['[template]']['var']['list'][] = realpath('templates/' . $value);
+    }
+}
+foreach (scandir('templates/tie') as $value)
+{
+    if (basename($value, '.tpl') != $value)
+    {
+        $suit->nodes['[template]']['var']['list'][] = 'templates/tie/' . $value;
+        $suit->nodes['[template]']['var']['list'][] = realpath('templates/tie/' . $value);
+    }
+}
+$suit->nodes['[code]']['var']['list'] = array();
+foreach (scandir('code') as $value)
+{
+    if (basename($value, '.inc.php') != $value)
+    {
+        $suit->nodes['[code]']['var']['list'][] = 'code/' . $value;
+        $suit->nodes['[code]']['var']['list'][] = realpath('code/' . $value);
+    }
+}
+foreach (scandir('code/languages') as $value)
+{
+    if (basename($value, '.inc.php') != $value)
+    {
+        $suit->nodes['[code]']['var']['list'][] = 'code/languages/' . $value;
+        $suit->nodes['[code]']['var']['list'][] = realpath('code/languages/' . $value);
+    }
+}
+foreach (scandir('code/tie') as $value)
+{
+    if (basename($value, '.inc.php') != $value)
+    {
+        $suit->nodes['[code]']['var']['list'][] = 'code/tie/' . $value;
+        $suit->nodes['[code]']['var']['list'][] = realpath('code/tie/' . $value);
+    }
+}
+$suit->condition = array();
+$suit->loop = array();
+include 'code/tie/main.inc.php';
+include 'code/tie/index.inc.php';
+$template = $suit->parse($suit->nodes, file_get_contents('templates/tie/index.tpl'));
+$suit->debugging = $suit->debug;
+include 'code/tie/debug.inc.php';
+if ($suit->tie->config['flag']['debug'])
+{
+    $debug = $suit->parse($suit->nodes, file_get_contents('templates/tie/debug.tpl'));
+}
+else
+{
+    $debug = '';
+}
 $debugnodes = array
 (
 	'<debug' => array
@@ -68,6 +94,6 @@ $debugnodes = array
 		'var' => $debug
 	)
 );
-echo $suit->parse($debugnodes, $content);
+echo $suit->parse($debugnodes, $template);
 unset($suit);
 ?>

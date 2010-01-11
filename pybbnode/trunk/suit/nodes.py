@@ -18,6 +18,8 @@ http://www.suitframework.com/docs/credits
 import os
 import pickle
 import re
+import suit
+import sys
 try:
     import simplejson as json
 except ImportError:
@@ -28,12 +30,12 @@ def assign(params):
     #If a variable is provided and it not is whitelisted or blacklisted
     if params['var']['var'] and listing(params['var']['var'], params['var']):
         #Split up the file, paying attention to escape strings
-        split = params['suit'].explodeunescape(
+        split = suit.explodeunescape(
             params['var']['delimiter'],
             params['var']['var'],
             params['config']['escape']
         )
-        assignvariable(split, params['case'], params['suit'].vars)
+        assignvariable(split, params['case'], suit)
     params['case'] = ''
     return params
 
@@ -77,13 +79,13 @@ def attribute(params):
             params['taken'] = True
         else:
             #Add the new node to the stack
-            stack = params['suit'].stack(
+            stack = suit.stack(
                 result['node'],
                 params['case'],
                 params['open']['position']
             )
-            params['stack'].extend(stack['stack'])
-            params['skipnode'].extend(stack['skipnode'])
+            params['openingstack'].extend(stack['openingstack'])
+            params['skipstack'].extend(stack['skipstack'])
             params['preparse']['nodes'][params['case']] = result['node']
     else:
         #Reserve the space
@@ -102,13 +104,13 @@ def attribute(params):
                 node['skip'] = params['nodes'][
                     params['open']['node']['attribute']
                 ]['skip']
-            stack = params['suit'].stack(
+            stack = suit.stack(
                 node,
                 params['open']['node']['attribute'],
                 params['open']['position']
             )
-            params['stack'].extend(stack['stack'])
-            params['skipnode'].extend(stack['skipnode'])
+            params['openingstack'].extend(stack['openingstack'])
+            params['skipstack'].extend(stack['skipstack'])
         else:
             params['function'] = False
     return params
@@ -119,13 +121,13 @@ def attributedefine(params, node):
     quote = ''
     smallest = False
     for value in params['var']['quote']:
-        position = params['case'].find(value)
+        position = suit.strpos(params['case'], value, 0, params['config']['insensitive'])
         if position != -1 and (smallest == False or position < smallest):
             quote = value
             smallest = position
     if quote:
         #Define the variables
-        split = params['suit'].explodeunescape(
+        split = suit.explodeunescape(
             quote,
             params['case'],
             params['config']['escape']
@@ -142,8 +144,8 @@ def attributedefine(params, node):
                     name = name[
                         0:len(name) - len(params['var']['equal'])
                     ]
-                    #If the variable is whitelisted or blacklisted, do not prepare
-                    #to define the variable
+                    #If the variable is whitelisted or blacklisted, do not
+                    #prepare to define the variable
                     if (not listing(name, params['var'])):
                         name = ''
                 else:
@@ -154,7 +156,7 @@ def attributedefine(params, node):
                     'preparse': True
                 }
                 #Define the variable
-                result = params['suit'].parse(params['nodes'], value, config)
+                result = suit.parse(params['nodes'], value, config)
                 if not result['ignored']:
                     node['var'][name] = result['return']
                 else:
@@ -164,6 +166,17 @@ def attributedefine(params, node):
         'ignored': ignored,
         'node': node
     }
+
+def code(params):
+    """Execute a code file"""
+    #If the code file is not whitelisted or blacklisted
+    if listing(params['case'], params['var']):
+        params['case'] = os.path.normpath(params['case'])
+        sys.path.append(os.path.dirname(params['case']))
+        sys.path.reverse()
+        __import__(os.path.basename(params['case']).split('.', 2)[0])
+    params['case'] = ''
+    return params
 
 def comments(params):
     """Hide a string"""
@@ -188,8 +201,8 @@ def condition(params):
 
 def conditionstack(params):
     """Do not skip if the string should not be hidden"""
-    if params['stack']:
-        pop = params['stack'].pop()
+    if params['openingstack']:
+        pop = params['openingstack'].pop()
         if ('var' in pop['node'] and
         'condition' in pop['node']['var'] and
         'else' in pop['node']['var']):
@@ -222,7 +235,7 @@ def conditionstack(params):
                 pop['node']['skip']
             ):
                 pop['node']['skip'] = False
-                params['skipnode'].pop()
+                params['skipstack'].pop()
             params['preparse']['nodes'][params['case']] = pop
         #Else, if the node was ignored, do not skip over everything between
         #this opening string and its closing string
@@ -232,8 +245,8 @@ def conditionstack(params):
         'skip' in pop['node'] and
         pop['node']['skip']):
             pop['node']['skip'] = False
-            params['skipnode'].pop()
-        params['stack'].append(pop)
+            params['skipstack'].pop()
+        params['openingstack'].append(pop)
     return params
 
 def escape(params):
@@ -364,12 +377,13 @@ def loop(params):
         config = {
             'escape': params['config']['escape'],
             'insensitive': params['config']['insensitive'],
+            'malformed': params['config']['malformed'],
             'preparse': True
         }
         if 'label' in params['var']:
             config['label'] = params['var']['label']
         #Parse everything possible without iteration
-        result = params['suit'].parse(
+        result = suit.parse(
             dict(
                 params['nodes'].items() +
                 nodes.items()
@@ -381,13 +395,14 @@ def loop(params):
             config = {
                 'escape': params['config']['escape'],
                 'insensitive': params['config']['insensitive'],
+                'malformed': params['config']['malformed'],
                 'preparse': True,
                 'taken': result['taken']
             }
             if 'label' in params['var']:
                 config['label'] = ''.join((params['var']['label'], str(key)))
             #Parse for this iteration
-            result2 = params['suit'].parse(
+            result2 = suit.parse(
                 dict(
                     params['nodes'].items() +
                     result['nodes'].items() +
@@ -446,8 +461,8 @@ def looppreparse(iterationvars, iteration, returnvalue):
 
 def loopstack(params):
     """Do not skip if specified"""
-    if params['stack']:
-        pop = params['stack'].pop()
+    if params['openingstack']:
+        pop = params['openingstack'].pop()
         #If specified, do not skip over everything between
         #this opening string and its closing string
         if ('var' in pop['node'] and
@@ -455,15 +470,15 @@ def loopstack(params):
         not json.loads(pop['node']['var']['skip']) and
         'skip' in params['open']['node'] and
         params['open']['node']['skip']):
-            params['skipnode'].pop()
+            params['skipstack'].pop()
         params['preparse']['nodes'][params['case']] = pop
-        params['stack'].append(pop)
+        params['openingstack'].append(pop)
     return params
 
 def loopvariables(params):
     """Parse variables in a loop"""
     #Split up the file, paying attention to escape strings
-    split = params['suit'].explodeunescape(
+    split = suit.explodeunescape(
         params['var']['delimiter'],
         params['case'],
         params['config']['escape']
@@ -500,11 +515,12 @@ def parse(params):
     """Parse the case"""
     config = {
         'escape': params['config']['escape'],
-        'insensitive': params['config']['insensitive']
+        'insensitive': params['config']['insensitive'],
+        'malformed': params['config']['malformed']
     }
     if 'label' in params['var']:
         config['label'] = params['var']['label']
-    params['case'] = params['suit'].parse(
+    params['case'] = suit.parse(
         params['nodes'],
         params['case'],
         config
@@ -522,37 +538,44 @@ def replace(params):
 def returning(params):
     """Return early from a parse call"""
     params['case'] = ''
-    stack = params['stack'][:]
+    stack = params['openingstack'][:]
     stack.reverse()
-    skipnode = []
+    skipstack = []
     for key, value in enumerate(stack):
         #If the stack count has not been modified or it specifies this many
         #stacks
-        if not params['var']['stack'] or int(params['var']['stack']) > key:
+        if (not params['var']['openingstack'] or
+        int(params['var']['openingstack']) > key):
             if not 'function' in value['node']:
-                params['stack'][len(stack) - 1 - key]['node']['function'] = []
+                params['openingstack'][
+                    len(stack) - 1 - key
+                ]['node']['function'] = []
             #Make all of the nodes remove all content in the case that takes
             #place after this return.
-            params['stack'][len(stack) - 1 - key]['node']['function'].insert(
+            params['openingstack'][
+                len(stack) - 1 - key
+            ]['node']['function'].insert(
                 0,
                 returningfirst
             )
             #Make the last node to be closed remove everything after this
             #return
             if key == len(stack) - 1:
-                params['stack'][0]['node']['function'].append(returninglast)
-            skipnode.append(value['node']['close'])
+                params['openingstack'][0]['node']['function'].append(
+                    returninglast
+                )
+            skipstack.append(value['node']['close'])
         else:
             break
-    skipnode.reverse()
-    params['skipnode'].extend(skipnode)
+    skipstack.reverse()
+    params['skipstack'].extend(skipstack)
     #If the stack is empty, and the stack count has not been modified or it
     #specifies at least one stack, remove everything after this return.
     if (
-        not params['stack'] and 
+        not params['openingstack'] and 
         (
-            not params['var']['stack'] or
-            int(params['var']['stack']) > 0
+            not params['var']['openingstack'] or
+            int(params['var']['openingstack']) > 0
         )
     ):
         params['last'] = params['open']['position']
@@ -572,48 +595,14 @@ def returninglast(params):
     return params
 
 def templates(params):
-    """Include a template"""
-    #Split up the file, paying attention to escape strings
-    split = params['suit'].explodeunescape(
-        params['var']['delimiter'],
-        params['case'],
-        params['config']['escape']
-    )
-    template = ''
-    code = []
-    for key, value in enumerate(split):
-        #If this is the template file, get the file's contents
-        if key == 0:
-            template = open(
-                os.path.normpath(os.path.join(
-                    params['var']['files']['templates'],
-                    ''.join((
-                        value,
-                        '.',
-                        params['var']['filetypes']['templates']
-                    ))
-                ))
-            ).read()
-        #Else, prepare to include the file
-        else:
-            code.append(
-                os.path.normpath(os.path.join(
-                    params['var']['files']['code'],
-                    ''.join((
-                        value,
-                        '.',
-                        params['var']['filetypes']['code']
-                    ))
-                ))
-            )
-    if 'label' in params['var']:
-        params['case'] = params['suit'].gettemplate(
-            template,
-            code,
-            params['var']['label']
-        )
+    """Grab a template from a file"""
+    #If the template is not whitelisted or blacklisted
+    if listing(params['case'], params['var']):
+        params['case'] = open(
+            os.path.normpath(params['case'])
+        ).read()
     else:
-        params['case'] = params['suit'].gettemplate(template, code)
+        params['case'] = ''
     return params
 
 def trim(params):
@@ -632,14 +621,14 @@ def trim(params):
             'skip': True
         }
     }
-    params['suit'].vars['last'] = 0
-    params['case'] = params['suit'].parse(nodes, params['case'])
-    copy = params['case'][params['suit'].vars['last']:len(params['case'])]
-    if not params['suit'].vars['last']:
+    suit.last = 0
+    params['case'] = suit.parse(nodes, params['case'])
+    copy = params['case'][suit.last:len(params['case'])]
+    if not suit.last:
         copy = copy.lstrip()
     replaced = re.sub('(?m)[\s]+$', '', copy)
     params['case'] = ''.join((
-        params['case'][0:params['suit'].vars['last']],
+        params['case'][0:suit.last],
         replaced
     ))
     return params
@@ -664,7 +653,7 @@ def trimbefore(params):
         params['open']['node']['close']
     ))
     params['taken'] = False
-    params['suit'].vars['last'] = params['open']['position'] + len(
+    suit.last = params['open']['position'] + len(
         params['case']
     )
     return params
@@ -672,13 +661,15 @@ def trimbefore(params):
 def trying(params):
     """Try and use exceptions on parsing"""
     if params['var']['var']:
-        params['suit'].vars[params['var']['var']] = ''
+        setattr(suit, params['var']['var'], '')
     try:
         config = {
             'escape': params['config']['escape'],
+            'insensitive': params['config']['insensitive'],
+            'malformed': params['config']['malformed'],
             'preparse': True
         }
-        result = params['suit'].parse(
+        result = suit.parse(
             params['nodes'],
             params['case'],
             config
@@ -705,12 +696,12 @@ def trying(params):
             params['var']
         ):
             #Split up the file, paying attention to escape strings
-            split = params['suit'].explodeunescape(
+            split = suit.explodeunescape(
                 params['var']['delimiter'],
                 params['var']['var'],
                 params['config']['escape']
             )
-            assignvariable(split, inst, params['suit'].vars)
+            assignvariable(split, inst, suit)
         params['case'] = ''
     return params
 
@@ -726,12 +717,12 @@ def variables(params):
     #If the variable is not whitelisted or blacklisted
     if listing(params['case'], params['var']):
         #Split up the file, paying attention to escape strings
-        split = params['suit'].explodeunescape(
+        split = suit.explodeunescape(
             params['var']['delimiter'],
             params['case'],
             params['config']['escape']
         )
-        params['case'] = params['suit'].vars
+        params['case'] = suit
         for value in split:
             try:
                 params['case'] = params['case'][value]
@@ -748,7 +739,7 @@ def variables(params):
         params['case'] = ''
     return params
 
-nodes = {
+NODES = {
     '[':
     {
         'close': ']'
@@ -775,6 +766,12 @@ nodes = {
             'list': ('var',),
             'quote': ('"', '\'')
         }
+    },
+    '[code]':
+    {
+        'close': '[/code]',
+        'function': [code],
+        'var': {}
     },
     '[comment]':
     {
@@ -955,25 +952,7 @@ nodes = {
     {
         'close': '[/template]',
         'function': [templates],
-        'var':
-        {
-            'files': '',
-            'filetypes': '',
-            'delimiter': '=>'
-        }
-    },
-    '[template':
-    {
-        'close': ']',
-        'function': [attribute],
-        'attribute': '[template]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'list': ('label',),
-            'quote': ('"', '\'')
-        }
+        'var': {}
     },
     '[trim]':
     {
@@ -1034,7 +1013,7 @@ nodes = {
     }
 }
 
-evalnodes = {
+EVALNODES = {
     '[eval]':
     {
         'close': '[/eval]',

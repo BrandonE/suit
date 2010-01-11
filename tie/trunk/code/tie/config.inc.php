@@ -25,6 +25,16 @@ $config = array
         'path' => '',
         'prefix' => ''
     ),
+    'files' => array
+    (
+        'code' => 'code',
+        'templates' => 'templates'
+    ),
+    'filetypes' => array
+    (
+        'code' => 'inc.php',
+        'templates' => 'tpl'
+    ),
     'flag' => array
     (
         'debug' => false
@@ -40,32 +50,32 @@ $config = array
     (
         'badrequest' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/badrequest.tpl',
-            'code' => array($suit->vars['files']['code'] . '/tie/badrequest.inc.php')
+            'template' => 'templates/tie/badrequest.tpl',
+            'code' => 'code/tie/badrequest.inc.php'
         ),
         'delete' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/delete.tpl'
+            'template' => 'templates/tie/delete.tpl'
         ),
         'form' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/form.tpl'
+            'template' => 'templates/tie/form.tpl'
         ),
         'entries' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/entries.tpl'
+            'template' => 'templates/tie/entries.tpl'
         ),
         'pagelink' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/pagelink.tpl'
+            'template' => 'templates/tie/pagelink.tpl'
         ),
         'redirect' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/redirect.tpl'
+            'template' => 'templates/tie/redirect.tpl'
         ),
         'xml' => array
         (
-            'template' => $suit->vars['files']['templates'] . '/tie/xml.tpl'
+            'template' => 'templates/tie/xml.tpl'
         )
     )
 );

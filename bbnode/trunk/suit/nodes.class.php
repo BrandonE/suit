@@ -63,6 +63,19 @@ class Nodes
                     'quote' => array('"', '\'')
                 )
             ),
+            '[code]' => array
+            (
+                'close' => '[/code]',
+                'function' => array
+                (
+                    array
+                    (
+                        'function' => 'code',
+                        'class' => $this
+                    )
+                ),
+                'var' => array()
+            ),
             '[comment]' => array
             (
                 'close' => '[/comment]',
@@ -333,13 +346,13 @@ class Nodes
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('stack'),
+                    'list' => array('openingstack'),
                     'onesided' => true,
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('stack'),
-                        'stack' => 'false'
+                        'decode' => array('openingstack'),
+                        'openingstack' => 'false'
                     )
                 )
             ),
@@ -354,32 +367,7 @@ class Nodes
                         'class' => $this
                     )
                 ),
-                'var' => array
-                (
-                    'files' => '',
-                    'filetypes' => '',
-                    'delimiter' => '=>'
-                )
-            ),
-            '[template' => array
-            (
-                'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'function' => 'attribute',
-                        'class' => $this
-                    )
-                ),
-                'attribute' => '[template]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'list' => array('label'),
-                    'quote' => array('"', '\'')
-                )
+                'var' => array()
             ),
             '[trim]' => array
             (
@@ -501,7 +489,7 @@ class Nodes
         {
             //Split up the file, paying attention to escape strings
             $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
-            $this->assignvariable($split, $params['case'], $params['suit']->vars);
+            $this->assignvariable($split, $params['case'], $params['suit']);
         }
         $params['case'] = '';
         return $params;
@@ -558,8 +546,8 @@ class Nodes
             {
                 //Add the new node to the stack
                 $stack = $params['suit']->stack($result['node'], $params['case'], $params['open']['position']);
-                $params['stack'] = array_merge($params['stack'], $stack['stack']);
-                $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
+                $params['openingstack'] = array_merge($params['openingstack'], $stack['openingstack']);
+                $params['skipstack'] = array_merge($params['skipstack'], $stack['skipstack']);
                 $params['preparse']['nodes'][$params['case']] = $result['node'];
             }
         }
@@ -579,8 +567,8 @@ class Nodes
                     $node['skip'] = $params['nodes'][$params['open']['node']['attribute']]['skip'];
                 }
                 $stack = $params['suit']->stack($node, $params['open']['node']['attribute'], $params['open']['position']);
-                $params['stack'] = array_merge($params['stack'], $stack['stack']);
-                $params['skipnode'] = array_merge($params['skipnode'], $stack['skipnode']);
+                $params['openingstack'] = array_merge($params['openingstack'], $stack['openingstack']);
+                $params['skipstack'] = array_merge($params['skipstack'], $stack['skipstack']);
             }
             else
             {
@@ -597,7 +585,7 @@ class Nodes
         $smallest = false;
         foreach ($params['var']['quote'] as $value)
         {
-            $position = strpos($params['case'], $value);
+            $position = $params['suit']->strpos($params['case'], $value, 0, $params['config']['insensitive']);
             if ($position !== false && ($smallest === false || $position < $smallest))
             {
                 $quote = $value;
@@ -659,6 +647,18 @@ class Nodes
         );
     }
 
+    public function code($params)
+    {
+        //If the code file is not whitelisted or blacklisted and the file exists
+        if ($this->listing($params['case'], $params['var']) && is_file($params['case']))
+        {
+            $suit = $params['suit'];
+            include str_replace('../', '', str_replace('..\'', '', $params['case']));
+        }
+        $params['case'] = '';
+        return $params;
+    }
+
     public function comments($params)
     {
         $params['case'] = '';
@@ -678,9 +678,9 @@ class Nodes
 
     public function conditionstack($params)
     {
-        if (!empty($params['stack']))
+        if (!empty($params['openingstack']))
         {
-            $pop = array_pop($params['stack']);
+            $pop = array_pop($params['openingstack']);
             if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
             {
                 $conditionjson = json_decode($pop['node']['var']['condition']);
@@ -703,7 +703,7 @@ class Nodes
                 if (($conditionjson && !$elsejson) || (!$conditionjson && $elsejson) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
                 {
                     $pop['node']['skip'] = false;
-                    array_pop($params['skipnode']);
+                    array_pop($params['skipstack']);
                 }
                 $params['preparse']['nodes'][$params['case']] = $pop['node'];
             }
@@ -711,9 +711,9 @@ class Nodes
             elseif ($pop['node']['close'] == $params['nodes'][$params['open']['node']['attribute']]['close'] && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
             {
                 $pop['node']['skip'] = false;
-                array_pop($params['skipnode']);
+                array_pop($params['skipstack']);
             }
-            $params['stack'][] = $pop;
+            $params['openingstack'][] = $pop;
         }
         return $params;
     }
@@ -759,6 +759,7 @@ class Nodes
         );
         if (!is_array($params['var']['vars']))
         {
+            $params['case'] = '';
             return $params;
         }
         foreach ($params['var']['vars'] as $value)
@@ -789,6 +790,7 @@ class Nodes
             (
                 'escape' => $params['config']['escape'],
                 'insensitive' => $params['config']['insensitive'],
+                'malformed' => $params['config']['malformed'],
                 'preparse' => true
             );
             if (array_key_exists('label', $params['var']))
@@ -804,6 +806,7 @@ class Nodes
                 (
                     'escape' => $params['config']['escape'],
                     'insensitive' => $params['config']['insensitive'],
+                    'malformed' => $params['config']['malformed'],
                     'preparse' => true,
                     'taken' => $result['taken']
                 );
@@ -875,17 +878,17 @@ class Nodes
 
     public function loopstack($params)
     {
-        if ($params['stack'])
+        if ($params['openingstack'])
         {
-            $pop = array_pop($params['stack']);
+            $pop = array_pop($params['openingstack']);
             //If specified, do not skip over everything between this opening string and its closing string
             if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !json_decode($pop['node']['var']['skip']) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
             {
                 $pop['node']['skip'] = false;
-                array_pop($params['skipnode']);
+                array_pop($params['skipstack']);
             }
             $params['preparse']['nodes'][$params['case']] = $pop['node'];
-            $params['stack'][] = $pop;
+            $params['openingstack'][] = $pop;
         }
         return $params;
     }
@@ -933,7 +936,8 @@ class Nodes
         $config = array
         (
             'escape' => $params['config']['escape'],
-            'insensitive' => $params['config']['insensitive']
+            'insensitive' => $params['config']['insensitive'],
+            'malformed' => $params['config']['malformed']
         );
         if (in_array('label', $params['var']))
         {
@@ -952,21 +956,21 @@ class Nodes
     public function returning($params)
     {
         $params['case'] = '';
-        $stack = array_reverse($params['stack']);
-        $skipnode = array();
+        $stack = array_reverse($params['openingstack']);
+        $skipstack = array();
         $size = count($stack);
         for ($i = 0; $i < $size; $i++)
         {
             //If the stack count has not been modified or it specifies this many stacks
-            if (!$params['var']['stack'] || intval($params['var']['stack']) > $i)
+            if (!$params['var']['openingstack'] || intval($params['var']['openingstack']) > $i)
             {
-                if (!array_key_exists('function', $params['stack'][count($stack) - 1 - $i]['node']))
+                if (!array_key_exists('function', $params['openingstack'][count($stack) - 1 - $i]['node']))
                 {
-                    $params['stack'][count($stack) - 1 - $i]['node']['function'] = array();
+                    $params['openingstack'][count($stack) - 1 - $i]['node']['function'] = array();
                 }
                 //Make all of the nodes remove all content in the case that takes place after this return.
                 array_splice(
-                    $params['stack'][count($stack) - 1 - $i]['node']['function'],
+                    $params['openingstack'][count($stack) - 1 - $i]['node']['function'],
                     0,
                     0,
                     array
@@ -981,22 +985,22 @@ class Nodes
                 //Make the last node to be closed remove everything after this return
                 if ($i == count($stack) - 1)
                 {
-                    $params['stack'][0]['node']['function'][] = array
+                    $params['openingstack'][0]['node']['function'][] = array
                     (
                         'class' => $this,
                         'function' => 'returninglast'
                     );
                 }
-                $skipnode[] = $params['stack'][count($stack) - 1 - $i]['node']['close'];
+                $skipstack[] = $params['openingstack'][count($stack) - 1 - $i]['node']['close'];
             }
             else
             {
                 break;
             }
         }
-        $params['skipnode'] = array_merge($params['skipnode'], array_reverse($skipnode));
+        $params['skipstack'] = array_merge($params['skipstack'], array_reverse($skipstack));
         //If the stack is empty, and if the stack count has not been modified or it specifies at least one stack
-        if (empty($params['stack']) && (!$params['var']['stack'] || intval($params['var']['stack']) > 0))
+        if (empty($params['openingstack']) && (!$params['var']['openingstack'] || intval($params['var']['openingstack']) > 0))
         {
             $params['last'] = $params['open']['position'];
             $params = $this->returninglast($params);
@@ -1019,35 +1023,14 @@ class Nodes
 
     public function templates($params)
     {
-        //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-        $code = array();
-        $size = count($split);
-        for ($i = 0; $i < $size; $i++)
+        //If the variable is not whitelisted or blacklisted and the file exists
+        if ($this->listing($params['case'], $params['var']) && is_file($params['case']))
         {
-            //If this is the template file, get the file's contents
-            if ($i == 0)
-            {
-                $filepath = $params['var']['files']['templates'] . '/' . str_replace(array('../', '..\\'), '', $split[$i]) . '.' . $params['var']['filetypes']['templates'];
-                //If the template file exists
-                if (is_file($filepath))
-                {
-                    $template = file_get_contents($filepath);
-                }
-            }
-            //Else, prepare to include the file
-            else
-            {
-                $code[] = $params['var']['files']['code'] . '/' . str_replace(array('../', '..\\'), '', $split[$i]) . '.' . $params['var']['filetypes']['code'];
-            }
-        }
-        if (array_key_exists('label', $params['var']))
-        {
-            $params['case'] = $params['suit']->gettemplate($template, $code, $params['var']['label']);
+            $params['case'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['case'])));
         }
         else
         {
-            $params['case'] = $params['suit']->gettemplate($template, $code);
+            $params['case'] = '';
         }
         return $params;
     }
@@ -1083,15 +1066,15 @@ class Nodes
                 'skip' => true
             )
         );
-        $params['suit']->vars['last'] = 0;
+        $params['suit']->last = 0;
         $params['case'] = $params['suit']->parse($nodes, $params['case']);
-        $copy = substr($params['case'], $params['suit']->vars['last']);
-        if (!$params['suit']->vars['last'])
+        $copy = substr($params['case'], $params['suit']->last);
+        if (!$params['suit']->last)
         {
             $copy = ltrim($copy);
         }
         $replaced = preg_replace('/[\s]+$/m', '', $copy);
-        $params['case'] = substr_replace($params['case'], $replaced, $params['suit']->vars['last']);
+        $params['case'] = substr_replace($params['case'], $replaced, $params['suit']->last);
         return $params;
     }
 
@@ -1099,7 +1082,7 @@ class Nodes
     {
         $original = substr($params['return'], $params['last'], $params['open']['position'] - $params['last']);
         $copy = $original;
-        if (!$params['suit']->vars['last'])
+        if (!$params['suit']->last)
         {
             $copy = ltrim($copy);
         }
@@ -1109,7 +1092,7 @@ class Nodes
         $params['position'] += strlen($replaced) - strlen($original);
         $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
         $params['taken'] = false;
-        $params['suit']->vars['last'] = $params['open']['position'] + strlen($params['case']);
+        $params['suit']->last = $params['open']['position'] + strlen($params['case']);
         return $params;
     }
 
@@ -1117,13 +1100,15 @@ class Nodes
     {
         if ($params['var']['var'])
         {
-            $params['suit']->vars[$params['var']['var']] = '';
+            $params['suit']->$params['var']['var'] = '';
         }
         try
         {
             $config = array
             (
                 'escape' => $params['config']['escape'],
+                'insensitive' => $params['config']['insensitive'],
+                'malformed' => $params['config']['malformed'],
                 'preparse' => true
             );
             $result = $params['suit']->parse($params['nodes'], $params['case'], $config);
@@ -1147,7 +1132,7 @@ class Nodes
             {
                 //Split up the file, paying attention to escape strings
                 $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
-                $this->assignvariable($split, $e, $params['suit']->vars);
+                $this->assignvariable($split, $e, $params['suit']);
             }
             $params['case'] = '';
         }
@@ -1170,7 +1155,7 @@ class Nodes
         {
             //Split up the file, paying attention to escape strings
             $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-            $params['case'] = $params['suit']->vars;
+            $params['case'] = $params['suit'];
             foreach ($split as $value)
             {
                 if (is_array($params['case']))

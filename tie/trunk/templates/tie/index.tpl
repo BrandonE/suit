@@ -1,6 +1,7 @@
 [trim]
 [if condition="[var json='true']condition=>version[/var]" else="true"]
-[parse][template]tie/header=>tie/header[/template][/parse]
+[code]code/tie/header.inc.php[/code]
+[parse][template]templates/tie/header.tpl[/template][/parse]
     <div class="section">
         <h2>[loop vars="[var json='true']loop=>section[/var]" delimiter=" - "][loopvar]title[/loopvar][/loop]</h2>
         [if condition="[var json='true']condition=>dashboard[/var]"]
@@ -47,10 +48,10 @@
         </table>
         [/if]
         [if condition="[var json='true']condition=>dashboard[/var]" else="true"]
-[var]tie[/var]
+[var]result[/var]
         [/if]
     </div>
-[parse][template]tie/footer[/template][/parse]
+[parse][template]templates/tie/footer.tpl[/template][/parse]
 [/if]
 [if condition="[var json='true']condition=>version[/var]"]
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

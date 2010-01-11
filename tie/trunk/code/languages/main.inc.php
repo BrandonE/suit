@@ -18,10 +18,10 @@ http://www.suitframework.com/docs/credits
 **/
 $languages = array
 (
-    array('English', $this->owner->vars['files']['code'] . '/languages/english.inc.php', true),
-    array('Español', $this->owner->vars['files']['code'] . '/languages/spanish.inc.php', false),
-    array('中文', $this->owner->vars['files']['code'] . '/languages/chinese.inc.php', false),
-    array('Polski', $this->owner->vars['files']['code'] . '/languages/polish.inc.php', false),
-    array('Français', $this->owner->vars['files']['code'] . '/languages/french.inc.php', false)
+    array('English', 'code/languages/english.inc.php', true),
+    array('Español', 'code/languages/spanish.inc.php', false),
+    array('中文', 'code/languages/chinese.inc.php', false),
+    array('Polski', 'code/languages/polish.inc.php', false),
+    array('Français', 'code/languages/french.inc.php', false)
 );
 ?>

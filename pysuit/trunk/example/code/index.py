@@ -15,7 +15,8 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-suit.vars['language'] = {
+import suit
+suit.language = {
     'copyright': 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default': 'Default',
     'example': 'Example',
@@ -33,25 +34,20 @@ suit.vars['language'] = {
 languages = {
     'english': 'english'
 }
-if ('language' in suit.vars['request'].GET and
-suit.vars['request'].GET['language'].lower() in languages):
-    suit.vars['languagename'] = languages[
-        suit.vars['request'].GET['language'].lower()
+if ('language' in suit.request.GET and
+suit.request.GET['language'].lower() in languages):
+    suit.languagename = languages[
+        suit.request.GET['language'].lower()
     ]
 else:
-    suit.vars['languagename'] = 'default'
-if ('submit' in suit.vars['request'].POST and
-suit.vars['request'].POST['submit']):
-    suit.vars['template'] = suit.vars['request'].POST['template']
+    suit.languagename = 'default'
+if ('submit' in suit.request.POST and
+suit.request.POST['submit']):
+    suit.template = suit.request.POST['template']
 else:
-    suit.vars['template'] = open(
-        ''.join((
-            suit.vars['files']['templates'],
-            '/example.tpl'
-        ))
-    ).read()
+    suit.template = open('templates/example.tpl').read()
 from cgi import escape
-suit.vars['templateentities'] = escape(
-    suit.vars['template'],
+suit.templateentities = escape(
+    suit.template,
     True
 )

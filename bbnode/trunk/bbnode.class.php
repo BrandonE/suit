@@ -507,8 +507,8 @@ class BBNode
         $params['taken'] = false;
         //Add the new node to the stack
         $newstack = $params['suit']->stack($params['var']['node'], $params['case'], $params['open']['position']);
-        $params['stack'] = array_merge($params['stack'], $newstack['stack']);
-        $params['skipnode'] = array_merge($params['skipnode'], $newstack['skipnode']);
+        $params['openingstack'] = array_merge($params['openingstack'], $newstack['openingstack']);
+        $params['skipstack'] = array_merge($params['skipstack'], $newstack['skipstack']);
         $params['preparse']['nodes'][$params['case']] = $params['var']['node'];
         return $params;
     }
@@ -523,9 +523,9 @@ class BBNode
 
     public function template($params)
     {
-        $params['suit']->vars['case'] = $params['case'];
-        $params['suit']->vars['equal'] = $params['var']['equal'];
-        $params['case'] = $params['suit']->parse($params['suit']->vars['nodes'], $params['var']['template']);
+        $params['suit']->case = $params['case'];
+        $params['suit']->equal = $params['var']['equal'];
+        $params['case'] = $params['suit']->parse($params['suit']->nodes, $params['var']['template']);
         return $params;
     }
 }

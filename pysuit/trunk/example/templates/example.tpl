@@ -1,6 +1,6 @@
 [comment]This is an example template[/comment]
-[parse][template]menu[/template][/parse]
-<p>PySUIT Version: [var]version[/var]</p>
+[parse][template]templates/menu.tpl[/template][/parse]
+<p>PySUIT Version: [var]__version__[/var]</p>
 [assign var="condition=>legitimatecopy"]true[/assign]
 <p>
     [if condition="[var]condition=>legitimatecopy[/var]"]

@@ -16,17 +16,25 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->vars['name'] = $suit->vars['language']['badrequest'];
-$template = $suit->parse($suit->vars['nodes'], $template);
-$suit->vars['debug'] = $suit->debug;
-$debug = $suit->gettemplate(
-    file_get_contents($suit->vars['files']['templates'] . '/tie/debug.tpl'),
+$suit->loop['section'] = array
+(
     array
     (
-        $suit->vars['files']['code'] . '/tie/debug.inc.php',
-        $suit->vars['files']['code'] . '/tie/parse.inc.php'
+        'title' => $suit->language['dashboard']
     )
 );
+$suit->path = $suit->tie->path(array('check', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'section', 'start', 'title'));
+$suit->template = $suit->parse($suit->nodes, $suit->template);
+$suit->debugging = $suit->debug;
+include 'code/tie/debug.inc.php';
+if ($suit->tie->config['flag']['debug'])
+{
+    $debug = $suit->parse($suit->nodes, file_get_contents('templates/tie/debug.tpl'));
+}
+else
+{
+    $debug = '';
+}
 $nodes = array
 (
     '<debug' => array
@@ -43,5 +51,5 @@ $nodes = array
         'var' => $debug
     )
 );
-exit($suit->parse($nodes, $template));
+exit($suit->parse($nodes, $suit->template));
 ?>

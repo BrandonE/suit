@@ -3,7 +3,7 @@
 <head>
 <title>[var]language=>title[/var] - [var]language=>example[/var]</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="?css=true" rel="stylesheet" type="text/css" />
+<link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div class="header">

@@ -15,7 +15,8 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-suit.vars['language'] = {
+import suit
+suit.language = {
     'copyright': 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default': 'Default',
     'example': 'Example',
@@ -30,16 +31,16 @@ suit.vars['language'] = {
 languages = {
     'english': 'english'
 }
-if ('language' in suit.vars['request'].GET and
-suit.vars['request'].GET['language'].lower() in languages):
-    suit.vars['languagename'] = languages[
-        suit.vars['request'].GET['language'].lower()
+if ('language' in suit.request.GET and
+suit.request.GET['language'].lower() in languages):
+    suit.languagename = languages[
+        suit.request.GET['language'].lower()
     ]
 else:
-    suit.vars['languagename'] = 'default'
-if ('submit' in suit.vars['request'].POST and
-suit.vars['request'].POST['submit']):
-    from bbnode import nodes
+    suit.languagename = 'default'
+if ('submit' in suit.request.POST and
+suit.request.POST['submit']):
+    from bbnode import NODES as nodes
     from cgi import escape
     for value in nodes.items():
         if 'var' in value[1] and 'label' in value[1]['var']:
@@ -53,13 +54,13 @@ suit.vars['request'].POST['submit']):
     config = {
         'escape': ''
     }
-    suit.vars['message'] = escape(
-        suit.vars['request'].POST['message'],
+    suit.message = escape(
+        suit.request.POST['message'],
         True
     )
-    suit.vars['parsed'] = suit.parse(
+    suit.parsed = suit.parse(
         nodes,
-        suit.vars['message'].replace('\n','<br />\n')
+        suit.message.replace('\n','<br />\n')
     )
 else:
-    suit.vars['message'] = ''
+    suit.message = ''

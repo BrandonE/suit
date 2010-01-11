@@ -16,9 +16,6 @@ $(document).ready
             {
                 $('.parse').show();
                 $('.strpos').hide();
-                $('.templates').hide();
-                $('.templatehide').hide();
-                $('.templateshow').show();
             }
         );
 
@@ -30,23 +27,9 @@ $(document).ready
                 $('.parsehide').hide();
                 $('.parseshow').show();
                 $('.strpos').show();
-                $('.templates').hide();
-                $('.templatehide').hide();
-                $('.templateshow').show();
             }
         );
 
-        $('.templatestab').click
-        (
-            function ()
-            {
-                $('.parse').hide();
-                $('.parsehide').hide();
-                $('.parseshow').show();
-                $('.strpos').hide();
-                $('.templates').show();
-            }
-        );
     }
 );
 

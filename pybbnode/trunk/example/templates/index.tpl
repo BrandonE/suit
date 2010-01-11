@@ -1,5 +1,6 @@
 [trim]
-[parse][template]header=>header[/template][/parse]
+[code]code/header.py[/code]
+[parse][template]templates/header.tpl[/template][/parse]
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
         [if condition="[var json='true']message[/var]"]
@@ -14,5 +15,5 @@
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
     </div>
-[parse][template]footer[/template][/parse]
+[parse][template]templates/footer.tpl[/template][/parse]
 [/trim]

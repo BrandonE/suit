@@ -1,5 +1,5 @@
 [comment]This is an example template[/comment]
-[parse][template]menu[/template][/parse]
+[parse][template]templates/menu.tpl[/template][/parse]
 <p>SUIT Version: [var]version[/var]</p>
 [assign var="condition=>legitimatecopy"]true[/assign]
 <p>

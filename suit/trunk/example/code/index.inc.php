@@ -16,7 +16,7 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->vars['language'] = array
+$suit->language = array
 (
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
@@ -35,37 +35,19 @@ $suit->vars['language'] = array
 switch (strtolower($_GET['language']))
 {
     case 'english':
-        $suit->vars['languagename'] = 'english';
+        $suit->languagename = 'english';
         break;
     default:
-        $suit->vars['languagename'] = 'default';
+        $suit->languagename = 'default';
         break;
 }
-function node($params)
-{
-    if ($params['case'] == $params['var']['exception'])
-    {
-        $params['case'] = strtolower($params['case']);
-    }
-    else
-    {
-        $params['case'] = strtoupper($params['case']);
-    }
-    return $params;
-}
-function php($params)
-{
-    $params['case'] = highlight_string($params['open']['open'] . $params['case'] . $params['open']['node']['close'], true);
-    return $params;
-}
-$nodes = new Nodes();
 if (array_key_exists('submit', $_POST))
 {
-    $suit->vars['template'] = $_POST['template'];
+    $suit->template = $_POST['template'];
 }
 else
 {
-    $suit->vars['template'] = file_get_contents($suit->vars['files']['templates'] . '/example.tpl');
+    $suit->template = file_get_contents('templates/example.tpl');
 }
-$suit->vars['templateentities'] = htmlentities($suit->vars['template']);
+$suit->templateentities = htmlentities($suit->template);
 ?>

@@ -15,6 +15,8 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import suit
+
 __version__ = '0.0.0'
 
 def attribute(params):
@@ -42,13 +44,13 @@ def stack(params):
     ))
     params['taken'] = False
     #Add the new node to the stack
-    newstack = params['suit'].stack(
+    newstack = suit.stack(
         params['var']['node'],
         params['case'],
         params['open']['position']
     )
-    params['stack'].extend(newstack['stack'])
-    params['skipnode'].extend(newstack['skipnode'])
+    params['openingstack'].extend(newstack['openingstack'])
+    params['skipstack'].extend(newstack['skipstack'])
     params['preparse']['nodes'][params['case']] = params['var']['node']
     return params
 
@@ -67,10 +69,10 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    params['suit'].vars['case'] = params['case']
-    params['suit'].vars['equal'] = params['var']['equal']
-    params['case'] = params['suit'].parse(
-        params['suit'].vars['nodes'],
+    suit.case = params['case']
+    suit.equal = params['var']['equal']
+    params['case'] = suit.parse(
+        suit.nodes,
         params['var']['template']
     )
     return params
@@ -102,7 +104,7 @@ def listitems(params):
         ))
     return params
 
-nodes = {
+NODES = {
     '[':
     {
         'close': ']'

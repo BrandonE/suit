@@ -1,6 +1,7 @@
-[template]tie/header=>tie/header=>tie/parse[/template]
+[code]code/tie/header.inc.php[/code]
+[parse][template]templates/tie/header.tpl[/template][/parse]
     <div class="section">
-        <h2>[var]name[/var]</h2>
+        <h2>[loop vars="[var json='true']loop=>section[/var]" delimiter=" - "][loopvar]title[/loopvar][/loop]</h2>
         [var]language=>badrequest[/var]
     </div>
-[template]tie/footer=>tie/parse[/template]
+[parse][template]templates/tie/footer.tpl[/template][/parse]
