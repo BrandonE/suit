@@ -35,8 +35,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'style',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'style'
                     ),
                     array
                     (
@@ -58,13 +58,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[align]'
@@ -76,8 +76,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -94,8 +94,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'skip' => true,
@@ -113,13 +113,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'style',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'style'
                     ),
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -136,13 +136,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[color]'
@@ -154,8 +154,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -172,13 +172,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[email]'
@@ -190,13 +190,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'style',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'style'
                     ),
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -213,13 +213,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[font]'
@@ -231,8 +231,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -249,8 +249,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -267,13 +267,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'listitems',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'listitems'
                     ),
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -293,13 +293,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[list]'
@@ -311,8 +311,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -329,18 +329,18 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'style',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'style'
                     ),
                     array
                     (
-                        'function' => 'size',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'size'
                     ),
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -357,13 +357,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[size]'
@@ -375,8 +375,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -393,13 +393,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[quote]'
@@ -411,8 +411,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -429,8 +429,8 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'template',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'template'
                     )
                 ),
                 'var' => array
@@ -447,13 +447,13 @@ class BBNode
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'stack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'stack'
                     )
                 ),
                 'attribute' => '[url]'

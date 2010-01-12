@@ -1,4 +1,5 @@
 [trim]
+[code]code/index.py[/code]
 [code]code/header.py[/code]
 [parse][template]templates/header.tpl[/template][/parse]
     <div class="section">

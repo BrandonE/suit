@@ -22,6 +22,7 @@ suit.language = {
     'example': 'Example',
     'message': 'Message',
     'poweredby': 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
+    'slacks': 'See this page built using SLACKS',
     'slogan': 'BBCode Using SUIT Nodes',
     'submit': 'Submit',
     'suit': 'SUIT',
@@ -38,8 +39,7 @@ suit.request.GET['language'].lower() in languages):
     ]
 else:
     suit.languagename = 'default'
-if ('submit' in suit.request.POST and
-suit.request.POST['submit']):
+if 'submit' in suit.request.POST and suit.request.POST['submit']:
     from bbnode import NODES as nodes
     from cgi import escape
     for value in nodes.items():

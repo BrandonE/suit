@@ -23,6 +23,7 @@ $suit->language = array
     'example' => 'Example',
     'message' => 'Message',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
+    'slacks' => 'See this page built using SLACKS',
     'slogan' => 'BBCode Using SUIT Nodes',
     'submit' => 'Submit',
     'suit' => 'SUIT',

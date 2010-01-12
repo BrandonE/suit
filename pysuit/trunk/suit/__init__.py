@@ -5,7 +5,7 @@
 **@the Free Software Foundation, either version 3 of the License, or
 **@(at your option) any later version.
 **@PySUIT is distributed in the hope that it will be useful,
-**@but WITHOUT ANY WARRANTY; without even the implied warranty of
+**@but WITHOUT ANY WARRANTY without even the implied warranty of
 **@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 **@GNU General Public License for more details.
 **@You should have received a copy of the GNU General Public License
@@ -26,27 +26,7 @@ CACHE = {
     'parse': {}
 }
 
-DEBUG = {
-    'parse': [],
-    'strpos':
-    {
-        'escape':
-        {
-            'cache': 0,
-            'call': 0
-        },
-        'explodeunescape':
-        {
-            'cache': 0,
-            'call': 0
-        },
-        'parse':
-        {
-            'cache': 0,
-            'call': 0
-        }
-    }
-}
+DEBUG = []
 
 def closingstring(params):
     """Handle a closing string instance in the parser"""
@@ -119,7 +99,6 @@ def escape(strings, returnvalue, escapestring = '\\', insensitive = True):
     #If positions are cached for this case, load them
     if key in CACHE['escape']:
         pos = CACHE['escape'][key]
-        DEBUG['strpos']['escape']['cache'] += 1
     else:
         positionstrings = {}
         for value in strings:
@@ -131,7 +110,6 @@ def escape(strings, returnvalue, escapestring = '\\', insensitive = True):
             reverse = True
         )
         params = {
-            'function': 'escape',
             'insensitive': insensitive,
             'pos': {},
             'repeated': [],
@@ -191,15 +169,13 @@ def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
     #If positions are cached for this case, load them
     if key in CACHE['explodeunescape']:
         pos = CACHE['explodeunescape'][key]
-        DEBUG['strpos']['explodeunescape']['cache'] += 1
     else:
         pos = []
         position = strpos(
             glue,
             explode,
             0,
-            insensitive,
-            'explodeunescape'
+            insensitive
         )
         #Find the next position of the string
         while position != -1:
@@ -208,8 +184,7 @@ def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
                 glue,
                 explode,
                 position + 1,
-                insensitive,
-                'explodeunescape'
+                insensitive
             )
         #On top of the explode string to be escaped, the last position in the
         #string should be checked for escape strings
@@ -313,21 +288,11 @@ def openingstring(params):
 
 def parse(nodes, returnvalue, config = None):
     """Parse string using nodes"""
-    inspection = inspect.stack()
-    entry = {
-            'before': returnvalue,
-            'file': inspection[1][2],
-            'line': inspection[1][3],
-            'return': ''
-        }
     config = parseconfig(config)
-    if 'label' in config:
-        entry['label'] = config['label']
     key = parsecache(nodes, returnvalue, config)
     #If positions are cached for this case, load them
     if key in CACHE['parse']:
         pos = CACHE['parse'][key]
-        DEBUG['strpos']['parse']['cache'] += 1
     else:
         pos = parsepositions(
             nodes,
@@ -339,10 +304,19 @@ def parse(nodes, returnvalue, config = None):
         pos = sorted(pos.items())
         #Cache the positions
         CACHE['parse'][key] = pos
-    preparse = {
-        'ignored': [],
-        'taken': []
-    }
+    inspection = inspect.stack()
+    DEBUG.append({
+        'file': inspection[1][1],
+        'line': inspection[1][2],
+        'steps':
+        [
+            {
+                'return': returnvalue
+            }
+        ]
+    })
+    offset = 0
+    temp = returnvalue
     params = {
         'config': config,
         'ignored': [],
@@ -353,11 +327,10 @@ def parse(nodes, returnvalue, config = None):
             'nodes': {},
             'taken': []
         },
+        'return': returnvalue,
         'skipstack': [],
         'skipoffset': 0
     }
-    offset = 0
-    temp = returnvalue
     for value in pos:
         #Adjust position to changes in length
         position = value[0] + offset
@@ -367,53 +340,62 @@ def parse(nodes, returnvalue, config = None):
         params['offset'] = 0
         params['parse'] = True
         params['position'] = position
-        params['return'] = returnvalue
         params['taken'] = True
         params['unescape'] = parseunescape(
             position,
             params['config']['escape'],
-            returnvalue
+            params['return']
         )
-        params['usetaken'] = True
-        function = closingstring
         #If this is the opening string and it should not be skipped over
         if value[1][1] == 0:
-            function = openingstring
-        params = function(params)
-        returnvalue = params['return']
-        #If the stack is empty
-        if not params['openingstack']:
-            #It is impossible that a skipped over node is in another node, so
-            #permanently reserve it and start the process over again
-            preparse['ignored'].extend(params['preparse']['ignored'])
-            params['preparse']['ignored'] = []
-            #If we are preparsing
-            if params['config']['preparse']:
-                #The ranges can not be inside another node, so permanently
-                #reserve it and start the process over again
-                preparse['taken'].extend(params['preparse']['taken'])
-                params['preparse']['taken'] = []
+            params = openingstring(params)
+        else:
+            pop = DEBUG.pop()
+            pop['steps'].append({
+                'node': params['node'],
+                'recurse': []
+            })
+            DEBUG.append(pop)
+            params = closingstring(params)
+            pop = DEBUG.pop()
+            pop2 = pop['steps'].pop()
+            pop2['ignored'] = params['preparse']['ignored']
+            pop2['return'] = params['return']
+            pop2['taken'] = params['preparse']['taken']
+            pop['steps'].append(pop2)
+            DEBUG.append(pop)
         #Adjust the offset
-        offset = len(returnvalue) - len(temp)
+        offset = len(params['return']) - len(temp)
         if not params['parse']:
             break
-    entry['return'] = returnvalue
-    if params['config']['preparse']:
-        for value in params['openingstack']:
-            preparse['taken'].append((
-                value['position'],
-                value['position'] + len(value['open'])
-            ))
+    for value in params['openingstack']:
+        params['preparse']['taken'].append((
+            value['position'],
+            value['position'] + len(value['open'])
+        ))
+    #Log the function call
+    push = True
+    pop = DEBUG.pop()
+    if DEBUG:
+        pop2 = DEBUG.pop()
+        if pop2['steps']:
+            pop3 = pop2['steps'].pop()
+            if not 'return' in pop3:
+                pop3['recurse'].append(pop)
+                push = False
+            pop2['steps'].append(pop3)
+        DEBUG.append(pop2)
+    if push:
+        DEBUG.append(pop)
+    if not params['config']['preparse']:
+        returnvalue = params['return']
+    else:
         returnvalue = {
-            'ignored': preparse['ignored'],
+            'ignored': params['preparse']['ignored'],
             'nodes': params['preparse']['nodes'],
-            'return': returnvalue,
-            'taken': preparse['taken']
+            'return': params['return'],
+            'taken': params['preparse']['taken']
         }
-        entry['preparse'] = preparse
-    #If a label was provided, log this function
-    if 'label' in config:
-        DEBUG['parse'].append(entry)
     return returnvalue
 
 def parsecache(nodes, returnvalue, config):
@@ -459,7 +441,6 @@ def parsepositions(nodes, returnvalue, taken, insensitive):
     #Order the strings by the length, descending
     strings.sort(key = lambda item: len(item[0]), reverse = True)
     params = {
-        'function': 'parse',
         'insensitive': insensitive,
         'pos': {},
         'repeated': [],
@@ -521,8 +502,7 @@ def positionsloop(params):
         params['return'],
         params['value'][0],
         0,
-        params['insensitive'],
-        params['function']
+        params['insensitive']
     )
     while position != -1:
         success = True
@@ -552,8 +532,7 @@ def positionsloop(params):
             params['return'],
             params['value'][0],
             position + 1,
-            params['insensitive'],
-            params['function']
+            params['insensitive']
         )
     return params
 
@@ -570,9 +549,6 @@ def ranges(params):
         ):
             params['preparse']['ignored'][key][0] += params['offset']
             params['preparse']['ignored'][key][1] += params['offset']
-    #Only continue if the call specifies to preparse
-    if not params['config']['preparse']:
-        return params
     clone = []
     for value in params['preparse']['taken']:
         #If this reserved range is in this case
@@ -598,10 +574,10 @@ def ranges(params):
     params['open']['node']['transform']) and
     params['taken'] and
     params['case']):
-        params['preparse']['taken'].append((
+        params['preparse']['taken'].append([
             params['open']['position'],
             params['last']
-        ))
+        ])
     return params
 
 def stack(node, opening, position):
@@ -627,12 +603,9 @@ def stack(node, opening, position):
         'skipstack': skipstack
     }
 
-def strpos(haystack, needle, offset, insensitive, function = None):
+def strpos(haystack, needle, offset, insensitive):
     """Find the position insensitively or sensitively based on the
     configuration"""
-    if function != None:
-        #Log this call
-        DEBUG['strpos'][function]['call'] += 1
     #Find the position insensitively or sensitively based on the configuration
     if insensitive:
         return haystack.upper().find(needle.upper(), offset)

@@ -25,28 +25,7 @@ class SUIT
         'parse' => array()
     );
 
-    public $debug = array
-    (
-        'parse' => array(),
-        'strpos' => array
-        (
-            'escape' => array
-            (
-                'cache' => 0,
-                'call' => 0
-            ),
-            'explodeunescape' => array
-            (
-                'cache' => 0,
-                'call' => 0
-            ),
-            'parse' => array
-            (
-                'cache' => 0,
-                'call' => 0
-            )
-        )
-    );
+    public $debug = array();
 
     public $filepath = '';
 
@@ -140,7 +119,6 @@ class SUIT
         if (array_key_exists($cache, $this->cache['escape']))
         {
             $pos = $this->cache['escape'][$cache];
-            $this->debug['strpos']['escape']['cache']++;
         }
         else
         {
@@ -153,7 +131,6 @@ class SUIT
             uksort($positionstrings, array('SUIT', 'sort'));
             $params = array
             (
-                'function' => 'escape',
                 'insensitive' => $insensitive,
                 'pos' => array(),
                 'repeated' => array(),
@@ -205,14 +182,13 @@ class SUIT
         if (array_key_exists($cache, $this->cache['explodeunescape']))
         {
             $pos = $this->cache['explodeunescape'][$cache];
-            $this->debug['strpos']['explodeunescape']['cache']++;
         }
         else
         {
             $pos = array();
             $position = -1;
             //Find the next position of the string
-            while (($position = $this->strpos($string, $explode, $position + 1, $insensitive, 'explodeunescape')) !== false)
+            while (($position = $this->strpos($string, $explode, $position + 1, $insensitive)) !== false)
             {
                 $pos[] = $position;
             }
@@ -337,25 +313,12 @@ class SUIT
 
     public function parse($nodes, $return, $config = array())
     {
-        $debug = debug_backtrace();
-        $debug = array
-        (
-            'before' => $return,
-            'file' => $debug[0]['file'],
-            'line' => $debug[0]['line'],
-            'return' => ''
-        );
-        if (array_key_exists('label', $config))
-        {
-            $debug['label'] = $config['label'];
-        }
         $config = $this->parseconfig($config);
         $cache = $this->parsecache($nodes, $return, $config);
         //If positions are cached for this case, load them
         if (array_key_exists($cache, $this->cache['parse']))
         {
             $pos = $this->cache['parse'][$cache];
-            $this->debug['strpos']['parse']['cache']++;
         }
         else
         {
@@ -365,11 +328,21 @@ class SUIT
             //Cache the positions
             $this->cache['parse'][$cache] = $pos;
         }
-        $preparse = array
+        $inspection = debug_backtrace();
+        $this->debug[] = array
         (
-            'ignored' => array(),
-            'taken' => array()
+            'file' => $inspection[0]['file'],
+            'line' => $inspection[0]['line'],
+            'steps' => array
+            (
+                array
+                (
+                    'return' => $return
+                )
+            )
         );
+        $offset = 0;
+        $temp = $return;
         $params = array
         (
             'config' => $config,
@@ -380,12 +353,11 @@ class SUIT
                 'nodes' => array(),
                 'taken' => array()
             ),
+            'return' => $return,
             'skipstack' => array(),
             'skipoffset' => 0,
             'openingstack' => array()
         );
-        $offset = 0;
-        $temp = $return;
         $key = array_keys($pos);
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
@@ -398,58 +370,76 @@ class SUIT
             $params['offset'] = 0;
             $params['parse'] = true;
             $params['position'] = $position;
-            $params['return'] = $return;
             $params['taken'] = true;
-            $params['unescape'] = $this->parseunescape($position, $params['config']['escape'], $return);
-            $function = 'closingstring';
-            //If this is the opening string and it should not be skipped over
+            $params['unescape'] = $this->parseunescape($position, $params['config']['escape'], $params['return']);
             if ($pos[$key[$i]][1] == 0)
             {
-                $function = 'openingstring';
+                $params = $this->openingstring($params);
             }
-            $params = $this->$function($params);
-            $return = $params['return'];
-            //If the stack is empty
-            if (empty($params['openingstack']))
+            else
             {
-                //It is impossible that a skipped over node is in another node, so permanently reserve it and start the process over again
-                $preparse['ignored'] = array_merge($preparse['ignored'], $params['preparse']['ignored']);
-                $params['preparse']['ignored'] = array();
-                //If we are preparsing
-                if ($params['config']['preparse'])
-                {
-                    //The ranges can not be inside another node, so permanently reserve it and start the process over again
-                    $preparse['taken'] = array_merge($preparse['taken'], $params['preparse']['taken']);
-                    $params['preparse']['taken'] = array();
-                }
+                $pop = array_pop($this->debug);
+                $pop['steps'][] = array
+                (
+                    'node' => $params['node'],
+                    'recurse' => array()
+                );
+                $this->debug[] = $pop;
+                $params = $this->closingstring($params);
+                $pop = array_pop($this->debug);
+                $pop2 = array_pop($pop['steps']);
+                $pop2['ignored'] = $params['preparse']['ignored'];
+                $pop2['return'] = $params['return'];
+                $pop2['taken'] = $params['preparse']['taken'];
+                $pop['steps'][] = $pop2;
+                $this->debug[] = $pop;
             }
             //Adjust the offset
-            $offset = strlen($return) - strlen($temp);
+            $offset = strlen($params['return']) - strlen($temp);
             if (!$params['parse'])
             {
                 break;
             }
         }
-        $debug['return'] = $return;
-        if ($params['config']['preparse'])
+        foreach($params['openingstack'] as $value)
         {
-            foreach($params['openingstack'] as $value)
+            $params['preparse']['taken'][] = array($value['position'], $value['position'] + strlen($value['open']));
+        }
+        //Log the function call
+        $push = true;
+        $pop = array_pop($this->debug);
+        if (!empty($this->debug))
+        {
+            $pop2 = array_pop($this->debug);
+            if (!empty($pop2['steps']))
             {
-                $preparse['taken'][] = array($value['position'], $value['position'] + strlen($value['open']));
+                $pop3 = array_pop($pop2['steps']);
+                if (!array_key_exists('return', $pop3))
+                {
+                    $pop3['recurse'][] = $pop;
+                    $push = false;
+                }
+                $pop2['steps'][] = $pop3;
             }
+            $this->debug[] = $pop2;
+        }
+        if ($push)
+        {
+            $this->debug[] = $pop;
+        }
+        if (!$params['config']['preparse'])
+        {
+            $return = $params['return'];
+        }
+        else
+        {
             $return = array
             (
-                'ignored' => $preparse['ignored'],
+                'ignored' => $params['preparse']['ignored'],
                 'nodes' => $params['preparse']['nodes'],
-                'return' => $return,
-                'taken' => $preparse['taken']
+                'return' => $params['return'],
+                'taken' => $params['preparse']['taken']
             );
-            $debug['preparse'] = $preparse;
-        }
-        //If a label was provided, log this function
-        if (array_key_exists('label', $config))
-        {
-            $this->debug['parse'][] = $debug;
         }
         return $return;
     }
@@ -514,7 +504,6 @@ class SUIT
         uksort($strings, array('SUIT', 'sort'));
         $params = array
         (
-            'function' => 'parse',
             'insensitive' => $insensitive,
             'pos' => array(),
             'repeated' => array(),
@@ -579,7 +568,7 @@ class SUIT
     {
         $position = -1;
         //Find the next position of the string
-        while (($position = $this->strpos($params['return'], $params['key'][$params['i']], $position + 1, $params['insensitive'], $params['function'])) !== false)
+        while (($position = $this->strpos($params['return'], $params['key'][$params['i']], $position + 1, $params['insensitive'])) !== false)
         {
             $success = true;
             foreach ($params['taken'] as $value)
@@ -615,11 +604,6 @@ class SUIT
                 $params['preparse']['ignored'][$key[$i]][0] += $params['offset'];
                 $params['preparse']['ignored'][$key[$i]][1] += $params['offset'];
             }
-        }
-        //Only continue if the call specifies to preparse
-        if (!$params['config']['preparse'])
-        {
-            return $params;
         }
         $key = array_keys($params['preparse']['taken']);
         $size = count($key);
@@ -679,13 +663,8 @@ class SUIT
         );
     }
 
-    public function strpos($haystack, $needle, $offset, $insensitive, $function = NULL)
+    public function strpos($haystack, $needle, $offset, $insensitive)
     {
-        if (isset($function))
-        {
-            //Log this call
-            $this->debug['strpos'][$function]['call']++;
-        }
         //Find the position insensitively or sensitively based on the configuration
         if ($insensitive)
         {
@@ -717,7 +696,7 @@ class SUIT
             //If either this does not contain a ignored node or the node does not transform the case
             if ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform']))
             {
-                $params['suit'] = $this;
+                $params['suit'] = &$this;
                 $params['var'] = $params['open']['node']['var'];
                 foreach ($params['open']['node']['function'] as $value)
                 {

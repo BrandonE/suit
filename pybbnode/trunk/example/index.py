@@ -16,10 +16,12 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+from cgi import escape
+import cgitb
 import glob
+import json
 import os
 import sys
-import cgitb
 from webob import Request, Response
 print 'Content-Type: text/html\n'
 cgitb.enable()
@@ -47,7 +49,20 @@ suit.condition = {}
 suit.loop = {}
 suit.request = Request(environ)
 suit.response = Response()
-sys.path.append('code')
-sys.path.reverse()
-import index
-print suit.parse(suit.nodes, open('templates/index.tpl').read())
+template = suit.parse(suit.nodes, open('templates/index.tpl').read())
+def slack(params):
+    params['case'] = params['var']
+    return params
+slacksnodes = {
+	'<slacks':
+	{
+		'close': '/>',
+        'function': [slack],
+		'skip': True,
+		'var': escape(
+            json.dumps(suit.DEBUG, separators = (',',':')),
+            True
+        )
+	}
+}
+print suit.parse(slacksnodes, template)

@@ -68,32 +68,31 @@ $suit->loop = array();
 include 'code/tie/main.inc.php';
 include 'code/tie/index.inc.php';
 $template = $suit->parse($suit->nodes, file_get_contents('templates/tie/index.tpl'));
-$suit->debugging = $suit->debug;
-include 'code/tie/debug.inc.php';
-if ($suit->tie->config['flag']['debug'])
+class SLACKS
 {
-    $debug = $suit->parse($suit->nodes, file_get_contents('templates/tie/debug.tpl'));
+    public function slack($params)
+    {
+        $params['case'] = $params['var'];
+        return $params;
+    }
 }
-else
-{
-    $debug = '';
-}
-$debugnodes = array
+$slacks = new SLACKS();
+$slacksnodes = array
 (
-	'<debug' => array
+	'<slacks' => array
 	(
-		'close' => ' />',
+		'close' => '/>',
         'function' => array
         (
             array
             (
-                'function' => 'nodedebug'
+                'class' => $slacks,
+                'function' => 'slack'
             )
         ),
 		'skip' => true,
-		'var' => $debug
+		'var' => htmlentities(json_encode($suit->debug))
 	)
 );
-echo $suit->parse($debugnodes, $template);
-unset($suit);
+echo $suit->parse($slacksnodes, $template);
 ?>

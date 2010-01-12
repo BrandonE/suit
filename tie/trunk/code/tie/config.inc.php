@@ -35,10 +35,6 @@ $config = array
         'code' => 'inc.php',
         'templates' => 'tpl'
     ),
-    'flag' => array
-    (
-        'debug' => false
-    ),
     'navigation' => array
     (
         'array' => $_GET,

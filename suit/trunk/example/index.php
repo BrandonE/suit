@@ -41,8 +41,32 @@ foreach (scandir('code') as $value)
 }
 $suit->condition = array();
 $suit->loop = array();
-include 'code/index.inc.php';
-include 'code/variables.inc.php';
-echo $suit->parse($suit->nodes, file_get_contents('templates/index.tpl'));
-unset($suit);
+$template = $suit->parse($suit->nodes, file_get_contents('templates/index.tpl'));
+class SLACKS
+{
+    public function slack($params)
+    {
+        $params['case'] = $params['var'];
+        return $params;
+    }
+}
+$slacks = new SLACKS();
+$slacksnodes = array
+(
+	'<slacks' => array
+	(
+		'close' => '/>',
+        'function' => array
+        (
+            array
+            (
+                'class' => $slacks,
+                'function' => 'slack'
+            )
+        ),
+		'skip' => true,
+		'var' => htmlentities(json_encode($suit->debug))
+	)
+);
+echo $suit->parse($slacksnodes, $template);
 ?>

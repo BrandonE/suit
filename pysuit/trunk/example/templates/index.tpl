@@ -1,4 +1,5 @@
 [trim]
+[code]code/index.py[/code]
 [code]code/header.py[/code]
 [parse][template]templates/header.tpl[/template][/parse]
     <div class="section">
@@ -16,7 +17,6 @@
 [var]templateentities[/var]</textarea></p>
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
-        <p>[var]language=>variables[/var]</p>
     </div>
 [parse][template]templates/footer.tpl[/template][/parse]
 [/trim]

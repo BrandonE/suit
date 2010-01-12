@@ -380,8 +380,6 @@ def loop(params):
             'malformed': params['config']['malformed'],
             'preparse': True
         }
-        if 'label' in params['var']:
-            config['label'] = params['var']['label']
         #Parse everything possible without iteration
         result = suit.parse(
             dict(
@@ -399,8 +397,6 @@ def loop(params):
                 'preparse': True,
                 'taken': result['taken']
             }
-            if 'label' in params['var']:
-                config['label'] = ''.join((params['var']['label'], str(key)))
             #Parse for this iteration
             result2 = suit.parse(
                 dict(
@@ -518,8 +514,6 @@ def parse(params):
         'insensitive': params['config']['insensitive'],
         'malformed': params['config']['malformed']
     }
-    if 'label' in params['var']:
-        config['label'] = params['var']['label']
     params['case'] = suit.parse(
         params['nodes'],
         params['case'],

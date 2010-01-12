@@ -1,4 +1,5 @@
 [comment]This is an example template[/comment]
+[code]code/variables.inc.php[/code]
 [parse][template]templates/menu.tpl[/template][/parse]
 <p>SUIT Version: [var]version[/var]</p>
 [assign var="condition=>legitimatecopy"]true[/assign]

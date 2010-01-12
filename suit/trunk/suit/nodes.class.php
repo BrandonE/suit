@@ -33,8 +33,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'assign',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'assign'
                     )
                 ),
                 'var' => array
@@ -50,8 +50,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     )
                 ),
                 'attribute' => '[assign]',
@@ -70,8 +70,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'code',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'code'
                     )
                 ),
                 'var' => array()
@@ -83,8 +83,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'comments',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'comments'
                     )
                 ),
                 'skip' => true
@@ -96,8 +96,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'escape',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'escape'
                     )
                 ),
                 'skip' => true,
@@ -111,13 +111,13 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'jsondecode',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'jsondecode'
                     ),
                     array
                     (
-                        'function' => 'condition',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'condition'
                     )
                 ),
                 'skip' => true,
@@ -136,13 +136,13 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'conditionstack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'conditionstack'
                     )
                 ),
                 'attribute' => '[if]',
@@ -162,13 +162,13 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'jsondecode',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'jsondecode'
                     ),
                     array
                     (
-                        'function' => 'loop',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'loop'
                     )
                 ),
                 'skip' => true,
@@ -188,13 +188,13 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'loopstack',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'loopstack'
                     )
                 ),
                 'attribute' => '[loop]',
@@ -214,13 +214,13 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'jsondecode',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'jsondecode'
                     ),
                     array
                     (
-                        'function' => 'loopvariables',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'loopvariables'
                     )
                 ),
                 'var' => array
@@ -240,8 +240,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     )
                 ),
                 'attribute' => '[loopvar]',
@@ -260,8 +260,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'parse',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'parse'
                     )
                 ),
                 'var' => array()
@@ -273,8 +273,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     )
                 ),
                 'attribute' => '[parse]',
@@ -292,8 +292,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'replace',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'replace'
                     )
                 ),
                 'var' => array
@@ -309,8 +309,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     )
                 ),
                 'attribute' => '[replace]',
@@ -328,18 +328,18 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     ),
                     array
                     (
-                        'function' => 'jsondecode',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'jsondecode'
                     ),
                     array
                     (
-                        'function' => 'returning',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'returning'
                     )
                 ),
                 'skip' => true,
@@ -363,8 +363,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'templates',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'templates'
                     )
                 ),
                 'var' => array()
@@ -376,8 +376,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'trim',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'trim'
                     )
                 )
             ),
@@ -388,8 +388,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'trying',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'trying'
                     )
                 ),
                 'skip' => true,
@@ -406,8 +406,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     )
                 ),
                 'attribute' => '[try]',
@@ -427,13 +427,13 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'jsondecode',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'jsondecode'
                     ),
                     array
                     (
-                        'function' => 'variables',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'variables'
                     )
                 ),
                 'var' => array
@@ -451,8 +451,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'attribute',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'attribute'
                     )
                 ),
                 'attribute' => '[var]',
@@ -474,8 +474,8 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'evaluation',
-                        'class' => $this
+                        'class' => $this,
+                        'function' => 'evaluation'
                     )
                 )
             )
@@ -793,10 +793,6 @@ class Nodes
                 'malformed' => $params['config']['malformed'],
                 'preparse' => true
             );
-            if (array_key_exists('label', $params['var']))
-            {
-                $config['label'] = $params['var']['label'];
-            }
             //Preparse
             $result = $params['suit']->parse(array_merge($params['nodes'], $nodes), $params['case'], $config);
             $size = count($iterationvars);
@@ -810,10 +806,6 @@ class Nodes
                     'preparse' => true,
                     'taken' => $result['taken']
                 );
-                if (array_key_exists('label', $params['var']))
-                {
-                    $config['label'] = $params['var']['label'] . strval($i);
-                }
                 //Parse for this iteration
                 $result2 = $params['suit']->parse(array_merge($params['nodes'], $result['nodes'], $iterationvars[$i]), $result['return'], $config);
                 if (!$result2['ignored'])
@@ -939,10 +931,6 @@ class Nodes
             'insensitive' => $params['config']['insensitive'],
             'malformed' => $params['config']['malformed']
         );
-        if (in_array('label', $params['var']))
-        {
-            $config['label'] = $params['var']['label'];
-        }
         $params['case'] = $params['suit']->parse($params['nodes'], $params['case'], $config);
         return $params;
     }

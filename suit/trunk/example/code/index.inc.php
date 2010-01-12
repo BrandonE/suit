@@ -24,13 +24,13 @@ $suit->language = array
     'item' => 'Item',
     'parsed' => 'Parsed',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
+    'slacks' => 'See this page built using SLACKS',
     'slogan' => 'Scripting Using Integrated Templates',
     'submit' => 'Submit',
     'suit' => 'SUIT',
     'template' => 'Template',
     'title' => 'SUIT Framework',
-    'update' => 'Update',
-    'variables' => 'Variables defined in code/variables.inc.php'
+    'update' => 'Update'
 );
 switch (strtolower($_GET['language']))
 {
@@ -41,7 +41,7 @@ switch (strtolower($_GET['language']))
         $suit->languagename = 'default';
         break;
 }
-if (array_key_exists('submit', $_POST))
+if (array_key_exists('submit', $_POST) && $_POST['submit'])
 {
     $suit->template = $_POST['template'];
 }
