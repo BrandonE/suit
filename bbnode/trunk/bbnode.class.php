@@ -509,7 +509,6 @@ class BBNode
         $newstack = $params['suit']->stack($params['var']['node'], $params['case'], $params['open']['position']);
         $params['openingstack'] = array_merge($params['openingstack'], $newstack['openingstack']);
         $params['skipstack'] = array_merge($params['skipstack'], $newstack['skipstack']);
-        $params['preparse']['nodes'][$params['case']] = $params['var']['node'];
         return $params;
     }
 

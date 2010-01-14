@@ -548,7 +548,6 @@ class Nodes
                 $stack = $params['suit']->stack($result['node'], $params['case'], $params['open']['position']);
                 $params['openingstack'] = array_merge($params['openingstack'], $stack['openingstack']);
                 $params['skipstack'] = array_merge($params['skipstack'], $stack['skipstack']);
-                $params['preparse']['nodes'][$params['case']] = $result['node'];
             }
         }
         else
@@ -705,7 +704,6 @@ class Nodes
                     $pop['node']['skip'] = false;
                     array_pop($params['skipstack']);
                 }
-                $params['preparse']['nodes'][$params['case']] = $pop['node'];
             }
             //Else, if the node was ignored, do not skip over everything between this opening string and its closing string
             elseif ($pop['node']['close'] == $params['nodes'][$params['open']['node']['attribute']]['close'] && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
@@ -751,6 +749,7 @@ class Nodes
 
     public function loop($params)
     {
+        //print $params['case'];
         $iterationvars = array();
         $result = array
         (
@@ -770,10 +769,7 @@ class Nodes
             );
             foreach ($value as $key => $value2)
             {
-                if (!array_key_exists($key, $var[$params['var']['node']]['var']['var']))
-                {
-                    $var[$params['var']['node']]['var']['var'][$key] = $value2;
-                }
+                $var[$params['var']['node']]['var']['var'][$key] = $value2;
             }
             $result = $this->looppreparse($var[$params['var']['node']]['var']['var'], count($iterationvars), $result);
             $iterationvars[] = $var;
@@ -795,8 +791,7 @@ class Nodes
             );
             //Preparse
             $result = $params['suit']->parse(array_merge($params['nodes'], $nodes), $params['case'], $config);
-            $size = count($iterationvars);
-            for ($i = 0; $i < $size; $i++)
+            foreach ($iterationvars as $value)
             {
                 $config = array
                 (
@@ -807,7 +802,7 @@ class Nodes
                     'taken' => $result['taken']
                 );
                 //Parse for this iteration
-                $result2 = $params['suit']->parse(array_merge($params['nodes'], $result['nodes'], $iterationvars[$i]), $result['return'], $config);
+                $result2 = $params['suit']->parse(array_merge($params['nodes'], $value), $result['return'], $config);
                 if (!$result2['ignored'])
                 {
                     $iterations[] = $result2['return'];
@@ -879,7 +874,6 @@ class Nodes
                 $pop['node']['skip'] = false;
                 array_pop($params['skipstack']);
             }
-            $params['preparse']['nodes'][$params['case']] = $pop['node'];
             $params['openingstack'][] = $pop;
         }
         return $params;

@@ -86,7 +86,6 @@ def attribute(params):
             )
             params['openingstack'].extend(stack['openingstack'])
             params['skipstack'].extend(stack['skipstack'])
-            params['preparse']['nodes'][params['case']] = result['node']
     else:
         #Reserve the space
         params['preparse']['ignored'].append([
@@ -121,7 +120,12 @@ def attributedefine(params, node):
     quote = ''
     smallest = False
     for value in params['var']['quote']:
-        position = suit.strpos(params['case'], value, 0, params['config']['insensitive'])
+        position = suit.strpos(
+            params['case'],
+            value,
+            0,
+            params['config']['insensitive']
+        )
         if position != -1 and (smallest == False or position < smallest):
             quote = value
             smallest = position
@@ -236,7 +240,6 @@ def conditionstack(params):
             ):
                 pop['node']['skip'] = False
                 params['skipstack'].pop()
-            params['preparse']['nodes'][params['case']] = pop
         #Else, if the node was ignored, do not skip over everything between
         #this opening string and its closing string
         elif (pop['node']['close'] == params['nodes'][
@@ -341,17 +344,12 @@ def loop(params):
         ]['var']['var'].copy()
         if hasattr(value, 'items'):
             for value2 in value.items():
-                if not value2[0] in var[params['var']['node']]['var']['var']:
-                    var[
-                        params['var']['node']
-                    ]['var']['var'][value2[0]] = value2[1]
+                var[
+                    params['var']['node']
+                ]['var']['var'][value2[0]] = value2[1]
         else:
             for value2 in dir(value):
-                if (not hasattr(
-                    var[params['var']['node']]['var']['var'],
-                    value2
-                ) and
-                not value2.startswith('_') and
+                if (not value2.startswith('_') and
                 not callable(getattr(value, value2))):
                     var[params['var']['node']]['var']['var'][value2] = getattr(
                         value,
@@ -389,7 +387,7 @@ def loop(params):
             params['case'],
             config
         )
-        for key, value in enumerate(iterationvars):
+        for value in iterationvars:
             config = {
                 'escape': params['config']['escape'],
                 'insensitive': params['config']['insensitive'],
@@ -401,7 +399,6 @@ def loop(params):
             result2 = suit.parse(
                 dict(
                     params['nodes'].items() +
-                    result['nodes'].items() +
                     value.items()
                 ),
                 result['return'],
@@ -467,7 +464,6 @@ def loopstack(params):
         'skip' in params['open']['node'] and
         params['open']['node']['skip']):
             params['skipstack'].pop()
-        params['preparse']['nodes'][params['case']] = pop
         params['openingstack'].append(pop)
     return params
 

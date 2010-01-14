@@ -42,39 +42,13 @@ foreach (scandir('code') as $value)
 $suit->condition = array();
 $suit->loop = array();
 $template = $suit->parse($suit->nodes, file_get_contents('templates/index.tpl'));
-if (array_key_exists('submit', $_POST) && $_POST['submit'])
+function slacks($params)
 {
-    $slacked = $_POST['slacks'];
+    $params['case'] = $params['var'];
+    return $params;
 }
-else
-{
-    $slacked = '[]';
-}
-class SLACKS
-{
-    public function slack($params)
-    {
-        $params['case'] = $params['var'];
-        return $params;
-    }
-}
-$slacks = new SLACKS();
 $slacksnodes = array
 (
-	'<slacked' => array
-	(
-		'close' => '/>',
-        'function' => array
-        (
-            array
-            (
-                'class' => $slacks,
-                'function' => 'slack'
-            )
-        ),
-		'skip' => true,
-		'var' => $slacked
-	),
 	'<slacks' => array
 	(
 		'close' => '/>',
@@ -82,8 +56,7 @@ $slacksnodes = array
         (
             array
             (
-                'class' => $slacks,
-                'function' => 'slack'
+                'function' => 'slacks'
             )
         ),
 		'skip' => true,

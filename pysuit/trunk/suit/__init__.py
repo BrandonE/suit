@@ -74,12 +74,25 @@ def closingstring(params):
                     )
                     params = ranges(params)
             else:
-                params['preparse']['taken'].append((
-                    params['position'],
-                    params['position'] + len(
-                        params['nodes'][params['node']]['close']
-                    )
-                ))
+                if not params['config']['malformed']:
+                    params['preparse']['taken'].append((
+                        params['position'],
+                        params['position'] + len(
+                            params['nodes'][params['node']]['close']
+                        )
+                    ))
+                else:
+                    params['open'] = {
+                        'node': params['nodes'][params['node']],
+                        'open': '',
+                        'position': 0
+                    }
+                    params['case'] = params['return'][
+                        params['open']['position'] + len(
+                            params['open']['open']
+                        ):params['position']
+                    ]
+                    params = transform(params)
         #Else, reserve the range
         else:
             params['preparse']['taken'].append((
@@ -95,10 +108,10 @@ def closingstring(params):
 
 def escape(strings, returnvalue, escapestring = '\\', insensitive = True):
     """Escape a string"""
-    key = hash((returnvalue, pickle.dumps(strings)))
+    cachekey = hash((returnvalue, pickle.dumps(strings)))
     #If positions are cached for this case, load them
-    if key in CACHE['escape']:
-        pos = CACHE['escape'][key]
+    if cachekey in CACHE['escape']:
+        pos = CACHE['escape'][cachekey]
     else:
         positionstrings = {}
         for value in strings:
@@ -124,7 +137,7 @@ def escape(strings, returnvalue, escapestring = '\\', insensitive = True):
         #Order the positions from smallest to biggest
         pos = sorted(pos.items())
         #Cache the positions
-        CACHE['escape'][key] = pos
+        CACHE['escape'][cachekey] = pos
     offset = 0
     for value in pos:
         #Adjust position to changes in length
@@ -165,10 +178,10 @@ def escape(strings, returnvalue, escapestring = '\\', insensitive = True):
 def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
     """Split up the file, paying attention to escape strings"""
     array = []
-    key = hash((glue, explode))
+    cachekey = hash((glue, explode))
     #If positions are cached for this case, load them
-    if key in CACHE['explodeunescape']:
-        pos = CACHE['explodeunescape'][key]
+    if cachekey in CACHE['explodeunescape']:
+        pos = CACHE['explodeunescape'][cachekey]
     else:
         pos = []
         position = strpos(
@@ -190,7 +203,7 @@ def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
         #string should be checked for escape strings
         pos.append(len(glue))
         #Cache the positions
-        CACHE['explodeunescape'][key] = pos
+        CACHE['explodeunescape'][cachekey] = pos
     offset = 0
     last = 0
     temp = glue
@@ -288,132 +301,6 @@ def openingstring(params):
 
 def parse(nodes, returnvalue, config = None):
     """Parse string using nodes"""
-    config = parseconfig(config)
-    key = parsecache(nodes, returnvalue, config)
-    #If positions are cached for this case, load them
-    if key in CACHE['parse']:
-        pos = CACHE['parse'][key]
-    else:
-        pos = parsepositions(
-            nodes,
-            returnvalue,
-            config['taken'],
-            config['insensitive']
-        )
-        #Order the positions from smallest to biggest
-        pos = sorted(pos.items())
-        #Cache the positions
-        CACHE['parse'][key] = pos
-    inspection = inspect.stack()
-    DEBUG.append({
-        'file': inspection[1][1],
-        'line': inspection[1][2],
-        'steps':
-        [
-            {
-                'return': returnvalue
-            }
-        ]
-    })
-    offset = 0
-    temp = returnvalue
-    params = {
-        'config': config,
-        'ignored': [],
-        'last': 0,
-        'openingstack': [],
-        'preparse': {
-            'ignored': [],
-            'nodes': {},
-            'taken': []
-        },
-        'return': returnvalue,
-        'skipstack': [],
-        'skipoffset': 0
-    }
-    for value in pos:
-        #Adjust position to changes in length
-        position = value[0] + offset
-        params['function'] = True
-        params['node'] = value[1][0]
-        params['nodes'] = nodes
-        params['offset'] = 0
-        params['parse'] = True
-        params['position'] = position
-        params['taken'] = True
-        params['unescape'] = parseunescape(
-            position,
-            params['config']['escape'],
-            params['return']
-        )
-        #If this is the opening string and it should not be skipped over
-        if value[1][1] == 0:
-            params = openingstring(params)
-        else:
-            pop = DEBUG.pop()
-            pop['steps'].append({
-                'node': params['node'],
-                'recurse': []
-            })
-            DEBUG.append(pop)
-            params = closingstring(params)
-            pop = DEBUG.pop()
-            pop2 = pop['steps'].pop()
-            pop2['ignored'] = params['preparse']['ignored']
-            pop2['return'] = params['return']
-            pop2['taken'] = params['preparse']['taken']
-            pop['steps'].append(pop2)
-            DEBUG.append(pop)
-        #Adjust the offset
-        offset = len(params['return']) - len(temp)
-        if not params['parse']:
-            break
-    for value in params['openingstack']:
-        params['preparse']['taken'].append((
-            value['position'],
-            value['position'] + len(value['open'])
-        ))
-    #Log the function call
-    push = True
-    pop = DEBUG.pop()
-    if DEBUG:
-        pop2 = DEBUG.pop()
-        if pop2['steps']:
-            pop3 = pop2['steps'].pop()
-            if not 'return' in pop3:
-                pop3['recurse'].append(pop)
-                push = False
-            pop2['steps'].append(pop3)
-        DEBUG.append(pop2)
-    if push:
-        DEBUG.append(pop)
-    if not params['config']['preparse']:
-        returnvalue = params['return']
-    else:
-        returnvalue = {
-            'ignored': params['preparse']['ignored'],
-            'nodes': params['preparse']['nodes'],
-            'return': params['return'],
-            'taken': params['preparse']['taken']
-        }
-    return returnvalue
-
-def parsecache(nodes, returnvalue, config):
-    """Generate the cache key for the parse function"""
-    values = []
-    for value in nodes.items():
-        array = [value[0]]
-        if 'close' in value[1]:
-            array.append(value[1]['close'])
-        values.append(array)
-    return hash((
-            returnvalue,
-            pickle.dumps(values),
-            pickle.dumps(config['taken'])
-    ))
-
-def parseconfig(config):
-    """Populate the config for the parse function"""
     if config == None:
         config = {}
     if not 'escape' in config:
@@ -426,64 +313,81 @@ def parseconfig(config):
         config['preparse'] = False
     if not 'taken' in config:
         config['taken'] = {}
-    return config
-
-def parsepositions(nodes, returnvalue, taken, insensitive):
-    """Find the positions of strings for the parse function"""
-    strings = {}
-    for value in nodes.items():
-        #If the close string exists, then there might be some instances to
-        #parse
-        if 'close' in value[1]:
+    cachekey = hash((
+                returnvalue,
+                pickle.dumps(nodes),
+                pickle.dumps(config['taken'])
+        ))
+    #If positions are cached for this case, load them
+    if cachekey in CACHE['parse']:
+        pos = CACHE['parse'][cachekey]
+    else:
+        strings = {}
+        for value in nodes.items():
             strings[value[0]] = (value[0], 0)
-            strings[value[1]['close']] = (value[0], 1)
-    strings = strings.items()
-    #Order the strings by the length, descending
-    strings.sort(key = lambda item: len(item[0]), reverse = True)
+            if 'close' in value[1]:
+                strings[value[1]['close']] = (value[0], 1)
+        strings = strings.items()
+        #Order the strings by the length, descending
+        strings.sort(key = lambda item: len(item[0]), reverse = True)
+        params = {
+            'insensitive': config['insensitive'],
+            'pos': {},
+            'repeated': [],
+            'return': returnvalue,
+            'strings': strings,
+            'taken': []
+        }
+        params['taken'].extend(config['taken'])
+        pos = positions(params)
+        #Order the positions from smallest to biggest
+        pos = sorted(pos.items())
+        #Cache the positions
+        CACHE['parse'][cachekey] = pos
+    inspection = inspect.stack()
+    DEBUG.append({
+        'file': inspection[1][1],
+        'line': inspection[1][2],
+        'steps':
+        [
+            {
+                'return': returnvalue
+            }
+        ]
+    })
     params = {
-        'insensitive': insensitive,
-        'pos': {},
-        'repeated': [],
+        'config': config,
+        'ignored': [],
+        'last': 0,
+        'nodes': nodes,
+        'openingstack': [],
+        'preparse': {
+            'ignored': [],
+            'taken': []
+        },
         'return': returnvalue,
-        'strings': strings,
-        'taken': []
+        'returnoffset': 0,
+        'skipstack': [],
+        'skipoffset': 0,
+        'temp': returnvalue
     }
-    params['taken'].extend(taken)
-    return positions(params)
-
-def parseunescape(position, escapestring, string):
-    """Unescape at this position"""
-    count = 0
-    #If the escape string is not empty
-    if escapestring:
-        start = position - len(escapestring)
-        #Count how many escape characters are directly to the left of this
-        #position
-        while (abs(start) == start and
-        string[start:start + len(escapestring)] == escapestring):
-            count += len(escapestring)
-            start = position - count - len(escapestring)
-        #Determine how many escape strings are directly to the left of this
-        #position
-        count = count / len(escapestring)
-    #If the number of escape strings directly to the left of this position are
-    #odd, the position should be overlooked
-    condition = count % 2
-    #If the condition is true, (x + 1) / 2 of them should be removed
-    if condition:
-        count += 1
-    #Adjust the position
-    position -= len(escapestring) * (count / 2)
-    #Remove the decided number of escape strings
-    string = ''.join((
-        string[0:position],
-        string[position + len(escapestring) * (count / 2):len(string)]
-    ))
-    return {
-        'condition': condition,
-        'position': position,
-        'string': string
-    }
+    for value in pos:
+        #Adjust position to changes in length
+        params['position'] = value[0] + params['returnoffset']
+        params = step(params, value[1])
+        if not params['parse']:
+            break
+    params = remaining(params)
+    tree()
+    if not params['config']['preparse']:
+        returnvalue = params['return']
+    else:
+        returnvalue = {
+            'ignored': params['preparse']['ignored'],
+            'return': params['return'],
+            'taken': params['preparse']['taken']
+        }
+    return returnvalue
 
 def positions(params):
     """Find the positions of strings"""
@@ -580,6 +484,19 @@ def ranges(params):
         ])
     return params
 
+def remaining(params):
+    """Handle the remaining opening strings"""
+    for value in params['openingstack']:
+        if not params['config']['malformed']:
+            params['preparse']['taken'].append((
+                value['position'],
+                value['position'] + len(value['open'])
+            ))
+        else:
+            params['position'] = len(params['return'])
+            params = step(params, (value['open'], 1))
+    return params
+
 def stack(node, opening, position):
     """Add the opening string to the stack"""
     #Add the opening string to the stack
@@ -602,6 +519,74 @@ def stack(node, opening, position):
         'openingstack': openingstack,
         'skipstack': skipstack
     }
+
+def step(params, value):
+    """One step of the parse"""
+    params['function'] = True
+    params['node'] = value[0]
+    params['offset'] = 0
+    params['parse'] = True
+    params['taken'] = True
+    position = params['position']
+    string = params['return']
+    count = 0
+    #If the escape string is not empty
+    if params['config']['escape']:
+        start = position - len(params['config']['escape'])
+        #Count how many escape characters are directly to the left of this
+        #position
+        while (abs(start) == start and
+        string[
+            start:
+            start + len(params['config']['escape'])
+        ] == params['config']['escape']):
+            count += len(params['config']['escape'])
+            start = position - count - len(params['config']['escape'])
+        #Determine how many escape strings are directly to the left of this
+        #position
+        count = count / len(params['config']['escape'])
+    #If the number of escape strings directly to the left of this position are
+    #odd, the position should be overlooked
+    condition = count % 2
+    #If the condition is true, (x + 1) / 2 of them should be removed
+    if condition:
+        count += 1
+    #Adjust the position
+    position -= len(params['config']['escape']) * (count / 2)
+    #Remove the decided number of escape strings
+    string = ''.join((
+        string[0:position],
+        string[
+            position + len(params['config']['escape']) * (count / 2):
+            len(string)
+        ]
+    ))
+    params['unescape'] = {
+        'condition': condition,
+        'position': position,
+        'string': string
+    }
+    #If this is the opening string and it should not be skipped over
+    if value[1] == 0:
+        params = openingstring(params)
+    else:
+        pop = DEBUG.pop()
+        pop['steps'].append({
+            'node': params['node'],
+            'recurse': []
+        })
+        DEBUG.append(pop)
+        params = closingstring(params)
+        pop = DEBUG.pop()
+        pop2 = pop['steps'].pop()
+        pop2['ignored'] = params['preparse']['ignored']
+        pop2['return'] = params['return']
+        pop2['taken'] = params['preparse']['taken']
+        pop['steps'].append(pop2)
+        DEBUG.append(pop)
+    #Adjust the offset
+    params['returnoffset'] = len(params['return']) - len(params['temp'])
+    return params
 
 def strpos(haystack, needle, offset, insensitive):
     """Find the position insensitively or sensitively based on the
@@ -657,3 +642,20 @@ def transform(params):
             )
             params = ranges(params)
     return params
+
+def tree():
+    """Log the function call"""
+    #Log the function call
+    push = True
+    pop = DEBUG.pop()
+    if DEBUG:
+        pop2 = DEBUG.pop()
+        if pop2['steps']:
+            pop3 = pop2['steps'].pop()
+            if not 'return' in pop3:
+                pop3['recurse'].append(pop)
+                push = False
+            pop2['steps'].append(pop3)
+        DEBUG.append(pop2)
+    if push:
+        DEBUG.append(pop)

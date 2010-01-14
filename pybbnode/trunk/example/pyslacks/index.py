@@ -50,21 +50,10 @@ suit.loop = {}
 suit.request = Request(environ)
 suit.response = Response()
 template = suit.parse(suit.nodes, open('templates/index.tpl').read())
-if 'submit' in suit.request.POST and suit.request.POST['submit']:
-    slacked = suit.request.POST['slacks']
-else:
-    slacked = '[]'
 def slack(params):
     params['case'] = params['var']
     return params
 slacksnodes = {
-	'<slacked':
-	{
-		'close': '/>',
-        'function': [slack],
-		'skip': True,
-		'var': slacked
-	},
 	'<slacks':
 	{
 		'close': '/>',

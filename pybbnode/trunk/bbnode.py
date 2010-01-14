@@ -51,7 +51,6 @@ def stack(params):
     )
     params['openingstack'].extend(newstack['openingstack'])
     params['skipstack'].extend(newstack['skipstack'])
-    params['preparse']['nodes'][params['case']] = params['var']['node']
     return params
 
 def style(params):

@@ -87,7 +87,21 @@ class SUIT
                 }
                 else
                 {
-                    $params['preparse']['taken'][] = array($params['position'], $params['position'] + strlen($params['nodes'][$params['node']]['close']));
+                    if (!$params['config']['malformed'])
+                    {
+                        $params['preparse']['taken'][] = array($params['position'], $params['position'] + strlen($params['nodes'][$params['node']]['close']));
+                    }
+                    else
+                    {
+                        $params['open'] = array
+                        (
+                            'node' => $params['nodes'][$params['node']],
+                            'open' => '',
+                            'position' => 0
+                        );
+                        $params['case'] = substr($params['return'], $params['open']['position'] + strlen($params['open']['open']), $params['position'] - $params['open']['position'] - strlen($params['open']['open']));
+                        $params = $this->transform($params);
+                    }
                 }
             }
             //Else, reserve the range
@@ -114,11 +128,11 @@ class SUIT
             $search[] = $value;
             $replace[] = $escapestring . $value;
         }
-        $cache = md5(md5(serialize($return)) . md5(serialize($strings)));
+        $cachekey = md5(md5(serialize($return)) . md5(serialize($strings)));
         //If positions are cached for this case, load them
-        if (array_key_exists($cache, $this->cache['escape']))
+        if (array_key_exists($cachekey, $this->cache['escape']))
         {
-            $pos = $this->cache['escape'][$cache];
+            $pos = $this->cache['escape'][$cachekey];
         }
         else
         {
@@ -144,7 +158,7 @@ class SUIT
             //Order the positions from smallest to biggest
             ksort($pos);
             //Cache the positions
-            $this->cache['escape'][$cache] = $pos;
+            $this->cache['escape'][$cachekey] = $pos;
         }
         $offset = 0;
         $key = array_keys($pos);
@@ -177,11 +191,11 @@ class SUIT
     public function explodeunescape($explode, $string, $escapestring = '\\', $insensitive = true)
     {
         $return = array();
-        $cache = md5(md5(serialize($string)) . md5(serialize($explode)));
+        $cachekey = md5(md5(serialize($string)) . md5(serialize($explode)));
         //If positions are cached for this case, load them
-        if (array_key_exists($cache, $this->cache['explodeunescape']))
+        if (array_key_exists($cachekey, $this->cache['explodeunescape']))
         {
-            $pos = $this->cache['explodeunescape'][$cache];
+            $pos = $this->cache['explodeunescape'][$cachekey];
         }
         else
         {
@@ -195,7 +209,7 @@ class SUIT
             //On top of the explode string to be escaped, the last position in the string should be checked for escape strings
             $pos[] = strlen($string);
             //Cache the positions
-            $this->cache['explodeunescape'][$cache] = $pos;
+            $this->cache['explodeunescape'][$cachekey] = $pos;
         }
         $offset = 0;
         $last = 0;
@@ -313,156 +327,6 @@ class SUIT
 
     public function parse($nodes, $return, $config = array())
     {
-        $config = $this->parseconfig($config);
-        $cache = $this->parsecache($nodes, $return, $config);
-        //If positions are cached for this case, load them
-        if (array_key_exists($cache, $this->cache['parse']))
-        {
-            $pos = $this->cache['parse'][$cache];
-        }
-        else
-        {
-            $pos = $this->parsepositions($nodes, $return, $config['taken'], $config['insensitive']);
-            //Order the positions from smallest to biggest
-            ksort($pos);
-            //Cache the positions
-            $this->cache['parse'][$cache] = $pos;
-        }
-        $inspection = debug_backtrace();
-        $this->debug[] = array
-        (
-            'file' => $inspection[0]['file'],
-            'line' => $inspection[0]['line'],
-            'steps' => array
-            (
-                array
-                (
-                    'return' => $return
-                )
-            )
-        );
-        $offset = 0;
-        $temp = $return;
-        $params = array
-        (
-            'config' => $config,
-            'last' => 0,
-            'preparse' => array
-            (
-                'ignored' => array(),
-                'nodes' => array(),
-                'taken' => array()
-            ),
-            'return' => $return,
-            'skipstack' => array(),
-            'skipoffset' => 0,
-            'openingstack' => array()
-        );
-        $key = array_keys($pos);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
-        {
-            //Adjust position to changes in length
-            $position = $key[$i] + $offset;
-            $params['function'] = true;
-            $params['node'] = $pos[$key[$i]][0];
-            $params['nodes'] = $nodes;
-            $params['offset'] = 0;
-            $params['parse'] = true;
-            $params['position'] = $position;
-            $params['taken'] = true;
-            $params['unescape'] = $this->parseunescape($position, $params['config']['escape'], $params['return']);
-            if ($pos[$key[$i]][1] == 0)
-            {
-                $params = $this->openingstring($params);
-            }
-            else
-            {
-                $pop = array_pop($this->debug);
-                $pop['steps'][] = array
-                (
-                    'node' => $params['node'],
-                    'recurse' => array()
-                );
-                $this->debug[] = $pop;
-                $params = $this->closingstring($params);
-                $pop = array_pop($this->debug);
-                $pop2 = array_pop($pop['steps']);
-                $pop2['ignored'] = $params['preparse']['ignored'];
-                $pop2['return'] = $params['return'];
-                $pop2['taken'] = $params['preparse']['taken'];
-                $pop['steps'][] = $pop2;
-                $this->debug[] = $pop;
-            }
-            //Adjust the offset
-            $offset = strlen($params['return']) - strlen($temp);
-            if (!$params['parse'])
-            {
-                break;
-            }
-        }
-        foreach($params['openingstack'] as $value)
-        {
-            $params['preparse']['taken'][] = array($value['position'], $value['position'] + strlen($value['open']));
-        }
-        //Log the function call
-        $push = true;
-        $pop = array_pop($this->debug);
-        if (!empty($this->debug))
-        {
-            $pop2 = array_pop($this->debug);
-            if (!empty($pop2['steps']))
-            {
-                $pop3 = array_pop($pop2['steps']);
-                if (!array_key_exists('return', $pop3))
-                {
-                    $pop3['recurse'][] = $pop;
-                    $push = false;
-                }
-                $pop2['steps'][] = $pop3;
-            }
-            $this->debug[] = $pop2;
-        }
-        if ($push)
-        {
-            $this->debug[] = $pop;
-        }
-        if (!$params['config']['preparse'])
-        {
-            $return = $params['return'];
-        }
-        else
-        {
-            $return = array
-            (
-                'ignored' => $params['preparse']['ignored'],
-                'nodes' => $params['preparse']['nodes'],
-                'return' => $params['return'],
-                'taken' => $params['preparse']['taken']
-            );
-        }
-        return $return;
-    }
-
-    public function parsecache($nodes, $return, $config)
-    {
-        $values = array();
-        $key = array_keys($nodes);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
-        {
-            $array = array($key[$i]);
-            if (array_key_exists('close', $nodes[$key[$i]]))
-            {
-                $array[] = $nodes[$key[$i]]['close'];
-            }
-            $values[] = $array;
-        }
-        return md5(md5(serialize($return)) . md5(serialize($values)) . md5(serialize($config['taken'])));
-    }
-
-    public function parseconfig($config)
-    {
         if (!array_key_exists('escape', $config))
         {
             $config['escape'] = '\\';
@@ -483,68 +347,100 @@ class SUIT
         {
             $config['taken'] = array();
         }
-        return $config;
-    }
-
-    public function parsepositions($nodes, $return, $taken, $insensitive)
-    {
-        $strings = array();
-        $key = array_keys($nodes);
+        $cachekey = md5(md5(serialize($return)) . md5(serialize($nodes)) . md5(serialize($config['taken'])));
+        //If positions are cached for this case, load them
+        if (array_key_exists($cachekey, $this->cache['parse']))
+        {
+            $pos = $this->cache['parse'][$cachekey];
+        }
+        else
+        {
+            $strings = array();
+            $key = array_keys($nodes);
+            $size = count($key);
+            for ($i = 0; $i < $size; $i++)
+            {
+                $strings[$key[$i]] = array($key[$i], 0);
+                if (array_key_exists('close', $nodes[$key[$i]]))
+                {
+                    $strings[$nodes[$key[$i]]['close']] = array($key[$i], 1);
+                }
+            }
+            //Order the strings by the length, descending
+            uksort($strings, array('SUIT', 'sort'));
+            $params = array
+            (
+                'insensitive' => $config['insensitive'],
+                'pos' => array(),
+                'repeated' => array(),
+                'return' => $return,
+                'strings' => $strings,
+                'taken' => $config['taken']
+            );
+            $pos = $this->positions($params);
+            //Order the positions from smallest to biggest
+            ksort($pos);
+            //Cache the positions
+            $this->cache['parse'][$cachekey] = $pos;
+        }
+        $inspection = debug_backtrace();
+        $this->debug[] = array
+        (
+            'file' => $inspection[0]['file'],
+            'line' => $inspection[0]['line'],
+            'steps' => array
+            (
+                array
+                (
+                    'return' => $return
+                )
+            )
+        );
+        $params = array
+        (
+            'config' => $config,
+            'last' => 0,
+            'nodes' => $nodes,
+            'openingstack' => array(),
+            'preparse' => array
+            (
+                'ignored' => array(),
+                'taken' => array()
+            ),
+            'return' => $return,
+            'returnoffset' => 0,
+            'skipstack' => array(),
+            'skipoffset' => 0,
+            'temp' => $return
+        );
+        $key = array_keys($pos);
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
-            //If the close string exists, then there might be some instances to parse
-            if (array_key_exists('close', $nodes[$key[$i]]))
+            //Adjust position to changes in length
+            $params['position'] = $key[$i] + $params['returnoffset'];
+            $params = $this->step($params, $pos[$key[$i]]);
+            if (!$params['parse'])
             {
-                $strings[$key[$i]] = array($key[$i], 0);
-                $strings[$nodes[$key[$i]]['close']] = array($key[$i], 1);
+                break;
             }
         }
-        //Order the strings by the length, descending
-        uksort($strings, array('SUIT', 'sort'));
-        $params = array
-        (
-            'insensitive' => $insensitive,
-            'pos' => array(),
-            'repeated' => array(),
-            'return' => $return,
-            'strings' => $strings,
-            'taken' => $taken
-        );
-        return $this->positions($params);
-    }
-
-    public function parseunescape($position, $escapestring, $string)
-    {
-        $count = 0;
-        //If the escape string is not empty
-        if ($escapestring)
+        $params = $this->remaining($params);
+        $this->tree();
+        if (!$params['config']['preparse'])
         {
-            //Count how many escape characters are directly to the left of this position
-            while (abs($start = $position - $count - strlen($escapestring)) == $start && substr($string, $start, strlen($escapestring)) == $escapestring)
-            {
-                $count += strlen($escapestring);
-            }
-            //Determine how many escape strings are directly to the left of this position
-            $count = $count / strlen($escapestring);
+            $return = $params['return'];
         }
-        //If the number of escape strings directly to the left of this position are odd, the position should be overlooked
-        $condition = $count % 2;
-        //If the condition is true, (x + 1) / 2 of them should be removed
-        if ($condition)
+        else
         {
-            $count++;
+            $return = array
+            (
+                'ignored' => $params['preparse']['ignored'],
+                'return' => $params['return'],
+                'taken' => $params['preparse']['taken']
+            );
         }
-        //Adjust the position
-        $position -= strlen($escapestring) * ($count / 2);
-        //Remove the decided number of escape strings
-        $string = substr_replace($string, '', $position, strlen($escapestring) * ($count / 2));
-        return array
-        (
-            'condition' => $condition,
-            'position' => $position,
-            'string' => $string
-        );
+        return $return;
     }
 
     public function positions($params)
@@ -633,6 +529,23 @@ class SUIT
         return $params;
     }
 
+    public function remaining($params)
+    {
+        foreach($params['openingstack'] as $value)
+        {
+            if (!$params['config']['malformed'])
+            {
+                $params['preparse']['taken'][] = array($value['position'], $value['position'] + strlen($value['open']));
+            }
+            else
+            {
+                $params['position'] = strlen($params['return']);
+                $params = $this->step($params, array($value['open'], 1));
+            }
+        }
+        return $params;
+    }
+
     public function sort($a, $b)
     {
         return strlen($b) - strlen($a);
@@ -661,6 +574,71 @@ class SUIT
             'openingstack' => $openingstack,
             'skipstack' => $skipstack
         );
+    }
+
+    public function step($params, $value)
+    {
+        $params['function'] = true;
+        $params['node'] = $value[0];
+        $params['offset'] = 0;
+        $params['parse'] = true;
+        $params['taken'] = true;
+        $position = $params['position'];
+        $string = $params['return'];
+        $count = 0;
+        //If the escape string is not empty
+        if ($params['config']['escape'])
+        {
+            //Count how many escape characters are directly to the left of this position
+            while (abs($start = $position - $count - strlen($params['config']['escape'])) == $start && substr($string, $start, strlen($params['config']['escape'])) == $params['config']['escape'])
+            {
+                $count += strlen($params['config']['escape']);
+            }
+            //Determine how many escape strings are directly to the left of this position
+            $count = $count / strlen($params['config']['escape']);
+        }
+        //If the number of escape strings directly to the left of this position are odd, the position should be overlooked
+        $condition = $count % 2;
+        //If the condition is true, (x + 1) / 2 of them should be removed
+        if ($condition)
+        {
+            $count++;
+        }
+        //Adjust the position
+        $position -= strlen($params['config']['escape']) * ($count / 2);
+        //Remove the decided number of escape strings
+        $string = substr_replace($string, '', $position, strlen($params['config']['escape']) * ($count / 2));
+        $params['unescape'] = array
+        (
+            'condition' => $condition,
+            'position' => $position,
+            'string' => $string
+        );
+        if ($value[1] == 0)
+        {
+            $params = $this->openingstring($params);
+        }
+        else
+        {
+            $pop = array_pop($this->debug);
+            $pop['steps'][] = array
+            (
+                'node' => $params['node'],
+                'recurse' => array()
+            );
+            $this->debug[] = $pop;
+            $params = $this->closingstring($params);
+            $pop = array_pop($this->debug);
+            $pop2 = array_pop($pop['steps']);
+            $pop2['ignored'] = $params['preparse']['ignored'];
+            $pop2['return'] = $params['return'];
+            $pop2['taken'] = $params['preparse']['taken'];
+            $pop['steps'][] = $pop2;
+            $this->debug[] = $pop;
+        }
+        //Adjust the offset
+        $params['returnoffset'] = strlen($params['return']) - strlen($params['temp']);
+        return $params;
     }
 
     public function strpos($haystack, $needle, $offset, $insensitive)
@@ -722,6 +700,32 @@ class SUIT
             }
         }
         return $params;
+    }
+
+    public function tree()
+    {
+        //Log the function call
+        $push = true;
+        $pop = array_pop($this->debug);
+        if (!empty($this->debug))
+        {
+            $pop2 = array_pop($this->debug);
+            if (!empty($pop2['steps']))
+            {
+                $pop3 = array_pop($pop2['steps']);
+                if (!array_key_exists('return', $pop3))
+                {
+                    $pop3['recurse'][] = $pop;
+                    $push = false;
+                }
+                $pop2['steps'][] = $pop3;
+            }
+            $this->debug[] = $pop2;
+        }
+        if ($push)
+        {
+            $this->debug[] = $pop;
+        }
     }
 }
 ?>
