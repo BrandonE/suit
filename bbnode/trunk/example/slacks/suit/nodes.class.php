@@ -552,8 +552,9 @@ class Nodes
         }
         else
         {
-            //Reserve the space
-            $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+            //Prevent all ranges containing this case from parsing
+            $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
+            $params['preparse']['ignored'] = true;
             if (!array_key_exists('onesided', $params['var']) || !$params['var']['onesided'])
             {
                 //Prepare for the closing string
@@ -749,7 +750,6 @@ class Nodes
 
     public function loop($params)
     {
-        //print $params['case'];
         $iterationvars = array();
         $result = array
         (
@@ -811,8 +811,9 @@ class Nodes
                 {
                     $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
                     $params['taken'] = false;
-                    //Reserve the space
-                    $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+                    //Prevent all ranges containing this case from parsing
+                    $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
+                    $params['preparse']['ignored'] = true;
                     return $params;
                 }
             }
@@ -909,10 +910,11 @@ class Nodes
         }
         else
         {
-            //Reserve the space
-            $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
             $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
             $params['taken'] = false;
+            //Prevent all ranges containing this case from parsing
+            $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
+            $params['preparse']['ignored'] = true;
         }
         return $params;
     }
@@ -1103,8 +1105,9 @@ class Nodes
             {
                 $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
                 $params['taken'] = false;
-                //Reserve the space
-                $params['preparse']['ignored'][] = array($params['open']['position'], $params['position'] + strlen($params['open']['node']['close']));
+                //Prevent all ranges containing this case from parsing
+                $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
+                $params['preparse']['ignored'] = true;
             }
         }
         catch (Exception $e)

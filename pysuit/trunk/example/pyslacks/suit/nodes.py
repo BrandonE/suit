@@ -87,11 +87,9 @@ def attribute(params):
             params['openingstack'].extend(stack['openingstack'])
             params['skipstack'].extend(stack['skipstack'])
     else:
-        #Reserve the space
-        params['preparse']['ignored'].append([
-            params['open']['position'],
-            params['position'] + len(params['open']['node']['close'])
-        ])
+        #Prevent all ranges containing this case from parsing
+        params['openingstack'] = suit.ignore(params['openingstack'])
+        params['preparse']['ignored'] = True
         if not 'onesided' in params['var'] or not params['var']['onesided']:
             #Prepare for the closing string
             node = {
@@ -413,11 +411,9 @@ def loop(params):
                     params['open']['node']['close']
                 ))
                 params['taken'] = False
-                #Reserve the space
-                params['preparse']['ignored'].append([
-                    params['open']['position'],
-                    params['position'] + len(params['open']['node']['close'])
-                ])
+                #Prevent all ranges containing this case from parsing
+                params['openingstack'] = suit.ignore(params['openingstack'])
+                params['preparse']['ignored'] = True
                 return params
     #Implode the iterations
     params['case'] = params['var']['delimiter'].join(iterations)
@@ -491,16 +487,15 @@ def loopvariables(params):
         if params['var']['serialize']:
             params['case'] = pickle.dumps(params['case'])
     else:
-        params['preparse']['ignored'].append([
-            params['open']['position'],
-            params['position'] + len(params['open']['node']['close'])
-        ])
         params['case'] = ''.join((
             params['open']['open'],
             params['case'],
             params['open']['node']['close']
         ))
         params['taken'] = False
+        #Prevent all ranges containing this case from parsing
+        params['openingstack'] = suit.ignore(params['openingstack'])
+        params['preparse']['ignored'] = True
     return params
 
 def parse(params):
@@ -674,11 +669,9 @@ def trying(params):
                 params['open']['node']['close']
             ))
             params['taken'] = False
-            #Reserve the space
-            params['preparse']['ignored'].append([
-                params['open']['position'],
-                params['position'] + len(params['open']['node']['close'])
-            ])
+            #Prevent all ranges containing this case from parsing
+            params['openingstack'] = suit.ignore(params['openingstack'])
+            params['preparse']['ignored'] = True
     except Exception, inst:
         #If a variable is provided and it not is whitelisted or blacklisted
         if params['var']['var'] and listing(

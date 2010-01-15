@@ -72,7 +72,7 @@ def closingstring(params):
                     params['last'] = params['position'] + len(
                         params['nodes'][params['node']]['close']
                     )
-                    params = ranges(params)
+                    params = taken(params)
             else:
                 if not params['config']['malformed']:
                     params['preparse']['taken'].append((
@@ -247,6 +247,15 @@ def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
         offset = len(glue) - len(temp)
     return array
 
+def ignore(stack):
+    """Prevent all ranges containing this case from parsing"""
+    for key, value in enumerate(stack):
+        #If the node transforms the case
+        if (not 'transform' in params['open']['node'] or
+        params['open']['node']['transform']):
+            stack[key]['node']['function'] = []
+    return stack
+
 def openingstring(params):
     """Handle an opening string instance in the parser"""
     if params['skipstack']:
@@ -362,7 +371,7 @@ def parse(nodes, returnvalue, config = None):
         'nodes': nodes,
         'openingstack': [],
         'preparse': {
-            'ignored': [],
+            'ignored': False,
             'taken': []
         },
         'return': returnvalue,
@@ -438,50 +447,6 @@ def positionsloop(params):
             position + 1,
             params['insensitive']
         )
-    return params
-
-def ranges(params):
-    """Adjust ignored and taken ranges"""
-    for key, value in enumerate(params['preparse']['ignored']):
-        #If this reserved range is in this case, adjust the range to the
-        #removal of the opening string and trimming
-        if (
-            params['open']['position'] < value[0] and
-            params['position'] + len(
-                params['nodes'][params['node']]['close']
-            ) > value[1]
-        ):
-            params['preparse']['ignored'][key][0] += params['offset']
-            params['preparse']['ignored'][key][1] += params['offset']
-    clone = []
-    for value in params['preparse']['taken']:
-        #If this reserved range is in this case
-        if (
-            params['open']['position'] < value[0] and
-            params['position'] + len(
-                params['nodes'][params['node']]['close']
-            ) > value[1]
-        ):
-            #If the node does not transform the case, adjust the range to the
-            #removal of the opening string and trimming
-            if ('transform' in params['open']['node'] and
-            not params['open']['node']['transform']):
-                value[0] += params['offset']
-                value[1] += params['offset']
-                clone.append(value)
-        else:
-            clone.append(value)
-    params['preparse']['taken'] = clone
-    #If the node transforms the case, this case should be taken, and the case
-    #is not empty, reserve the transformed case
-    if ((not 'transform' in params['open']['node'] or
-    params['open']['node']['transform']) and
-    params['taken'] and
-    params['case']):
-        params['preparse']['taken'].append([
-            params['open']['position'],
-            params['last']
-        ])
     return params
 
 def remaining(params):
@@ -579,9 +544,7 @@ def step(params, value):
         params = closingstring(params)
         pop = DEBUG.pop()
         pop2 = pop['steps'].pop()
-        pop2['ignored'] = params['preparse']['ignored']
         pop2['return'] = params['return']
-        pop2['taken'] = params['preparse']['taken']
         pop['steps'].append(pop2)
         DEBUG.append(pop)
     #Adjust the offset
@@ -597,50 +560,66 @@ def strpos(haystack, needle, offset, insensitive):
     else:
         return haystack.find(needle, offset)
 
+def taken(params):
+    """Adjust taken range"""
+    clone = []
+    for value in params['preparse']['taken']:
+        #If this reserved range is in this case
+        if (
+            params['open']['position'] < value[0] and
+            params['position'] + len(
+                params['nodes'][params['node']]['close']
+            ) > value[1]
+        ):
+            #If the node does not transform the case, adjust the range to the
+            #removal of the opening string and trimming
+            if ('transform' in params['open']['node'] and
+            not params['open']['node']['transform']):
+                value[0] += params['offset']
+                value[1] += params['offset']
+                clone.append(value)
+        else:
+            clone.append(value)
+    params['preparse']['taken'] = clone
+    #If the node transforms the case, this case should be taken, and the case
+    #is not empty, reserve the transformed case
+    if ((not 'transform' in params['open']['node'] or
+    params['open']['node']['transform']) and
+    params['taken'] and
+    params['case']):
+        params['preparse']['taken'].append([
+            params['open']['position'],
+            params['last']
+        ])
+    return params
+
 def transform(params):
     """Transform the string in between the opening and closing strings"""
     #If functions are provided
-    if 'function' in params['open']['node']:
-        success = True
-        for value in params['preparse']['ignored']:
-            length = len(params['open']['node']['close'])
-            #If this ignored node is in this case
-            if (params['open']['position'] < value[0] and
-            params['position'] + length > value[1]):
-                success = False
+    if ('function' in params['open']['node'] and
+    params['open']['node']['function']):
+        if 'var' in params['open']['node']:
+            params['var'] = params['open']['node']['var']
+        for value in params['open']['node']['function']:
+            #Transform the string in between the opening and closing strings
+            params = value(params)
+            if not params['function']:
                 break
-        #If either this does not contain a ignored node or the node does not
-        #transform the case
-        if (
-            success or
-            (
-                'transform' in params['open']['node'] and
-                not params['open']['node']['transform']
-            )
-        ):
-            if 'var' in params['open']['node']:
-                params['var'] = params['open']['node']['var']
-            for value in params['open']['node']['function']:
-                #Transform the string in between the opening and closing
-                #strings
-                params = value(params)
-                if not params['function']:
-                    break
-            params['case'] = str(params['case'])
-            start = params['position'] + len(
-                params['open']['node']['close']
-            )
-            #Replace everything including and between the opening and closing
-            #strings with the transformed string
-            params['return'] = ''.join((
-                params['return'][0:params['open']['position']],
-                params['case'],
-                params['return'][start:len(params['return'])]
-            ))
-            params['last'] = params['open']['position'] + len(
-                params['case']
-            )
-            params = ranges(params)
+        params['case'] = str(params['case'])
+        start = params['position'] + len(
+            params['open']['node']['close']
+        )
+        #Replace everything including and between the opening and closing
+        #strings with the transformed string
+        params['return'] = ''.join((
+            params['return'][0:params['open']['position']],
+            params['case'],
+            params['return'][start:len(params['return'])]
+        ))
+        params['last'] = params['open']['position'] + len(
+            params['case']
+        )
+        params = taken(params)
     return params
 
 def tree():

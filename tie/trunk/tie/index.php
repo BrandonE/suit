@@ -68,12 +68,11 @@ $suit->loop = array();
 include 'code/tie/main.inc.php';
 include 'code/tie/index.inc.php';
 $template = $suit->parse($suit->nodes, file_get_contents('templates/tie/index.tpl'));
-public function slacks($params)
+function slacks($params)
 {
     $params['case'] = $params['var'];
     return $params;
 }
-$slacks = new SLACKS();
 $slacksnodes = array
 (
 	'<slacks' => array
@@ -90,6 +89,5 @@ $slacksnodes = array
 		'var' => htmlentities(json_encode($suit->debug))
 	)
 );
-echo $suit->parse($slacksnodes, $template);
 echo $suit->parse($slacksnodes, $template);
 ?>

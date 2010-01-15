@@ -42,12 +42,11 @@ foreach (scandir('code') as $value)
 $suit->condition = array();
 $suit->loop = array();
 $template = $suit->parse($suit->nodes, file_get_contents('templates/index.tpl'));
-public function slacks($params)
+function slacks($params)
 {
     $params['case'] = $params['var'];
     return $params;
 }
-$slacks = new SLACKS();
 $slacksnodes = array
 (
 	'<slacks' => array

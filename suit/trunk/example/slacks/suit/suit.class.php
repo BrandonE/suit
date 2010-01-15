@@ -27,10 +27,6 @@ class SUIT
 
     public $debug = array();
 
-    public $filepath = '';
-
-    public $offset = 0;
-
     public $version = '1.3.4';
 
     public function closingstring($params)
@@ -82,7 +78,7 @@ class SUIT
                     else
                     {
                         $params['last'] = $params['position'] + strlen($params['nodes'][$params['node']]['close']);
-                        $params = $this->ranges($params);
+                        $params = $this->taken($params);
                     }
                 }
                 else
@@ -258,6 +254,20 @@ class SUIT
         return $return;
     }
 
+    public function ignore($stack)
+    {
+        $size = count($stack);
+        for ($i = 0; $i < $size; $i++)
+        {
+            //If the node transforms the case
+            if (!array_key_exists('transform', $stack[$i]['node']) || $stack[$i]['transform'])
+            {
+                $stack[$i]['node']['function'] = array();
+            }
+        }
+        return $stack;
+    }
+
     public function openingstring($params)
     {
         if (!empty($params['skipstack']))
@@ -404,7 +414,7 @@ class SUIT
             'openingstack' => array(),
             'preparse' => array
             (
-                'ignored' => array(),
+                'ignored' => false,
                 'taken' => array()
             ),
             'return' => $return,
@@ -484,47 +494,6 @@ class SUIT
                 //Reserve all positions taken up by this string instance
                 $params['taken'][] = array($position, $position + strlen($params['key'][$params['i']]));
             }
-        }
-        return $params;
-    }
-
-    public function ranges($params)
-    {
-        $key = array_keys($params['preparse']['ignored']);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
-        {
-            //If this reserved range is in this case, adjust the range to the removal of the opening string
-            if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['nodes'][$params['node']]['close']) > $params['preparse']['ignored'][$key[$i]][1])
-            {
-                $params['preparse']['ignored'][$key[$i]][0] += $params['offset'];
-                $params['preparse']['ignored'][$key[$i]][1] += $params['offset'];
-            }
-        }
-        $key = array_keys($params['preparse']['taken']);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
-        {
-            //If this reserved range is in this case
-            if ($params['open']['position'] < $params['preparse']['taken'][$key[$i]][0] && $params['position'] + strlen($params['nodes'][$params['node']]['close']) > $params['preparse']['taken'][$key[$i]][1])
-            {
-                //If the node does not transform the case, adjust the range to the removal of the opening string
-                if (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform'])
-                {
-                    $params['preparse']['taken'][$key[$i]][0] += $params['offset'];
-                    $params['preparse']['taken'][$key[$i]][1] += $params['offset'];
-                }
-                //Else, if this case should be taken, remove the range
-                elseif ($params['taken'])
-                {
-                    unset($params['preparse']['taken'][$key[$i]]);
-                }
-            }
-        }
-        //If the node transforms the case, this case should be taken, and the case is not empty, reserve the transformed case
-        if ((!array_key_exists('transform', $params['open']['node']) || $params['open']['node']['transform']) && $params['taken'] && $params['case'])
-        {
-            $params['preparse']['taken'][] = array($params['open']['position'], $params['last']);
         }
         return $params;
     }
@@ -630,9 +599,7 @@ class SUIT
             $params = $this->closingstring($params);
             $pop = array_pop($this->debug);
             $pop2 = array_pop($pop['steps']);
-            $pop2['ignored'] = $params['preparse']['ignored'];
             $pop2['return'] = $params['return'];
-            $pop2['taken'] = $params['preparse']['taken'];
             $pop['steps'][] = $pop2;
             $this->debug[] = $pop;
         }
@@ -654,50 +621,64 @@ class SUIT
         }
     }
 
+    public function taken($params)
+    {
+        $key = array_keys($params['preparse']['taken']);
+        $size = count($key);
+        for ($i = 0; $i < $size; $i++)
+        {
+            //If this reserved range is in this case
+            if ($params['open']['position'] < $params['preparse']['taken'][$key[$i]][0] && $params['position'] + strlen($params['nodes'][$params['node']]['close']) > $params['preparse']['taken'][$key[$i]][1])
+            {
+                //If the node does not transform the case, adjust the range to the removal of the opening string
+                if (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform'])
+                {
+                    $params['preparse']['taken'][$key[$i]][0] += $params['offset'];
+                    $params['preparse']['taken'][$key[$i]][1] += $params['offset'];
+                }
+                //Else, if this case should be taken, remove the range
+                elseif ($params['taken'])
+                {
+                    unset($params['preparse']['taken'][$key[$i]]);
+                }
+            }
+        }
+        //If the node transforms the case, this case should be taken, and the case is not empty, reserve the transformed case
+        if ((!array_key_exists('transform', $params['open']['node']) || $params['open']['node']['transform']) && $params['taken'] && $params['case'])
+        {
+            $params['preparse']['taken'][] = array($params['open']['position'], $params['last']);
+        }
+        return $params;
+    }
+
     public function transform($params)
     {
         //If functions are provided
-        if (array_key_exists('function', $params['open']['node']))
+        if (array_key_exists('function', $params['open']['node']) && !empty($params['open']['node']['function']))
         {
-            $success = true;
-            $key = array_keys($params['preparse']['ignored']);
-            $size = count($key);
-            for ($i = 0; $i < $size; $i++)
+            $params['suit'] = &$this;
+            $params['var'] = $params['open']['node']['var'];
+            foreach ($params['open']['node']['function'] as $value)
             {
-                //If this ignored node is in this case
-                if ($params['open']['position'] < $params['preparse']['ignored'][$key[$i]][0] && $params['position'] + strlen($params['open']['node']['close']) > $params['preparse']['ignored'][$key[$i]][1])
+                //Transform the string in between the opening and closing strings. Note whether or not the function is in a class
+                if (array_key_exists('class', $value))
                 {
-                    $success = false;
+                    $params = $value['class']->$value['function']($params);
+                }
+                else
+                {
+                    $params = $value['function']($params);
+                }
+                if (!$params['function'])
+                {
                     break;
                 }
             }
-            //If either this does not contain a ignored node or the node does not transform the case
-            if ($success || (array_key_exists('transform', $params['open']['node']) && !$params['open']['node']['transform']))
-            {
-                $params['suit'] = &$this;
-                $params['var'] = $params['open']['node']['var'];
-                foreach ($params['open']['node']['function'] as $value)
-                {
-                    //Transform the string in between the opening and closing strings. Note whether or not the function is in a class
-                    if (array_key_exists('class', $value))
-                    {
-                        $params = $value['class']->$value['function']($params);
-                    }
-                    else
-                    {
-                        $params = $value['function']($params);
-                    }
-                    if (!$params['function'])
-                    {
-                        break;
-                    }
-                }
-                $params['case'] = strval($params['case']);
-                //Replace everything including and between the opening and closing strings with the transformed string
-                $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
-                $params['last'] = $params['open']['position'] + strlen($params['case']);
-                $params = $this->ranges($params);
-            }
+            $params['case'] = strval($params['case']);
+            //Replace everything including and between the opening and closing strings with the transformed string
+            $params['return'] = substr_replace($params['return'], $params['case'], $params['open']['position'], $params['position'] + strlen($params['open']['node']['close']) - $params['open']['position']);
+            $params['last'] = $params['open']['position'] + strlen($params['case']);
+            $params = $this->taken($params);
         }
         return $params;
     }
