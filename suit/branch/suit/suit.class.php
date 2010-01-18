@@ -113,7 +113,7 @@ class SUIT
                 elseif ($this->closed($params['tree']))
                 {
                     $pop = array_pop($params['tree']);
-                    //If this closing string matches the last node's or it explicitly says to parse a mismatched case
+                    //If this closing string matches the last node's or it explicitly says to execute a mismatched case
                     if ($params['nodes'][$pop['node']]['close'] == $params['string'] || $params['config']['mismatched'])
                     {
                         $params = $this->close($params, $pop, true);
@@ -443,7 +443,12 @@ class SUIT
         (
             'contents' => $parse
         );
-        $return = $this->walk($nodes, $tree, $config);
+        if (array_key_exists('', $nodes))
+        {
+            $tree['node'] = '';
+        }
+        $result = $this->walk($nodes, $tree, $config);
+        $return = $result['contents'];
         return $return;
     }
 
@@ -637,47 +642,90 @@ class SUIT
             'function' => true,
             'node' => $tree['node'],
             'nodes' => $nodes,
+            'returnvar' => NULL,
+            'returnedvar' => NULL,
+            'returnfunctions' => array(),
             'suit' => $this,
             'tree' => $tree,
-            'var' => $nodes[$tree['node']]['var']
+            'var' => $nodes[$tree['node']]['var'],
+            'walk' => true
         );
+        if (array_key_exists('node', $tree))
+        {
+            $params['var'] = $nodes[$tree['node']]['var'];
+        }
         if (array_key_exists('create', $tree))
         {
             $params['create'] = $tree['create'];
         }
         if (array_key_exists('node', $tree) && array_key_exists('treefunctions', $nodes[$tree['node']]))
         {
+            //Modify the tree with the functions meant to be executed before walking through the tree
             $params = $this->functions($params, $nodes[$tree['node']]['treefunctions']);
             $tree = $params['tree'];
         }
         foreach ($tree['contents'] as $key => $value)
         {
-            if (is_array($value))
+            if (!$params['walk'])
             {
-                //If the tag has been closed or it explicitly says to parse unopened strings, parse the recursions with its node
-                if ($config['unclosed'] || (array_key_exists('closed', $value) && $value['closed']))
-                {
-                    $tree['contents'][$key] = $this->walk($nodes, $value, $config);
-                }
-                //Else, parse it, ignoring the original opening string, with no node
-                else
-                {
-                    $value = array
-                    (
-                        'contents' => $value['contents']
-                    );
-                    $tree['contents'][$key] = $value['node'] . $this->walk($nodes, $value, $config);
-                }
+                break;
             }
-            if (array_key_exists('node', $tree) && array_key_exists('stringfunctions', $nodes[$tree['node']]))
+            if (is_array($tree['contents'][$key]))
             {
-                $params['case'] = $tree['contents'][$key];
-                $params['function'] = true;
-                $params = $this->functions($params, $nodes[$tree['node']]['stringfunctions']);
-                $tree['contents'][$key] = $params['case'];
+                $result = $this->walkarray($nodes, $tree, $config, $params, $key);
+                $params = $result['params'];
+                $tree = $result['tree'];
             }
         }
-        return implode('', $tree['contents']);
+        $tree['contents'] = implode('', $tree['contents']);
+        if (array_key_exists('node', $tree) && array_key_exists('stringfunctions', $nodes[$tree['node']]))
+        {
+            //Transform the case with the specified functions
+            $params['function'] = true;
+            $params['case'] = $tree['contents'];
+            $params = $this->functions($params, $nodes[$tree['node']]['stringfunctions']);
+            $tree['contents'] = $params['case'];
+        }
+        return array
+        (
+            'contents' => $tree['contents'],
+            'functions' => $params['returnfunctions'],
+            'var' => $params['returnvar']
+        );
+    }
+
+    public function walkarray($nodes, $tree, $config, $params, $key)
+    {
+        //If the tag has been closed or it explicitly says to execute unopened strings, walk through the contents with its node
+        if ($config['unclosed'] || (array_key_exists('closed', $tree['contents'][$key]) && $tree['contents'][$key]['closed']))
+        {
+            $result = $this->walk($nodes, $tree['contents'][$key], $config);
+            $tree['contents'][$key] = $result['contents'];
+            //Modify the tree with the functions that have been returned
+            $params['function'] = true;
+            $params['key'] = $key;
+            $params['returnedvar'] = $result['var'];
+            $params['tree'] = $tree;
+            $params = $this->functions($params, $result['functions']);
+            unset($params['key']);
+            unset($params['returnedvar']);
+            $tree = $params['tree'];
+        }
+        //Else, execute it, ignoring the original opening string, with no node
+        else
+        {
+            $tree['contents'][$key] = array
+            (
+                'contents' => $tree['contents'][$key]['contents']
+            );
+            $result = $this->walk($nodes, $tree['contents'][$key], $config);
+            $tree['contents'][$key] = $tree['contents'][$key]['node'] . $result['contents'];
+        }
+        return array
+        (
+            'params' => $params,
+            'tree' => $tree
+        );
     }
 }
 ?>

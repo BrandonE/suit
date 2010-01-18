@@ -194,7 +194,6 @@ class Nodes
                         'decode' => array('skip', 'vars'),
                         'delimiter' => '',
                         'node' => '[loopvar]',
-                        'skip' => 'true',
                         'vars' => '[]'
                     )
                 )
@@ -305,13 +304,13 @@ class Nodes
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('openingstack'),
+                    'list' => array('layers'),
                     'onesided' => true,
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('openingstack'),
-                        'openingstack' => 'false'
+                        'decode' => array('layers'),
+                        'layers' => 'true'
                     )
                 )
             ),
@@ -332,11 +331,11 @@ class Nodes
                 'close' => '[/trim]',
                 'stringfunctions' => array
                 (
-                    //array
-                    //(
-                        //'class' => $this,
-                        //'function' => 'trim'
-                    //)
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'trim'
+                    )
                 )
             ),
             '[try]' => array
@@ -630,11 +629,6 @@ class Nodes
             }
             $iterationvars[] = $var;
         }
-        if (!$params['var']['skip'])
-        {
-            $params['var']['iterationvars'] = $iterationvars;
-            return $params;
-        }
         $iterations = array();
         $tree = array
         (
@@ -643,7 +637,8 @@ class Nodes
         foreach ($iterationvars as $value)
         {
             //Parse for this iteration
-            $iterations[] = $params['suit']->walk(array_merge($params['nodes'], $value), $tree, $params['config']);
+            $result = $params['suit']->walk(array_merge($params['nodes'], $value), $tree, $params['config']);
+            $iterations[] = $result['contents'];
         }
         //Implode the iterations
         $params['tree'] = array
@@ -653,21 +648,6 @@ class Nodes
                 implode($params['var']['delimiter'], $iterations)
             )
         );
-        return $params;
-    }
-
-    public function loopskip($params)
-    {
-        if (!$params['var']['skip'] && array_key_exists('iterationvars', $params['var']))
-        {
-            $iterations = array();
-            foreach ($params['var']['iterationvars'] as $value)
-            {
-                //Execute this iteration
-                $iterations[] = $params['suit']->execute(array_merge($params['nodes'], $value), $params['case'], $params['config']);
-            }
-            $params['case'] = implode($params['var']['delimiter'], $iterations);
-        }
         return $params;
     }
 
@@ -706,69 +686,39 @@ class Nodes
 
     public function returning($params)
     {
-        $params['case'] = '';
-        $stack = array_reverse($params['openingstack']);
-        $skipstack = array();
-        $size = count($stack);
-        for ($i = 0; $i < $size; $i++)
+        if ($params['var']['layers'])
         {
-            //If the stack count has not been modified or it specifies this many stacks
-            if (!$params['var']['openingstack'] || intval($params['var']['openingstack']) > $i)
-            {
-                if (!array_key_exists('function', $params['openingstack'][count($stack) - 1 - $i]['node']))
-                {
-                    $params['openingstack'][count($stack) - 1 - $i]['node']['function'] = array();
-                }
-                //Make all of the nodes remove all content in the case that takes place after this return.
-                array_splice(
-                    $params['openingstack'][count($stack) - 1 - $i]['node']['function'],
-                    0,
-                    0,
+            $params['returnvar'] = array
+            (
+                'returnfunctions' => array
+                (
                     array
                     (
-                        array
-                        (
-                            'class' => $this,
-                            'function' => 'returningfirst'
-                        )
-                    )
-                );
-                //Make the last node to be closed remove everything after this return
-                if ($i == count($stack) - 1)
-                {
-                    $params['openingstack'][0]['node']['function'][] = array
-                    (
                         'class' => $this,
-                        'function' => 'returninglast'
-                    );
-                }
-                $skipstack[] = $params['openingstack'][count($stack) - 1 - $i]['node']['close'];
-            }
-            else
-            {
-                break;
-            }
+                        'function' => 'returningfunction'
+                    )
+                ),
+                'layers' => $params['var']['layers']
+            );
+            $params['returnfunctions'] = $params['returnvar']['returnfunctions'];
         }
-        $params['skipstack'] = array_merge($params['skipstack'], array_reverse($skipstack));
-        //If the stack is empty, and if the stack count has not been modified or it specifies at least one stack
-        if (empty($params['openingstack']) && (!$params['var']['openingstack'] || intval($params['var']['openingstack']) > 0))
+        $params['case'] = '';
+        return $params;
+    }
+
+    public function returningfunction($params)
+    {
+        array_splice($params['tree']['contents'], $params['key'] + 1);
+        if (intval($params['returnedvar']['layers']) == $params['returnedvar']['layers'])
         {
-            $params['last'] = $params['open']['position'];
-            $params = $this->returninglast($params);
+            $params['returnedvar']['layers']--;
         }
-        return $params;
-    }
-
-    public function returningfirst($params)
-    {
-        $params['case'] = substr_replace($params['case'], '', $params['last'] - $params['open']['position'] - strlen($params['open']['open']));
-        return $params;
-    }
-
-    public function returninglast($params)
-    {
-        $params['return'] = substr_replace($params['return'], '', $params['last']);
-        $params['execute'] = false;
+        if ($params['returnedvar']['layers'])
+        {
+            $params['returnvar'] = $params['returnedvar'];
+            $params['returnfunctions'] = $params['returnedvar']['returnfunctions'];
+        }
+        $params['walk'] = false;
         return $params;
     }
 
@@ -790,6 +740,17 @@ class Nodes
     {
         $nodes = array
         (
+            '' => array
+            (
+                'treefunctions' => array
+                (
+                    array
+                    (
+                        'function' => 'trimexecute',
+                        'class' => $this
+                    )
+                )
+            ),
             '<pre' => array
             (
                 'close' => '</pre>',
@@ -797,11 +758,10 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'trimbefore',
+                        'function' => 'trimarea',
                         'class' => $this
                     )
-                ),
-                'skip' => true
+                )
             ),
             '<textarea' => array
             (
@@ -810,39 +770,38 @@ class Nodes
                 (
                     array
                     (
-                        'function' => 'trimbefore',
+                        'function' => 'trimarea',
                         'class' => $this
                     )
-                ),
-                'skip' => true
+                )
             )
         );
-        $params['suit']->last = 0;
-        $params['case'] = $params['suit']->execute($nodes, $params['case']);
-        $copy = substr($params['case'], $params['suit']->last);
-        if (!$params['suit']->last)
-        {
-            $copy = ltrim($copy);
-        }
-        $replaced = preg_replace('/[\s]+$/m', '', $copy);
-        $params['case'] = substr_replace($params['case'], $replaced, $params['suit']->last);
+        $params['case'] = $params['suit']->execute($nodes, $params['case'], $params['config']);
+        $params['case'] = ltrim($params['case']);
         return $params;
     }
 
-    public function trimbefore($params)
+    public function trimarea($params)
     {
-        $original = substr($params['return'], $params['last'], $params['open']['position'] - $params['last']);
-        $copy = $original;
-        if (!$params['suit']->last)
-        {
-            $copy = ltrim($copy);
-        }
-        $replaced = preg_replace('/[\s]+$/m', '', $copy);
-        $params['return'] = substr_replace($params['return'], $replaced, $params['last'], $params['open']['position'] - $params['last']);
-        $params['open']['position'] += strlen($replaced) - strlen($original);
-        $params['position'] += strlen($replaced) - strlen($original);
         $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
-        $params['suit']->last = $params['open']['position'] + strlen($params['case']);
+        return $params;
+    }
+
+    public function trimexecute($params)
+    {
+        foreach ($params['tree']['contents'] as $key => $value)
+        {
+            if (is_array($params['tree']['contents'][$key]))
+            {
+                $result = $params['suit']->walkarray($params['nodes'], $params['tree'], $params['config'], $params, $key);
+                $params = $result['params'];
+                $tree = $result['tree'];
+            }
+            else
+            {
+                $params['tree']['contents'][$key] = preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]);
+            }
+        }
         return $params;
     }
 

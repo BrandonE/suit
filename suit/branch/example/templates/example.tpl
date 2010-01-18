@@ -1,3 +1,4 @@
+[trim]
 [comment]This is an example template[/comment]
 [code]code/variables.inc.php[/code]
 [execute][template]templates/menu.tpl[/template][/execute]
@@ -27,3 +28,4 @@
         [/loop]
     </tbody>
 </table>
+[/trim]
