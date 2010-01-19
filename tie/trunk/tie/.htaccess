@@ -1,0 +1,14 @@
+AuthName "Restricted Area" 
+AuthType Basic 
+AuthUserFile /home/faltzer/brandon/htpasswd/.htpasswd 
+AuthGroupFile /dev/null 
+require valid-user
+
+Options -Indexes
+RewriteEngine On
+RewriteBase /workstation/tie/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !(.*)/$
+RewriteRule ^(.*)$ $1/ [L,R=301]
+RewriteRule ^content/ index.php?section=content [L]

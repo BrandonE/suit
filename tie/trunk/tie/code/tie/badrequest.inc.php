@@ -24,32 +24,22 @@ $suit->loop['section'] = array
     )
 );
 $suit->path = $suit->tie->path(array('check', 'cmd', 'directory', 'directorytitle', 'list', 'order', 'search', 'section', 'start', 'title'));
-$suit->template = $suit->parse($suit->nodes, $suit->template);
-$suit->debugging = $suit->debug;
-include 'code/tie/debug.inc.php';
-if ($suit->tie->config['flag']['debug'])
-{
-    $debug = $suit->parse($suit->nodes, file_get_contents('templates/tie/debug.tpl'));
-}
-else
-{
-    $debug = '';
-}
+$suit->template = $suit->execute($suit->nodes, $suit->template);
 $nodes = array
 (
-    '<debug' => array
+    '<slacks' => array
     (
-        'close' => ' />',
+        'close' => '/>',
         'function' => array
         (
             array
             (
-                'function' => 'nodedebug'
+                'function' => 'slacks'
             )
         ),
         'skip' => true,
-        'var' => $debug
+        'var' => htmlentities(json_encode($this->owner->log))
     )
 );
-exit($suit->parse($nodes, $suit->template));
+exit($suit->execute($nodes, $suit->template));
 ?>

@@ -26,13 +26,26 @@ class BBNode
         (
             '[' => array
             (
-                'close' => ']'
+                'close' => ']',
+                'stringfunctions' => array
+                (
+                    array
+                    (
+                        'function' => 'bracket',
+                        'class' => $this
+                    )
+                )
             ),
             '[align]' => array
             (
                 'close' => '[/align]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -54,25 +67,12 @@ class BBNode
             '[align=' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[align]'
+                'create' => '[align]'
             ),
             '[b]' => array
             (
                 'close' => '[/b]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -90,7 +90,7 @@ class BBNode
             '[code]' => array
             (
                 'close' => '[/code]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -109,8 +109,13 @@ class BBNode
             '[color]' => array
             (
                 'close' => '[/color]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -132,26 +137,18 @@ class BBNode
             '[color=' => array
             (
                 'close' => ']',
-                'function' => array
+                'create' => '[color]'
+            ),
+            '[email]' => array
+            (
+                'close' => '[/email]',
+                'stringfunctions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'attribute'
                     ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[color]'
-            ),
-            '[email]' => array
-            (
-                'close' => '[/email]',
-                'function' => array
-                (
                     array
                     (
                         'class' => $this,
@@ -168,26 +165,18 @@ class BBNode
             '[email=' => array
             (
                 'close' => ']',
-                'function' => array
+                'create' => '[email]'
+            ),
+            '[font]' => array
+            (
+                'close' => '[/font]',
+                'stringfunctions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'attribute'
                     ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[email]'
-            ),
-            '[font]' => array
-            (
-                'close' => '[/font]',
-                'function' => array
-                (
                     array
                     (
                         'class' => $this,
@@ -209,25 +198,12 @@ class BBNode
             '[font=' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[font]'
+                'create' => '[font]'
             ),
             '[i]' => array
             (
                 'close' => '[/i]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -245,7 +221,7 @@ class BBNode
             '[img]' => array
             (
                 'close' => '[/img]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -263,8 +239,13 @@ class BBNode
             '[list]' => array
             (
                 'close' => '[/list]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -289,25 +270,12 @@ class BBNode
             '[list=' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[list]'
+                'create' => '[list]'
             ),
             '[s]' => array
             (
                 'close' => '[/s]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -325,8 +293,13 @@ class BBNode
             '[size]' => array
             (
                 'close' => '[/size]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -353,26 +326,18 @@ class BBNode
             '[size=' => array
             (
                 'close' => ']',
-                'function' => array
+                'create' => '[size]'
+            ),
+            '[quote]' => array
+            (
+                'close' => '[/quote]',
+                'stringfunctions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'attribute'
                     ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[size]'
-            ),
-            '[quote]' => array
-            (
-                'close' => '[/quote]',
-                'function' => array
-                (
                     array
                     (
                         'class' => $this,
@@ -389,25 +354,12 @@ class BBNode
             '[quote=' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[quote]'
+                'create' => '[quote]'
             ),
             '[u]' => array
             (
                 'close' => '[/u]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -425,8 +377,13 @@ class BBNode
             '[url]' => array
             (
                 'close' => '[/url]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -443,28 +400,20 @@ class BBNode
             '[url=' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'stack'
-                    )
-                ),
-                'attribute' => '[url]'
+                'create' => '[url]'
             ),
         );
     }
 
     public function attribute($params)
     {
-        $params['var']['node'] = $params['nodes'][$params['open']['node']['attribute']];
-        $params['var']['node']['var']['equal'] = $params['case'];
+        $params['var']['equal'] = $params['create'];
+        return $params;
+    }
+
+    public function bracket($params)
+    {
+        $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
         return $params;
     }
 
@@ -486,7 +435,7 @@ class BBNode
         }
         else
         {
-            $params['var']['template'] = $params['open']['open'] . $params['case']. $params['open']['node']['close'];
+            $params['var']['template'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
         }
         return $params;
     }
@@ -498,17 +447,6 @@ class BBNode
         {
             $params['var']['equal'] = 30;
         }
-        return $params;
-    }
-
-    public function stack($params)
-    {
-        $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-        $params['taken'] = false;
-        //Add the new node to the stack
-        $newstack = $params['suit']->stack($params['var']['node'], $params['case'], $params['open']['position']);
-        $params['openingstack'] = array_merge($params['openingstack'], $newstack['openingstack']);
-        $params['skipstack'] = array_merge($params['skipstack'], $newstack['skipstack']);
         return $params;
     }
 
@@ -524,7 +462,7 @@ class BBNode
     {
         $params['suit']->case = $params['case'];
         $params['suit']->equal = $params['var']['equal'];
-        $params['case'] = $params['suit']->parse($params['suit']->nodes, $params['var']['template']);
+        $params['case'] = $params['suit']->execute($params['suit']->nodes, $params['var']['template']);
         return $params;
     }
 }

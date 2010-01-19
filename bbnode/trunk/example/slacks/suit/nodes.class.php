@@ -24,13 +24,26 @@ class Nodes
         (
             '[' => array
             (
-                'close' => ']'
+                'close' => ']',
+                'stringfunctions' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'bracket'
+                    )
+                )
             ),
             '[assign]' => array
             (
                 'close' => '[/assign]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -39,34 +52,26 @@ class Nodes
                 ),
                 'var' => array
                 (
-                    'delimiter' => '=>',
-                    'var' => ''
+                    'equal' => '=',
+                    'list' => array('var'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'delimiter' => '=>',
+                        'var' => ''
+                    )
                 )
             ),
             '[assign' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    )
-                ),
-                'attribute' => '[assign]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'list' => array('var'),
-                    'quote' => array('"', '\'')
-                )
+                'create' => '[assign]',
+                'skip' => true
             ),
             '[code]' => array
             (
                 'close' => '[/code]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -79,7 +84,7 @@ class Nodes
             '[comment]' => array
             (
                 'close' => '[/comment]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -92,7 +97,7 @@ class Nodes
             '[escape]' => array
             (
                 'close' => '[/escape]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -104,11 +109,28 @@ class Nodes
                 'skipescape' => true,
                 'var' => "\r.\n.\t ."
             ),
+            '[execute]' => array
+            (
+                'close' => '[/execute]',
+                'stringfunctions' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'execute'
+                    )
+                )
+            ),
             '[if]' => array
             (
                 'close' => '[/if]',
-                'function' => array
+                'treefunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -120,46 +142,36 @@ class Nodes
                         'function' => 'condition'
                     )
                 ),
-                'skip' => true,
-                'transform' => false,
                 'var' => array
                 (
-                    'condition' => 'false',
-                    'decode' => array('condition', 'else'),
-                    'else' => 'false'
+                    'blacklist' => true,
+                    'equal' => '=',
+                    'list' => array('decode'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'condition' => 'false',
+                        'decode' => array('condition', 'else'),
+                        'else' => 'false'
+                    )
                 )
             ),
             '[if' => array
             (
                 'close' => ']',
-                'function' => array
+                'create' => '[if]',
+                'skip' => true
+            ),
+            '[loop]' => array
+            (
+                'close' => '[/loop]',
+                'treefunctions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'attribute'
                     ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'conditionstack'
-                    )
-                ),
-                'attribute' => '[if]',
-                'skip' => true,
-                'var' => array
-                (
-                    'blacklist' => true,
-                    'equal' => '=',
-                    'list' => array('decode'),
-                    'quote' => array('"', '\'')
-                )
-            ),
-            '[loop]' => array
-            (
-                'close' => '[/loop]',
-                'function' => array
-                (
                     array
                     (
                         'class' => $this,
@@ -171,47 +183,37 @@ class Nodes
                         'function' => 'loop'
                     )
                 ),
-                'skip' => true,
                 'var' => array
                 (
-                    'decode' => array('skip', 'vars'),
-                    'delimiter' => '',
-                    'node' => '[loopvar]',
-                    'skip' => 'true',
-                    'vars' => '[]'
+                    'blacklist' => true,
+                    'equal' => '=',
+                    'list' => array('decode', 'node'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'decode' => array('skip', 'vars'),
+                        'delimiter' => '',
+                        'node' => '[loopvar]',
+                        'vars' => '[]'
+                    )
                 )
             ),
             '[loop' => array
             (
                 'close' => ']',
-                'function' => array
+                'create' => '[loop]',
+                'skip' => true
+            ),
+            '[loopvar]' => array
+            (
+                'close' => '[/loopvar]',
+                'stringfunctions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'attribute'
                     ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'loopstack'
-                    )
-                ),
-                'attribute' => '[loop]',
-                'skip' => true,
-                'var' => array
-                (
-                    'blacklist' => true,
-                    'equal' => '=',
-                    'list' => array('decode', 'node'),
-                    'quote' => array('"', '\'')
-                )
-            ),
-            '[loopvar]' => array
-            (
-                'close' => '[/loopvar]',
-                'function' => array
-                (
                     array
                     (
                         'class' => $this,
@@ -225,71 +227,35 @@ class Nodes
                 ),
                 'var' => array
                 (
-                    'decode' => array('json', 'serialize'),
-                    'delimiter' => '=>',
-                    'ignore' => array(),
-                    'json' => 'false',
-                    'serialize' => 'false',
-                    'var' => array()
+                    'equal' => '=',
+                    'list' => array('json', 'serialize'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'decode' => array('json', 'serialize'),
+                        'delimiter' => '=>',
+                        'json' => 'false',
+                        'serialize' => 'false',
+                        'var' => array()
+                    )
                 )
             ),
             '[loopvar' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    )
-                ),
-                'attribute' => '[loopvar]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'list' => array('json', 'serialize'),
-                    'quote' => array('"', '\'')
-                )
-            ),
-            '[parse]' => array
-            (
-                'close' => '[/parse]',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'parse'
-                    )
-                ),
-                'var' => array()
-            ),
-            '[parse' => array
-            (
-                'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    )
-                ),
-                'attribute' => '[parse]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'quote' => array('"', '\'')
-                )
+                'create' => '[loopvar]',
+                'skip' => true
             ),
             '[replace]' => array
             (
                 'close' => '[/replace]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -298,33 +264,25 @@ class Nodes
                 ),
                 'var' => array
                 (
-                    'replace' => '',
-                    'search' => ''
+                    'equal' => '=',
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'replace' => '',
+                        'search' => ''
+                    )
                 )
             ),
             '[replace' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    )
-                ),
-                'attribute' => '[replace]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'quote' => array('"', '\'')
-                )
+                'create' => '[replace]',
+                'skip' => true
             ),
             '[return' => array
             (
                 'close' => '/]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -346,33 +304,32 @@ class Nodes
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('openingstack'),
+                    'list' => array('layers'),
                     'onesided' => true,
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('openingstack'),
-                        'openingstack' => 'false'
+                        'decode' => array('layers'),
+                        'layers' => 'true'
                     )
                 )
             ),
             '[template]' => array
             (
                 'close' => '[/template]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'templates'
                     )
-                ),
-                'var' => array()
+                )
             ),
             '[trim]' => array
             (
                 'close' => '[/trim]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -384,8 +341,13 @@ class Nodes
             '[try]' => array
             (
                 'close' => '[/try]',
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -395,36 +357,33 @@ class Nodes
                 'skip' => true,
                 'var' => array
                 (
-                    'delimiter' => '=>',
-                    'var' => ''
+                    'equal' => '=',
+                    'list' => array('var'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'delimiter' => '=>',
+                        'var' => ''
+                    )
                 )
             ),
             '[try' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    )
-                ),
-                'attribute' => '[try]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'list' => array('var'),
-                    'quote' => array('"', '\'')
-                )
+                'create' => '[try]',
+                'skip' => true
             ),
             '[var]' => array
             (
                 'close' => '[/var]',
                 'class' => $this,
-                'function' => array
+                'stringfunctions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -438,31 +397,23 @@ class Nodes
                 ),
                 'var' => array
                 (
-                    'decode' => array('json', 'serialize'),
-                    'delimiter' => '=>',
-                    'json' => 'false',
-                    'serialize' => 'false'
+                    'equal' => '=',
+                    'list' => array('json', 'serialize'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'decode' => array('json', 'serialize'),
+                        'delimiter' => '=>',
+                        'json' => 'false',
+                        'serialize' => 'false'
+                    )
                 )
             ),
             '[var' => array
             (
                 'close' => ']',
-                'function' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    )
-                ),
-                'attribute' => '[var]',
-                'skip' => true,
-                'var' => array
-                (
-                    'equal' => '=',
-                    'list' => array('json', 'serialize'),
-                    'quote' => array('"', '\'')
-                )
+                'create' => '[var]',
+                'skip' => true
             )
         );
         $this->evalnodes = array
@@ -470,7 +421,7 @@ class Nodes
             '[eval]' => array
             (
                 'close' => '[/eval]',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
@@ -521,71 +472,25 @@ class Nodes
 
     public function attribute($params)
     {
-        if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
+        $var = $params['var'];
+        $params['var'] = $params['var']['var'];
+        if (array_key_exists('onesided', $var) && $var['onesided'])
         {
-            $node = array
-            (
-                'var' => $params['open']['node']['var']['var']
-            );
+            $case = $params['case'];
+        }
+        elseif (array_key_exists('create', $params))
+        {
+            $case = $params['create'];
         }
         else
         {
-            $node = $params['nodes'][$params['open']['node']['attribute']];
+            return $params;
         }
-        $result = $this->attributedefine($params, $node);
-        $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-        $params['taken'] = false;
-        if (!$result['ignored'])
-        {
-            if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
-            {
-                $params['var'] = $result['node']['var'];
-                $params['taken'] = true;
-            }
-            else
-            {
-                //Add the new node to the stack
-                $stack = $params['suit']->stack($result['node'], $params['case'], $params['open']['position']);
-                $params['openingstack'] = array_merge($params['openingstack'], $stack['openingstack']);
-                $params['skipstack'] = array_merge($params['skipstack'], $stack['skipstack']);
-            }
-        }
-        else
-        {
-            //Prevent all ranges containing this case from parsing
-            $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
-            $params['preparse']['ignored'] = true;
-            if (!array_key_exists('onesided', $params['var']) || !$params['var']['onesided'])
-            {
-                //Prepare for the closing string
-                $node = array
-                (
-                    'close' => $params['nodes'][$params['open']['node']['attribute']]['close']
-                );
-                if (array_key_exists('skip', $params['nodes'][$params['open']['node']['attribute']]))
-                {
-                    $node['skip'] = $params['nodes'][$params['open']['node']['attribute']]['skip'];
-                }
-                $stack = $params['suit']->stack($node, $params['open']['node']['attribute'], $params['open']['position']);
-                $params['openingstack'] = array_merge($params['openingstack'], $stack['openingstack']);
-                $params['skipstack'] = array_merge($params['skipstack'], $stack['skipstack']);
-            }
-            else
-            {
-                $params['function'] = false;
-            }
-        }
-        return $params;
-    }
-
-    public function attributedefine($params, $node)
-    {
-        $ignored = false;
         $quote = '';
         $smallest = false;
-        foreach ($params['var']['quote'] as $value)
+        foreach ($var['quote'] as $value)
         {
-            $position = $params['suit']->strpos($params['case'], $value, 0, $params['config']['insensitive']);
+            $position = $params['suit']->strpos($case, $value, 0, $params['config']['insensitive']);
             if ($position !== false && ($smallest === false || $position < $smallest))
             {
                 $quote = $value;
@@ -595,7 +500,7 @@ class Nodes
         if ($quote)
         {
             //Define the variables
-            $split = $params['suit']->explodeunescape($quote, $params['case'], $params['config']['escape'], $params['config']['insensitive']);
+            $split = $params['suit']->explodeunescape($quote, $case, $params['config']['escape'], $params['config']['insensitive']);
             unset($split[count($split) - 1]);
             $size = count($split);
             for ($i = 0; $i < $size; $i++)
@@ -605,11 +510,11 @@ class Nodes
                 {
                     $name = trim($split[$i]);
                     //If the syntax is valid
-                    if (substr($name, strlen($name) - strlen($params['var']['equal'])) == $params['var']['equal'])
+                    if (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal'])
                     {
-                        $name = substr_replace($name, '', strlen($name) - strlen($params['var']['equal']));
+                        $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
                         //If the variable is whitelisted or blacklisted, do not prepare to define the variable
-                        if (!$this->listing($name, $params['var']))
+                        if (!$this->listing($name, $var))
                         {
                             $name = '';
                         }
@@ -623,28 +528,20 @@ class Nodes
                 {
                     $config = array
                     (
-                        'escape' => $params['config']['escape'],
-                        'preparse' => true
+                        'escape' => $params['config']['escape']
                     );
                     //Define the variable
-                    $result = $params['suit']->parse($params['nodes'], $split[$i], $config);
-                    if (empty($result['ignored']))
-                    {
-                        $node['var'][$name] = $result['return'];
-                    }
-                    else
-                    {
-                        $ignored = true;
-                        break;
-                    }
+                    $params['var'][$name] = $params['suit']->execute($params['nodes'], $split[$i], $config);
                 }
             }
         }
-        return array
-        (
-            'ignored' => $ignored,
-            'node' => $node
-        );
+        return $params;
+    }
+
+    public function bracket($params)
+    {
+        $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
+        return $params;
     }
 
     public function code($params)
@@ -667,52 +564,16 @@ class Nodes
 
     public function condition($params)
     {
-        $params['offset'] = -strlen($params['open']['open']);
         //Hide the case if necessary
         if (($params['var']['condition'] && $params['var']['else']) || (!$params['var']['condition'] && !$params['var']['else']))
         {
-            $params['case'] = '';
-        }
-        return $params;
-    }
-
-    public function conditionstack($params)
-    {
-        if (!empty($params['openingstack']))
-        {
-            $pop = array_pop($params['openingstack']);
-            if (array_key_exists('var', $pop['node']) && array_key_exists('condition', $pop['node']['var']) && array_key_exists('else', $pop['node']['var']))
-            {
-                $conditionjson = json_decode($pop['node']['var']['condition']);
-                $elsejson = json_decode($pop['node']['var']['else']);
-                if (is_array($conditionjson))
-                {
-                    $boolean = false;
-                    foreach ($conditionjson as $value)
-                    {
-                        if ($value)
-                        {
-                            $boolean = true;
-                            break;
-                        }
-                    }
-                    $conditionjson = $boolean;
-                }
-                $pop['node']['var']['condition'] = json_encode($conditionjson);
-                //If the case should not be hidden, do not skip over everything between this opening string and its closing string
-                if (($conditionjson && !$elsejson) || (!$conditionjson && $elsejson) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
-                {
-                    $pop['node']['skip'] = false;
-                    array_pop($params['skipstack']);
-                }
-            }
-            //Else, if the node was ignored, do not skip over everything between this opening string and its closing string
-            elseif ($pop['node']['close'] == $params['nodes'][$params['open']['node']['attribute']]['close'] && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
-            {
-                $pop['node']['skip'] = false;
-                array_pop($params['skipstack']);
-            }
-            $params['openingstack'][] = $pop;
+            $params['tree'] = array
+            (
+                'contents' => array
+                (
+                    ''
+                )
+            );
         }
         return $params;
     }
@@ -725,6 +586,12 @@ class Nodes
     public function evaluation($params)
     {
         $params['case'] = eval($params['case']);
+        return $params;
+    }
+
+    public function execute($params)
+    {
+        $params['case'] = $params['suit']->execute($params['nodes'], $params['case'], $params['config']);
         return $params;
     }
 
@@ -751,11 +618,6 @@ class Nodes
     public function loop($params)
     {
         $iterationvars = array();
-        $result = array
-        (
-            'ignore' => $params['nodes'][$params['var']['node']]['var']['ignore'],
-            'same' => array()
-        );
         if (!is_array($params['var']['vars']))
         {
             $params['case'] = '';
@@ -769,114 +631,29 @@ class Nodes
             );
             foreach ($value as $key => $value2)
             {
-                $var[$params['var']['node']]['var']['var'][$key] = $value2;
+                $var[$params['var']['node']]['var']['var']['var'][$key] = $value2;
             }
-            $result = $this->looppreparse($var[$params['var']['node']]['var']['var'], count($iterationvars), $result);
             $iterationvars[] = $var;
         }
         $iterations = array();
-        if (!empty($iterationvars))
+        $tree = array
+        (
+            'contents' => $params['tree']['contents']
+        );
+        foreach ($iterationvars as $value)
         {
-            $nodes = array
-            (
-                $params['var']['node'] => $iterationvars[0][$params['var']['node']]
-            );
-            $nodes[$params['var']['node']]['var']['ignore'] = $result['ignore'];
-            $config = array
-            (
-                'escape' => $params['config']['escape'],
-                'insensitive' => $params['config']['insensitive'],
-                'malformed' => $params['config']['malformed'],
-                'preparse' => true
-            );
-            //Preparse
-            $result = $params['suit']->parse(array_merge($params['nodes'], $nodes), $params['case'], $config);
-            foreach ($iterationvars as $value)
-            {
-                $config = array
-                (
-                    'escape' => $params['config']['escape'],
-                    'insensitive' => $params['config']['insensitive'],
-                    'malformed' => $params['config']['malformed'],
-                    'preparse' => true,
-                    'taken' => $result['taken']
-                );
-                //Parse for this iteration
-                $result2 = $params['suit']->parse(array_merge($params['nodes'], $value), $result['return'], $config);
-                if (!$result2['ignored'])
-                {
-                    $iterations[] = $result2['return'];
-                }
-                else
-                {
-                    $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-                    $params['taken'] = false;
-                    //Prevent all ranges containing this case from parsing
-                    $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
-                    $params['preparse']['ignored'] = true;
-                    return $params;
-                }
-            }
+            //Parse for this iteration
+            $result = $params['suit']->walk(array_merge($params['nodes'], $value), $tree, $params['config']);
+            $iterations[] = $result['contents'];
         }
         //Implode the iterations
-        $params['case'] = implode($params['var']['delimiter'], $iterations);
-        return $params;
-    }
-
-    public function looppreparse($iterationvars, $iteration, $return)
-    {
-        $key = array_keys($iterationvars);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
-        {
-            //If this node is not already being ignored
-            if (!array_key_exists($key[$i], $return['ignore']))
-            {
-                $different = false;
-                $key2 = array_keys($return['same']);
-                $size2 = count($key2);
-                for ($j = 0; $j < $size2; $j++)
-                {
-                    //If this node has the same opening string as the one we are checking but is different overall, remove the checking string and note the difference
-                    if ($iterationvars[$key[$i]] != $return['same'][$key2[$j]] && $key[$i] == $key2[$j])
-                    {
-                        $different = true;
-                        unset($return['same'][$key2[$j]]);
-                    }
-                }
-                //If this is a new value, and this is not the first iteration, remove the checking string and note the difference
-                if (!array_key_exists($key[$i], $return['same']) && $iteration > 0)
-                {
-                    $different = true;
-                }
-                //If there is an instance of a node that has the same opening string but is different overall, ignore it
-                if ($different)
-                {
-                    $return['ignore'][$key[$i]] = $iterationvars[$key[$i]];
-                }
-                //Else, prepare to preparse it
-                elseif (!array_key_exists($key[$i], $return['same']))
-                {
-                    $return['same'][$key[$i]] = $iterationvars[$key[$i]];
-                }
-            }
-        }
-        return $return;
-    }
-
-    public function loopstack($params)
-    {
-        if ($params['openingstack'])
-        {
-            $pop = array_pop($params['openingstack']);
-            //If specified, do not skip over everything between this opening string and its closing string
-            if (array_key_exists('var', $pop['node']) && array_key_exists('skip', $pop['node']['var']) && !json_decode($pop['node']['var']['skip']) && array_key_exists('skip', $pop['node']) && $pop['node']['skip'])
-            {
-                $pop['node']['skip'] = false;
-                array_pop($params['skipstack']);
-            }
-            $params['openingstack'][] = $pop;
-        }
+        $params['tree'] = array
+        (
+            'contents' => array
+            (
+                implode($params['var']['delimiter'], $iterations)
+            )
+        );
         return $params;
     }
 
@@ -884,50 +661,26 @@ class Nodes
     {
         //Split up the file, paying attention to escape strings
         $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-        //If the case should not be ignored
-        if (!array_key_exists($split[0], $params['var']['ignore']))
+        $params['case'] = $params['var']['var'];
+        foreach ($split as $value)
         {
-            $params['case'] = $params['var']['var'];
-            foreach ($split as $value)
+            if (is_array($params['case']))
             {
-                if (is_array($params['case']))
-                {
-                    $params['case'] = $params['case'][$value];
-                }
-                else
-                {
-                    $params['case'] = $params['case']->$value;
-                }
+                $params['case'] = $params['case'][$value];
             }
-            if ($params['var']['json'])
+            else
             {
-                $params['case'] = json_encode($params['case']);
-            }
-            if ($params['var']['serialize'])
-            {
-                $params['case'] = serialize($params['case']);
+                $params['case'] = $params['case']->$value;
             }
         }
-        else
+        if ($params['var']['json'])
         {
-            $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-            $params['taken'] = false;
-            //Prevent all ranges containing this case from parsing
-            $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
-            $params['preparse']['ignored'] = true;
+            $params['case'] = json_encode($params['case']);
         }
-        return $params;
-    }
-
-    public function parse($params)
-    {
-        $config = array
-        (
-            'escape' => $params['config']['escape'],
-            'insensitive' => $params['config']['insensitive'],
-            'malformed' => $params['config']['malformed']
-        );
-        $params['case'] = $params['suit']->parse($params['nodes'], $params['case'], $config);
+        if ($params['var']['serialize'])
+        {
+            $params['case'] = serialize($params['case']);
+        }
         return $params;
     }
 
@@ -939,69 +692,39 @@ class Nodes
 
     public function returning($params)
     {
-        $params['case'] = '';
-        $stack = array_reverse($params['openingstack']);
-        $skipstack = array();
-        $size = count($stack);
-        for ($i = 0; $i < $size; $i++)
+        if ($params['var']['layers'])
         {
-            //If the stack count has not been modified or it specifies this many stacks
-            if (!$params['var']['openingstack'] || intval($params['var']['openingstack']) > $i)
-            {
-                if (!array_key_exists('function', $params['openingstack'][count($stack) - 1 - $i]['node']))
-                {
-                    $params['openingstack'][count($stack) - 1 - $i]['node']['function'] = array();
-                }
-                //Make all of the nodes remove all content in the case that takes place after this return.
-                array_splice(
-                    $params['openingstack'][count($stack) - 1 - $i]['node']['function'],
-                    0,
-                    0,
+            $params['returnvar'] = array
+            (
+                'returnfunctions' => array
+                (
                     array
                     (
-                        array
-                        (
-                            'class' => $this,
-                            'function' => 'returningfirst'
-                        )
-                    )
-                );
-                //Make the last node to be closed remove everything after this return
-                if ($i == count($stack) - 1)
-                {
-                    $params['openingstack'][0]['node']['function'][] = array
-                    (
                         'class' => $this,
-                        'function' => 'returninglast'
-                    );
-                }
-                $skipstack[] = $params['openingstack'][count($stack) - 1 - $i]['node']['close'];
-            }
-            else
-            {
-                break;
-            }
+                        'function' => 'returningfunction'
+                    )
+                ),
+                'layers' => $params['var']['layers']
+            );
+            $params['returnfunctions'] = $params['returnvar']['returnfunctions'];
         }
-        $params['skipstack'] = array_merge($params['skipstack'], array_reverse($skipstack));
-        //If the stack is empty, and if the stack count has not been modified or it specifies at least one stack
-        if (empty($params['openingstack']) && (!$params['var']['openingstack'] || intval($params['var']['openingstack']) > 0))
+        $params['case'] = '';
+        return $params;
+    }
+
+    public function returningfunction($params)
+    {
+        array_splice($params['tree']['contents'], $params['key'] + 1);
+        if (intval($params['returnedvar']['layers']) == $params['returnedvar']['layers'])
         {
-            $params['last'] = $params['open']['position'];
-            $params = $this->returninglast($params);
+            $params['returnedvar']['layers']--;
         }
-        return $params;
-    }
-
-    public function returningfirst($params)
-    {
-        $params['case'] = substr_replace($params['case'], '', $params['last'] - $params['open']['position'] - strlen($params['open']['open']));
-        return $params;
-    }
-
-    public function returninglast($params)
-    {
-        $params['return'] = substr_replace($params['return'], '', $params['last']);
-        $params['parse'] = false;
+        if ($params['returnedvar']['layers'])
+        {
+            $params['returnvar'] = $params['returnedvar'];
+            $params['returnfunctions'] = $params['returnedvar']['returnfunctions'];
+        }
+        $params['walk'] = false;
         return $params;
     }
 
@@ -1023,60 +746,68 @@ class Nodes
     {
         $nodes = array
         (
-            '<pre' => array
+            '' => array
             (
-                'close' => '</pre>',
-                'function' => array
+                'treefunctions' => array
                 (
                     array
                     (
-                        'function' => 'trimbefore',
+                        'function' => 'trimexecute',
                         'class' => $this
                     )
-                ),
-                'skip' => true
+                )
+            ),
+            '<pre' => array
+            (
+                'close' => '</pre>',
+                'stringfunctions' => array
+                (
+                    array
+                    (
+                        'function' => 'trimarea',
+                        'class' => $this
+                    )
+                )
             ),
             '<textarea' => array
             (
                 'close' => '</textarea>',
-                'function' => array
+                'stringfunctions' => array
                 (
                     array
                     (
-                        'function' => 'trimbefore',
+                        'function' => 'trimarea',
                         'class' => $this
                     )
-                ),
-                'skip' => true
+                )
             )
         );
-        $params['suit']->last = 0;
-        $params['case'] = $params['suit']->parse($nodes, $params['case']);
-        $copy = substr($params['case'], $params['suit']->last);
-        if (!$params['suit']->last)
-        {
-            $copy = ltrim($copy);
-        }
-        $replaced = preg_replace('/[\s]+$/m', '', $copy);
-        $params['case'] = substr_replace($params['case'], $replaced, $params['suit']->last);
+        $params['case'] = $params['suit']->execute($nodes, $params['case'], $params['config']);
+        $params['case'] = ltrim($params['case']);
         return $params;
     }
 
-    public function trimbefore($params)
+    public function trimarea($params)
     {
-        $original = substr($params['return'], $params['last'], $params['open']['position'] - $params['last']);
-        $copy = $original;
-        if (!$params['suit']->last)
+        $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
+        return $params;
+    }
+
+    public function trimexecute($params)
+    {
+        foreach ($params['tree']['contents'] as $key => $value)
         {
-            $copy = ltrim($copy);
+            if (is_array($params['tree']['contents'][$key]))
+            {
+                $result = $params['suit']->walkarray($params['nodes'], $params['tree'], $params['config'], $params, $key);
+                $params = $result['params'];
+                $tree = $result['tree'];
+            }
+            else
+            {
+                $params['tree']['contents'][$key] = preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]);
+            }
         }
-        $replaced = preg_replace('/[\s]+$/m', '', $copy);
-        $params['return'] = substr_replace($params['return'], $replaced, $params['last'], $params['open']['position'] - $params['last']);
-        $params['open']['position'] += strlen($replaced) - strlen($original);
-        $params['position'] += strlen($replaced) - strlen($original);
-        $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-        $params['taken'] = false;
-        $params['suit']->last = $params['open']['position'] + strlen($params['case']);
         return $params;
     }
 
@@ -1088,27 +819,7 @@ class Nodes
         }
         try
         {
-            $config = array
-            (
-                'escape' => $params['config']['escape'],
-                'insensitive' => $params['config']['insensitive'],
-                'malformed' => $params['config']['malformed'],
-                'preparse' => true
-            );
-            $result = $params['suit']->parse($params['nodes'], $params['case'], $config);
-            if (empty($result['ignored']))
-            {
-                $params['case'] = $result['return'];
-            }
-            //Else, ignore this case
-            else
-            {
-                $params['case'] = $params['open']['open'] . $params['case'] . $params['open']['node']['close'];
-                $params['taken'] = false;
-                //Prevent all ranges containing this case from parsing
-                $params['openingstack'] = $params['suit']->ignore($params['openingstack']);
-                $params['preparse']['ignored'] = true;
-            }
+            $result = $params['suit']->execute($params['nodes'], $params['case'], $params['config']);
         }
         catch (Exception $e)
         {

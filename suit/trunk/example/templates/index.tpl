@@ -1,14 +1,14 @@
 [trim]
 [code]code/index.inc.php[/code]
 [code]code/header.inc.php[/code]
-[parse][template]templates/header.tpl[/template][/parse]
+[execute][template]templates/header.tpl[/template][/execute]
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
 [/trim]
         [if condition="[var json='true']template[/var]"]
         <fieldset>
             <legend>[var]language=>parsed[/var]</legend>
-            [parse][var]template[/var][/parse]
+            [execute][var]template[/var][/execute]
         </fieldset>
         [/if]
 [trim]
@@ -18,5 +18,5 @@
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
     </div>
-[parse][template]templates/footer.tpl[/template][/parse]
+[execute][template]templates/footer.tpl[/template][/execute]
 [/trim]

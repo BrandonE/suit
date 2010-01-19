@@ -1,6 +1,7 @@
+[trim]
 [comment]This is an example template[/comment]
 [code]code/variables.inc.php[/code]
-[parse][template]templates/menu.tpl[/template][/parse]
+[execute][template]templates/menu.tpl[/template][/execute]
 <p>SUIT Version: [var]version[/var]</p>
 [assign var="condition=>legitimatecopy"]true[/assign]
 <p>
@@ -27,3 +28,4 @@
         [/loop]
     </tbody>
 </table>
+[/trim]

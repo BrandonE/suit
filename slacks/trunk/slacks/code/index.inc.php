@@ -21,6 +21,7 @@ $suit->language = array
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
     'htmlmode' => 'HTML Mode',
+    'na' => 'N/A',
     'next' => 'Next',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'previous' => 'Previous',
@@ -40,19 +41,27 @@ switch (strtolower($_GET['language']))
         $suit->languagename = 'default';
         break;
 }
-function recurse($slacks)
+function recurse($slacks, $na)
 {
     foreach ($slacks as $key => $value)
     {
-        foreach ($value->steps as $key2 => $value2)
+        if (is_string($value))
         {
-            if (isset($value2->recurse))
+            $slacks[$key] = array
+            (
+                'array' => false,
+                'contents' => str_replace('<slacks />', '', $value),
+                'text' => htmlspecialchars($value)
+            );
+        }
+        else
+        {
+            $slacks[$key]->contents = recurse($value->contents, $na);
+            if (!isset($value->node))
             {
-                $slacks[$key]->steps[$key2]->recurse = recurse($value2->recurse);
+                $slacks[$key]->node = $na;
             }
-            $slacks[$key]->steps[$key2]->return = str_replace('<slacks />', '', $value2->return);
-            $slacks[$key]->steps[$key2]->text = htmlspecialchars($value2->return);
-            $slacks[$key]->steps[$key2]->recursing = (isset($value2->recurse) && $value2->recurse);
+            $slacks[$key]->array = true;
         }
     }
     return $slacks;
@@ -60,7 +69,7 @@ function recurse($slacks)
 if (array_key_exists('submit', $_POST) && $_POST['submit'])
 {
     $suit->loop['slacks'] = json_decode($_POST['slacks']);
-    $suit->loop['slacks'] = recurse($suit->loop['slacks']);
+    $suit->loop['slacks'] = recurse($suit->loop['slacks'], $suit->language['na']);
 }
 else
 {

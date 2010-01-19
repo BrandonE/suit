@@ -16,10 +16,10 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-function nodedebug($params)
+function slacks($params)
 {
     $params['case'] = $params['var'];
-	return $params;
+    return $params;
 }
 
 class TIE
@@ -876,7 +876,7 @@ class TIE
                     }
                     $this->owner->loop['directories'] = $directoriesarray;
                     $this->owner->loop['files'] = $filesarray;
-                    $xml = $this->owner->parse($this->owner->nodes, $xml);
+                    $xml = $this->owner->execute($this->owner->nodes, $xml);
                     header('Pragma: public');
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -1033,7 +1033,7 @@ class TIE
                 $this->owner->condition['directoryplural'] = (count($directorytitles) != 1);
                 $this->owner->loop['titles'] = $titles;
                 $this->owner->loop['directorytitles'] = $directorytitles;
-                $message = $this->owner->parse($this->owner->nodes, $message);
+                $message = $this->owner->execute($this->owner->nodes, $message);
                 $this->owner->message = $message;
             }
             else
@@ -1054,7 +1054,7 @@ class TIE
                 $this->owner->template = htmlspecialchars(strval($posted['template']));
                 $this->owner->title = htmlspecialchars(strval($posted['title']));
             }
-            $return = $this->owner->parse($this->owner->nodes, $return);
+            $return = $this->owner->execute($this->owner->nodes, $return);
         }
         else
         {
@@ -1161,7 +1161,7 @@ class TIE
             $this->owner->list = urlencode($this->settings['list']);
             $this->owner->search = urlencode($this->settings['search']);
             $this->owner->start = urlencode($this->settings['start']);
-            $return = $this->owner->parse($this->owner->nodes, $return);
+            $return = $this->owner->execute($this->owner->nodes, $return);
         }
         $array = array();
         foreach ($directory['array'] as $value)
@@ -1213,7 +1213,7 @@ class TIE
         $this->owner->navigationpath = $path;
         $this->owner->search = urlencode($this->settings['search']);
         $this->owner->start = urlencode($this->settings['start']);
-        $return['current'] = $this->owner->parse($this->owner->nodes, $return['current']);
+        $return['current'] = $this->owner->execute($this->owner->nodes, $return['current']);
         $num = $this->reduce($count - 1);
         $array = array();
         $result = $this->helper->pagelink($count, ($this->settings['start'] - ($this->settings['list'] * ($config['pages'] + 1))), 0, $this->owner->language['first'], false, $pagelink);
@@ -1314,39 +1314,28 @@ class TIE
             $this->owner->condition['s'] = ($config['refresh'] != 1);
             $this->owner->seconds = $this->owner->language['seconds'];
             $this->owner->refresh = $config['refresh'];
-            $this->owner->seconds = $this->owner->parse($this->owner->nodes, $this->owner->seconds);
+            $this->owner->seconds = $this->owner->execute($this->owner->nodes, $this->owner->seconds);
             $this->owner->message = $message;
             $this->owner->name = $this->owner->language['redirecting'];
             $this->owner->url = htmlspecialchars($url);
-            $content = $this->owner->parse($this->owner->nodes, $content);
-            $this->owner->debugging = $this->owner->debug;
-            $suit = $this->owner;
-            include 'code/tie/debug.inc.php';
-            if ($this->config['flag']['debug'])
-            {
-                $debug = $this->owner->parse($this->owner->nodes, file_get_contents('templates/tie/debug.tpl'));
-            }
-            else
-            {
-                $debug = '';
-            }
+            $content = $this->owner->execute($this->owner->nodes, $content);
             $nodes = array
             (
-                '<debug' => array
+                '<slacks' => array
                 (
-                    'close' => ' />',
+                    'close' => '/>',
                     'function' => array
                     (
                         array
                         (
-                            'function' => 'nodedebug'
+                            'function' => 'slacks'
                         )
                     ),
                     'skip' => true,
-                    'var' => $debug
+                    'var' => htmlentities(json_encode($this->owner->log))
                 )
             );
-            $content = $this->owner->parse($nodes, $content);
+            $content = $this->owner->execute($nodes, $content);
         }
         else
         {
@@ -1444,7 +1433,7 @@ class TIEHelper
             $this->owner->owner->navigationpath = $path;
             $this->owner->owner->search = urlencode($this->owner->settings['search']);
             $this->owner->owner->start = urlencode($start);
-            $return = $this->owner->owner->parse($this->owner->owner->nodes, $return);
+            $return = $this->owner->owner->execute($this->owner->owner->nodes, $return);
         }
         return $return;
     }
