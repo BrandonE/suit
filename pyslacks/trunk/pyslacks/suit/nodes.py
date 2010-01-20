@@ -57,69 +57,19 @@ def assignvariable(split, assignment, var):
 
 def attribute(params):
     """Create node out of attributes"""
-    #If this node is one sided, modify this node
-    if 'onesided' in params['var'] and params['var']['onesided']:
-        node = {
-            'var': params['open']['node']['var']['var'].copy()
-        }
-    #Else, modify the node this is creating
+    var = params['var'].copy()
+    params['var'] = params['var']['var'].copy()
+    if 'onesided' in var and var['onesided']:
+        case = params['case']
+    elif 'create' in params:
+        case = params['create']
     else:
-        node = params['nodes'][params['open']['node']['attribute']].copy()
-        node['var'] = node['var'].copy()
-    result = attributedefine(params, node)
-    params['case'] = ''.join((
-            params['open']['open'],
-            params['case'],
-            params['open']['node']['close']
-        ))
-    params['taken'] = False
-    if not result['ignored']:
-        if 'onesided' in params['var'] and params['var']['onesided']:
-            params['var'] = result['node']['var']
-            params['taken'] = True
-        else:
-            #Add the new node to the stack
-            stack = suit.stack(
-                result['node'],
-                params['case'],
-                params['open']['position']
-            )
-            params['openingstack'].extend(stack['openingstack'])
-            params['skipstack'].extend(stack['skipstack'])
-    else:
-        #Prevent all ranges containing this case from parsing
-        params['openingstack'] = suit.ignore(params['openingstack'])
-        params['preparse']['ignored'] = True
-        if not 'onesided' in params['var'] or not params['var']['onesided']:
-            #Prepare for the closing string
-            node = {
-                'close': params['nodes'][
-                    params['open']['node'
-                ]['attribute']]['close']
-            }
-            if 'skip' in params['nodes'][params['open']['node']['attribute']]:
-                node['skip'] = params['nodes'][
-                    params['open']['node']['attribute']
-                ]['skip']
-            stack = suit.stack(
-                node,
-                params['open']['node']['attribute'],
-                params['open']['position']
-            )
-            params['openingstack'].extend(stack['openingstack'])
-            params['skipstack'].extend(stack['skipstack'])
-        else:
-            params['function'] = False
-    return params
-
-def attributedefine(params, node):
-    """Define the variables"""
-    ignored = False
+        return params
     quote = ''
     smallest = False
-    for value in params['var']['quote']:
+    for value in var['quote']:
         position = suit.strpos(
-            params['case'],
+            case,
             value,
             0,
             params['config']['insensitive']
@@ -131,7 +81,7 @@ def attributedefine(params, node):
         #Define the variables
         split = suit.explodeunescape(
             quote,
-            params['case'],
+            case,
             params['config']['escape']
         )
         del split[-1]
@@ -140,34 +90,30 @@ def attributedefine(params, node):
             if key % 2 == 0:
                 name = value.strip()
                 #If the syntax is valid
-                if (name[
-                    len(name) - len(params['var']['equal'])
-                ] == params['var']['equal']):
-                    name = name[
-                        0:len(name) - len(params['var']['equal'])
-                    ]
+                if (name[len(name) - len(var['equal'])] == var['equal']):
+                    name = name[0:len(name) - len(var['equal'])]
                     #If the variable is whitelisted or blacklisted, do not
                     #prepare to define the variable
-                    if (not listing(name, params['var'])):
+                    if (not listing(name, var)):
                         name = ''
                 else:
                     name = ''
             elif name:
-                config = {
-                    'escape': params['config']['escape'],
-                    'preparse': True
-                }
                 #Define the variable
-                result = suit.parse(params['nodes'], value, config)
-                if not result['ignored']:
-                    node['var'][name] = result['return']
-                else:
-                    ignored = True
-                    break
-    return {
-        'ignored': ignored,
-        'node': node
-    }
+                params['var'][name] = suit.execute(
+                    params['nodes'],
+                    value,
+                    params['config']
+                )
+    return params
+
+def bracket(params):
+    params['case'] = ''.join((
+        params['node'],
+        params['case'],
+        params['nodes'][params['node']]['close']
+    ))
+    return params
 
 def code(params):
     """Execute a code file"""
@@ -186,68 +132,24 @@ def comments(params):
     return params
 
 def condition(params):
-    """Strip node tags or hide a string"""
-    params['offset'] = -len(params['open']['open'])
+    """Hide the case if necessary"""
     #Hide the case if necessary
     if (
         (
-            params['var']['condition'] and
+            params['var']['condition'] and 
             params['var']['else']
         ) or
         (
-            not params['var']['condition'] and not params['var']['else']
+            not params['var']['condition'] and
+            not params['var']['else']
         )
     ):
+        params['tree'] = {
+            'contents': [
+                ''
+            ]
+        }
         params['case'] = ''
-    return params
-
-def conditionstack(params):
-    """Do not skip if the string should not be hidden"""
-    if params['openingstack']:
-        pop = params['openingstack'].pop()
-        if ('var' in pop['node'] and
-        'condition' in pop['node']['var'] and
-        'else' in pop['node']['var']):
-            conditionjson = json.loads(pop['node']['var']['condition'])
-            elsejson = json.loads(pop['node']['var']['else'])
-            try:
-                boolean = False
-                for value in conditionjson:
-                    if value:
-                        boolean = True
-                        break
-                conditionjson = boolean
-            except TypeError:
-                pass
-            pop['node']['var']['condition'] = jsonencode(conditionjson)
-            #If the case should not be hidden, do not skip over everything
-            #between this opening string and its closing string
-            if (
-                (
-                    (
-                        conditionjson and
-                        not elsejson
-                    ) or
-                    (
-                        not conditionjson and
-                        elsejson
-                    )
-                ) and
-                'skip' in pop['node'] and
-                pop['node']['skip']
-            ):
-                pop['node']['skip'] = False
-                params['skipstack'].pop()
-        #Else, if the node was ignored, do not skip over everything between
-        #this opening string and its closing string
-        elif (pop['node']['close'] == params['nodes'][
-            params['open']['node']['attribute']
-        ]['close'] and
-        'skip' in pop['node'] and
-        pop['node']['skip']):
-            pop['node']['skip'] = False
-            params['skipstack'].pop()
-        params['openingstack'].append(pop)
     return params
 
 def escape(params):
@@ -257,6 +159,15 @@ def escape(params):
 def evaluation(params):
     """Evaluate a Python statement"""
     params['case'] = eval(params['case'])
+    return params
+
+def execute(params):
+    """Execute the case"""
+    params['case'] = suit.execute(
+        params['nodes'],
+        params['case'],
+        params['config']
+    )
     return params
 
 def jsondecode(params):
@@ -322,12 +233,6 @@ def listing(name, var):
 def loop(params):
     """Loop a string with different variables"""
     iterationvars = []
-    result = {
-        'ignore': params['nodes'][
-            params['var']['node']]['var']['ignore'
-        ].copy(),
-        'same': {}
-    }
     for value in params['var']['vars']:
         var = {
             params['var']['node']: params['nodes'][
@@ -340,127 +245,43 @@ def loop(params):
         var[params['var']['node']]['var']['var'] = var[
             params['var']['node']
         ]['var']['var'].copy()
+        var[params['var']['node']]['var']['var']['var'] = var[
+            params['var']['node']
+        ]['var']['var']['var'].copy()
         if hasattr(value, 'items'):
             for value2 in value.items():
                 var[
                     params['var']['node']
-                ]['var']['var'][value2[0]] = value2[1]
+                ]['var']['var']['var'][value2[0]] = value2[1]
         else:
             for value2 in dir(value):
                 if (not value2.startswith('_') and
                 not callable(getattr(value, value2))):
-                    var[params['var']['node']]['var']['var'][value2] = getattr(
+                    var[
+                        params['var']['node']
+                    ]['var']['var']['var'][value2] = getattr(
                         value,
                         value2
                     )
-        result = looppreparse(
-            var[params['var']['node']]['var']['var'],
-            len(iterationvars),
-            result
-        )
         iterationvars.append(var)
     iterations = []
-    if iterationvars:
-        nodes = {
-            params['var']['node']: iterationvars[0][
-                params['var']['node']
-            ].copy()
-        }
-        nodes[params['var']['node']]['var'] = nodes[
-            params['var']['node']
-        ]['var'].copy()
-        nodes[params['var']['node']]['var']['ignore'] = result['ignore']
-        config = {
-            'escape': params['config']['escape'],
-            'insensitive': params['config']['insensitive'],
-            'malformed': params['config']['malformed'],
-            'preparse': True
-        }
-        #Parse everything possible without iteration
-        result = suit.parse(
-            dict(
-                params['nodes'].items() +
-                nodes.items()
-            ),
-            params['case'],
-            config
+    tree = {
+        'contents': params['tree']['contents']
+    }
+    for value in iterationvars:
+        #Parse for this iteration
+        result = suit.walk(
+            dict(params['nodes'].items() + value.items()),
+            tree,
+            params['config']
         )
-        for value in iterationvars:
-            config = {
-                'escape': params['config']['escape'],
-                'insensitive': params['config']['insensitive'],
-                'malformed': params['config']['malformed'],
-                'preparse': True,
-                'taken': result['taken']
-            }
-            #Parse for this iteration
-            result2 = suit.parse(
-                dict(
-                    params['nodes'].items() +
-                    value.items()
-                ),
-                result['return'],
-                config
-            )
-            if not result2['ignored']:
-                iterations.append(result2['return'])
-            else:
-                params['case'] = ''.join((
-                    params['open']['open'],
-                    params['case'],
-                    params['open']['node']['close']
-                ))
-                params['taken'] = False
-                #Prevent all ranges containing this case from parsing
-                params['openingstack'] = suit.ignore(params['openingstack'])
-                params['preparse']['ignored'] = True
-                return params
+        iterations.append(result['contents'])
     #Implode the iterations
-    params['case'] = params['var']['delimiter'].join(iterations)
-    return params
-
-def looppreparse(iterationvars, iteration, returnvalue):
-    """Populate the vars for preparsing"""
-    for value in iterationvars.items():
-        #If this node is not already being ignored
-        if not value[0] in returnvalue['ignore']:
-            different = False
-            clone = {}
-            for value2 in returnvalue['same'].items():
-                #If this node has the same opening string as the one we are
-                #checking but is different overall, remove the checking string
-                #and note the difference
-                if value[0] == value2[0] and value[1] != value2[1]:
-                    different = True
-                else:
-                    clone[value2[0]] = value2[1]
-            returnvalue['same'] = clone
-            #If this is a new value, and this is not the first iteration,
-            #remove the checking string and note the difference
-            if not value[0] in returnvalue['same'] and iteration > 0:
-                different = True
-            #If there is an instance of a node that has the same opening string
-            #but is different overall, same it
-            if different:
-                returnvalue['ignore'][value[0]] = value[1]
-            #Else, prepare to preparse it
-            elif not value[0] in returnvalue['same']:
-                returnvalue['same'][value[0]] = value[1]
-    return returnvalue
-
-def loopstack(params):
-    """Do not skip if specified"""
-    if params['openingstack']:
-        pop = params['openingstack'].pop()
-        #If specified, do not skip over everything between
-        #this opening string and its closing string
-        if ('var' in pop['node'] and
-        'skip' in pop['node']['var'] and
-        not json.loads(pop['node']['var']['skip']) and
-        'skip' in params['open']['node'] and
-        params['open']['node']['skip']):
-            params['skipstack'].pop()
-        params['openingstack'].append(pop)
+    params['tree'] = {
+        'contents': [
+            params['var']['delimiter'].join(iterations)
+        ]
+    }
     return params
 
 def loopvariables(params):
@@ -471,45 +292,19 @@ def loopvariables(params):
         params['case'],
         params['config']['escape']
     )
-    #If the case should not be ignored
-    if not split[0] in params['var']['ignore']:
-        params['case'] = params['var']['var']
-        for value in split:
+    params['case'] = params['var']['var']
+    for value in split:
+        try:
+            params['case'] = params['case'][value]
+        except (AttributeError, TypeError):
             try:
-                params['case'] = params['case'][value]
-            except (AttributeError, TypeError):
-                try:
-                    params['case'] = params['case'][int(value)]
-                except (AttributeError, TypeError, ValueError):
-                    params['case'] = getattr(params['case'], value)
-        if params['var']['json']:
-            params['case'] = jsonencode(params['case'])
-        if params['var']['serialize']:
-            params['case'] = pickle.dumps(params['case'])
-    else:
-        params['case'] = ''.join((
-            params['open']['open'],
-            params['case'],
-            params['open']['node']['close']
-        ))
-        params['taken'] = False
-        #Prevent all ranges containing this case from parsing
-        params['openingstack'] = suit.ignore(params['openingstack'])
-        params['preparse']['ignored'] = True
-    return params
-
-def parse(params):
-    """Parse the case"""
-    config = {
-        'escape': params['config']['escape'],
-        'insensitive': params['config']['insensitive'],
-        'malformed': params['config']['malformed']
-    }
-    params['case'] = suit.parse(
-        params['nodes'],
-        params['case'],
-        config
-    )
+                params['case'] = params['case'][int(value)]
+            except (AttributeError, TypeError, ValueError):
+                params['case'] = getattr(params['case'], value)
+    if params['var']['json']:
+        params['case'] = jsonencode(params['case'])
+    if params['var']['serialize']:
+        params['case'] = pickle.dumps(params['case'])
     return params
 
 def replace(params):
@@ -521,62 +316,27 @@ def replace(params):
     return params
 
 def returning(params):
-    """Return early from a parse call"""
+    """Prepare to return from this point on"""
+    if params['var']['layers']:
+        params['returnvar'] = {
+            'returnfunctions': [returningfunction],
+            'layers': params['var']['layers']
+        }
+        params['returnfunctions'] = params['returnvar']['returnfunctions']
     params['case'] = ''
-    stack = params['openingstack'][:]
-    stack.reverse()
-    skipstack = []
-    for key, value in enumerate(stack):
-        #If the stack count has not been modified or it specifies this many
-        #stacks
-        if (not params['var']['openingstack'] or
-        int(params['var']['openingstack']) > key):
-            if not 'function' in value['node']:
-                params['openingstack'][
-                    len(stack) - 1 - key
-                ]['node']['function'] = []
-            #Make all of the nodes remove all content in the case that takes
-            #place after this return.
-            params['openingstack'][
-                len(stack) - 1 - key
-            ]['node']['function'].insert(
-                0,
-                returningfirst
-            )
-            #Make the last node to be closed remove everything after this
-            #return
-            if key == len(stack) - 1:
-                params['openingstack'][0]['node']['function'].append(
-                    returninglast
-                )
-            skipstack.append(value['node']['close'])
-        else:
-            break
-    skipstack.reverse()
-    params['skipstack'].extend(skipstack)
-    #If the stack is empty, and the stack count has not been modified or it
-    #specifies at least one stack, remove everything after this return.
-    if (
-        not params['openingstack'] and 
-        (
-            not params['var']['openingstack'] or
-            int(params['var']['openingstack']) > 0
-        )
-    ):
-        params['last'] = params['open']['position']
-        params = returninglast(params)
     return params
 
-def returningfirst(params):
-    """Function placed in front of all the functions in a stack"""
-    params['case'] = params['case'][0:(params['last'] -
-    params['open']['position'] - len(params['open']['open']))]
-    return params
-
-def returninglast(params):
-    """Function appended to the last node to be closed in the stack"""
-    params['return'] = params['return'][0:params['last']]
-    params['parse'] = False
+def returningfunction(params):
+    """Return from this point on"""
+    params['tree']['contents'] = params['tree']['contents'][
+        0:params['key'] + 1
+    ]
+    if not isinstance(params['returnedvar']['layers'], bool):
+        params['returnedvar']['layers'] -= 1
+    if params['returnedvar']['layers']:
+        params['returnvar'] = params['returnedvar']
+        params['returnfunctions'] = params['returnedvar']['returnfunctions']
+    params['walk'] = False
     return params
 
 def templates(params):
@@ -591,56 +351,55 @@ def templates(params):
     return params
 
 def trim(params):
-    """Trim all unnecessary whitespace"""
+    """Prepare the trim rules"""
     nodes = {
+        '':
+        {
+            'treefunctions': [trimexecute]
+        },
         '<pre':
         {
             'close': '</pre>',
-            'function': [trimbefore],
-            'skip': True
+            'stringfunctions': [trimarea]
         },
         '<textarea':
         {
             'close': '</textarea>',
-            'function': [trimbefore],
-            'skip': True
+            'stringfunctions': [trimarea]
         }
     }
-    suit.last = 0
-    params['case'] = suit.parse(nodes, params['case'])
-    copy = params['case'][suit.last:len(params['case'])]
-    if not suit.last:
-        copy = copy.lstrip()
-    replaced = re.sub('(?m)[\s]+$', '', copy)
+    params['case'] = suit.execute(
+        nodes,
+        params['case'],
+        params['config']
+    )
+    params['case'] = params['case'].lstrip()
+    return params
+
+def trimarea(params):
+    """Ignore the specified tags"""
     params['case'] = ''.join((
-        params['case'][0:suit.last],
-        replaced
+        params['node'],
+        params['case'],
+        params['nodes'][params['node']]['close']
     ))
     return params
 
-def trimbefore(params):
-    """Trim the whitespace before this instance"""
-    original = params['return'][params['last']:params['open']['position']]
-    copy = original
-    if not params['last']:
-        copy = copy.lstrip()
-    replaced = re.sub('(?m)[\s]+$', '', original.lstrip())
-    params['return'] = ''.join((
-        params['return'][0:params['last']],
-        replaced,
-        params['return'][params['open']['position']:len(params['return'])]
-    ))
-    params['open']['position'] += len(replaced) - len(original)
-    params['position'] += len(replaced) - len(original)
-    params['case'] = ''.join((
-        params['open']['open'],
-        params['case'],
-        params['open']['node']['close']
-    ))
-    params['taken'] = False
-    suit.last = params['open']['position'] + len(
-        params['case']
-    )
+def trimexecute(params):
+    """Trim unnecessary whitespace"""
+    for key, value in enumerate(params['tree']['contents']):
+        if isinstance(params['tree']['contents'][key], dict):
+            result = suit.walkarray(
+                params['nodes'],
+                params['tree'],
+                params['config'],
+                params,
+                key
+            )
+            params = result['params']
+            params['tree'] = result['tree']
+        else:
+            params['tree']['contents'][key] = re.sub('(?m)[\s]+$', '', params['tree']['contents'][key])
     return params
 
 def trying(params):
@@ -648,30 +407,11 @@ def trying(params):
     if params['var']['var']:
         setattr(suit, params['var']['var'], '')
     try:
-        config = {
-            'escape': params['config']['escape'],
-            'insensitive': params['config']['insensitive'],
-            'malformed': params['config']['malformed'],
-            'preparse': True
-        }
-        result = suit.parse(
+        params['case'] = suit.execute(
             params['nodes'],
             params['case'],
-            config
+            params['config']
         )
-        if not result['ignored']:
-            params['case'] = result['return']
-        #Else, ignore this case
-        else:
-            params['case'] = ''.join((
-                params['open']['open'],
-                params['case'],
-                params['open']['node']['close']
-            ))
-            params['taken'] = False
-            #Prevent all ranges containing this case from parsing
-            params['openingstack'] = suit.ignore(params['openingstack'])
-            params['preparse']['ignored'] = True
     except Exception, inst:
         #If a variable is provided and it not is whitelisted or blacklisted
         if params['var']['var'] and listing(
@@ -725,193 +465,171 @@ def variables(params):
 NODES = {
     '[':
     {
-        'close': ']'
+        'close': ']',
+        'stringfunctions': [bracket]
     },
     '[assign]':
     {
         'close': '[/assign]',
-        'function': [assign],
+        'stringfunctions': [
+            attribute,
+            assign
+        ],
         'var':
         {
-            'delimiter': '=>',
-            'var': ''
+            'equal': '=',
+            'list': ('var',),
+            'quote': ('"', '\''),
+            'var':
+            {
+                'delimiter': '=>',
+                'var': ''
+            }
         }
     },
     '[assign':
     {
         'close': ']',
-        'function': [attribute],
-        'attribute': '[assign]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'list': ('var',),
-            'quote': ('"', '\'')
-        }
+        'create': '[assign]',
+        'skip': True
     },
     '[code]':
     {
         'close': '[/code]',
-        'function': [code],
+        'stringfunctions': [code],
         'var': {}
     },
     '[comment]':
     {
         'close': '[/comment]',
-        'function': [comments],
+        'stringfunctions': [comments],
         'skip': True
     },
     '[escape]':
     {
         'close': '[/escape]',
-        'function': [escape],
+        'stringfunctions': [escape],
         'skip': True,
         'skipescape': True,
         'var': '\r\n\t '
     },
+    '[execute]':
+    {
+        'close': '[/execute]',
+        'stringfunctions': [execute],
+        'var': {}
+    },
     '[if]':
     {
         'close': '[/if]',
-        'function': [
+        'treefunctions': [
+            attribute,
             jsondecode,
             condition
         ],
-        'skip': True,
         'transform': False,
-        'var':
-        {
-            'condition': 'false',
-            'decode': ('condition', 'else'),
-            'else': 'false'
-        }
-    },
-    '[if':
-    {
-        'close': ']',
-        'function':
-        [
-            attribute,
-            conditionstack
-        ],
-        'attribute': '[if]',
-        'skip': True,
         'var':
         {
             'blacklist': True,
             'equal': '=',
             'list': ('decode',),
-            'quote': ('"', '\'')
+            'quote': ('"', '\''),
+            'var':
+            {
+                'condition': 'false',
+                'decode': ('condition', 'else'),
+                'else': 'false'
+            }
         }
+    },
+    '[if':
+    {
+        'close': ']',
+        'create': '[if]',
+        'skip': True
     },
     '[loop]':
     {
         'close': '[/loop]',
-        'function': [
+        'treefunctions': [
+            attribute,
             jsondecode,
             loop
         ],
-        'skip': True,
         'var':
         {
-            'decode': ('skip', 'vars'),
-            'delimiter': '',
-            'node': '[loopvar]',
-            'skip': 'true',
-            'vars': '[]'
+            'equal': '=',
+            'list': ('delimiter', 'vars'),
+            'quote': ('"', '\''),
+            'var':
+            {
+                'decode': ('vars',),
+                'delimiter': '',
+                'node': '[loopvar]',
+                'vars': '[]'
+            }
         }
     },
     '[loop':
     {
         'close': ']',
-        'function': [
-            attribute,
-            loopstack
-        ],
-        'attribute': '[loop]',
-        'skip': True,
-        'var':
-        {
-            'blacklist': True,
-            'equal': '=',
-            'list': ('decode', 'node'),
-            'quote': ('"', '\'')
-        }
+        'create': '[loop]',
+        'skip': True
     },
     '[loopvar]':
     {
         'close': '[/loopvar]',
-        'function': [
+        'stringfunctions': [
+            attribute,
             jsondecode,
             loopvariables
         ],
         'var':
         {
-            'decode': ('json', 'serialize'),
-            'delimiter': '=>',
-            'ignore': {},
-            'json': 'false',
-            'serialize': 'false',
-            'var': {}
+            'equal': '=',
+            'list': ('json', 'serialize'),
+            'quote': ('"', '\''),
+            'var':
+            {
+                'decode': ('json', 'serialize'),
+                'delimiter': '=>',
+                'json': 'false',
+                'serialize': 'false',
+                'var': {}
+            }
         }
     },
     '[loopvar':
     {
         'close': ']',
-        'function': [attribute],
-        'attribute': '[loopvar]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'list': ('json', 'serialize'),
-            'quote': ('"', '\'')
-        }
-    },
-    '[parse]':
-    {
-        'close': '[/parse]',
-        'function': [parse],
-        'var': {}
-    },
-    '[parse':
-    {
-        'close': ']',
-        'function': [attribute],
-        'attribute': '[parse]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': ('"', '\'')
-        }
+        'create': '[loopvar]',
+        'skip': True
     },
     '[replace]':
     {
         'close': '[/replace]',
-        'function': [replace],
+        'stringfunctions': [replace],
         'var':
         {
-            'replace': '',
-            'search': ''
+            'equal': '=',
+            'quote': ('"', '\''),
+            'var':
+            {
+                'replace': '',
+                'search': ''
+            }
         }
     },
     '[replace':
     {
         'close': ']',
-        'function': [attribute],
-        'attribute': '[replace]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'quote': ('"', '\'')
-        }
+        'create': '[replace]',
+        'skip': True
     },
     '[return':
     {
         'close': '/]',
-        'function':
+        'stringfunctions':
         [
             attribute,
             jsondecode,
@@ -921,78 +639,80 @@ NODES = {
         'var':
         {
             'equal': '=',
-            'list': ('stack',),
+            'list': ('layers',),
             'onesided': True,
             'quote': ('"', '\''),
             'var':
             {
-                'decode': ('stack',),
-                'stack': 'false'
+                'decode': ('layers',),
+                'layers': 'true'
             }
         }
     },
     '[template]':
     {
         'close': '[/template]',
-        'function': [templates],
+        'stringfunctions': [templates],
         'var': {}
     },
     '[trim]':
     {
         'close': '[/trim]',
-        'function': [trim],
+        'stringfunctions': [trim],
     },
     '[try]':
     {
         'close': '[/try]',
-        'function': [trying],
-        'skip': True,
-        'var':
-        {
-            'delimiter': '=>',
-            'var': ''
-        }
-    },
-    '[try':
-    {
-        'close': ']',
-        'function': [attribute],
-        'attribute': '[try]',
+        'stringfunctions': [
+            attribute,
+            trying
+        ],
         'skip': True,
         'var':
         {
             'equal': '=',
             'list': ('var',),
-            'quote': ('"', '\'')
+            'quote': ('"', '\''),
+            'var':
+            {
+                'delimiter': '=>',
+                'var': ''
+            }
         }
+    },
+    '[try':
+    {
+        'close': ']',
+        'create': '[try]',
+        'skip': True
     },
     '[var]':
     {
         'close': '[/var]',
-        'function': [
+        'stringfunctions': [
+            attribute,
             jsondecode,
             variables
         ],
         'var':
         {
-            'decode': ('json', 'serialize'),
-            'delimiter': '=>',
-            'json': 'false',
-            'serialize': 'false'
+            'equal': '=',
+            'list': ('json', 'serialize'),
+            'quote': ('"', '\''),
+            'var':
+            {
+                'decode': ('json', 'serialize'),
+                'delimiter': '=>',
+                'json': 'false',
+                'serialize': 'false'
+            }
         }
     },
     '[var':
     {
         'close': ']',
-        'function': [attribute],
-        'attribute': '[var]',
-        'skip': True,
-        'var':
-        {
-            'equal': '=',
-            'list': ('json', 'serialize'),
-            'quote': ('"', '\'')
-        }
+        'create': '[var]',
+        'skip': True
     }
 }
 
@@ -1000,6 +720,6 @@ EVALNODES = {
     '[eval]':
     {
         'close': '[/eval]',
-        'function': [evaluation]
+        'stringfunctions': [evaluation]
     }
 }

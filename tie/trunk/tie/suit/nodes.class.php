@@ -526,12 +526,8 @@ class Nodes
                 }
                 elseif ($name)
                 {
-                    $config = array
-                    (
-                        'escape' => $params['config']['escape']
-                    );
                     //Define the variable
-                    $params['var'][$name] = $params['suit']->execute($params['nodes'], $split[$i], $config);
+                    $params['var'][$name] = $params['suit']->execute($params['nodes'], $split[$i], $params['config']);
                 }
             }
         }
@@ -715,7 +711,7 @@ class Nodes
     public function returningfunction($params)
     {
         array_splice($params['tree']['contents'], $params['key'] + 1);
-        if (intval($params['returnedvar']['layers']) == $params['returnedvar']['layers'])
+        if (is_int($params['returnedvar']['layers']))
         {
             $params['returnedvar']['layers']--;
         }
@@ -767,7 +763,8 @@ class Nodes
                         'function' => 'trimarea',
                         'class' => $this
                     )
-                )
+                ),
+                'skip' => true
             ),
             '<textarea' => array
             (
@@ -779,7 +776,8 @@ class Nodes
                         'function' => 'trimarea',
                         'class' => $this
                     )
-                )
+                ),
+                'skip' => true
             )
         );
         $params['case'] = $params['suit']->execute($nodes, $params['case'], $params['config']);
@@ -801,7 +799,7 @@ class Nodes
             {
                 $result = $params['suit']->walkarray($params['nodes'], $params['tree'], $params['config'], $params, $key);
                 $params = $result['params'];
-                $tree = $result['tree'];
+                $params['tree'] = $result['tree'];
             }
             else
             {

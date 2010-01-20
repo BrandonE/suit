@@ -1,7 +1,7 @@
 [trim]
 [code]code/index.py[/code]
 [code]code/header.py[/code]
-[parse][template]templates/header.tpl[/template][/parse]
+[execute][template]templates/header.tpl[/template][/execute]
     <div class="section">
         <h2>[var]language=>title[/var]</h2>
         [assign var="menu"]
@@ -15,10 +15,10 @@
         </div>
         [/assign]
         [var]menu[/var]
-        [loop vars="[var json='true']loop=>slacks[/var]" skip="false"]
-        [template]templates/recursive.tpl[/template]
+        [loop vars="[var json='true']loop=>slacks[/var]"]
+        [execute][template]templates/recursive.tpl[/template][/execute]
         [/loop]
         [var]menu[/var]
     </div>
-[parse][template]templates/footer.tpl[/template][/parse]
+[execute][template]templates/footer.tpl[/template][/execute]
 [/trim]

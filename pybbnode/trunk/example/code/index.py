@@ -58,7 +58,7 @@ if 'submit' in suit.request.POST and suit.request.POST['submit']:
         suit.request.POST['message'],
         True
     )
-    suit.parsed = suit.parse(
+    suit.executed = suit.execute(
         nodes,
         suit.message.replace('\n','<br />\n')
     )

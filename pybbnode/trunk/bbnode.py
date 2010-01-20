@@ -21,11 +21,16 @@ __version__ = '0.0.0'
 
 def attribute(params):
     """Create node out of attribute"""
-    params['var']['node'] = params['nodes'][
-        params['open']['node']['attribute']
-    ].copy()
-    params['var']['node']['var'] = params['var']['node']['var'].copy()
-    params['var']['node']['var']['equal'] = params['case']
+    if 'create' in params:
+        params['var']['equal'] = params['create']
+    return params
+
+def bracket(params):
+    params['case'] = ''.join((
+        params['node'],
+        params['case'],
+        params['nodes'][params['node']]['close']
+    ))
     return params
 
 def size(params):
@@ -33,24 +38,6 @@ def size(params):
     params['var']['equal'] = int(params['var']['equal']) + 7
     if params['var']['equal'] > 30:
         params['var']['equal'] = 30
-    return params
-
-def stack(params):
-    """Add the BBCode attribute to the stack"""
-    params['case'] = ''.join((
-        params['open']['open'],
-        params['case'],
-        params['open']['node']['close']
-    ))
-    params['taken'] = False
-    #Add the new node to the stack
-    newstack = suit.stack(
-        params['var']['node'],
-        params['case'],
-        params['open']['position']
-    )
-    params['openingstack'].extend(newstack['openingstack'])
-    params['skipstack'].extend(newstack['skipstack'])
     return params
 
 def style(params):
@@ -70,7 +57,7 @@ def template(params):
     """Substitute variables into the template"""
     suit.case = params['case']
     suit.equal = params['var']['equal']
-    params['case'] = suit.parse(
+    params['case'] = suit.execute(
         suit.nodes,
         params['var']['template']
     )
@@ -106,13 +93,15 @@ def listitems(params):
 NODES = {
     '[':
     {
-        'close': ']'
+        'close': ']',
+        'stringfunctions': [bracket]
     },
     '[align]':
     {
         'close': '[/align]',
-        'function':
+        'stringfunctions':
         [
+            attribute,
             style,
             template
         ],
@@ -126,20 +115,12 @@ NODES = {
     '[align=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[align]',
-        'var': {
-            'node': {}
-        }
+        'create': '[align]'
     },
     '[b]':
     {
         'close': '[/b]',
-        'function': [template],
+        'stringfunctions': [template],
         'var':
         {
             'equal': '',
@@ -150,7 +131,7 @@ NODES = {
     '[code]':
     {
         'close': '[/code]',
-        'function': [template],
+        'stringfunctions': [template],
         'skip': True,
         'var':
         {
@@ -162,8 +143,9 @@ NODES = {
     '[color]':
     {
         'close': '[/color]',
-        'function':
+        'stringfunctions':
         [
+            attribute,
             style,
             template
         ],
@@ -177,20 +159,15 @@ NODES = {
     '[color=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[color]',
-        'var': {
-            'node': {}
-        }
+        'create': '[color]'
     },
     '[email]':
     {
         'close': '[/email]',
-        'function': [template],
+        'stringfunctions': [
+            attribute,
+            template
+        ],
         'var':
         {
             'equal': '',
@@ -201,21 +178,14 @@ NODES = {
     '[email=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[email]',
-        'var': {
-            'node': {}
-        }
+        'create': '[email]'
     },
     '[font]':
     {
         'close': '[/font]',
-        'function':
+        'stringfunctions':
         [
+            attribute,
             style,
             template
         ],
@@ -229,20 +199,12 @@ NODES = {
     '[font=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[font]',
-        'var': {
-            'node': {}
-        }
+        'create': '[font]'
     },
     '[i]':
     {
         'close': '[/i]',
-        'function': [template],
+        'stringfunctions': [template],
         'var':
         {
             'equal': '',
@@ -253,7 +215,7 @@ NODES = {
     '[img]':
     {
         'close': '[/img]',
-        'function': [template],
+        'stringfunctions': [template],
         'var':
         {
             'equal': '',
@@ -264,8 +226,9 @@ NODES = {
     '[list]':
     {
         'close': '[/list]',
-        'function':
+        'stringfunctions':
         [
+            attribute,
             listitems,
             template
         ],
@@ -282,20 +245,12 @@ NODES = {
     '[list=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[list]',
-        'var': {
-            'node': {}
-        }
+        'create': '[list]'
     },
     '[s]':
     {
         'close': '[/s]',
-        'function': [template],
+        'stringfunctions': [template],
         'var':
         {
             'equal': '',
@@ -306,8 +261,9 @@ NODES = {
     '[size]':
     {
         'close': '[/size]',
-        'function':
+        'stringfunctions':
         [
+            attribute,
             style,
             size,
             template
@@ -322,20 +278,15 @@ NODES = {
     '[size=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[size]',
-        'var': {
-            'node': {}
-        }
+        'create': '[size]'
     },
     '[quote]':
     {
         'close': '[/quote]',
-        'function': [template],
+        'stringfunctions': [
+            attribute,
+            template
+        ],
         'var':
         {
             'equal': '',
@@ -346,20 +297,15 @@ NODES = {
     '[quote=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[quote]',
-        'var': {
-            'node': {}
-        }
+        'create': '[quote]'
     },
     '[u]':
     {
         'close': '[/u]',
-        'function': [template],
+        'stringfunctions': [
+            attribute,
+            template
+        ],
         'var':
         {
             'equal': '',
@@ -370,7 +316,10 @@ NODES = {
     '[url]':
     {
         'close': '[/url]',
-        'function': [template],
+        'stringfunctions': [
+            attribute,
+            template
+        ],
         'var':
         {
             'equal': '',
@@ -381,14 +330,6 @@ NODES = {
     '[url=':
     {
         'close': ']',
-        'function':
-        [
-            attribute,
-            stack
-        ],
-        'attribute': '[url]',
-        'var': {
-            'node': {}
-        }
-    },
+        'create': '[url]'
+    }
 }

@@ -1,13 +1,13 @@
 [trim]
 [code]code/index.py[/code]
 [code]code/header.py[/code]
-[parse][template]templates/header.tpl[/template][/parse]
+[execute][template]templates/header.tpl[/template][/execute]
     <div class="section">
         <h2>[var]language=>example[/var]</h2>
         [if condition="[var json='true']message[/var]"]
         <fieldset>
             <legend>[var]language=>message[/var]</legend>
-            [var]parsed[/var]
+            [var]executed[/var]
         </fieldset>
         [/if]
         <form action="#" method="post">
@@ -16,5 +16,5 @@
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
     </div>
-[parse][template]templates/footer.tpl[/template][/parse]
+[execute][template]templates/footer.tpl[/template][/execute]
 [/trim]

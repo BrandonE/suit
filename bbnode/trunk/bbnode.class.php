@@ -407,7 +407,10 @@ class BBNode
 
     public function attribute($params)
     {
-        $params['var']['equal'] = $params['create'];
+        if (array_key_exists('create', $params))
+        {
+            $params['var']['equal'] = $params['create'];
+        }
         return $params;
     }
 

@@ -49,7 +49,7 @@ suit.condition = {}
 suit.loop = {}
 suit.request = Request(environ)
 suit.response = Response()
-template = suit.parse(suit.nodes, open('templates/index.tpl').read())
+template = suit.execute(suit.nodes, open('templates/index.tpl').read())
 def slack(params):
     params['case'] = params['var']
     return params
@@ -57,12 +57,12 @@ slacksnodes = {
 	'<slacks':
 	{
 		'close': '/>',
-        'function': [slack],
+        'stringfunctions': [slack],
 		'skip': True,
 		'var': escape(
-            json.dumps(suit.DEBUG, separators = (',',':')),
+            json.dumps(suit.LOG, separators = (',',':')),
             True
         )
 	}
 }
-print suit.parse(slacksnodes, template)
+print suit.execute(slacksnodes, template)

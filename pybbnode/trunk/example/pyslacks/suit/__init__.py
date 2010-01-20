@@ -15,6 +15,7 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.selfframework.com/
 http://www.selfframework.com/docs/credits
 """
+import copy
 import inspect
 import pickle
 
@@ -22,11 +23,42 @@ __version__ = '0.0.2'
 
 CACHE = {
     'escape': {},
-    'explodeunescape': {},
-    'parse': {}
+    'execute':
+    {
+        'parse': {},
+        'tokens': {}
+    },
+    'explodeunescape': {}
 }
 
-DEBUG = []
+LOG = []
+
+def close(params, pop, closed):
+    string = params['return'][params['last']:params['position']]
+    if not 'create' in params['nodes'][pop['node']]:
+        pop['closed'] = closed
+        #If the inner string is not empty, add it to the node
+        if string:
+            pop['contents'].append(string)
+        #Add the node to the tree if necessary
+        if notclosed(params['tree']):
+            pop2 = params['tree'].pop()
+            pop2['contents'].append(pop)
+            pop = pop2
+        params['tree'].append(pop)
+    else:
+        append = {
+            'create': string,
+            'node': params['nodes'][pop['node']]['create'],
+            'contents': []
+        }
+        params['tree'].append(append)
+        params['skipstack'] = skip(
+            params['nodes'][params['nodes'][pop['node']]['create']],
+            params['skipstack']
+        )
+    params['last'] = params['position'] + len(params['string'])
+    return params
 
 def closingstring(params):
     """Handle a closing string instance in the parser"""
@@ -43,9 +75,9 @@ def closingstring(params):
         skippop = False
     #If a value was not popped or the closing string for this node matches it
     if (skippop == False or
-    params['nodes'][params['node']]['close'] == skippop['close']):
+    params['string'] == skippop['close']):
         #If it explictly says to escape
-        if (escaping):
+        if escaping:
             params['position'] = params['unescape']['position']
             params['return'] = params['unescape']['string']
         #If this position should not be overlooked
@@ -53,54 +85,27 @@ def closingstring(params):
             #If there is an offset, decrement it
             if params['skipoffset']:
                 params['skipoffset'] -= 1
-            #If the stack is not empty
-            elif params['openingstack']:
-                params['open'] = params['openingstack'].pop()
-                params['case'] = params['return'][
-                    params['open']['position'] + len(
-                        params['open']['open']
-                    ):params['position']
-                ]
+            elif notclosed(params['tree']):
+                pop = params['tree'].pop()
                 #If this closing string matches the last node's or it
-                #explicitly says to parse a malformed template
-                if (params['open']['node']['close'] == params['nodes'][
-                    params['node']
-                ]['close'] or
-                params['config']['malformed']):
-                    params = transform(params)
+                #explicitly says to execute a mismatched case
+                if (params['nodes'][
+                    pop['node']
+                ]['close'] == params['string'] or
+                params['config']['mismatched']):
+                    params = close(params, pop, True)
+                #Else, put the string back
                 else:
-                    params['last'] = params['position'] + len(
-                        params['nodes'][params['node']]['close']
-                    )
-                    params = taken(params)
-            else:
-                if not params['config']['malformed']:
-                    params['preparse']['taken'].append((
-                        params['position'],
-                        params['position'] + len(
-                            params['nodes'][params['node']]['close']
-                        )
-                    ))
-                else:
-                    params['open'] = {
-                        'node': params['nodes'][params['node']],
-                        'open': '',
-                        'position': 0
-                    }
-                    params['case'] = params['return'][
-                        params['open']['position'] + len(
-                            params['open']['open']
-                        ):params['position']
-                    ]
-                    params = transform(params)
-        #Else, reserve the range
-        else:
-            params['preparse']['taken'].append((
-                params['position'],
-                params['position'] + len(
-                    params['nodes'][params['node']]['close']
-                )
-            ))
+                    if notclosed(params['tree']):
+                        pop2 = params['tree'].pop()
+                        pop2['contents'].append(pop['node'])
+                        for value in pop['contents']:
+                            pop2['contents'].append(value)
+                        params['tree'].append(pop2)
+                    else:
+                        params['tree'].append(pop['node'])
+                        for value in pop['contents']:
+                            params['tree'].append(value)
     #Else, put the popped value back
     else:
         params['skipstack'].append(skippop)
@@ -175,6 +180,52 @@ def escape(strings, returnvalue, escapestring = '\\', insensitive = True):
         )
     return returnvalue
 
+def execute(nodes, returnvalue, config = None):
+    """Parse string using nodes"""
+    if config == None:
+        config = {}
+    if not 'escape' in config:
+        config['escape'] = '\\'
+    if not 'insensitive' in config:
+        config['insensitive'] = True
+    if not 'mismatched' in config:
+        config['mismatched'] = False
+    if not 'unclosed' in config:
+        config['unclosed'] = False
+    cachekey = hash((
+        returnvalue,
+        pickle.dumps(nodes),
+        pickle.dumps(config['insensitive'])
+    ))
+    #If positions are cached for this case, load them
+    if cachekey in CACHE['execute']['tokens']:
+        executetokens = CACHE['execute']['tokens'][cachekey]
+    else:
+        executetokens = tokens(nodes, returnvalue, config)
+        #Cache the tokens
+        CACHE['execute']['tokens'][cachekey] = executetokens
+    cachekey = hash((
+        returnvalue,
+        pickle.dumps(nodes),
+        pickle.dumps(config['insensitive']),
+        pickle.dumps(config['escape']),
+        pickle.dumps(config['mismatched'])
+    ))
+    #If a tree is cached for this case, load it
+    if cachekey in CACHE['execute']['parse']:
+        tree = CACHE['execute']['parse'][cachekey]
+    else:
+        tree = {
+            'contents': parse(nodes, returnvalue, config, executetokens)
+        }
+        if '' in nodes:
+            tree['node'] = ''
+        #Cache the tree
+        CACHE['execute']['tokens'][cachekey] = tree
+    LOG.append(tree)
+    result = walk(nodes, tree, config)
+    return result['contents']
+
 def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
     """Split up the file, paying attention to escape strings"""
     array = []
@@ -247,14 +298,24 @@ def explodeunescape(explode, glue, escapestring = '\\', insensitive = True):
         offset = len(glue) - len(temp)
     return array
 
-def ignore(stack):
-    """Prevent all ranges containing this case from parsing"""
-    for key, value in enumerate(stack):
-        #If the node transforms the case
-        if (not 'transform' in params['open']['node'] or
-        params['open']['node']['transform']):
-            stack[key]['node']['function'] = []
-    return stack
+def functions(params, function):
+    for value in function:
+        #Transform the string in between the opening and closing strings
+        params = value(params)
+        if not params['function']:
+            break
+    return params
+
+def notclosed(tree):
+    #If the tree is not empty and the last item is an array and has not been closed
+    return (
+        tree and
+        isinstance(tree[len(tree) - 1], dict) and
+        (
+            not 'closed' in tree[len(tree) - 1] or
+            not tree[len(tree) - 1]['closed']
+        )
+    )
 
 def openingstring(params):
     """Handle an opening string instance in the parser"""
@@ -275,26 +336,31 @@ def openingstring(params):
         params['return'] = params['unescape']['string']
         #If this position should not be overlooked
         if not params['unescape']['condition']:
-            result = stack(
-                params['nodes'][params['node']],
-                params['node'],
-                params['position']
-            )
-            params['openingstack'].extend(result['openingstack'])
-            params['skipstack'].extend(result['skipstack'])
-        #Else, reserve the range
-        else:
-            params['preparse']['taken'].append((
-                params['position'],
-                params['position'] + len(params['node'])
-            ))
+            #Add the string in between the last symbol and this to the tree
+            append = params['return'][params['last']:params['position']]
+            params['last'] = params['position'] + len(params['string'])
+            #Add the text to the tree if necessary
+            if notclosed(params['tree']):
+                pop = params['tree'].pop()
+                if append:
+                    pop['contents'].append(append)
+                params['tree'].append(pop)
+            else:
+                if append:
+                    params['tree'].append(append)
+            append = {
+                'node': params['string'],
+                'contents': []
+            }
+            params['tree'].append(append)
+            params['skipstack'] = skip(params['nodes'][params['string']], params['skipstack'])
     else:
         #Put it back
         params['skipstack'].append(skippop)
-        skipclose = [params['nodes'][params['node']]['close']]
-        if 'attribute' in params['nodes'][params['node']]:
-            attribute = params['nodes'][params['node']]['attribute']
-            skipclose.append(params['nodes'][attribute]['close'])
+        skipclose = [params['nodes'][params['string']]['close']]
+        if 'create' in params['nodes'][params['string']]:
+            create = params['nodes'][params['string']]['create']
+            skipclose.append(params['nodes'][create]['close'])
         #If the closing string for this node matches it
         if skippop['close'] in skipclose:
             #If it explictly says to escape
@@ -308,102 +374,86 @@ def openingstring(params):
                 params['skipoffset'] += 1
     return params
 
-def parse(nodes, returnvalue, config = None):
-    """Parse string using nodes"""
-    if config == None:
-        config = {}
-    if not 'escape' in config:
-        config['escape'] = '\\'
-    if not 'insensitive' in config:
-        config['insensitive'] = True
-    if not 'malformed' in config:
-        config['malformed'] = False
-    if not 'preparse' in config:
-        config['preparse'] = False
-    if not 'taken' in config:
-        config['taken'] = {}
-    cachekey = hash((
-                returnvalue,
-                pickle.dumps(nodes),
-                pickle.dumps(config['taken'])
-        ))
-    #If positions are cached for this case, load them
-    if cachekey in CACHE['parse']:
-        pos = CACHE['parse'][cachekey]
-    else:
-        strings = {}
-        for value in nodes.items():
-            strings[value[0]] = (value[0], 0)
-            if 'close' in value[1]:
-                strings[value[1]['close']] = (value[0], 1)
-        strings = strings.items()
-        #Order the strings by the length, descending
-        strings.sort(key = lambda item: len(item[0]), reverse = True)
-        params = {
-            'insensitive': config['insensitive'],
-            'pos': {},
-            'repeated': [],
-            'return': returnvalue,
-            'strings': strings,
-            'taken': []
-        }
-        params['taken'].extend(config['taken'])
-        pos = positions(params)
-        #Order the positions from smallest to biggest
-        pos = sorted(pos.items())
-        #Cache the positions
-        CACHE['parse'][cachekey] = pos
-    inspection = inspect.stack()
-    DEBUG.append({
-        'file': inspection[1][1],
-        'line': inspection[1][2],
-        'steps':
-        [
-            {
-                'return': returnvalue
-            }
-        ]
-    })
+def parse(nodes, returnvalue, config, tokens):
+    """Generate the tree for execute"""
     params = {
         'config': config,
-        'ignored': [],
         'last': 0,
         'nodes': nodes,
-        'openingstack': [],
-        'preparse': {
-            'ignored': False,
-            'taken': []
-        },
         'return': returnvalue,
         'returnoffset': 0,
         'skipstack': [],
         'skipoffset': 0,
-        'temp': returnvalue
+        'temp': returnvalue,
+        'tree': []
     }
-    for value in pos:
+    for value in tokens:
         #Adjust position to changes in length
         params['position'] = value[0] + params['returnoffset']
-        params = step(params, value[1])
-        if not params['parse']:
-            break
-    params = remaining(params)
-    tree()
-    if not params['config']['preparse']:
-        returnvalue = params['return']
-    else:
-        returnvalue = {
-            'ignored': params['preparse']['ignored'],
-            'return': params['return'],
-            'taken': params['preparse']['taken']
+        params['string'] = value[1][0]
+        position = params['position']
+        string = params['return']
+        count = 0
+        #If the escape string is not empty
+        if params['config']['escape']:
+            start = position - len(params['config']['escape'])
+            #Count how many escape characters are directly to the left of this
+            #position
+            while (abs(start) == start and
+            string[
+                start:
+                start + len(params['config']['escape'])
+            ] == params['config']['escape']):
+                count += len(params['config']['escape'])
+                start = position - count - len(params['config']['escape'])
+            #Determine how many escape strings are directly to the left of this
+            #position
+            count = count / len(params['config']['escape'])
+        #If the number of escape strings directly to the left of this position are
+        #odd, the position should be overlooked
+        condition = count % 2
+        #If the condition is true, (x + 1) / 2 of them should be removed
+        if condition:
+            count += 1
+        #Adjust the position
+        position -= len(params['config']['escape']) * (count / 2)
+        #Remove the decided number of escape strings
+        string = ''.join((
+            string[0:position],
+            string[
+                position + len(params['config']['escape']) * (count / 2):
+                len(string)
+            ]
+        ))
+        params['unescape'] = {
+            'condition': condition,
+            'position': position,
+            'string': string
         }
-    return returnvalue
+        #If this is the opening string and it should not be skipped over
+        function = closingstring
+        if value[1][1] == 0:
+            function = openingstring
+        params = function(params)
+        #Adjust the offset
+        params['returnoffset'] = len(params['return']) - len(params['temp'])
+    string = params['return'][params['last']:len(params['return'])]
+    #If the ending string is not empty, add it to the tree
+    if string:
+        if notclosed(params['tree']):
+            pop = params['tree'].pop()
+            params['position'] = len(params['return'])
+            params = close(params, pop, False)
+        else:
+            params['tree'].append(string)
+    return params['tree']
 
 def positions(params):
     """Find the positions of strings"""
+    params['taken'] = []
     for params['value'] in params['strings']:
         #If the string has not already been used
         if not params['value'][0] in params['repeated']:
-            #Find the next position of the string
             params = positionsloop(params)
             #Make sure this string is not repeated
             params['repeated'].append(params['value'][0])
@@ -411,6 +461,8 @@ def positions(params):
 
 def positionsloop(params):
     """Handle the loop to find the positions of strings"""
+    if not params['value'][0]:
+        return params
     position = strpos(
         params['return'],
         params['value'][0],
@@ -449,107 +501,12 @@ def positionsloop(params):
         )
     return params
 
-def remaining(params):
-    """Handle the remaining opening strings"""
-    for value in params['openingstack']:
-        if not params['config']['malformed']:
-            params['preparse']['taken'].append((
-                value['position'],
-                value['position'] + len(value['open'])
-            ))
-        else:
-            params['position'] = len(params['return'])
-            params = step(params, (value['open'], 1))
-    return params
-
-def stack(node, opening, position):
-    """Add the opening string to the stack"""
-    #Add the opening string to the stack
-    clone = node.copy()
-    if 'function' in clone:
-        clone['function'] = clone['function'][:]
-    openingstack = [
-        {
-            'node': clone,
-            'open': opening,
-            'position': position
-        }
-    ]
-    skipstack = []
+def skip(node, skipstack):
     #If the skip key is true, skip over everything between this opening string
     #and its closing string
     if 'skip' in node and node['skip']:
         skipstack.append(node)
-    return {
-        'openingstack': openingstack,
-        'skipstack': skipstack
-    }
-
-def step(params, value):
-    """One step of the parse"""
-    params['function'] = True
-    params['node'] = value[0]
-    params['offset'] = 0
-    params['parse'] = True
-    params['taken'] = True
-    position = params['position']
-    string = params['return']
-    count = 0
-    #If the escape string is not empty
-    if params['config']['escape']:
-        start = position - len(params['config']['escape'])
-        #Count how many escape characters are directly to the left of this
-        #position
-        while (abs(start) == start and
-        string[
-            start:
-            start + len(params['config']['escape'])
-        ] == params['config']['escape']):
-            count += len(params['config']['escape'])
-            start = position - count - len(params['config']['escape'])
-        #Determine how many escape strings are directly to the left of this
-        #position
-        count = count / len(params['config']['escape'])
-    #If the number of escape strings directly to the left of this position are
-    #odd, the position should be overlooked
-    condition = count % 2
-    #If the condition is true, (x + 1) / 2 of them should be removed
-    if condition:
-        count += 1
-    #Adjust the position
-    position -= len(params['config']['escape']) * (count / 2)
-    #Remove the decided number of escape strings
-    string = ''.join((
-        string[0:position],
-        string[
-            position + len(params['config']['escape']) * (count / 2):
-            len(string)
-        ]
-    ))
-    params['unescape'] = {
-        'condition': condition,
-        'position': position,
-        'string': string
-    }
-    #If this is the opening string and it should not be skipped over
-    if value[1] == 0:
-        params = openingstring(params)
-    else:
-        pop = DEBUG.pop()
-        pop['steps'].append({
-            'node': params['node'],
-            'recurse': []
-        })
-        DEBUG.append(pop)
-        params = closingstring(params)
-        pop = DEBUG.pop()
-        pop2 = pop['steps'].pop()
-        pop2['return'] = params['return']
-        pop['steps'].append(pop2)
-        DEBUG.append(pop)
-    #Adjust the offset
-    params['returnoffset'] = len(params['return']) - len(params['temp'])
-    return params
+    return skipstack
 
 def strpos(haystack, needle, offset, insensitive):
     """Find the position insensitively or sensitively based on the
@@ -560,81 +517,105 @@ def strpos(haystack, needle, offset, insensitive):
     else:
         return haystack.find(needle, offset)
 
-def taken(params):
-    """Adjust taken range"""
-    clone = []
-    for value in params['preparse']['taken']:
-        #If this reserved range is in this case
-        if (
-            params['open']['position'] < value[0] and
-            params['position'] + len(
-                params['nodes'][params['node']]['close']
-            ) > value[1]
-        ):
-            #If the node does not transform the case, adjust the range to the
-            #removal of the opening string and trimming
-            if ('transform' in params['open']['node'] and
-            not params['open']['node']['transform']):
-                value[0] += params['offset']
-                value[1] += params['offset']
-                clone.append(value)
+def tokens(nodes, returnvalue, config):
+    """Generate the tokens for execute"""
+    strings = {}
+    for value in nodes.items():
+        strings[value[0]] = (value[0], 0)
+        if 'close' in value[1]:
+            strings[value[1]['close']] = (value[1]['close'], 1)
+    strings = strings.items()
+    #Order the strings by the length, descending
+    strings.sort(key = lambda item: len(item[0]), reverse = True)
+    params = {
+        'insensitive': config['insensitive'],
+        'pos': {},
+        'repeated': [],
+        'return': returnvalue,
+        'strings': strings
+    }
+    #Order the positions from smallest to biggest
+    return sorted(positions(params).items())
+
+def walk(nodes, tree, config):
+    """Walk through the tree"""
+    tree = copy.deepcopy(tree)
+    params = {
+        'config': config,
+        'function': True,
+        'nodes': nodes,
+        'returnvar': None,
+        'returnedvar': None,
+        'returnfunctions': [],
+        'tree': tree
+    }
+    if 'node' in tree:
+        params['node'] = tree['node']
+        if 'var' in nodes[tree['node']]:
+            params['var'] = nodes[tree['node']]['var']
+    if 'create' in tree:
+        params['create'] = tree['create']
+    if 'node' in tree and 'treefunctions' in nodes[tree['node']]:
+        #Modify the tree with the functions meant to be executed before walking
+        #through the tree
+        params = functions(params, nodes[tree['node']]['treefunctions'])
+        tree = params['tree']
+    params['walk'] = True
+    for key, value in enumerate(tree['contents']):
+        if isinstance(tree['contents'][key], dict):
+            result = walkarray(nodes, tree, config, params, key)
+            params = result['params']
+            tree = result['tree']
+        if not params['walk']:
+            break
+    tree['contents'] = ''.join(tree['contents'])
+    if 'node' in tree and 'stringfunctions' in nodes[tree['node']]:
+        #Transform the case with the specified functions
+        params['function'] = True
+        params['case'] = tree['contents']
+        params = functions(params, nodes[tree['node']]['stringfunctions'])
+        tree['contents'] = str(params['case'])
+    return {
+        'contents': tree['contents'],
+        'functions': params['returnfunctions'],
+        'var': params['returnvar']
+    }
+
+def walkarray(nodes, tree, config, params, key):
+    """Recurse through the branch"""
+    #If the tag has been closed or it explicitly says to execute unopened
+    #strings, walk through the contents with its node
+    if (
+        config['unclosed'] or
+        (
+            'closed' in tree['contents'][key] and
+            tree['contents'][key]['closed']
+        )
+    ):
+        result = walk(nodes, tree['contents'][key], config)
+        tree['contents'][key] = result['contents']
+        #Modify the tree with the functions that have been returned
+        params['function'] = True
+        params['key'] = key
+        params['returnedvar'] = result['var']
+        params['tree'] = tree
+        params = functions(params, result['functions'])
+        del params['key']
+        del params['returnedvar']
+        tree = params['tree']
+    #Else, execute it, ignoring the original opening string, with no node
+    else:
+        print 'Test'
+        thistree = {
+            'contents': tree['contents'][key]['contents']
+        }
+        result = walk(nodes, thistree, config)
+        if 'node' in tree['contents'][key]:
+            tree['contents'][key] = tree['contents'][key]['node']
         else:
-            clone.append(value)
-    params['preparse']['taken'] = clone
-    #If the node transforms the case, this case should be taken, and the case
-    #is not empty, reserve the transformed case
-    if ((not 'transform' in params['open']['node'] or
-    params['open']['node']['transform']) and
-    params['taken'] and
-    params['case']):
-        params['preparse']['taken'].append([
-            params['open']['position'],
-            params['last']
-        ])
-    return params
-
-def transform(params):
-    """Transform the string in between the opening and closing strings"""
-    #If functions are provided
-    if ('function' in params['open']['node'] and
-    params['open']['node']['function']):
-        if 'var' in params['open']['node']:
-            params['var'] = params['open']['node']['var']
-        for value in params['open']['node']['function']:
-            #Transform the string in between the opening and closing strings
-            params = value(params)
-            if not params['function']:
-                break
-        params['case'] = str(params['case'])
-        start = params['position'] + len(
-            params['open']['node']['close']
-        )
-        #Replace everything including and between the opening and closing
-        #strings with the transformed string
-        params['return'] = ''.join((
-            params['return'][0:params['open']['position']],
-            params['case'],
-            params['return'][start:len(params['return'])]
-        ))
-        params['last'] = params['open']['position'] + len(
-            params['case']
-        )
-        params = taken(params)
-    return params
-
-def tree():
-    """Log the function call"""
-    #Log the function call
-    push = True
-    pop = DEBUG.pop()
-    if DEBUG:
-        pop2 = DEBUG.pop()
-        if pop2['steps']:
-            pop3 = pop2['steps'].pop()
-            if not 'return' in pop3:
-                pop3['recurse'].append(pop)
-                push = False
-            pop2['steps'].append(pop3)
-        DEBUG.append(pop2)
-    if push:
-        DEBUG.append(pop)
+            tree['contents'][key] = ''
+        tree['contents'][key] += result['contents']
+    return {
+        'params': params,
+        'tree': tree
+    }

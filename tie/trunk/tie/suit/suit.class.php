@@ -550,6 +550,10 @@ class SUIT
 
     public function positionsloop($params)
     {
+        if (!$params['key'][$params['i']])
+        {
+            return $params;
+        }
         $position = -1;
         //Find the next position of the string
         while (($position = $this->strpos($params['return'], $params['key'][$params['i']], $position + 1, $params['insensitive'])) !== false)
@@ -715,12 +719,20 @@ class SUIT
         //Else, execute it, ignoring the original opening string, with no node
         else
         {
-            $tree['contents'][$key] = array
+            $thistree = array
             (
                 'contents' => $tree['contents'][$key]['contents']
             );
-            $result = $this->walk($nodes, $tree['contents'][$key], $config);
-            $tree['contents'][$key] = $tree['contents'][$key]['node'] . $result['contents'];
+            $result = $this->walk($nodes, $thistree, $config);
+            if (array_key_exists('node', $tree['contents'][$key]))
+            {
+                $tree['contents'][$key] = $tree['contents'][$key]['node'];
+            }
+            else
+            {
+                $tree['contents'][$key]['node'] = '';
+            }
+            $tree['contents'][$key] .= $result['contents'];
         }
         return array
         (
