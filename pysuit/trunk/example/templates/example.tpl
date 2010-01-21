@@ -1,14 +1,14 @@
 [trim]
+[replace search="PySUIT" replace="<strong>PySUIT</strong>"]
 [comment]This is an example template[/comment]
 [code]code/variables.py[/code]
 [execute][template]templates/menu.tpl[/template][/execute]
 <p>PySUIT Version: [var]__version__[/var]</p>
-[assign var="condition=>legitimatecopy"]true[/assign]
 <p>
-    [if condition="[var]condition=>legitimatecopy[/var]"]
+    [if condition="[var json='true']condition=>legitimatecopy[/var]"]
     This is a real copy of PySUIT.
     [/if]
-    [if condition="[var]condition=>legitimatecopy[/var]" else="true"]
+    [if condition="[var json='true']condition=>legitimatecopy[/var]" else="true"]
     There is no such thing as an illegitimate copy of an open source program.
     [/if]
 </p>
@@ -28,4 +28,27 @@
         [/loop]
     </tbody>
 </table>
+<fieldset>
+    <legend>Nodes</legend>
+    [skip]
+    Here is are a couple nodes: [var], [/var], [template], [/template], [code], [/code]. I could type [skip][/skip] here, but if I want to type one by itself, I'd have to escape it like this: \[skip].
+    [/skip]
+</fieldset>
+<p>Yet, even if I'm not skipping, I can still type []. But \] by itself causes problems, so I guess I better escape it.</p>
+<p>If I wanted to escape a bunch of substrings in a string, I could use the escape tag like this: [escape strings='["t"]']Test[/escape].</p>
+[try var="exception"]
+[code]code/exception.py[/code]
+[/try]
+[if condition="[var json='true']exception[/var]"]
+<p>An exception was thrown: [var]exception[/var]</p>
+[/if]
+[assign var="condition=>return"]true[/assign]
+<p>
+    [if condition="[var json='true']condition=>return[/var]"]
+    Your copy of PySUIT is legitimate, so this page is done with.
+    [return /]
+    [/if]
+    Didn't I already explain how open source works?
+</p>
+[/replace]
 [/trim]

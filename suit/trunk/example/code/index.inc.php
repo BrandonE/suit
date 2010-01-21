@@ -18,7 +18,7 @@ http://www.suitframework.com/docs/credits
 **/
 $suit->language = array
 (
-    'contents' => 'Contents of code/variables.inc.php',
+    'contents' => 'Contents of',
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
     'example' => 'Example',
@@ -51,5 +51,6 @@ else
     $suit->template = file_get_contents('templates/example.tpl');
 }
 $suit->templateentities = htmlentities($suit->template);
-$suit->code = highlight_string(file_get_contents('code/variables.inc.php'), true);
+$suit->variablescode = highlight_string(file_get_contents('code/variables.inc.php'), true);
+$suit->exceptioncode = highlight_string(file_get_contents('code/exception.inc.php'), true);
 ?>

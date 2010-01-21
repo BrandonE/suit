@@ -15,20 +15,4 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import suit
-suit.condition['legitimatecopy'] = True
-suit.loop['members'] = [
-    {
-        'name': 'Brandon',
-        'group': 'Adminstrator'
-    },
-    {
-        'name': 'Chris',
-        'group': 'Banned'
-    }
-]
-class Test:
-    def __init__(self, test):
-        self.test = test
-from suit.nodes import jsonencode
-print jsonencode([Test('fff')])
+raise Exception('You included a file that does nothing but throw an exception. What did you expect?')

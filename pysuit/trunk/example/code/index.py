@@ -51,14 +51,17 @@ suit.templateentities = escape(
     suit.template,
     True
 )
-suit.code = open('code/variables.py').read()
+suit.variablescode = open('code/variables.py').read()
+suit.exceptioncode = open('code/exception.py').read()
 try:
     import pygments
     from pygments import highlight
     from pygments.lexers import PythonLexer
     from pygments.formatters import HtmlFormatter
-    suit.code = highlight(suit.code, PythonLexer(), HtmlFormatter())
+    suit.variablescode = highlight(suit.variablescode, PythonLexer(), HtmlFormatter())
+    suit.exceptioncode = highlight(suit.exceptioncode, PythonLexer(), HtmlFormatter())
     suit.condition['pygments'] = True
 except ImportError:
-    suit.code = escape(suit.code)
+    suit.variablescode = escape(suit.variablescode)
+    suit.exceptioncode = escape(suit.exceptioncode)
     suit.condition['pygments'] = False

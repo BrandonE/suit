@@ -642,7 +642,10 @@ NODES = {
     '[replace]':
     {
         'close': '[/replace]',
-        'stringfunctions': [replace],
+        'stringfunctions': [
+            attribute,
+            replace
+        ],
         'var':
         {
             'equal': '=',

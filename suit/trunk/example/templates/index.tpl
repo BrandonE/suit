@@ -18,8 +18,12 @@
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
         <fieldset>
-            <legend>[var]language=>contents[/var]</legend>
-            [var]code[/var]
+            <legend>[var]language=>contents[/var] code/variables.inc.php</legend>
+            [var]variablescode[/var]
+        </fieldset>
+        <fieldset>
+            <legend>[var]language=>contents[/var] code/exception.inc.php</legend>
+            [var]exceptioncode[/var]
         </fieldset>
     </div>
 [execute][template]templates/footer.tpl[/template][/execute]

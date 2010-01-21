@@ -18,8 +18,12 @@
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
         <fieldset>
-            <legend>[var]language=>contents[/var]</legend>
-            [if condition="[var json='true']condition=>pygments[/var]" else="true"]<pre>[/if][var]code[/var][if condition="[var json='true']condition=>pygments[/var]" else="true"]</pre>[/if]
+            <legend>[var]language=>contents[/var] variables.py</legend>
+            [if condition="[var json='true']condition=>pygments[/var]" else="true"]<pre>[/if][var]variablescode[/var][if condition="[var json='true']condition=>pygments[/var]" else="true"]</pre>[/if]
+        </fieldset>
+        <fieldset>
+            <legend>[var]language=>contents[/var] exception.py</legend>
+            [if condition="[var json='true']condition=>pygments[/var]" else="true"]<pre>[/if][var]exceptioncode[/var][if condition="[var json='true']condition=>pygments[/var]" else="true"]</pre>[/if]
         </fieldset>
     </div>
 [execute][template]templates/footer.tpl[/template][/execute]

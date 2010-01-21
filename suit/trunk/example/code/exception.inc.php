@@ -16,18 +16,6 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-$suit->condition['legitimatecopy'] = true;
-$suit->loop['members'] = array
-(
-    array
-    (
-        'name' => 'Brandon',
-        'group' => 'Adminstrator'
-    ),
-    array
-    (
-        'name' => 'Chris',
-        'group' => 'Banned'
-    )
-);
+throw new Exception('You included a file that does nothing but throw an exception.
+What did you expect?');
 ?>
