@@ -27,8 +27,3 @@ suit.loop['members'] = [
         'group': 'Banned'
     }
 ]
-class Test:
-    def __init__(self, test):
-        self.test = test
-from suit.nodes import jsonencode
-print jsonencode([Test('fff')])
