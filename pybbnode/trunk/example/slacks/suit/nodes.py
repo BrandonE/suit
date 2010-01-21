@@ -108,6 +108,7 @@ def attribute(params):
     return params
 
 def bracket(params):
+    """Handle brackets unrelated to the nodes"""
     params['case'] = ''.join((
         params['node'],
         params['case'],
@@ -154,6 +155,12 @@ def condition(params):
 
 def escape(params):
     """Escape the case"""
+    params['case'] = suit.escape(
+        params['var']['strings'],
+        params['case'],
+        params['config']['escape'],
+        params['config']['insensitive']
+    )
     return params
 
 def evaluation(params):
@@ -339,6 +346,10 @@ def returningfunction(params):
     params['walk'] = False
     return params
 
+def skip(params):
+    """Skip over the case"""
+    return params
+
 def templates(params):
     """Grab a template from a file"""
     #If the template is not whitelisted or blacklisted
@@ -387,19 +398,23 @@ def trimarea(params):
 
 def trimexecute(params):
     """Trim unnecessary whitespace"""
-    for key, value in enumerate(params['tree']['contents']):
-        if isinstance(params['tree']['contents'][key], dict):
+    for value in enumerate(params['tree']['contents']):
+        if isinstance(params['tree']['contents'][value[0]], dict):
             result = suit.walkarray(
                 params['nodes'],
                 params['tree'],
                 params['config'],
                 params,
-                key
+                value[0]
             )
             params = result['params']
             params['tree'] = result['tree']
         else:
-            params['tree']['contents'][key] = re.sub('(?m)[\s]+$', '', params['tree']['contents'][key])
+            params['tree']['contents'][value[0]] = re.sub(
+                '(?m)[\s]+$',
+                '',
+                params['tree']['contents'][value[0]]
+            )
     return params
 
 def trying(params):
@@ -508,10 +523,29 @@ NODES = {
     '[escape]':
     {
         'close': '[/escape]',
-        'stringfunctions': [escape],
-        'skip': True,
-        'skipescape': True,
-        'var': '\r\n\t '
+        'stringfunctions': [
+            attribute,
+            jsondecode,
+            escape
+        ],
+        'var':
+        {
+            'blacklist': True,
+            'equal': '=',
+            'list': ('decode',),
+            'quote': ('"', '\''),
+            'var':
+            {
+                'decode': ('strings',),
+                'strings': '[]',
+            }
+        }
+    },
+    '[escape':
+    {
+        'close': ']',
+        'create': '[escape]',
+        'skip': True
     },
     '[execute]':
     {
@@ -648,6 +682,13 @@ NODES = {
                 'layers': 'true'
             }
         }
+    },
+    '[skip]':
+    {
+        'close': '[/skip]',
+        'stringfunctions': [skip],
+        'skip': True,
+        'skipescape': True
     },
     '[template]':
     {

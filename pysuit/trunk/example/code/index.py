@@ -17,11 +17,12 @@ http://www.suitframework.com/docs/credits
 """
 import suit
 suit.language = {
+    'contents': 'Contents of code/variables.py',
     'copyright': 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default': 'Default',
     'example': 'Example',
+    'executed': 'Executed',
     'item': 'Item',
-    'parsed': 'Parsed',
     'poweredby': 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'slacks': 'See this page built using SLACKS',
     'slogan': 'Scripting Using Integrated Templates',
@@ -50,3 +51,14 @@ suit.templateentities = escape(
     suit.template,
     True
 )
+suit.code = open('code/variables.py').read()
+try:
+    import pygments
+    from pygments import highlight
+    from pygments.lexers import PythonLexer
+    from pygments.formatters import HtmlFormatter
+    suit.code = highlight(suit.code, PythonLexer(), HtmlFormatter())
+    suit.condition['pygments'] = True
+except ImportError:
+    suit.code = escape(suit.code)
+    suit.condition['pygments'] = False

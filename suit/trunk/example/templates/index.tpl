@@ -7,7 +7,7 @@
 [/trim]
         [if condition="[var json='true']template[/var]"]
         <fieldset>
-            <legend>[var]language=>parsed[/var]</legend>
+            <legend>[var]language=>executed[/var]</legend>
             [execute][var]template[/var][/execute]
         </fieldset>
         [/if]
@@ -17,6 +17,10 @@
 [var]templateentities[/var]</textarea></p>
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
+        <fieldset>
+            <legend>[var]language=>contents[/var]</legend>
+            [var]code[/var]
+        </fieldset>
     </div>
 [execute][template]templates/footer.tpl[/template][/execute]
 [/trim]

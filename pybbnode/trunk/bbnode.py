@@ -26,6 +26,7 @@ def attribute(params):
     return params
 
 def bracket(params):
+    """Handle brackets unrelated to the nodes"""
     params['case'] = ''.join((
         params['node'],
         params['case'],

@@ -102,12 +102,37 @@ class Nodes
                     array
                     (
                         'class' => $this,
+                        'function' => 'attribute'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'jsondecode'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'escape'
                     )
                 ),
-                'skip' => true,
-                'skipescape' => true,
-                'var' => "\r.\n.\t ."
+                'var' => array
+                (
+                    'blacklist' => true,
+                    'equal' => '=',
+                    'list' => array('decode'),
+                    'quote' => array('"', '\''),
+                    'var' => array
+                    (
+                        'decode' => array('strings'),
+                        'strings' => '[]',
+                    )
+                )
+            ),
+            '[escape' => array
+            (
+                'close' => ']',
+                'create' => '[escape]',
+                'skip' => true
             ),
             '[execute]' => array
             (
@@ -313,6 +338,20 @@ class Nodes
                         'layers' => 'true'
                     )
                 )
+            ),
+            '[skip]' => array
+            (
+                'close' => '[/skip]',
+                'stringfunctions' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'skip'
+                    )
+                ),
+                'skip' => true,
+                'skipescape' => true
             ),
             '[template]' => array
             (
@@ -576,6 +615,7 @@ class Nodes
 
     public function escape($params)
     {
+        $params['case'] = $params['suit']->escape($params['var']['strings'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
         return $params;
     }
 
@@ -721,6 +761,11 @@ class Nodes
             $params['returnfunctions'] = $params['returnedvar']['returnfunctions'];
         }
         $params['walk'] = false;
+        return $params;
+    }
+
+    public function skip($params)
+    {
         return $params;
     }
 

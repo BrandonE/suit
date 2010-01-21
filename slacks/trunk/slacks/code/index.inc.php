@@ -69,6 +69,10 @@ function recurse($slacks, $na)
 if (array_key_exists('submit', $_POST) && $_POST['submit'])
 {
     $suit->loop['slacks'] = json_decode($_POST['slacks']);
+    if (!is_array($suit->loop['slacks']))
+    {
+        $suit->loop['slacks'] = array();
+    }
     $suit->loop['slacks'] = recurse($suit->loop['slacks'], $suit->language['na']);
 }
 else

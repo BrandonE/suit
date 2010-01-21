@@ -73,7 +73,7 @@ $slacksnodes = array
 	'<slacks' => array
 	(
 		'close' => '/>',
-        'function' => array
+        'stringfunctions' => array
         (
             array
             (

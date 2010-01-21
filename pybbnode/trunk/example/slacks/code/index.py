@@ -62,6 +62,8 @@ def recurse(slacks, na):
     return slacks
 if 'submit' in suit.request.POST and suit.request.POST['submit']:
     suit.loop['slacks'] = json.loads(suit.request.POST['slacks'])
+    if not isinstance(suit.loop['slacks'], list):
+        suit.loop['slacks'] = []
     suit.loop['slacks'] = recurse(suit.loop['slacks'], suit.language['na'])
 else:
     suit.loop['slacks'] = []

@@ -18,11 +18,12 @@ http://www.suitframework.com/docs/credits
 **/
 $suit->language = array
 (
+    'contents' => 'Contents of code/variables.inc.php',
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
     'example' => 'Example',
+    'executed' => 'Executed',
     'item' => 'Item',
-    'parsed' => 'Parsed',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'slacks' => 'See this page built using SLACKS',
     'slogan' => 'Scripting Using Integrated Templates',
@@ -50,4 +51,5 @@ else
     $suit->template = file_get_contents('templates/example.tpl');
 }
 $suit->templateentities = htmlentities($suit->template);
+$suit->code = highlight_string(file_get_contents('code/variables.inc.php'), true);
 ?>
