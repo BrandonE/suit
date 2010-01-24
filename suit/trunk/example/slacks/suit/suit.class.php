@@ -35,16 +35,16 @@ class SUIT
 
     public function close($params, $pop, $mark)
     {
-        $string = substr($params['string'], $params['last'], $params['position'] - $params['last']);
+        $append = substr($params['string'], $params['last'], $params['position'] - $params['last']);
         if (!array_key_exists('create', $params['nodes'][$pop['node']]))
         {
             $pop['closed'] = $mark;
             //If the inner string is not empty, add it to the node
-            if ($string)
+            if ($append)
             {
-                $pop['contents'][] = $string;
+                $pop['contents'][] = $append;
             }
-            //Add the node to the tree if necessary
+            //Add the node to the tree
             if ($this->notclosed($params['tree']))
             {
                 $pop2 = array_pop($params['tree']);
@@ -52,12 +52,13 @@ class SUIT
                 $pop = $pop2;
             }
             $params['tree'][] = $pop;
+            unset($params['flat'][$params['node']]);
         }
         else
         {
             $append = array
             (
-                'create' => $string,
+                'create' => $append,
                 'node' => $params['nodes'][$pop['node']]['create'],
                 'contents' => array()
             );
@@ -355,7 +356,7 @@ class SUIT
             //If this position should not be overlooked
             if (!$params['unescape']['condition'])
             {
-                //Add the string in between the last symbol and this to the tree
+                //If the inner string is not empty, add it to the tree
                 $append = substr($params['string'], $params['last'], $params['position'] - $params['last']);
                 $params['last'] = $params['position'] + strlen($params['node']);
                 //Add the text to the tree if necessary
@@ -375,6 +376,7 @@ class SUIT
                         $params['tree'][] = $append;
                     }
                 }
+                //Add the node to the tree
                 $append = array
                 (
                     'node' => $params['node'],
@@ -382,6 +384,7 @@ class SUIT
                 );
                 $params['tree'][] = $append;
                 $params['skipstack'] = $this->skip($params['nodes'][$params['node']], $params['skipstack']);
+                $params['flat'][$params['node']] = NULL;
             }
         }
         else
@@ -419,6 +422,7 @@ class SUIT
         $params = array
         (
             'config' => $config,
+            'flat' => array(),
             'last' => 0,
             'nodes' => $nodes,
             'skipstack' => array(),
@@ -474,10 +478,10 @@ class SUIT
                 }
                 $params['skip'] = array_pop($params['skipstack']);
             }
-            $function = 'closingstring';
-            if ($pos[$key[$i]][1] == 0)
+            $function = 'openingstring';
+            if ($pos[$key[$i]][1] == 1 || ($pos[$key[$i]][1] == 2 && array_key_exists($params['node'], $params['flat'])))
             {
-                $function = 'openingstring';
+                $function = 'closingstring';
             }
             $params = $this->$function($params);
             //Adjust the offset
@@ -586,10 +590,17 @@ class SUIT
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
-            $strings[$key[$i]] = array($key[$i], 0);
-            if (array_key_exists('close', $nodes[$key[$i]]))
+            if (array_key_exists('close', $nodes[$key[$i]]) && $key[$i] == $nodes[$key[$i]]['close'])
             {
-                $strings[$nodes[$key[$i]]['close']] = array($nodes[$key[$i]]['close'], 1);
+                $strings[$key[$i]] = array($key[$i], 2);
+            }
+            else
+            {
+                $strings[$key[$i]] = array($key[$i], 0);
+                if (array_key_exists('close', $nodes[$key[$i]]))
+                {
+                    $strings[$nodes[$key[$i]]['close']] = array($nodes[$key[$i]]['close'], 1);
+                }
             }
         }
         //Order the strings by the length, descending

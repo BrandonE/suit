@@ -184,35 +184,6 @@ def jsondecode(params):
         params['var'][value] = json.loads(params['var'][value])
     return params
 
-def jsonencode(obj, first = True):
-    """Encode a JSON String"""
-    try:
-        json.dumps(obj)
-    except TypeError:
-        if hasattr(obj, 'items'):
-            for value in obj.items():
-                obj[value[0]] = jsonencode(value[1], False)
-        else:
-            try:
-                for key, value in enumerate(obj):
-                    obj[key] = jsonencode(value, False)
-            except (TypeError, RuntimeError):
-                new = {}
-                for value in dir(obj):
-                    if (not value.startswith('_') and
-                    not callable(getattr(obj, value))):
-                        new[value] = jsonencode(
-                            getattr(
-                                obj,
-                                value
-                            ),
-                            False
-                        )
-                obj = new
-    if first:
-        obj = json.dumps(obj, separators = (',',':'))
-    return obj
-
 def listing(name, var):
     """Check if the variable is whitelisted or blacklisted"""
     returnvalue = True
@@ -309,7 +280,7 @@ def loopvariables(params):
             except (AttributeError, TypeError, ValueError):
                 params['case'] = getattr(params['case'], value)
     if params['var']['json']:
-        params['case'] = jsonencode(params['case'])
+        params['case'] = json.dumps(params['case'])
     if params['var']['serialize']:
         params['case'] = pickle.dumps(params['case'])
     return params
@@ -470,7 +441,7 @@ def variables(params):
                 except (AttributeError, TypeError, ValueError):
                     params['case'] = getattr(params['case'], value)
         if params['var']['json']:
-            params['case'] = jsonencode(params['case'])
+            params['case'] = json.dumps(params['case'])
         if params['var']['serialize']:
             params['case'] = pickle.dumps(params['case'])
     else:

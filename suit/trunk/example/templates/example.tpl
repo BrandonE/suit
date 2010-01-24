@@ -34,7 +34,7 @@
     Here is are a couple nodes: [var], [/var], [template], [/template], [code], [/code]. I could type [skip][/skip] here, but if I want to type one by itself, I'd have to escape it like this: \[skip].
     [/skip]
 </fieldset>
-<p>Yet, even if I'm not skipping, I can still type []. But \] by itself causes problems, so I guess I better escape it.</p>
+<p>Yet, even if I'm not skipping, I can still type []. I still have to escape \]\[, though.</p>
 <p>If I wanted to escape a bunch of substrings in a string, I could use the escape tag like this: [escape strings='["t"]']Test[/escape].</p>
 [try var="exception"]
 [code]code/exception.inc.php[/code]

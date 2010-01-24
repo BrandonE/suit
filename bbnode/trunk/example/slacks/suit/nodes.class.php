@@ -363,7 +363,8 @@ class Nodes
                         'class' => $this,
                         'function' => 'templates'
                     )
-                )
+                ),
+                'var' => array()
             ),
             '[trim]' => array
             (

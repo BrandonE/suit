@@ -1,8 +1,10 @@
 [if condition="[loopvar json='true']array[/loopvar]" else="true"]
+[comment]
 <fieldset>
     <legend>Contents</legend>
-    \[loopvar]contents\[/loopvar]
+    [loopvar]contents[/loopvar]
 </fieldset>
+[/comment]
 <fieldset>
     <legend>Contents</legend>
     <pre>[loopvar]text[/loopvar]</pre>

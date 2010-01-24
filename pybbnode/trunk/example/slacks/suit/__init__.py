@@ -18,6 +18,7 @@ http://www.selfframework.com/docs/credits
 import copy
 import inspect
 import pickle
+from sets import Set
 
 __version__ = '0.0.2'
 
@@ -35,21 +36,22 @@ LOG = []
 
 def close(params, pop, closed):
     """Close the node"""
-    string = params['string'][params['last']:params['position']]
+    append = params['string'][params['last']:params['position']]
     if not 'create' in params['nodes'][pop['node']]:
         pop['closed'] = closed
         #If the inner string is not empty, add it to the node
-        if string:
-            pop['contents'].append(string)
-        #Add the node to the tree if necessary
+        if append:
+            pop['contents'].append(append)
+        #Add the node to the tree
         if notclosed(params['tree']):
             pop2 = params['tree'].pop()
             pop2['contents'].append(pop)
             pop = pop2
         params['tree'].append(pop)
+        params['flat'].discard(params['node'])
     else:
         append = {
-            'create': string,
+            'create': append,
             'node': params['nodes'][pop['node']]['create'],
             'contents': []
         }
@@ -311,7 +313,7 @@ def openingstring(params):
         params['string'] = params['unescape']['string']
         #If this position should not be overlooked
         if not params['unescape']['condition']:
-            #Add the string in between the last symbol and this to the tree
+            #If the inner string is not empty, add it to the tree
             append = params['string'][params['last']:params['position']]
             params['last'] = params['position'] + len(params['node'])
             #Add the text to the tree if necessary
@@ -322,6 +324,7 @@ def openingstring(params):
                 params['tree'].append(pop)
             elif append:
                 params['tree'].append(append)
+            #Add the node to the tree
             append = {
                 'node': params['node'],
                 'contents': []
@@ -331,6 +334,7 @@ def openingstring(params):
                 params['nodes'][params['node']],
                 params['skipstack']
             )
+            params['flat'].add(params['node'])
     else:
         #Put it back
         params['skipstack'].append(params['skip'])
@@ -355,6 +359,7 @@ def parse(nodes, string, config, pos):
     """Generate the tree for execute"""
     params = {
         'config': config,
+        'flat': Set([]),
         'last': 0,
         'nodes': nodes,
         'skipstack': [],
@@ -422,9 +427,15 @@ def parse(nodes, string, config, pos):
                 params['escaping'] = params['skipstack'][0]['skipescape']
             params['skip'] = params['skipstack'].pop()
         #If this is the opening string and it should not be skipped over
-        function = closingstring
-        if value[1][1] == 0:
-            function = openingstring
+        function = openingstring
+        if (
+            value[1][1] == 1 or
+            (
+                value[1][1] == 2 and
+                params['node'] in params['flat']
+            )
+        ):
+            function = closingstring
         params = function(params)
         #Adjust the offset
         params['stringoffset'] = len(params['string']) - len(params['temp'])
@@ -513,9 +524,12 @@ def tokens(nodes, string, config):
     """Generate the tokens for execute"""
     strings = {}
     for value in nodes.items():
-        strings[value[0]] = (value[0], 0)
-        if 'close' in value[1]:
-            strings[value[1]['close']] = (value[1]['close'], 1)
+        if 'close' in value[1] and value[0] == value[1]['close']:
+            strings[value[0]] = (value[0], 2)
+        else:
+            strings[value[0]] = (value[0], 0)
+            if 'close' in value[1]:
+                strings[value[1]['close']] = (value[1]['close'], 1)
     strings = strings.items()
     #Order the strings by the length, descending
     strings.sort(key = lambda item: len(item[0]), reverse = True)
