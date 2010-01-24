@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config
 import pysuitlons.lib.app_globals as app_globals
 import pysuitlons.lib.helpers
 
-from pysuitlons.lib import suit, templating
+from pysuitlons.lib.suit import nodes_pylons
 from pysuitlons.config.routing import make_map
 from pysuitlons.model import init_model
 
@@ -32,7 +32,6 @@ def load_environment(global_conf, app_conf):
     # Setup the SQLAlchemy database engine
     engine = engine_from_config(config, 'sqlalchemy.')
     init_model(engine)
-    # Setup PySUIT template nodes.
-    suit.vars['nodes'] = templating.nodes()
-    suit.vars['condition'] = []
-    suit.vars['loop'] = []
+
+    # Setup PySUIT templating nodes.
+    config['suit.nodes'] = nodes_pylons.NODES
