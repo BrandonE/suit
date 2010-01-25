@@ -2,12 +2,12 @@
 [comment]
 <fieldset>
     <legend>Contents</legend>
-    [loopvar]contents[/loopvar]
+    [replace find="<slacks />" replace=""][loopvar]contents[/loopvar][/replace]
 </fieldset>
 [/comment]
 <fieldset>
     <legend>Contents</legend>
-    <pre>[loopvar]text[/loopvar]</pre>
+    <pre>[entities][loopvar]contents[/loopvar][/entities]</pre>
 </fieldset>
 [/if]
 [if condition="[loopvar json='true']array[/loopvar]"]

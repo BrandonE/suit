@@ -54,13 +54,13 @@ if 'submit' in suit.request.POST and suit.request.POST['submit']:
     config = {
         'escape': ''
     }
-    suit.message = escape(
-        suit.request.POST['message'],
-        True
-    )
+    suit.message = suit.request.POST['message']
     suit.executed = suit.execute(
         nodes,
-        suit.message.replace('\n','<br />\n')
+        escape(
+            suit.message,
+            True
+        ).replace('\n','<br />\n')
     )
 else:
     suit.message = ''

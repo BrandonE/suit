@@ -50,8 +50,7 @@ function recurse($slacks, $na)
             $slacks[$key] = array
             (
                 'array' => false,
-                'contents' => str_replace('<slacks />', '', $value),
-                'text' => htmlspecialchars($value)
+                'contents' => $value
             );
         }
         else

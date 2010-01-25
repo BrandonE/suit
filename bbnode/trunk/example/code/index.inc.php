@@ -54,8 +54,8 @@ if (array_key_exists('submit', $_POST) && $_POST['submit'])
     (
         'escape' => ''
     );
-    $suit->message = htmlentities($_POST['message']);
-    $suit->executed = $suit->execute($bbnode->nodes, nl2br(htmlspecialchars($_POST['message'])));
+    $suit->message = $_POST['message'];
+    $suit->executed = $suit->execute($bbnode->nodes, nl2br(htmlentities($_POST['message'])));
 }
 else
 {

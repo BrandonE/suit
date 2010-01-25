@@ -14,12 +14,17 @@
 [trim]
         <form action="#" method="post">
         <p>[var]language=>template[/var]: <textarea name="template" style="width: 100%;" wrap="off" rows="20">
-[var]templateentities[/var]</textarea></p>
+[entities][var]template[/var][/entities]</textarea></p>
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
         <fieldset>
             <legend>[var]language=>contents[/var] variables.py</legend>
-            [if condition="[var json='true']condition=>pygments[/var]" else="true"]<pre>[/if][var]variablescode[/var][if condition="[var json='true']condition=>pygments[/var]" else="true"]</pre>[/if]
+            [if condition="[var json='true']condition=>pygments[/var]"]
+            [var]variablescode[/var]
+            [/if]
+            [if condition="[var json='true']condition=>pygments[/var]" else="true"]
+            <pre>[entities][var]variablescode[/var][/entities]</pre>
+            [/if]
         </fieldset>
         <fieldset>
             <legend>[var]language=>contents[/var] exception.py</legend>

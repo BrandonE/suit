@@ -14,7 +14,7 @@
 [trim]
         <form action="#" method="post">
         <p>[var]language=>template[/var]: <textarea name="template" style="width: 100%;" wrap="off" rows="20">
-[var]templateentities[/var]</textarea></p>
+[entities][var]template[/var][/entities]</textarea></p>
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
         <fieldset>

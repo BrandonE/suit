@@ -15,6 +15,7 @@ Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import cgi
 import os
 import pickle
 import re
@@ -151,6 +152,11 @@ def condition(params):
             ]
         }
         params['case'] = ''
+    return params
+
+def entities(params):
+    """Convert HTML characters to their respective entities"""
+    params['case'] = cgi.escape(params['case'])
     return params
 
 def escape(params):
@@ -490,6 +496,11 @@ NODES = {
         'close': '[/comment]',
         'stringfunctions': [comments],
         'skip': True
+    },
+    '[entities]':
+    {
+        'close': '[/entities]',
+        'stringfunctions': [entities]
     },
     '[escape]':
     {

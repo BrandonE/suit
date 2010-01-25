@@ -50,7 +50,6 @@ else
 {
     $suit->template = file_get_contents('templates/example.tpl');
 }
-$suit->templateentities = htmlentities($suit->template);
 $suit->variablescode = highlight_string(file_get_contents('code/variables.inc.php'), true);
 $suit->exceptioncode = highlight_string(file_get_contents('code/exception.inc.php'), true);
 ?>

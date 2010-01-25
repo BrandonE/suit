@@ -94,6 +94,18 @@ class Nodes
                 ),
                 'skip' => true
             ),
+            '[entities]' => array
+            (
+                'close' => '[/entities]',
+                'stringfunctions' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'entities'
+                    )
+                )
+            ),
             '[escape]' => array
             (
                 'close' => '[/escape]',
@@ -611,6 +623,12 @@ class Nodes
                 )
             );
         }
+        return $params;
+    }
+
+    public function entities($params)
+    {
+        $params['case'] = htmlentities($params['case']);
         return $params;
     }
 

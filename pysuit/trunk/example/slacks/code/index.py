@@ -51,8 +51,7 @@ def recurse(slacks, na):
         if isinstance(value, str):
             slacks[key] = {
                 'array': False,
-                'contents': value.replace('<slacks />', ''),
-                'text': escape(value)
+                'contents': value
             }
         else:
             slacks[key]['contents'] = recurse(value['contents'], na)

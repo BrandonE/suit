@@ -36,6 +36,7 @@
 </fieldset>
 <p>Yet, even if I'm not skipping, I can still type []. I still have to escape \]\[, though.</p>
 <p>If I wanted to escape a bunch of substrings in a string, I could use the escape tag like this: [escape strings='["t"]']Test[/escape].</p>
+<p>[entities]<b><i><u>You can escape HTML entities in the template.</u></i></b>[/entities]</p>
 [try var="exception"]
 [code]code/exception.inc.php[/code]
 [/try]

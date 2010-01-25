@@ -46,11 +46,6 @@ if 'submit' in suit.request.POST and suit.request.POST['submit']:
     suit.template = suit.request.POST['template']
 else:
     suit.template = open('templates/example.tpl').read()
-from cgi import escape
-suit.templateentities = escape(
-    suit.template,
-    True
-)
 suit.variablescode = open('code/variables.py').read()
 suit.exceptioncode = open('code/exception.py').read()
 try:
@@ -62,6 +57,4 @@ try:
     suit.exceptioncode = highlight(suit.exceptioncode, PythonLexer(), HtmlFormatter())
     suit.condition['pygments'] = True
 except ImportError:
-    suit.variablescode = escape(suit.variablescode)
-    suit.exceptioncode = escape(suit.exceptioncode)
     suit.condition['pygments'] = False

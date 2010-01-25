@@ -34,13 +34,14 @@
     Here is are a couple nodes: [var], [/var], [template], [/template], [code], [/code]. I could type [skip][/skip] here, but if I want to type one by itself, I'd have to escape it like this: \[skip].
     [/skip]
 </fieldset>
-<p>Yet, even if I'm not skipping, I can still type []. But \] by itself causes problems, so I guess I better escape it.</p>
+<p>Yet, even if I'm not skipping, I can still type []. I still have to escape \]\[, though.</p>
 <p>If I wanted to escape a bunch of substrings in a string, I could use the escape tag like this: [escape strings='["t"]']Test[/escape].</p>
+<p>[entities]<b><i><u>You can escape HTML entities in the template.</u></i></b>[/entities]</p>
 [try var="exception"]
 [code]code/exception.py[/code]
 [/try]
-[if condition="[var json='true']exception[/var]"]
-<p>An exception was thrown: [var]exception[/var]</p>
+[if condition="[var json='true']exception=>0[/var]"]
+<p>An exception was thrown: [var]exception=>0[/var]</p>
 [/if]
 [assign var="condition=>return"]true[/assign]
 <p>

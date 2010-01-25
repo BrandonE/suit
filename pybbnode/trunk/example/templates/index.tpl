@@ -12,7 +12,7 @@
         [/if]
         <form action="#" method="post">
         <p>[var]language=>message[/var]: <textarea name="message" style="width: 100%;" rows="20">
-[var]message[/var]</textarea></p>
+[entities][var]message[/var][/entities]</textarea></p>
         <p><input type="submit" name="submit" value="[var]language=>submit[/var]" /></p>
         </form>
     </div>
