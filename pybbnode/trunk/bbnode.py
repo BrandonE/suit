@@ -27,11 +27,43 @@ def attribute(params):
 
 def bracket(params):
     """Handle brackets unrelated to the nodes"""
-    params['case'] = ''.join((
-        params['node'],
-        params['case'],
-        params['nodes'][params['node']]['close']
+    params['tree']['case'] = ''.join((
+        params['tree']['node'],
+        params['tree']['case'],
+        params['nodes'][params['tree']['node']]['close']
     ))
+    return params
+
+def linebreaks(params):
+    """Remove the HTML line breaks"""
+    params['tree']['case'] = params['tree']['case'].replace('<br />', '')
+    return params
+
+def listitems(params):
+    """Create the list items"""
+    if not params['var']['equal'] or params['var']['equal'] in (
+        '1',
+        'a',
+        'A',
+        'i',
+        'I'
+    ):
+        params['tree']['case'] = params['tree']['case'].replace('<br />', '')
+        params['tree']['case'] = params['tree']['case'].split(params['var']['delimiter'])
+        for key, value in enumerate(params['tree']['case']):
+            if key != 0:
+                params['tree']['case'][key] = ''.join((
+                    params['var']['open'],
+                    value,
+                    params['var']['close']
+                ))
+        params['tree']['case'] = ''.join(params['tree']['case'])
+    else:
+        params['var']['template'] = ''.join((
+            params['open']['open'],
+            params['tree']['case'],
+            params['open']['node']['close']
+        ))
     return params
 
 def size(params):
@@ -56,51 +88,24 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    suit.case = params['case']
+    suit.case = params['tree']['case']
     suit.equal = params['var']['equal']
-    params['case'] = suit.execute(
+    params['tree']['case'] = suit.execute(
         suit.nodes,
         params['var']['template']
     )
-    return params
-
-def listitems(params):
-    """Create the list items"""
-    if not params['var']['equal'] or params['var']['equal'] in (
-        '1',
-        'a',
-        'A',
-        'i',
-        'I'
-    ):
-        params['case'] = params['case'].replace('<br />', '')
-        params['case'] = params['case'].split(params['var']['delimiter'])
-        for key, value in enumerate(params['case']):
-            if key != 0:
-                params['case'][key] = ''.join((
-                    params['var']['open'],
-                    value,
-                    params['var']['close']
-                ))
-        params['case'] = ''.join(params['case'])
-    else:
-        params['var']['template'] = ''.join((
-            params['open']['open'],
-            params['case'],
-            params['open']['node']['close']
-        ))
     return params
 
 NODES = {
     '[':
     {
         'close': ']',
-        'stringfunctions': [bracket]
+        'postwalk': [bracket]
     },
     '[align]':
     {
         'close': '[/align]',
-        'stringfunctions':
+        'postwalk':
         [
             attribute,
             style,
@@ -121,7 +126,7 @@ NODES = {
     '[b]':
     {
         'close': '[/b]',
-        'stringfunctions': [template],
+        'postwalk': [template],
         'var':
         {
             'equal': '',
@@ -132,7 +137,10 @@ NODES = {
     '[code]':
     {
         'close': '[/code]',
-        'stringfunctions': [template],
+        'postwalk': [
+            linebreaks,
+            template
+        ],
         'skip': True,
         'var':
         {
@@ -144,7 +152,7 @@ NODES = {
     '[color]':
     {
         'close': '[/color]',
-        'stringfunctions':
+        'postwalk':
         [
             attribute,
             style,
@@ -165,7 +173,7 @@ NODES = {
     '[email]':
     {
         'close': '[/email]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             template
         ],
@@ -184,7 +192,7 @@ NODES = {
     '[font]':
     {
         'close': '[/font]',
-        'stringfunctions':
+        'postwalk':
         [
             attribute,
             style,
@@ -205,7 +213,7 @@ NODES = {
     '[i]':
     {
         'close': '[/i]',
-        'stringfunctions': [template],
+        'postwalk': [template],
         'var':
         {
             'equal': '',
@@ -216,7 +224,7 @@ NODES = {
     '[img]':
     {
         'close': '[/img]',
-        'stringfunctions': [template],
+        'postwalk': [template],
         'var':
         {
             'equal': '',
@@ -227,7 +235,7 @@ NODES = {
     '[list]':
     {
         'close': '[/list]',
-        'stringfunctions':
+        'postwalk':
         [
             attribute,
             listitems,
@@ -251,7 +259,7 @@ NODES = {
     '[s]':
     {
         'close': '[/s]',
-        'stringfunctions': [template],
+        'postwalk': [template],
         'var':
         {
             'equal': '',
@@ -262,7 +270,7 @@ NODES = {
     '[size]':
     {
         'close': '[/size]',
-        'stringfunctions':
+        'postwalk':
         [
             attribute,
             style,
@@ -284,7 +292,7 @@ NODES = {
     '[quote]':
     {
         'close': '[/quote]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             template
         ],
@@ -303,7 +311,7 @@ NODES = {
     '[u]':
     {
         'close': '[/u]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             template
         ],
@@ -317,7 +325,7 @@ NODES = {
     '[url]':
     {
         'close': '[/url]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             template
         ],

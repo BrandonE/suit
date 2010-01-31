@@ -32,7 +32,10 @@ CACHE = {
     'explodeunescape': {}
 }
 
-LOG = []
+LOG = {
+    'contents': [],
+    'id': 0
+}
 
 def close(params, pop, closed):
     """Close the node"""
@@ -135,10 +138,10 @@ def escape(strings, string, escapestring = '\\', insensitive = True):
         pos = sorted(pos.items())
         #Cache the positions
         CACHE['escape'][cachekey] = pos
-    offset = 0
+    temp = string
     for key, value in enumerate(pos):
         #Adjust position to changes in length
-        position = value[0] + offset
+        position = value[0] + len(string) - len(temp)
         count = 0
         #If the escape string is not empty
         if escapestring:
@@ -163,8 +166,6 @@ def escape(strings, string, escapestring = '\\', insensitive = True):
             escapestring * ((count * 2) + plus),
             string[position:len(string)]
         ))
-        #Adjust the offset
-        offset += (count * len(escapestring)) + plus
     return string
 
 def execute(nodes, string, config = None):
@@ -208,9 +209,11 @@ def execute(nodes, string, config = None):
         if '' in nodes:
             tree['node'] = ''
         #Cache the tree
-        CACHE['execute']['tokens'][cachekey] = tree
-    LOG.append(tree)
-    return walk(nodes, tree, config)['contents']
+        CACHE['execute']['parse'][cachekey] = tree
+    result = walk(nodes, tree, config)
+    result['tree']['original'] = string
+    LOG['contents'].append(result['tree'])
+    return result['tree']['case']
 
 def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
     """Split up the file, paying attention to escape strings"""
@@ -221,32 +224,26 @@ def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
         pos = CACHE['explodeunescape'][cachekey]
     else:
         pos = []
-        position = strpos(
-            string,
-            explode,
-            0,
-            insensitive
-        )
-        #Find the next position of the string
-        while position != -1:
-            pos.append(position)
-            position = strpos(
-                string,
-                explode,
-                position + 1,
-                insensitive
-            )
-        #On top of the explode string to be escaped, the last position in the
-        #string should be checked for escape strings
-        pos.append(len(string))
+        if explode:
+            haystack = string
+            if insensitive:
+                haystack = haystack.lower()
+                explode = explode.lower()
+            position = string.find(explode)
+            #Find the next position of the string
+            while position != -1:
+                pos.append(position)
+                position = string.find(explode, position + 1)
+            #On top of the explode string to be escaped, the last position in
+            #the string should be checked for escape strings
+            pos.append(len(string))
         #Cache the positions
         CACHE['explodeunescape'][cachekey] = pos
-    offset = 0
     last = 0
     temp = string
     for value in pos:
         #Adjust position to changes in length
-        value += offset
+        value += len(string) - len(temp)
         count = 0
         #If the escape string is not empty
         if escapestring:
@@ -280,8 +277,6 @@ def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
             array.append(string[last:value])
             #Make sure not to include anything we appended in a future value
             last = value + len(explode)
-        #Adjust the offset
-        offset = len(string) - len(temp)
     return array
 
 def functions(params, function):
@@ -365,14 +360,15 @@ def parse(nodes, string, config, pos):
         'skipstack': [],
         'skipoffset': 0,
         'string': string,
-        'stringoffset': 0,
         'temp': string,
         'tree': []
     }
     for value in pos:
         #Adjust position to changes in length
-        params['node'] = value[1][0]
-        params['position'] = value[0] + params['stringoffset']
+        params['node'] = value[1]['node']
+        params['position'] = value[0] + len(
+            params['string']
+        ) - len(params['temp'])
         params['unescape'] = {
             'position': params['position'],
             'string': params['string']
@@ -426,19 +422,17 @@ def parse(nodes, string, config, pos):
             ]:
                 params['escaping'] = params['skipstack'][0]['skipescape']
             params['skip'] = params['skipstack'].pop()
-        #If this is the opening string and it should not be skipped over
+        #Run the appropriate function for the string
         function = openingstring
         if (
-            value[1][1] == 1 or
+            value[1]['type'] == 'close' or
             (
-                value[1][1] == 2 and
+                value[1]['type'] == 'flat' and
                 params['node'] in params['flat']
             )
         ):
             function = closingstring
         params = function(params)
-        #Adjust the offset
-        params['stringoffset'] = len(params['string']) - len(params['temp'])
     string = params['string'][params['last']:len(params['string'])]
     #If the ending string is not empty, add it to the tree
     if string:
@@ -453,6 +447,8 @@ def parse(nodes, string, config, pos):
 def positions(params):
     """Find the positions of strings"""
     params['taken'] = []
+    if params['insensitive']:
+        params['string'] = params['string'].lower()
     for params['value'] in params['strings']:
         #If the string has not already been used
         if not params['value'][0] in params['repeated']:
@@ -465,23 +461,21 @@ def positionsloop(params):
     """Handle the loop to find the positions of strings"""
     if not params['value'][0]:
         return params
-    position = strpos(
-        params['string'],
-        params['value'][0],
-        0,
-        params['insensitive']
-    )
+    needle = params['value'][0]
+    if params['insensitive']:
+        needle = needle.lower()
+    position = params['string'].find(needle)
     while position != -1:
         success = True
         for value in params['taken']:
             #If this string instance is in this reserved range
             if ((
-                position >= value[0] and
-                position < value[1]
+                position >= value['start'] and
+                position < value['end']
             ) or
             (
-                position + len(params['value'][0]) > value[0] and
-                position + len(params['value'][0]) < value[1]
+                position + len(params['value'][0]) > value['start'] and
+                position + len(params['value'][0]) < value['end']
             )):
                 success = False
                 break
@@ -490,17 +484,12 @@ def positionsloop(params):
             #Add the position
             params['pos'][position] = params['value'][1]
             #Reserve all positions taken up by this string instance
-            params['taken'].append((
-                position,
-                position + len(params['value'][0])
-            ))
+            params['taken'].append({
+                'start': position,
+                'end': position + len(params['value'][0])
+            })
         #Find the next position of the string
-        position = strpos(
-            params['string'],
-            params['value'][0],
-            position + 1,
-            params['insensitive']
-        )
+        position = params['string'].find(needle, position + 1)
     return params
 
 def skip(node, skipstack):
@@ -511,25 +500,25 @@ def skip(node, skipstack):
         skipstack.append(node)
     return skipstack
 
-def strpos(haystack, needle, offset, insensitive):
-    """Find the position insensitively or sensitively based on the
-    configuration"""
-    #Find the position insensitively or sensitively based on the configuration
-    if insensitive:
-        return haystack.upper().find(needle.upper(), offset)
-    else:
-        return haystack.find(needle, offset)
-
 def tokens(nodes, string, config):
     """Generate the tokens for execute"""
     strings = {}
     for value in nodes.items():
         if 'close' in value[1] and value[0] == value[1]['close']:
-            strings[value[0]] = (value[0], 2)
+            strings[value[0]] = {
+                'node': value[0],
+                'type': 'flat'
+            }
         else:
-            strings[value[0]] = (value[0], 0)
+            strings[value[0]] = {
+                'node': value[0],
+                'type': 'open'
+            }
             if 'close' in value[1]:
-                strings[value[1]['close']] = (value[1]['close'], 1)
+                strings[value[1]['close']] = {
+                    'node': value[1]['close'],
+                    'type': 'close'
+                }
     strings = strings.items()
     #Order the strings by the length, descending
     strings.sort(key = lambda item: len(item[0]), reverse = True)
@@ -554,75 +543,80 @@ def walk(nodes, tree, config, recursed = False):
         'returnvar': None,
         'returnedvar': None,
         'returnfunctions': [],
-        'tree': tree
+        'tree': tree,
+        'walk': True
     }
-    if 'node' in tree:
-        params['node'] = tree['node']
-        if 'var' in nodes[tree['node']]:
-            params['var'] = nodes[tree['node']]['var']
-    if 'create' in tree:
-        params['create'] = tree['create']
-    if 'node' in tree and 'treefunctions' in nodes[tree['node']]:
-        #Modify the tree with the functions meant to be executed before walking
-        #through the tree
-        params = functions(params, nodes[tree['node']]['treefunctions'])
-        tree = params['tree']
-    params['walk'] = True
-    for value in enumerate(tree['contents']):
-        if isinstance(tree['contents'][value[0]], dict):
-            result = walkarray(nodes, tree, config, params, value[0])
-            params = result['params']
-            tree = result['tree']
+    params['tree']['case'] = ''
+    if ('node' in params['tree'] and
+    'var' in params['nodes'][params['tree']['node']]):
+        params['var'] = params['nodes'][params['tree']['node']]['var']
+    if 'create' in params['tree']:
+        params['create'] = params['tree']['create']
+    if ('node' in params['tree'] and
+    'prewalk' in params['nodes'][params['tree']['node']]):
+        #Run the functions meant to be executed before walking through the tree
+        params = functions(
+            params,
+            params['nodes'][params['tree']['node']]['prewalk']
+        )
+    for value in enumerate(params['tree']['contents']):
         if not params['walk']:
             break
-    tree['contents'] = ''.join(tree['contents'])
-    if 'node' in tree and 'stringfunctions' in nodes[tree['node']]:
-        #Transform the case with the specified functions
+        if isinstance(params['tree']['contents'][value[0]], dict):
+            params = walkarray(params, value[0])
+        else:
+            params['tree']['case'] += params['tree']['contents'][value[0]]
+    if ('node' in params['tree'] and
+    'postwalk' in params['nodes'][params['tree']['node']]):
         params['function'] = True
-        params['case'] = tree['contents']
-        params = functions(params, nodes[tree['node']]['stringfunctions'])
-        #Transform the string in between the opening and closing strings
-        tree['contents'] = str(params['case'])
+        #Transform the case with the specified functions
+        params = functions(
+            params,
+            params['nodes'][params['tree']['node']]['postwalk']
+        )
+    params['tree']['case'] = str(params['tree']['case'])
+    params['tree']['id'] = LOG['id']
+    LOG['id'] += 1
     return {
-        'contents': tree['contents'],
         'functions': params['returnfunctions'],
+        'tree': params['tree'],
         'var': params['returnvar']
     }
 
-def walkarray(nodes, tree, config, params, key):
+def walkarray(params, key):
     """Recurse through the branch"""
     #If the tag has been closed or it explicitly says to execute unopened
     #strings, walk through the contents with its node
     if (
-        config['unclosed'] or
+        params['config']['unclosed'] or
         (
-            'closed' in tree['contents'][key] and
-            tree['contents'][key]['closed']
+            'closed' in params['tree']['contents'][key] and
+            params['tree']['contents'][key]['closed']
         )
     ):
-        result = walk(nodes, tree['contents'][key], config, True)
-        tree['contents'][key] = result['contents']
-        #Modify the tree with the functions that have been returned
-        params['function'] = True
+        result = walk(
+            params['nodes'],
+            params['tree']['contents'][key],
+            params['config'],
+            True
+        )
+        params['tree']['contents'][key] = result['tree']
+        params['tree']['case'] += result['tree']['case']
+        #Run the functions that have been returned
         params['key'] = key
         params['returnedvar'] = result['var']
-        params['tree'] = tree
         params = functions(params, result['functions'])
         del params['key']
         del params['returnedvar']
-        tree = params['tree']
     #Else, execute it, ignoring the original opening string, with no node
     else:
-        thistree = {
-            'contents': tree['contents'][key]['contents']
+        tree = {
+            'contents': params['tree']['contents'][key]['contents']
         }
-        result = walk(nodes, thistree, config, True)
-        if 'node' in tree['contents'][key]:
-            tree['contents'][key] = tree['contents'][key]['node']
-        else:
-            tree['contents'][key] = ''
-        tree['contents'][key] += result['contents']
-    return {
-        'params': params,
-        'tree': tree
-    }
+        result = walk(params['nodes'], tree, params['config'], True)
+        if 'node' in params['tree']['contents'][key]:
+            params['tree']['case'][key] += params['tree']['contents'][
+                key
+            ]['node']
+        params['tree']['case'] += result['tree']['case']
+    return params

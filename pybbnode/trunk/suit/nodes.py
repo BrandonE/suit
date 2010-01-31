@@ -36,8 +36,8 @@ def assign(params):
             params['var']['var'],
             params['config']['escape']
         )
-        assignvariable(split, params['case'], suit)
-    params['case'] = ''
+        assignvariable(split, params['tree']['case'], suit)
+    params['tree']['case'] = ''
     return params
 
 def assignvariable(split, assignment, var):
@@ -61,7 +61,7 @@ def attribute(params):
     var = params['var'].copy()
     params['var'] = params['var']['var'].copy()
     if 'onesided' in var and var['onesided']:
-        case = params['case']
+        case = params['tree']['case']
     elif 'create' in params:
         case = params['create']
     else:
@@ -69,12 +69,12 @@ def attribute(params):
     quote = ''
     smallest = False
     for value in var['quote']:
-        position = suit.strpos(
-            case,
-            value,
-            0,
-            params['config']['insensitive']
-        )
+        haystack = case
+        needle = value
+        if params['config']['insensitive']:
+            haystack = haystack.lower()
+            needle = needle.lower()
+        position = haystack.find(needle)
         if position != -1 and (smallest == False or position < smallest):
             quote = value
             smallest = position
@@ -90,14 +90,11 @@ def attribute(params):
             #If this is the first iteration of the pair
             if key % 2 == 0:
                 name = value.strip()
-                #If the syntax is valid
-                if (name[len(name) - len(var['equal'])] == var['equal']):
-                    name = name[0:len(name) - len(var['equal'])]
-                    #If the variable is whitelisted or blacklisted, do not
-                    #prepare to define the variable
-                    if (not listing(name, var)):
-                        name = ''
-                else:
+                syntax = (name[len(name) - len(var['equal'])] == var['equal'])
+                name = name[0:len(name) - len(var['equal'])]
+                #If the syntax is not valid or variable is whitelisted or
+                #blacklisted, do not prepare to define the variable
+                if not syntax or not listing(name, var):
                     name = ''
             elif name:
                 #Define the variable
@@ -110,27 +107,27 @@ def attribute(params):
 
 def bracket(params):
     """Handle brackets unrelated to the nodes"""
-    params['case'] = ''.join((
-        params['node'],
-        params['case'],
-        params['nodes'][params['node']]['close']
+    params['tree']['case'] = ''.join((
+        params['tree']['node'],
+        params['tree']['case'],
+        params['nodes'][params['tree']['node']]['close']
     ))
     return params
 
 def code(params):
     """Execute a code file"""
     #If the code file is not whitelisted or blacklisted
-    if listing(params['case'], params['var']):
-        params['case'] = os.path.normpath(params['case'])
-        sys.path.append(os.path.dirname(params['case']))
+    if listing(params['tree']['case'], params['var']):
+        params['tree']['case'] = os.path.normpath(params['tree']['case'])
+        sys.path.append(os.path.dirname(params['tree']['case']))
         sys.path.reverse()
-        __import__(os.path.basename(params['case']).split('.', 2)[0])
-    params['case'] = ''
+        __import__(os.path.basename(params['tree']['case']).split('.', 2)[0])
+    params['tree']['case'] = ''
     return params
 
 def comments(params):
     """Hide a string"""
-    params['case'] = ''
+    params['tree']['case'] = ''
     return params
 
 def condition(params):
@@ -146,24 +143,19 @@ def condition(params):
             not params['var']['else']
         )
     ):
-        params['tree'] = {
-            'contents': [
-                ''
-            ]
-        }
-        params['case'] = ''
+        params['walk'] = False
     return params
 
 def entities(params):
     """Convert HTML characters to their respective entities"""
-    params['case'] = cgi.escape(params['case'])
+    params['tree']['case'] = cgi.escape(params['tree']['case'])
     return params
 
 def escape(params):
     """Escape the case"""
-    params['case'] = suit.escape(
+    params['tree']['case'] = suit.escape(
         params['var']['strings'],
-        params['case'],
+        params['tree']['case'],
         params['config']['escape'],
         params['config']['insensitive']
     )
@@ -171,14 +163,14 @@ def escape(params):
 
 def evaluation(params):
     """Evaluate a Python statement"""
-    params['case'] = eval(params['case'])
+    params['tree']['case'] = eval(params['tree']['case'])
     return params
 
 def execute(params):
     """Execute the case"""
-    params['case'] = suit.execute(
+    params['tree']['case'] = suit.execute(
         params['nodes'],
-        params['case'],
+        params['tree']['case'],
         params['config']
     )
     return params
@@ -259,13 +251,10 @@ def loop(params):
             tree,
             params['config']
         )
-        iterations.append(result['contents'])
+        iterations.append(result['tree']['case'])
     #Implode the iterations
-    params['tree'] = {
-        'contents': [
-            params['var']['delimiter'].join(iterations)
-        ]
-    }
+    params['tree']['case'] = params['var']['delimiter'].join(iterations)
+    params['walk'] = False
     return params
 
 def loopvariables(params):
@@ -273,27 +262,27 @@ def loopvariables(params):
     #Split up the file, paying attention to escape strings
     split = suit.explodeunescape(
         params['var']['delimiter'],
-        params['case'],
+        params['tree']['case'],
         params['config']['escape']
     )
-    params['case'] = params['var']['var']
+    params['tree']['case'] = params['var']['var']
     for value in split:
         try:
-            params['case'] = params['case'][value]
+            params['tree']['case'] = params['tree']['case'][value]
         except (AttributeError, TypeError):
             try:
-                params['case'] = params['case'][int(value)]
+                params['tree']['case'] = params['tree']['case'][int(value)]
             except (AttributeError, TypeError, ValueError):
-                params['case'] = getattr(params['case'], value)
+                params['tree']['case'] = getattr(params['tree']['case'], value)
     if params['var']['json']:
-        params['case'] = json.dumps(params['case'])
+        params['tree']['case'] = json.dumps(params['tree']['case'])
     if params['var']['serialize']:
-        params['case'] = pickle.dumps(params['case'])
+        params['tree']['case'] = pickle.dumps(params['tree']['case'])
     return params
 
 def replace(params):
     """Replace in the case"""
-    params['case'] = params['case'].replace(
+    params['tree']['case'] = params['tree']['case'].replace(
         params['var']['search'],
         params['var']['replace']
     )
@@ -307,14 +296,11 @@ def returning(params):
             'layers': params['var']['layers']
         }
         params['returnfunctions'] = params['returnvar']['returnfunctions']
-    params['case'] = ''
+    params['tree']['case'] = ''
     return params
 
 def returningfunction(params):
     """Return from this point on"""
-    params['tree']['contents'] = params['tree']['contents'][
-        0:params['key'] + 1
-    ]
     if not isinstance(params['returnedvar']['layers'], bool):
         params['returnedvar']['layers'] -= 1
     if params['returnedvar']['layers']:
@@ -330,12 +316,12 @@ def skip(params):
 def templates(params):
     """Grab a template from a file"""
     #If the template is not whitelisted or blacklisted
-    if listing(params['case'], params['var']):
-        params['case'] = open(
-            os.path.normpath(params['case'])
+    if listing(params['tree']['case'], params['var']):
+        params['tree']['case'] = open(
+            os.path.normpath(params['tree']['case'])
         ).read()
     else:
-        params['case'] = ''
+        params['tree']['case'] = ''
     return params
 
 def trim(params):
@@ -343,55 +329,43 @@ def trim(params):
     nodes = {
         '':
         {
-            'treefunctions': [trimexecute]
+            'prewalk': [trimexecute]
         },
         '<pre':
         {
-            'close': '</pre>',
-            'stringfunctions': [trimarea]
+            'close': '</pre>'
         },
         '<textarea':
         {
-            'close': '</textarea>',
-            'stringfunctions': [trimarea]
+            'close': '</textarea>'
         }
     }
-    params['case'] = suit.execute(
+    params['tree']['case'] = suit.execute(
         nodes,
-        params['case'],
+        params['tree']['case'],
         params['config']
     )
-    params['case'] = params['case'].lstrip()
-    return params
-
-def trimarea(params):
-    """Ignore the specified tags"""
-    params['case'] = ''.join((
-        params['node'],
-        params['case'],
-        params['nodes'][params['node']]['close']
-    ))
+    params['tree']['case'] = params['tree']['case'].lstrip()
     return params
 
 def trimexecute(params):
     """Trim unnecessary whitespace"""
     for value in enumerate(params['tree']['contents']):
         if isinstance(params['tree']['contents'][value[0]], dict):
-            result = suit.walkarray(
-                params['nodes'],
-                params['tree'],
-                params['config'],
-                params,
-                value[0]
-            )
-            params = result['params']
-            params['tree'] = result['tree']
+            params['tree']['case'] += ''.join((
+                params['tree']['contents'][value[0]]['node'],
+                params['tree']['contents'][value[0]]['contents'][0],
+                params['nodes'][
+                    params['tree']['contents'][value[0]]['node']
+                ]['close']
+            ))
         else:
-            params['tree']['contents'][value[0]] = re.sub(
+            params['tree']['case'] += re.sub(
                 '(?m)[\s]+$',
                 '',
                 params['tree']['contents'][value[0]]
             )
+    params['walk'] = False
     return params
 
 def trying(params):
@@ -399,9 +373,9 @@ def trying(params):
     if params['var']['var']:
         setattr(suit, params['var']['var'], '')
     try:
-        params['case'] = suit.execute(
+        params['tree']['case'] = suit.execute(
             params['nodes'],
-            params['case'],
+            params['tree']['case'],
             params['config']
         )
     except Exception, inst:
@@ -417,7 +391,7 @@ def trying(params):
                 params['config']['escape']
             )
             assignvariable(split, inst, suit)
-        params['case'] = ''
+        params['tree']['case'] = ''
     return params
 
 def unserialize(params):
@@ -430,40 +404,42 @@ def unserialize(params):
 def variables(params):
     """Parse variables"""
     #If the variable is not whitelisted or blacklisted
-    if listing(params['case'], params['var']):
+    if listing(params['tree']['case'], params['var']):
         #Split up the file, paying attention to escape strings
         split = suit.explodeunescape(
             params['var']['delimiter'],
-            params['case'],
+            params['tree']['case'],
             params['config']['escape']
         )
-        params['case'] = suit
+        params['tree']['case'] = suit
         for value in split:
             try:
-                params['case'] = params['case'][value]
+                params['tree']['case'] = params['tree']['case'][value]
             except (AttributeError, TypeError):
                 try:
-                    params['case'] = params['case'][int(value)]
+                    params['tree']['case'] = params['tree']['case'][int(value)]
                 except (AttributeError, TypeError, ValueError):
-                    params['case'] = getattr(params['case'], value)
+                    params['tree']['case'] = getattr(
+                        params['tree']['case'], value
+                    )
         if params['var']['json']:
-            params['case'] = json.dumps(params['case'])
+            params['tree']['case'] = json.dumps(params['tree']['case'])
         if params['var']['serialize']:
-            params['case'] = pickle.dumps(params['case'])
+            params['tree']['case'] = pickle.dumps(params['tree']['case'])
     else:
-        params['case'] = ''
+        params['tree']['case'] = ''
     return params
 
 NODES = {
     '[':
     {
         'close': ']',
-        'stringfunctions': [bracket]
+        'postwalk': [bracket]
     },
     '[assign]':
     {
         'close': '[/assign]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             assign
         ],
@@ -488,24 +464,24 @@ NODES = {
     '[code]':
     {
         'close': '[/code]',
-        'stringfunctions': [code],
+        'postwalk': [code],
         'var': {}
     },
     '[comment]':
     {
         'close': '[/comment]',
-        'stringfunctions': [comments],
+        'postwalk': [comments],
         'skip': True
     },
     '[entities]':
     {
         'close': '[/entities]',
-        'stringfunctions': [entities]
+        'postwalk': [entities]
     },
     '[escape]':
     {
         'close': '[/escape]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             jsondecode,
             escape
@@ -532,13 +508,13 @@ NODES = {
     '[execute]':
     {
         'close': '[/execute]',
-        'stringfunctions': [execute],
+        'postwalk': [execute],
         'var': {}
     },
     '[if]':
     {
         'close': '[/if]',
-        'treefunctions': [
+        'prewalk': [
             attribute,
             jsondecode,
             condition
@@ -567,7 +543,7 @@ NODES = {
     '[loop]':
     {
         'close': '[/loop]',
-        'treefunctions': [
+        'prewalk': [
             attribute,
             jsondecode,
             loop
@@ -595,7 +571,7 @@ NODES = {
     '[loopvar]':
     {
         'close': '[/loopvar]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             jsondecode,
             loopvariables
@@ -624,7 +600,7 @@ NODES = {
     '[replace]':
     {
         'close': '[/replace]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             replace
         ],
@@ -648,7 +624,7 @@ NODES = {
     '[return':
     {
         'close': '/]',
-        'stringfunctions':
+        'postwalk':
         [
             attribute,
             jsondecode,
@@ -671,25 +647,25 @@ NODES = {
     '[skip]':
     {
         'close': '[/skip]',
-        'stringfunctions': [skip],
+        'postwalk': [skip],
         'skip': True,
         'skipescape': True
     },
     '[template]':
     {
         'close': '[/template]',
-        'stringfunctions': [templates],
+        'postwalk': [templates],
         'var': {}
     },
     '[trim]':
     {
         'close': '[/trim]',
-        'stringfunctions': [trim],
+        'postwalk': [trim],
     },
     '[try]':
     {
         'close': '[/try]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             trying
         ],
@@ -715,7 +691,7 @@ NODES = {
     '[var]':
     {
         'close': '[/var]',
-        'stringfunctions': [
+        'postwalk': [
             attribute,
             jsondecode,
             variables
@@ -746,6 +722,6 @@ EVALNODES = {
     '[eval]':
     {
         'close': '[/eval]',
-        'stringfunctions': [evaluation]
+        'postwalk': [evaluation]
     }
 }

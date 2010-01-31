@@ -4,21 +4,25 @@
 [execute][template]templates/header.tpl[/template][/execute]
     <div class="section">
         <h2>[var]language=>title[/var]</h2>
-        [assign var="menu"]
         <div class="yesscript" style="display: none">
+        [assign var="menu"]
             <p style="text-align: center">
-                <input class="previous" type="button" value="[var]language=>previous[/var]" />
-                <input class="text" type="button" value="[var]language=>htmlmode[/var]" />
-                <input class="return" type="button" value="[var]language=>textmode[/var]" />
-                <input class="next" type="button" value="[var]language=>next[/var]" />
+                <input class="before" type="button" value="[var]language=>before[/var]" />
+                <input class="tree" type="button" value="[var]language=>tree[/var]" />
+                <input class="after" type="button" value="[var]language=>after[/var]" />
             </p>
-        </div>
         [/assign]
         [var]menu[/var]
         [loop vars="[var json='true']loop=>slacks[/var]"]
         [execute][template]templates/recursive.tpl[/template][/execute]
         [/loop]
         [var]menu[/var]
+        </div>
+        <noscript>
+            <p style="text-align: center">
+                [var]language=>enablejavascript[/var]
+            </p>
+        </noscript>
     </div>
 [execute][template]templates/footer.tpl[/template][/execute]
 [/trim]

@@ -51,16 +51,16 @@ suit.request = Request(environ)
 suit.response = Response()
 template = suit.execute(suit.nodes, open('templates/index.tpl').read())
 def slack(params):
-    params['case'] = params['var']
+    params['tree']['case'] = params['var']
     return params
 slacksnodes = {
 	'<slacks':
 	{
 		'close': '/>',
-        'function': [slack],
+        'postwalk': [slack],
 		'skip': True,
 		'var': escape(
-            json.dumps(suit.LOG, separators = (',',':')),
+            json.dumps(suit.LOG['contents'], separators = (',',':')),
             True
         )
 	}

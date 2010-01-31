@@ -1,31 +1,35 @@
-$(window).load
-(
-    function ()
-    {
-        $('.yesscript').show();
-        $('.return').hide();
-    }
-);
-
 $(document).ready
 (
     function ()
     {
-        $('.text').click
+        $('.yesscript').show();
+        $('.before').click
         (
             function ()
             {
-                $('.text').hide();
-                $('.return').show();
+                $('.original').show();
+                $('.contents').hide();
+                $('.case').hide();
             }
         );
 
-        $('.return').click
+        $('.tree').click
         (
             function ()
             {
-                $('.text').show();
-                $('.return').hide();
+                $('.original').hide();
+                $('.contents').show();
+                $('.case').hide();
+            }
+        );
+
+        $('.after').click
+        (
+            function ()
+            {
+                $('.original').hide();
+                $('.contents').hide();
+                $('.case').show();
             }
         );
     }

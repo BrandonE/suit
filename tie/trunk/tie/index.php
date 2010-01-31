@@ -73,7 +73,7 @@ $slacksnodes = array
 	'<slacks' => array
 	(
 		'close' => '/>',
-        'stringfunctions' => array
+        'postwalk' => array
         (
             array
             (
@@ -81,7 +81,7 @@ $slacksnodes = array
             )
         ),
 		'skip' => true,
-		'var' => htmlentities(json_encode($suit->log))
+		'var' => htmlentities(json_encode($suit->log['contents']))
 	)
 );
 echo $suit->execute($slacksnodes, $template);

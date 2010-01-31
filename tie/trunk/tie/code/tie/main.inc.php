@@ -18,7 +18,7 @@ http://www.suitframework.com/docs/credits
 **/
 function slacks($params)
 {
-    $params['case'] = $params['var'];
+    $params['tree']['case'] = $params['var'];
     return $params;
 }
 

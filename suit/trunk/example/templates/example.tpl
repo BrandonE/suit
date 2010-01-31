@@ -44,12 +44,10 @@
 <p>An exception was thrown: <pre>[var]exception[/var]</pre></p>
 [/if]
 [assign var="condition=>return"]true[/assign]
-<p>
-    [if condition="[var json='true']condition=>return[/var]"]
-    Your copy of SUIT is legitimate, so this page is done with.
-    [return /]
-    [/if]
-    Didn't I already explain how open source works?
-</p>
+[if condition="[var json='true']condition=>return[/var]"]
+<p>Your copy of SUIT is legitimate, so this page is done with.</p>
+[return /]
+[/if]
+<p>Didn't I already explain how open source works?</p>
 [/replace]
 [/trim]

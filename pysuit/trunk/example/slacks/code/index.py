@@ -17,19 +17,21 @@ http://www.suitframework.com/docs/credits
 """
 import suit
 suit.language = {
+    'after': 'After',
+    'before': 'Before',
+    'contents': 'Contents',
     'copyright': 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default': 'Default',
-    'htmlmode': 'HTML Mode',
-    'na': 'N/A',
-    'next': 'Next',
+    'enablejavascript': 'Enable Javascript',
+    'nowrapper': 'No Wrapper',
     'poweredby': 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
-    'previous': 'Previous',
     'slacks': 'See this page built using SLACKS',
     'slogan': 'SLACKS Lets Application Coders Know SUIT',
     'suit': 'SUIT',
-    'textmode': 'Text Mode',
     'title': 'PySLACKS',
-    'update': 'Update'
+    'tree': 'Tree',
+    'update': 'Update',
+    'wrapper': 'Wrapper'
 }
 languages = {
     'english': 'english'
@@ -46,23 +48,37 @@ try:
     import simplejson as json
 except ImportError:
     import json
-def recurse(slacks, na):
+def recurse(slacks, nowrapper, wrapper):
     for key, value in enumerate(slacks):
         if isinstance(value, str):
             slacks[key] = {
                 'array': False,
-                'contents': value
+                'contents': value,
+                'recursed': True
             }
         else:
-            slacks[key]['contents'] = recurse(value['contents'], na)
-            if 'node' in value:
-                slacks[key]['node'] = na
+            slacks[key]['contents'] = recurse(
+                value['contents'],
+                nowrapper,
+                wrapper
+            )
+            if not 'node' in value:
+                slacks[key]['node'] = nowrapper
+            elif not value['node']:
+                slacks[key]['node'] = wrapper
             slacks[key]['array'] = True
+            slacks[key]['recursed'] = (not 'original' in slacks[key])
+            slacks[key]['created'] = ('create' in slacks[key])
     return slacks
 if 'submit' in suit.request.POST and suit.request.POST['submit']:
-    suit.loop['slacks'] = json.loads(suit.request.POST['slacks'])
-    if not isinstance(suit.loop['slacks'], list):
+    try:
+        suit.loop['slacks'] = json.loads(suit.request.POST['slacks'])
+        suit.loop['slacks'] = recurse(
+            suit.loop['slacks'],
+            suit.language['nowrapper'],
+            suit.language['wrapper']
+        )
+    except:
         suit.loop['slacks'] = []
-    suit.loop['slacks'] = recurse(suit.loop['slacks'], suit.language['na'])
 else:
     suit.loop['slacks'] = []

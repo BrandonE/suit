@@ -18,19 +18,22 @@ http://www.suitframework.com/docs/credits
 **/
 $suit->language = array
 (
+    'after' => 'After',
+    'before' => 'Before',
+    'contents' => 'Contents',
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
-    'htmlmode' => 'HTML Mode',
-    'na' => 'N/A',
-    'next' => 'Next',
+    'enablejavascript' => 'Enable Javascript',
+    'nowrapper' => 'No Wrapper',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
     'previous' => 'Previous',
     'slacks' => 'See this page built using SLACKS',
     'slogan' => 'SLACKS Lets Application Coders Know SUIT',
     'suit' => 'SUIT',
-    'textmode' => 'Text Mode',
     'title' => 'SLACKS',
-    'update' => 'Update'
+    'tree' => 'Tree',
+    'update' => 'Update',
+    'wrapper' => 'Wrapper'
 );
 switch (strtolower($_GET['language']))
 {
@@ -41,7 +44,7 @@ switch (strtolower($_GET['language']))
         $suit->languagename = 'default';
         break;
 }
-function recurse($slacks, $na)
+function recurse($slacks, $nowrapper, $wrapper)
 {
     foreach ($slacks as $key => $value)
     {
@@ -50,29 +53,39 @@ function recurse($slacks, $na)
             $slacks[$key] = array
             (
                 'array' => false,
-                'contents' => $value
+                'contents' => $value,
+                'recursed' => true
             );
         }
         else
         {
-            $slacks[$key]->contents = recurse($value->contents, $na);
+            $slacks[$key]->contents = recurse($value->contents, $nowrapper, $wrapper);
             if (!isset($value->node))
             {
-                $slacks[$key]->node = $na;
+                $slacks[$key]->node = $nowrapper;
+            }
+            elseif (!$value->node)
+            {
+                $slacks[$key]->node = $wrapper;
             }
             $slacks[$key]->array = true;
+            $slacks[$key]->created = (isset($value->create));
+            $slacks[$key]->recursed = (!isset($value->original));
         }
     }
     return $slacks;
 }
 if (array_key_exists('submit', $_POST) && $_POST['submit'])
 {
-    $suit->loop['slacks'] = json_decode($_POST['slacks']);
-    if (!is_array($suit->loop['slacks']))
+    try
+    {
+        $suit->loop['slacks'] = json_decode($_POST['slacks']);
+        $suit->loop['slacks'] = recurse($suit->loop['slacks'], $suit->language['nowrapper'], $suit->language['wrapper']);
+    }
+    catch (Exception $e)
     {
         $suit->loop['slacks'] = array();
     }
-    $suit->loop['slacks'] = recurse($suit->loop['slacks'], $suit->language['na']);
 }
 else
 {

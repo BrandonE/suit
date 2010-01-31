@@ -25,7 +25,7 @@ class Nodes
             '[' => array
             (
                 'close' => ']',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -37,7 +37,7 @@ class Nodes
             '[assign]' => array
             (
                 'close' => '[/assign]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -71,7 +71,7 @@ class Nodes
             '[code]' => array
             (
                 'close' => '[/code]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -84,7 +84,7 @@ class Nodes
             '[comment]' => array
             (
                 'close' => '[/comment]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -97,7 +97,7 @@ class Nodes
             '[entities]' => array
             (
                 'close' => '[/entities]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -109,7 +109,7 @@ class Nodes
             '[escape]' => array
             (
                 'close' => '[/escape]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -149,7 +149,7 @@ class Nodes
             '[execute]' => array
             (
                 'close' => '[/execute]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -161,7 +161,7 @@ class Nodes
             '[if]' => array
             (
                 'close' => '[/if]',
-                'treefunctions' => array
+                'prewalk' => array
                 (
                     array
                     (
@@ -202,7 +202,7 @@ class Nodes
             '[loop]' => array
             (
                 'close' => '[/loop]',
-                'treefunctions' => array
+                'prewalk' => array
                 (
                     array
                     (
@@ -244,7 +244,7 @@ class Nodes
             '[loopvar]' => array
             (
                 'close' => '[/loopvar]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -286,7 +286,7 @@ class Nodes
             '[replace]' => array
             (
                 'close' => '[/replace]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -319,7 +319,7 @@ class Nodes
             '[return' => array
             (
                 'close' => '/]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -354,7 +354,7 @@ class Nodes
             '[skip]' => array
             (
                 'close' => '[/skip]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -368,7 +368,7 @@ class Nodes
             '[template]' => array
             (
                 'close' => '[/template]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -381,7 +381,7 @@ class Nodes
             '[trim]' => array
             (
                 'close' => '[/trim]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -393,7 +393,7 @@ class Nodes
             '[try]' => array
             (
                 'close' => '[/try]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -429,7 +429,7 @@ class Nodes
             (
                 'close' => '[/var]',
                 'class' => $this,
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -473,7 +473,7 @@ class Nodes
             '[eval]' => array
             (
                 'close' => '[/eval]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -492,9 +492,9 @@ class Nodes
         {
             //Split up the file, paying attention to escape strings
             $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
-            $this->assignvariable($split, $params['case'], $params['suit']);
+            $this->assignvariable($split, $params['tree']['case'], $params['suit']);
         }
-        $params['case'] = '';
+        $params['tree']['case'] = '';
         return $params;
     }
 
@@ -528,7 +528,7 @@ class Nodes
         $params['var'] = $params['var']['var'];
         if (array_key_exists('onesided', $var) && $var['onesided'])
         {
-            $case = $params['case'];
+            $case = $params['tree']['case'];
         }
         elseif (array_key_exists('create', $params))
         {
@@ -540,9 +540,14 @@ class Nodes
         }
         $quote = '';
         $smallest = false;
+        $function = 'strpos';
+        if ($params['config']['insensitive'])
+        {
+            $function = 'stripos';
+        }
         foreach ($var['quote'] as $value)
         {
-            $position = $params['suit']->strpos($case, $value, 0, $params['config']['insensitive']);
+            $position = $function($case, $value);
             if ($position !== false && ($smallest === false || $position < $smallest))
             {
                 $quote = $value;
@@ -561,17 +566,10 @@ class Nodes
                 if ($i % 2 == 0)
                 {
                     $name = trim($split[$i]);
-                    //If the syntax is valid
-                    if (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal'])
-                    {
-                        $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
-                        //If the variable is whitelisted or blacklisted, do not prepare to define the variable
-                        if (!$this->listing($name, $var))
-                        {
-                            $name = '';
-                        }
-                    }
-                    else
+                    $syntax = (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal']);
+                    $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
+                    //If the syntax is not valid or variable is whitelisted or blacklisted, do not prepare to define the variable
+                    if (!$syntax || !$this->listing($name, $var))
                     {
                         $name = '';
                     }
@@ -588,25 +586,25 @@ class Nodes
 
     public function bracket($params)
     {
-        $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
+        $params['tree']['case'] = $params['tree']['node'] . $params['tree']['case'] . $params['nodes'][$params['tree']['node']]['close'];
         return $params;
     }
 
     public function code($params)
     {
         //If the code file is not whitelisted or blacklisted and the file exists
-        if ($this->listing($params['case'], $params['var']) && is_file($params['case']))
+        if ($this->listing($params['tree']['case'], $params['var']) && is_file($params['tree']['case']))
         {
             $suit = $params['suit'];
-            include str_replace('../', '', str_replace('..\'', '', $params['case']));
+            include str_replace('../', '', str_replace('..\'', '', $params['tree']['case']));
         }
-        $params['case'] = '';
+        $params['tree']['case'] = '';
         return $params;
     }
 
     public function comments($params)
     {
-        $params['case'] = '';
+        $params['tree']['case'] = '';
         return $params;
     }
 
@@ -615,38 +613,32 @@ class Nodes
         //Hide the case if necessary
         if (($params['var']['condition'] && $params['var']['else']) || (!$params['var']['condition'] && !$params['var']['else']))
         {
-            $params['tree'] = array
-            (
-                'contents' => array
-                (
-                    ''
-                )
-            );
+            $params['walk'] = false;
         }
         return $params;
     }
 
     public function entities($params)
     {
-        $params['case'] = htmlentities($params['case']);
+        $params['tree']['case'] = htmlentities($params['tree']['case']);
         return $params;
     }
 
     public function escape($params)
     {
-        $params['case'] = $params['suit']->escape($params['var']['strings'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
+        $params['tree']['case'] = $params['suit']->escape($params['var']['strings'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
         return $params;
     }
 
     public function evaluation($params)
     {
-        $params['case'] = eval($params['case']);
+        $params['tree']['case'] = eval($params['tree']['case']);
         return $params;
     }
 
     public function execute($params)
     {
-        $params['case'] = $params['suit']->execute($params['nodes'], $params['case'], $params['config']);
+        $params['tree']['case'] = $params['suit']->execute($params['nodes'], $params['tree']['case'], $params['config']);
         return $params;
     }
 
@@ -675,7 +667,7 @@ class Nodes
         $iterationvars = array();
         if (!is_array($params['var']['vars']))
         {
-            $params['case'] = '';
+            $params['tree']['case'] = '';
             return $params;
         }
         foreach ($params['var']['vars'] as $value)
@@ -699,49 +691,44 @@ class Nodes
         {
             //Parse for this iteration
             $result = $params['suit']->walk(array_merge($params['nodes'], $value), $tree, $params['config']);
-            $iterations[] = $result['contents'];
+            $iterations[] = $result['tree']['case'];
         }
         //Implode the iterations
-        $params['tree'] = array
-        (
-            'contents' => array
-            (
-                implode($params['var']['delimiter'], $iterations)
-            )
-        );
+        $params['tree']['case'] = implode($params['var']['delimiter'], $iterations);
+        $params['walk'] = false;
         return $params;
     }
 
     public function loopvariables($params)
     {
         //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-        $params['case'] = $params['var']['var'];
+        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
+        $params['tree']['case'] = $params['var']['var'];
         foreach ($split as $value)
         {
-            if (is_array($params['case']))
+            if (is_array($params['tree']['case']))
             {
-                $params['case'] = $params['case'][$value];
+                $params['tree']['case'] = $params['tree']['case'][$value];
             }
             else
             {
-                $params['case'] = $params['case']->$value;
+                $params['tree']['case'] = $params['tree']['case']->$value;
             }
         }
         if ($params['var']['json'])
         {
-            $params['case'] = json_encode($params['case']);
+            $params['tree']['case'] = json_encode($params['tree']['case']);
         }
         if ($params['var']['serialize'])
         {
-            $params['case'] = serialize($params['case']);
+            $params['tree']['case'] = serialize($params['tree']['case']);
         }
         return $params;
     }
 
     public function replace($params)
     {
-        $params['case'] = str_replace($params['var']['search'], $params['var']['replace'], $params['case']);
+        $params['tree']['case'] = str_replace($params['var']['search'], $params['var']['replace'], $params['tree']['case']);
         return $params;
     }
 
@@ -763,13 +750,12 @@ class Nodes
             );
             $params['returnfunctions'] = $params['returnvar']['returnfunctions'];
         }
-        $params['case'] = '';
+        $params['tree']['case'] = '';
         return $params;
     }
 
     public function returningfunction($params)
     {
-        array_splice($params['tree']['contents'], $params['key'] + 1);
         if (is_int($params['returnedvar']['layers']))
         {
             $params['returnedvar']['layers']--;
@@ -791,13 +777,13 @@ class Nodes
     public function templates($params)
     {
         //If the variable is not whitelisted or blacklisted and the file exists
-        if ($this->listing($params['case'], $params['var']) && is_file($params['case']))
+        if ($this->listing($params['tree']['case'], $params['var']) && is_file($params['tree']['case']))
         {
-            $params['case'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['case'])));
+            $params['tree']['case'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['tree']['case'])));
         }
         else
         {
-            $params['case'] = '';
+            $params['tree']['case'] = '';
         }
         return $params;
     }
@@ -808,7 +794,7 @@ class Nodes
         (
             '' => array
             (
-                'treefunctions' => array
+                'prewalk' => array
                 (
                     array
                     (
@@ -820,38 +806,16 @@ class Nodes
             '<pre' => array
             (
                 'close' => '</pre>',
-                'stringfunctions' => array
-                (
-                    array
-                    (
-                        'function' => 'trimarea',
-                        'class' => $this
-                    )
-                ),
                 'skip' => true
             ),
             '<textarea' => array
             (
                 'close' => '</textarea>',
-                'stringfunctions' => array
-                (
-                    array
-                    (
-                        'function' => 'trimarea',
-                        'class' => $this
-                    )
-                ),
                 'skip' => true
             )
         );
-        $params['case'] = $params['suit']->execute($nodes, $params['case'], $params['config']);
-        $params['case'] = ltrim($params['case']);
-        return $params;
-    }
-
-    public function trimarea($params)
-    {
-        $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
+        $params['tree']['case'] = $params['suit']->execute($nodes, $params['tree']['case'], $params['config']);
+        $params['tree']['case'] = ltrim($params['tree']['case']);
         return $params;
     }
 
@@ -861,15 +825,14 @@ class Nodes
         {
             if (is_array($params['tree']['contents'][$key]))
             {
-                $result = $params['suit']->walkarray($params['nodes'], $params['tree'], $params['config'], $params, $key);
-                $params = $result['params'];
-                $params['tree'] = $result['tree'];
+                $params['tree']['case'] .= $params['tree']['contents'][$key]['node'] . $params['tree']['contents'][$key]['contents'][0] . $params['nodes'][$params['tree']['contents'][$key]['node']]['close'];
             }
             else
             {
-                $params['tree']['contents'][$key] = preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]);
+                $params['tree']['case'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]);
             }
         }
+        $params['walk'] = false;
         return $params;
     }
 
@@ -881,7 +844,7 @@ class Nodes
         }
         try
         {
-            $result = $params['suit']->execute($params['nodes'], $params['case'], $params['config']);
+            $result = $params['suit']->execute($params['nodes'], $params['tree']['case'], $params['config']);
         }
         catch (Exception $e)
         {
@@ -892,7 +855,7 @@ class Nodes
                 $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
                 $this->assignvariable($split, $e, $params['suit']);
             }
-            $params['case'] = '';
+            $params['tree']['case'] = '';
         }
         return $params;
     }
@@ -909,34 +872,34 @@ class Nodes
     public function variables($params)
     {
         //If the variable is not whitelisted or blacklisted
-        if ($this->listing($params['case'], $params['var']))
+        if ($this->listing($params['tree']['case'], $params['var']))
         {
             //Split up the file, paying attention to escape strings
-            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['case'], $params['config']['escape'], $params['config']['insensitive']);
-            $params['case'] = $params['suit'];
+            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
+            $params['tree']['case'] = $params['suit'];
             foreach ($split as $value)
             {
-                if (is_array($params['case']))
+                if (is_array($params['tree']['case']))
                 {
-                    $params['case'] = $params['case'][$value];
+                    $params['tree']['case'] = $params['tree']['case'][$value];
                 }
                 else
                 {
-                    $params['case'] = $params['case']->$value;
+                    $params['tree']['case'] = $params['tree']['case']->$value;
                 }
             }
             if ($params['var']['json'])
             {
-                $params['case'] = json_encode($params['case']);
+                $params['tree']['case'] = json_encode($params['tree']['case']);
             }
             if ($params['var']['serialize'])
             {
-                $params['case'] = serialize($params['case']);
+                $params['tree']['case'] = serialize($params['tree']['case']);
             }
         }
         else
         {
-            $params['case'] = '';
+            $params['tree']['case'] = '';
         }
         return $params;
     }

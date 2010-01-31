@@ -27,7 +27,7 @@ class BBNode
             '[' => array
             (
                 'close' => ']',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -39,7 +39,7 @@ class BBNode
             '[align]' => array
             (
                 'close' => '[/align]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -72,7 +72,7 @@ class BBNode
             '[b]' => array
             (
                 'close' => '[/b]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -90,8 +90,13 @@ class BBNode
             '[code]' => array
             (
                 'close' => '[/code]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'linebreaks'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -109,7 +114,7 @@ class BBNode
             '[color]' => array
             (
                 'close' => '[/color]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -142,7 +147,7 @@ class BBNode
             '[email]' => array
             (
                 'close' => '[/email]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -170,7 +175,7 @@ class BBNode
             '[font]' => array
             (
                 'close' => '[/font]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -203,7 +208,7 @@ class BBNode
             '[i]' => array
             (
                 'close' => '[/i]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -221,7 +226,7 @@ class BBNode
             '[img]' => array
             (
                 'close' => '[/img]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -239,7 +244,7 @@ class BBNode
             '[list]' => array
             (
                 'close' => '[/list]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -275,7 +280,7 @@ class BBNode
             '[s]' => array
             (
                 'close' => '[/s]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -293,7 +298,7 @@ class BBNode
             '[size]' => array
             (
                 'close' => '[/size]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -331,7 +336,7 @@ class BBNode
             '[quote]' => array
             (
                 'close' => '[/quote]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -359,7 +364,7 @@ class BBNode
             '[u]' => array
             (
                 'close' => '[/u]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -377,7 +382,7 @@ class BBNode
             '[url]' => array
             (
                 'close' => '[/url]',
-                'stringfunctions' => array
+                'postwalk' => array
                 (
                     array
                     (
@@ -416,7 +421,13 @@ class BBNode
 
     public function bracket($params)
     {
-        $params['case'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
+        $params['tree']['case'] = $params['tree']['node'] . $params['tree']['case'] . $params['nodes'][$params['tree']['node']]['close'];
+        return $params;
+    }
+
+    public function linebreaks($params)
+    {
+        $params['tree']['case'] = str_replace('<br />', '', $params['tree']['case']);
         return $params;
     }
 
@@ -424,21 +435,21 @@ class BBNode
     {
         if (!$params['var']['equal'] || in_array($params['var']['equal'], array('1', 'a', 'A', 'i', 'I')))
         {
-            $params['case'] = str_replace('<br />', '', $params['case']);
-            $params['case'] = explode($params['var']['delimiter'], $params['case']);
-            $size = count($params['case']);
+            $params['tree']['case'] = str_replace('<br />', '', $params['tree']['case']);
+            $params['tree']['case'] = explode($params['var']['delimiter'], $params['tree']['case']);
+            $size = count($params['tree']['case']);
             for ($i = 0; $i < $size; $i++)
             {
                 if ($i != 0)
                 {
-                    $params['case'][$i] = $params['var']['open'] . $params['case'][$i] . $params['var']['close'];
+                    $params['tree']['case'][$i] = $params['var']['open'] . $params['tree']['case'][$i] . $params['var']['close'];
                 }
             }
-            $params['case'] = implode('', $params['case']);
+            $params['tree']['case'] = implode('', $params['tree']['case']);
         }
         else
         {
-            $params['var']['template'] = $params['node'] . $params['case'] . $params['nodes'][$params['node']]['close'];
+            $params['var']['template'] = $params['tree']['node'] . $params['tree']['case'] . $params['nodes'][$params['tree']['node']]['close'];
         }
         return $params;
     }
@@ -463,9 +474,9 @@ class BBNode
 
     public function template($params)
     {
-        $params['suit']->case = $params['case'];
+        $params['suit']->case = $params['tree']['case'];
         $params['suit']->equal = $params['var']['equal'];
-        $params['case'] = $params['suit']->execute($params['suit']->nodes, $params['var']['template']);
+        $params['tree']['case'] = $params['suit']->execute($params['suit']->nodes, $params['var']['template']);
         return $params;
     }
 }

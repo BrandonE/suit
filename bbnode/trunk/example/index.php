@@ -42,9 +42,10 @@ foreach (scandir('code') as $value)
 $suit->condition = array();
 $suit->loop = array();
 $template = $suit->execute($suit->nodes, file_get_contents('templates/index.tpl'));
+$template = $suit->execute($suit->nodes, file_get_contents('templates/index.tpl'));
 function slacks($params)
 {
-    $params['case'] = $params['var'];
+    $params['tree']['case'] = $params['var'];
     return $params;
 }
 $slacksnodes = array
@@ -52,7 +53,7 @@ $slacksnodes = array
 	'<slacks' => array
 	(
 		'close' => '/>',
-        'function' => array
+        'postwalk' => array
         (
             array
             (
@@ -60,7 +61,7 @@ $slacksnodes = array
             )
         ),
 		'skip' => true,
-		'var' => htmlentities(json_encode($suit->log))
+		'var' => htmlentities(json_encode($suit->log['contents']))
 	)
 );
 echo $suit->execute($slacksnodes, $template);

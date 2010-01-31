@@ -29,7 +29,11 @@ class SUIT
         'explodeunescape' => array()
     );
 
-    public $log = array();
+    public $log = array
+    (
+        'contents' => array(),
+        'id' => 0
+    );
 
     public $version = '1.3.4';
 
@@ -162,13 +166,13 @@ class SUIT
             //Cache the positions
             $this->cache['escape'][$cachekey] = $pos;
         }
-        $offset = 0;
+        $temp = $string;
         $key = array_keys($pos);
         $size = count($key);
         for ($i = 0; $i < $size; $i++)
         {
             //Adjust position to changes in length
-            $position = $key[$i] + $offset;
+            $position = $key[$i] + strlen($string) - strlen($temp);
             $count = 0;
             //If the escape string is not empty
             if ($escapestring)
@@ -189,8 +193,6 @@ class SUIT
             }
             //Replace the escape strings with two escape strings, escaping each of them
             $string = substr_replace($string, str_repeat($escapestring, ($count * 2) + $plus), $position - ($count * strlen($escapestring)), $count * strlen($escapestring));
-            //Adjust the offset
-            $offset += ($count * strlen($escapestring)) + $plus;
         }
         return $string;
     }
@@ -244,9 +246,10 @@ class SUIT
             //Cache the tree
             $this->cache['execute']['parse'][$cachekey] = $tree;
         }
-        $this->log[] = $tree;
         $result = $this->walk($nodes, $tree, $config);
-        return $result['contents'];
+        $result['tree']['original'] = $string;
+        $this->log['contents'][] = $result['tree'];
+        return $result['tree']['case'];
     }
 
     public function explodeunescape($explode, $string, $escapestring = '\\', $insensitive = true)
@@ -261,24 +264,31 @@ class SUIT
         else
         {
             $pos = array();
-            $position = -1;
-            //Find the next position of the string
-            while (($position = $this->strpos($string, $explode, $position + 1, $insensitive)) !== false)
+            if ($explode)
             {
-                $pos[] = $position;
+                $function = 'strpos';
+                if ($insensitive)
+                {
+                    $function = 'stripos';
+                }
+                $position = -1;
+                //Find the next position of the string
+                while (($position = $function($string, $explode, $position + 1)) !== false)
+                {
+                    $pos[] = $position;
+                }
+                //On top of the explode string to be escaped, the last position in the string should be checked for escape strings
+                $pos[] = strlen($string);
+                //Cache the positions
+                $this->cache['explodeunescape'][$cachekey] = $pos;
             }
-            //On top of the explode string to be escaped, the last position in the string should be checked for escape strings
-            $pos[] = strlen($string);
-            //Cache the positions
-            $this->cache['explodeunescape'][$cachekey] = $pos;
         }
-        $offset = 0;
         $last = 0;
         $temp = $string;
         foreach ($pos as $value)
         {
             //Adjust position to changes in length
-            $value += $offset;
+            $value += strlen($string) - strlen($temp);
             $count = 0;
             //If the escape string is not empty
             if ($escapestring)
@@ -313,8 +323,6 @@ class SUIT
                 //Make sure not to include anything we appended in a future value
                 $last = $value + strlen($explode);
             }
-            //Adjust the offset
-            $offset = strlen($string) - strlen($temp);
         }
         return $array;
     }
@@ -428,7 +436,6 @@ class SUIT
             'skipstack' => array(),
             'skipoffset' => 0,
             'string' => $string,
-            'stringoffset' => 0,
             'temp' => $string,
             'tree' => array()
         );
@@ -437,8 +444,8 @@ class SUIT
         for ($i = 0; $i < $size; $i++)
         {
             //Adjust position to changes in length
-            $params['node'] = $pos[$key[$i]][0];
-            $params['position'] = $key[$i] + $params['stringoffset'];
+            $params['node'] = $pos[$key[$i]]['node'];
+            $params['position'] = $key[$i] + strlen($params['string']) - strlen($params['temp']);
             $params['unescape'] = array
             (
                 'position' => $params['position'],
@@ -478,14 +485,13 @@ class SUIT
                 }
                 $params['skip'] = array_pop($params['skipstack']);
             }
+            //Run the appropriate function for the string
             $function = 'openingstring';
-            if ($pos[$key[$i]][1] == 1 || ($pos[$key[$i]][1] == 2 && array_key_exists($params['node'], $params['flat'])))
+            if ($pos[$key[$i]]['type'] == 'close' || ($pos[$key[$i]]['type'] == 'flat' && array_key_exists($params['node'], $params['flat'])))
             {
                 $function = 'closingstring';
             }
             $params = $this->$function($params);
-            //Adjust the offset
-            $params['stringoffset'] = strlen($params['string']) - strlen($params['temp']);
         }
         $string = substr($params['string'], $params['last']);
         //If the ending string is not empty, add it to the tree
@@ -529,15 +535,20 @@ class SUIT
         {
             return $params;
         }
+        $function = 'strpos';
+        if ($params['insensitive'])
+        {
+            $function = 'stripos';
+        }
         $position = -1;
         //Find the next position of the string
-        while (($position = $this->strpos($params['string'], $params['key'][$params['i']], $position + 1, $params['insensitive'])) !== false)
+        while (($position = $function($params['string'], $params['key'][$params['i']], $position + 1)) !== false)
         {
             $success = true;
             foreach ($params['taken'] as $value)
             {
                 //If this string instance is in this reserved range
-                if (($position >= $value[0] && $position < $value[1]) || ($position + strlen($params['key'][$params['i']]) > $value[0] && $position + strlen($params['key'][$params['i']]) < $value[1]))
+                if (($position >= $value['start'] && $position < $value['end']) || ($position + strlen($params['key'][$params['i']]) > $value['start'] && $position + strlen($params['key'][$params['i']]) < $value['end']))
                 {
                     $success = false;
                     break;
@@ -549,7 +560,11 @@ class SUIT
                 //Add the position
                 $params['pos'][$position] = $params['strings'][$params['key'][$params['i']]];
                 //Reserve all positions taken up by this string instance
-                $params['taken'][] = array($position, $position + strlen($params['key'][$params['i']]));
+                $params['taken'][] = array
+                (
+                    'start' => $position,
+                    'end' => $position + strlen($params['key'][$params['i']])
+                );
             }
         }
         return $params;
@@ -570,19 +585,6 @@ class SUIT
         return strlen($b) - strlen($a);
     }
 
-    public function strpos($haystack, $needle, $offset, $insensitive)
-    {
-        //Find the position insensitively or sensitively based on the configuration
-        if ($insensitive)
-        {
-            return stripos($haystack, $needle, $offset);
-        }
-        else
-        {
-            return strpos($haystack, $needle, $offset);
-        }
-    }
-
     public function tokens($nodes, $string, $config)
     {
         $strings = array();
@@ -592,14 +594,26 @@ class SUIT
         {
             if (array_key_exists('close', $nodes[$key[$i]]) && $key[$i] == $nodes[$key[$i]]['close'])
             {
-                $strings[$key[$i]] = array($key[$i], 2);
+                $strings[$key[$i]] = array
+                (
+                    'node' => $key[$i],
+                    'type' => 'flat'
+                );
             }
             else
             {
-                $strings[$key[$i]] = array($key[$i], 0);
+                $strings[$key[$i]] = array
+                (
+                    'node' => $key[$i],
+                    'type' => 'open'
+                );
                 if (array_key_exists('close', $nodes[$key[$i]]))
                 {
-                    $strings[$nodes[$key[$i]]['close']] = array($nodes[$key[$i]]['close'], 1);
+                    $strings[$nodes[$key[$i]]['close']] = array
+                    (
+                        'node' => $nodes[$key[$i]]['close'],
+                        'type' => 'close'
+                    );
                 }
             }
         }
@@ -630,98 +644,85 @@ class SUIT
             'returnedvar' => NULL,
             'returnfunctions' => array(),
             'suit' => $this,
-            'tree' => $tree
+            'tree' => $tree,
+            'walk' => true
         );
-        if (array_key_exists('node', $tree))
+        $params['tree']['case'] = '';
+        if (array_key_exists('node', $params['tree']) && array_key_exists('var', $params['nodes'][$params['tree']['node']]))
         {
-            $params['node'] = $tree['node'];
-            if (array_key_exists('var', $nodes[$tree['node']]))
-            {
-                $params['var'] = $nodes[$tree['node']]['var'];
-            }
+            $params['var'] = $params['nodes'][$params['tree']['node']]['var'];
         }
-        if (array_key_exists('create', $tree))
+        if (array_key_exists('create', $params['tree']))
         {
-            $params['create'] = $tree['create'];
+            $params['create'] = $params['tree']['create'];
         }
-        if (array_key_exists('node', $tree) && array_key_exists('treefunctions', $nodes[$tree['node']]))
+        if (array_key_exists('node', $params['tree']) && array_key_exists('prewalk', $params['nodes'][$params['tree']['node']]))
         {
-            //Modify the tree with the functions meant to be executed before walking through the tree
-            $params = $this->functions($params, $nodes[$tree['node']]['treefunctions']);
-            $tree = $params['tree'];
+            //Run the functions meant to be executed before walking through the tree
+            $params = $this->functions($params, $params['nodes'][$params['tree']['node']]['prewalk']);
         }
-        $params['walk'] = true;
-        foreach ($tree['contents'] as $key => $value)
+        foreach ($params['tree']['contents'] as $key => $value)
         {
-            if (is_array($tree['contents'][$key]))
-            {
-                $result = $this->walkarray($nodes, $tree, $config, $params, $key);
-                $params = $result['params'];
-                $tree = $result['tree'];
-            }
             if (!$params['walk'])
             {
                 break;
             }
+            if (is_array($params['tree']['contents'][$key]))
+            {
+                $params = $this->walkarray($params, $key);
+            }
+            else
+            {
+                $params['tree']['case'] .= $params['tree']['contents'][$key];
+            }
         }
-        $tree['contents'] = implode('', $tree['contents']);
-        if (array_key_exists('node', $tree) && array_key_exists('stringfunctions', $nodes[$tree['node']]))
+        if (array_key_exists('node', $params['tree']) && array_key_exists('postwalk', $params['nodes'][$params['tree']['node']]))
         {
-            //Transform the case with the specified functions
             $params['function'] = true;
-            $params['case'] = $tree['contents'];
-            $params = $this->functions($params, $nodes[$tree['node']]['stringfunctions']);
-            //Transform the string in between the opening and closing strings. 
-            $tree['contents'] = strval($params['case']);
+            //Transform the case with the specified functions
+            $params = $this->functions($params, $params['nodes'][$params['tree']['node']]['postwalk']);
         }
+        $params['tree']['case'] = strval($params['tree']['case']);
+        $params['tree']['id'] = $this->log['id'];
+        $this->log['id']++;
         return array
         (
-            'contents' => $tree['contents'],
             'functions' => $params['returnfunctions'],
+            'tree' => $params['tree'],
             'var' => $params['returnvar']
         );
     }
 
-    public function walkarray($nodes, $tree, $config, $params, $key)
+    public function walkarray($params, $key)
     {
         //If the tag has been closed or it explicitly says to execute unopened strings, walk through the contents with its node
-        if ($config['unclosed'] || (array_key_exists('closed', $tree['contents'][$key]) && $tree['contents'][$key]['closed']))
+        if ($params['config']['unclosed'] || (array_key_exists('closed', $params['tree']['contents'][$key]) && $params['tree']['contents'][$key]['closed']))
         {
-            $result = $this->walk($nodes, $tree['contents'][$key], $config);
-            $tree['contents'][$key] = $result['contents'];
-            //Modify the tree with the functions that have been returned
-            $params['function'] = true;
+            $result = $this->walk($params['nodes'], $params['tree']['contents'][$key], $params['config']);
+            $params['tree']['contents'][$key] = $result['tree'];
+            $params['tree']['case'] .= $result['tree']['case'];
+            //Run the functions that have been returned
             $params['key'] = $key;
             $params['returnedvar'] = $result['var'];
-            $params['tree'] = $tree;
             $params = $this->functions($params, $result['functions']);
             unset($params['key']);
             unset($params['returnedvar']);
-            $tree = $params['tree'];
         }
         //Else, execute it, ignoring the original opening string, with no node
         else
         {
-            $thistree = array
+            $tree = array
             (
-                'contents' => $tree['contents'][$key]['contents']
+                'contents' => $params['tree']['contents'][$key]['contents']
             );
-            $result = $this->walk($nodes, $thistree, $config);
-            if (array_key_exists('node', $tree['contents'][$key]))
+            $result = $this->walk($params['nodes'], $params['tree'], $params['config']);
+            if (array_key_exists('node', $params['tree']['contents'][$key]))
             {
-                $tree['contents'][$key] = $tree['contents'][$key]['node'];
+                $params['tree']['case'] .= $params['tree']['contents'][$key]['node'];
             }
-            else
-            {
-                $tree['contents'][$key]['node'] = '';
-            }
-            $tree['contents'][$key] .= $result['contents'];
+            $params['tree']['case'] .= $result['tree']['case'];
         }
-        return array
-        (
-            'params' => $params,
-            'tree' => $tree
-        );
+        return $params;
     }
 }
 ?>
