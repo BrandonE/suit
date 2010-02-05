@@ -1,16 +1,16 @@
 #!/usr/local/bin/python2.6
 """
-**@This file is part of BBNode.
-**@BBNode is free software: you can redistribute it and/or modify
+**@This file is part of PyBBNode.
+**@PyBBNode is free software: you can redistribute it and/or modify
 **@it under the terms of the GNU Lesser General Public License as published by
 **@the Free Software Foundation, either version 3 of the License, or
 **@(at your option) any later version.
-**@BBNode is distributed in the hope that it will be useful,
+**@PyBBNode is distributed in the hope that it will be useful,
 **@but WITHOUT ANY WARRANTY; without even the implied warranty of
 **@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 **@GNU Lesser General Public License for more details.
 **@You should have received a copy of the GNU Lesser General Public License
-**@along with BBNode.  If not, see <http://www.gnu.org/licenses/>.
+**@along with PyBBNode.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (C) 2008-2010 The SUIT Group.
 http://www.suitframework.com/
@@ -39,11 +39,11 @@ from suit.nodes import NODES as nodes
 suit.nodes = nodes
 suit.nodes['[template]']['var']['list'] = []
 for value in glob.glob('templates/*.tpl'):
-    suit.nodes['[template]']['var']['list'].append(value)
+    suit.nodes['[template]']['var']['list'].append(os.path.relpath(value))
     suit.nodes['[template]']['var']['list'].append(os.path.abspath(value))
 suit.nodes['[code]']['var']['list'] = []
 for value in glob.glob('code/*.py'):
-    suit.nodes['[code]']['var']['list'].append(value)
+    suit.nodes['[code]']['var']['list'].append(os.path.relpath(value))
     suit.nodes['[code]']['var']['list'].append(os.path.abspath(value))
 suit.condition = {}
 suit.loop = {}
@@ -60,7 +60,7 @@ slacksnodes = {
         'postwalk': [slack],
 		'skip': True,
 		'var': escape(
-            json.dumps(suit.LOG['contents'], separators = (',',':')),
+            json.dumps(suit.LOG['tree'], separators = (',',':')),
             True
         )
 	}

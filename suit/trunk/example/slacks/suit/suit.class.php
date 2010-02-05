@@ -31,8 +31,9 @@ class SUIT
 
     public $log = array
     (
-        'contents' => array(),
-        'id' => 0
+        'id' => 0,
+        'parallel' => array(),
+        'tree' => array()
     );
 
     public $version = '1.3.4';
@@ -62,9 +63,11 @@ class SUIT
         {
             $append = array
             (
+                'case' => '',
+                'contents' => array(),
                 'create' => $append,
                 'node' => $params['nodes'][$pop['node']]['create'],
-                'contents' => array()
+                'parallel' => array()
             );
             $params['tree'][] = $append;
             $params['skipstack'] = $this->skip($params['nodes'][$params['nodes'][$pop['node']]['create']], $params['skipstack']);
@@ -237,7 +240,9 @@ class SUIT
         {
             $tree = array
             (
-                'contents' => $this->parse($nodes, $string, $config, $pos)
+                'case' => '',
+                'contents' => $this->parse($nodes, $string, $config, $pos),
+                'parallel' => array()
             );
             if (array_key_exists('', $nodes))
             {
@@ -246,9 +251,14 @@ class SUIT
             //Cache the tree
             $this->cache['execute']['parse'][$cachekey] = $tree;
         }
+        //If the parallel array is not empty, mark that this call is running next to it
+        if (!empty($this->log['parallel']))
+        {
+            $this->log['parallel'][count($this->log['parallel']) - 1][] = $this->log['id'];
+        }
         $result = $this->walk($nodes, $tree, $config);
         $result['tree']['original'] = $string;
-        $this->log['contents'][] = $result['tree'];
+        $this->log['tree'][] = $result['tree'];
         return $result['tree']['case'];
     }
 
@@ -387,8 +397,10 @@ class SUIT
                 //Add the node to the tree
                 $append = array
                 (
+                    'case' => '',
+                    'contents' => array(),
                     'node' => $params['node'],
-                    'contents' => array()
+                    'parallel' => array()
                 );
                 $params['tree'][] = $append;
                 $params['skipstack'] = $this->skip($params['nodes'][$params['node']], $params['skipstack']);
@@ -647,7 +659,8 @@ class SUIT
             'tree' => $tree,
             'walk' => true
         );
-        $params['tree']['case'] = '';
+        $params['tree']['id'] = $this->log['id'];
+        $this->log['id']++;
         if (array_key_exists('node', $params['tree']) && array_key_exists('var', $params['nodes'][$params['tree']['node']]))
         {
             $params['var'] = $params['nodes'][$params['tree']['node']]['var'];
@@ -658,8 +671,13 @@ class SUIT
         }
         if (array_key_exists('node', $params['tree']) && array_key_exists('prewalk', $params['nodes'][$params['tree']['node']]))
         {
+            $this->log['parallel'][] = array();
             //Run the functions meant to be executed before walking through the tree
             $params = $this->functions($params, $params['nodes'][$params['tree']['node']]['prewalk']);
+            if (!empty($this->log['parallel']))
+            {
+                $params['tree']['parallel'] = array_merge($params['tree']['parallel'], array_pop($this->log['parallel']));
+            }
         }
         foreach ($params['tree']['contents'] as $key => $value)
         {
@@ -679,12 +697,15 @@ class SUIT
         if (array_key_exists('node', $params['tree']) && array_key_exists('postwalk', $params['nodes'][$params['tree']['node']]))
         {
             $params['function'] = true;
+            $this->log['parallel'][] = array();
             //Transform the case with the specified functions
             $params = $this->functions($params, $params['nodes'][$params['tree']['node']]['postwalk']);
+            if (!empty($this->log['parallel']))
+            {
+                $params['tree']['parallel'] = array_merge($params['tree']['parallel'], array_pop($this->log['parallel']));
+            }
         }
         $params['tree']['case'] = strval($params['tree']['case']);
-        $params['tree']['id'] = $this->log['id'];
-        $this->log['id']++;
         return array
         (
             'functions' => $params['returnfunctions'],
@@ -704,17 +725,18 @@ class SUIT
             //Run the functions that have been returned
             $params['key'] = $key;
             $params['returnedvar'] = $result['var'];
+            $this->log['parallel'][] = array();
             $params = $this->functions($params, $result['functions']);
+            if (!empty($this->log['parallel']))
+            {
+                $params['tree']['parallel'] = array_merge($params['tree']['parallel'], array_pop($this->log['parallel']));
+            }
             unset($params['key']);
             unset($params['returnedvar']);
         }
         //Else, execute it, ignoring the original opening string, with no node
         else
         {
-            $tree = array
-            (
-                'contents' => $params['tree']['contents'][$key]['contents']
-            );
             $result = $this->walk($params['nodes'], $params['tree'], $params['config']);
             if (array_key_exists('node', $params['tree']['contents'][$key]))
             {

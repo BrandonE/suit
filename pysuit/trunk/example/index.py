@@ -60,7 +60,7 @@ slacksnodes = {
         'postwalk': [slack],
 		'skip': True,
 		'var': escape(
-            json.dumps(suit.LOG['contents'], separators = (',',':')),
+            json.dumps(suit.LOG['tree'], separators = (',',':')),
             True
         )
 	}

@@ -18,20 +18,18 @@ http://www.suitframework.com/docs/credits
 **/
 $suit->language = array
 (
-    'after' => 'After',
-    'before' => 'Before',
+    'case' => 'Case',
     'contents' => 'Contents',
     'copyright' => 'Copyright &copy; 2008-2010 <a href="http://www.suitframework.com/docs/credits" target="_blank">The SUIT Group</a>. All Rights Reserved.',
     'default' => 'Default',
     'enablejavascript' => 'Enable Javascript',
     'nowrapper' => 'No Wrapper',
+    'parallel' => 'Parallel',
     'poweredby' => 'Powered by <a href="http://www.suitframework.com/" target="_blank">SUIT</a>',
-    'previous' => 'Previous',
     'slacks' => 'See this page built using SLACKS',
     'slogan' => 'SLACKS Lets Application Coders Know SUIT',
     'suit' => 'SUIT',
     'title' => 'SLACKS',
-    'tree' => 'Tree',
     'update' => 'Update',
     'wrapper' => 'Wrapper'
 );
@@ -46,20 +44,25 @@ switch (strtolower($_GET['language']))
 }
 function recurse($slacks, $nowrapper, $wrapper)
 {
+    if (!is_array($slacks))
+    {
+        return $slacks;
+    }
     foreach ($slacks as $key => $value)
     {
-        if (is_string($value))
+        $slacks[$key] = array
+        (
+            'array' => false,
+            'contents' => $value,
+            'recursed' => true
+        );
+        if (is_object($value))
         {
-            $slacks[$key] = array
-            (
-                'array' => false,
-                'contents' => $value,
-                'recursed' => true
-            );
-        }
-        else
-        {
+            $slacks[$key] = $value;
+            $slacks[$key]->array = true;
             $slacks[$key]->contents = recurse($value->contents, $nowrapper, $wrapper);
+            $slacks[$key]->created = (isset($value->create));
+            $slacks[$key]->recursed = (!isset($value->original));
             if (!isset($value->node))
             {
                 $slacks[$key]->node = $nowrapper;
@@ -68,27 +71,48 @@ function recurse($slacks, $nowrapper, $wrapper)
             {
                 $slacks[$key]->node = $wrapper;
             }
-            $slacks[$key]->array = true;
-            $slacks[$key]->created = (isset($value->create));
-            $slacks[$key]->recursed = (!isset($value->original));
+            if (!is_array($value->parallel))
+            {
+                break;
+            }
+            foreach ($value->parallel as $key2 => $value2)
+            {
+                $slacks[$key]->parallel[$key2] = array
+                (
+                    'parallel' => $value2
+                );
+            }
         }
     }
     return $slacks;
 }
+function idsort($a, $b)
+{
+    if ($a->id > $b->id)
+    {
+        return 1;
+    }
+    return -1;
+}
+$suit->loop['slacks'] = array();
 if (array_key_exists('submit', $_POST) && $_POST['submit'])
 {
     try
     {
         $suit->loop['slacks'] = json_decode($_POST['slacks']);
-        $suit->loop['slacks'] = recurse($suit->loop['slacks'], $suit->language['nowrapper'], $suit->language['wrapper']);
+        if (is_array($suit->loop['slacks']))
+        {
+            usort($suit->loop['slacks'], 'idsort');
+            $suit->loop['slacks'] = recurse($suit->loop['slacks'], $suit->language['nowrapper'], $suit->language['wrapper']);
+        }
+        else
+        {
+            $suit->loop['slacks'] = array();
+        }
     }
     catch (Exception $e)
     {
         $suit->loop['slacks'] = array();
     }
-}
-else
-{
-    $suit->loop['slacks'] = array();
 }
 ?>

@@ -1,36 +1,30 @@
+function box(id, phase)
+{
+    switch (phase)
+    {
+        case 0:
+            show = 'contents';
+            hide = 'original';
+            break;
+        case 1:
+            show = 'case';
+            hide = 'contents';
+            break;
+        default:
+            show = 'original';
+            hide = 'case';
+    }
+    if ($('#' + show + id).length == 0)
+    {
+        show = 'contents';
+    }
+    $('#' + show + id).show();
+    $('#' + hide + id).hide();
+}
 $(document).ready
 (
     function ()
     {
         $('.yesscript').show();
-        $('.before').click
-        (
-            function ()
-            {
-                $('.original').show();
-                $('.contents').hide();
-                $('.case').hide();
-            }
-        );
-
-        $('.tree').click
-        (
-            function ()
-            {
-                $('.original').hide();
-                $('.contents').show();
-                $('.case').hide();
-            }
-        );
-
-        $('.after').click
-        (
-            function ()
-            {
-                $('.original').hide();
-                $('.contents').hide();
-                $('.case').show();
-            }
-        );
     }
 );

@@ -242,7 +242,9 @@ def loop(params):
         iterationvars.append(var)
     iterations = []
     tree = {
-        'contents': params['tree']['contents']
+        'case': '',
+        'contents': params['tree']['contents'],
+        'parallel': []
     }
     for value in iterationvars:
         #Parse for this iteration

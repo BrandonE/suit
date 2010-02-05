@@ -45,7 +45,7 @@
 [/if]
 [assign var="condition=>return"]true[/assign]
 [if condition="[var json='true']condition=>return[/var]"]
-<p>Your copy of SUIT is legitimate, so this page is done with.</p>
+<p>Your copy of PySUIT is legitimate, so this page is done with.</p>
 [return /]
 [/if]
 <p>Didn't I already explain how open source works?</p>

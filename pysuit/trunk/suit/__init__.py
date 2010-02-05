@@ -33,8 +33,9 @@ CACHE = {
 }
 
 LOG = {
-    'contents': [],
-    'id': 0
+    'id': 0,
+    'parallel': [],
+    'tree': []
 }
 
 def close(params, pop, closed):
@@ -54,9 +55,11 @@ def close(params, pop, closed):
         params['flat'].discard(params['node'])
     else:
         append = {
+            'case': '',
+            'contents': [],
             'create': append,
             'node': params['nodes'][pop['node']]['create'],
-            'contents': []
+            'parallel': []
         }
         params['tree'].append(append)
         params['skipstack'] = skip(
@@ -204,15 +207,21 @@ def execute(nodes, string, config = None):
         tree = CACHE['execute']['parse'][cachekey]
     else:
         tree = {
-            'contents': parse(nodes, string, config, pos)
+            'case': '',
+            'contents': parse(nodes, string, config, pos),
+            'parallel': []
         }
         if '' in nodes:
             tree['node'] = ''
         #Cache the tree
         CACHE['execute']['parse'][cachekey] = tree
+    #If the parallel array is not empty, mark that this call is running next to
+    #it
+    if LOG['parallel']:
+        LOG['parallel'][len(LOG['parallel']) - 1].append(LOG['id'])
     result = walk(nodes, tree, config)
     result['tree']['original'] = string
-    LOG['contents'].append(result['tree'])
+    LOG['tree'].append(result['tree'])
     return result['tree']['case']
 
 def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
@@ -321,8 +330,10 @@ def openingstring(params):
                 params['tree'].append(append)
             #Add the node to the tree
             append = {
+                'case': '',
+                'contents': [],
                 'node': params['node'],
-                'contents': []
+                'parallel': []
             }
             params['tree'].append(append)
             params['skipstack'] = skip(
@@ -546,7 +557,8 @@ def walk(nodes, tree, config, recursed = False):
         'tree': tree,
         'walk': True
     }
-    params['tree']['case'] = ''
+    params['tree']['id'] = LOG['id']
+    LOG['id'] += 1
     if ('node' in params['tree'] and
     'var' in params['nodes'][params['tree']['node']]):
         params['var'] = params['nodes'][params['tree']['node']]['var']
@@ -554,11 +566,14 @@ def walk(nodes, tree, config, recursed = False):
         params['create'] = params['tree']['create']
     if ('node' in params['tree'] and
     'prewalk' in params['nodes'][params['tree']['node']]):
+        LOG['parallel'].append([])
         #Run the functions meant to be executed before walking through the tree
         params = functions(
             params,
             params['nodes'][params['tree']['node']]['prewalk']
         )
+        if LOG['parallel']:
+            params['tree']['parallel'].extend(LOG['parallel'].pop())
     for value in enumerate(params['tree']['contents']):
         if not params['walk']:
             break
@@ -569,14 +584,15 @@ def walk(nodes, tree, config, recursed = False):
     if ('node' in params['tree'] and
     'postwalk' in params['nodes'][params['tree']['node']]):
         params['function'] = True
+        LOG['parallel'].append([])
         #Transform the case with the specified functions
         params = functions(
             params,
             params['nodes'][params['tree']['node']]['postwalk']
         )
+        if LOG['parallel']:
+            params['tree']['parallel'].extend(LOG['parallel'].pop())
     params['tree']['case'] = str(params['tree']['case'])
-    params['tree']['id'] = LOG['id']
-    LOG['id'] += 1
     return {
         'functions': params['returnfunctions'],
         'tree': params['tree'],
@@ -605,14 +621,14 @@ def walkarray(params, key):
         #Run the functions that have been returned
         params['key'] = key
         params['returnedvar'] = result['var']
+        LOG['parallel'].append([])
         params = functions(params, result['functions'])
+        if LOG['parallel']:
+            params['tree']['parallel'].extend(LOG['parallel'].pop())
         del params['key']
         del params['returnedvar']
     #Else, execute it, ignoring the original opening string, with no node
     else:
-        tree = {
-            'contents': params['tree']['contents'][key]['contents']
-        }
         result = walk(params['nodes'], tree, params['config'], True)
         if 'node' in params['tree']['contents'][key]:
             params['tree']['case'][key] += params['tree']['contents'][

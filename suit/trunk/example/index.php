@@ -60,7 +60,7 @@ $slacksnodes = array
             )
         ),
 		'skip' => true,
-		'var' => htmlentities(json_encode($suit->log['contents']))
+		'var' => htmlentities(json_encode($suit->log['tree']))
 	)
 );
 echo $suit->execute($slacksnodes, $template);

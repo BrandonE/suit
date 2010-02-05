@@ -685,7 +685,9 @@ class Nodes
         $iterations = array();
         $tree = array
         (
-            'contents' => $params['tree']['contents']
+            'case' => '',
+            'contents' => $params['tree']['contents'],
+            'parallel' => array()
         );
         foreach ($iterationvars as $value)
         {
