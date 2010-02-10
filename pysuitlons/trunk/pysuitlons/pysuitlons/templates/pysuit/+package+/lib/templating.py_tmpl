@@ -5,13 +5,12 @@ from {{package}}.lib.suit import suit
 
 def render(template):
     """Provide our own rendering function for PySUIT."""
+    filepath = os.path.join(config['suit.templates'],
+        os.path.normpath(template)
+    )
     try:
-        filepath = os.path.join(config['pylons.paths']['templates'],
-            '%s.tpl' % (template))
         content = open(filepath).read()
     except IOError:
-        raise IOError('Template does not exist: %s' % template)
-
+        raise IOError('Template does not exist: %s' % filepath)
     return suit.execute(config['suit.nodes'], content)
-
 __all__ = ['render']
