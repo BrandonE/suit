@@ -7,7 +7,7 @@
         [if condition="[var json='true']message[/var]"]
         <fieldset>
             <legend>[var]language=>message[/var]</legend>
-            [var]executed[/var]
+[var]executed[/var]
         </fieldset>
         [/if]
         <form action="#" method="post">

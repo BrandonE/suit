@@ -8,7 +8,7 @@
         [if condition="[var json='true']template[/var]"]
         <fieldset>
             <legend>[var]language=>executed[/var]</legend>
-            [execute][var]template[/var][/execute]
+[execute][var]template[/var][/execute]
         </fieldset>
         [/if]
 [trim]

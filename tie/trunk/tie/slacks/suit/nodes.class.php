@@ -817,7 +817,7 @@ class Nodes
             )
         );
         $params['tree']['case'] = $params['suit']->execute($nodes, $params['tree']['case'], $params['config']);
-        $params['tree']['case'] = ltrim($params['tree']['case']);
+        $params['tree']['case'] = trim($params['tree']['case']);
         return $params;
     }
 
@@ -831,7 +831,7 @@ class Nodes
             }
             else
             {
-                $params['tree']['case'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]);
+                $params['tree']['case'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]) . substr($params['tree']['contents'][$key], strlen(rtrim($params['tree']['contents'][$key])));
             }
         }
         $params['walk'] = false;
