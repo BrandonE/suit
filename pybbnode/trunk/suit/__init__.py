@@ -592,7 +592,7 @@ def walk(nodes, tree, config, recursed = False):
         )
         if LOG['parallel']:
             params['tree']['parallel'].extend(LOG['parallel'].pop())
-    params['tree']['case'] = str(params['tree']['case'])
+    params['tree']['case'] = unicode(params['tree']['case'])
     return {
         'functions': params['returnfunctions'],
         'tree': params['tree'],

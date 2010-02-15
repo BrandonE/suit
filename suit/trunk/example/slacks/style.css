@@ -86,6 +86,11 @@ legend
     padding: 0;
 }
 
+strong
+{
+    color: #000000;
+}
+
 table.dashboard
 {
     border: 1px solid #000;
