@@ -1,1 +1,1 @@
-<a href="[var]navigationpath=>url[/var][var]navigationpath=>urlquerychar[/var]start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var]&amp;check=true">[var]language=>checkall[/var]</a>
+<a href="[var]navigationpath.url[/var][var]navigationpath.urlquerychar[/var]start=[var]start[/var]&amp;list=[var]list[/var]&amp;order=[var]order[/var]&amp;search=[var]search[/var]&amp;check=true">[var]language.checkall[/var]</a>

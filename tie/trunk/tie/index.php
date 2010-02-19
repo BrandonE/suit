@@ -12,77 +12,68 @@
 **@You should have received a copy of the GNU Lesser General Public License
 **@along with TIE.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2010 The SUIT Group.
+Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-require 'suit/suit.class.php';
-require 'suit/nodes.class.php';
+require 'suit.class.php';
+require 'rulebox/templating.class.php';
 $suit = new SUIT();
-$nodes = new Nodes();
-$suit->nodes = $nodes->nodes;
-$suit->nodes['[template]']['var']['list'] = array();
+$rules = new Rules();
+$suit->rules = $rules->rules;
+$suit->rules['[template]']['var']['list'] = array();
 foreach (scandir('templates') as $value)
 {
     if (basename($value, '.tpl') != $value)
     {
-        $suit->nodes['[template]']['var']['list'][] = 'templates/' . $value;
-        $suit->nodes['[template]']['var']['list'][] = realpath('templates/' . $value);
+        $suit->rules['[template]']['var']['list'][] = 'templates/' . $value;
+        $suit->rules['[template]']['var']['list'][] = realpath('templates/' . $value);
     }
 }
 foreach (scandir('templates/tie') as $value)
 {
     if (basename($value, '.tpl') != $value)
     {
-        $suit->nodes['[template]']['var']['list'][] = 'templates/tie/' . $value;
-        $suit->nodes['[template]']['var']['list'][] = realpath('templates/tie/' . $value);
+        $suit->rules['[template]']['var']['list'][] = 'templates/tie/' . $value;
+        $suit->rules['[template]']['var']['list'][] = realpath('templates/tie/' . $value);
     }
 }
-$suit->nodes['[code]']['var']['list'] = array();
+$suit->rules['[code]']['var']['list'] = array();
 foreach (scandir('code') as $value)
 {
     if (basename($value, '.inc.php') != $value)
     {
-        $suit->nodes['[code]']['var']['list'][] = 'code/' . $value;
-        $suit->nodes['[code]']['var']['list'][] = realpath('code/' . $value);
+        $suit->rules['[code]']['var']['list'][] = 'code/' . $value;
+        $suit->rules['[code]']['var']['list'][] = realpath('code/' . $value);
     }
 }
 foreach (scandir('code/languages') as $value)
 {
     if (basename($value, '.inc.php') != $value)
     {
-        $suit->nodes['[code]']['var']['list'][] = 'code/languages/' . $value;
-        $suit->nodes['[code]']['var']['list'][] = realpath('code/languages/' . $value);
+        $suit->rules['[code]']['var']['list'][] = 'code/languages/' . $value;
+        $suit->rules['[code]']['var']['list'][] = realpath('code/languages/' . $value);
     }
 }
 foreach (scandir('code/tie') as $value)
 {
     if (basename($value, '.inc.php') != $value)
     {
-        $suit->nodes['[code]']['var']['list'][] = 'code/tie/' . $value;
-        $suit->nodes['[code]']['var']['list'][] = realpath('code/tie/' . $value);
+        $suit->rules['[code]']['var']['list'][] = 'code/tie/' . $value;
+        $suit->rules['[code]']['var']['list'][] = realpath('code/tie/' . $value);
     }
 }
 $suit->condition = array();
 $suit->loop = array();
 include 'code/tie/main.inc.php';
 include 'code/tie/index.inc.php';
-$template = $suit->execute($suit->nodes, file_get_contents('templates/tie/index.tpl'));
-$slacksnodes = array
-(
-	'<slacks' => array
-	(
-		'close' => '/>',
-        'postwalk' => array
-        (
-            array
-            (
-                'function' => 'slacks'
-            )
-        ),
-		'skip' => true,
-		'var' => htmlentities(json_encode($suit->log['tree']))
-	)
-);
-echo $suit->execute($slacksnodes, $template);
+$template = $suit->execute($suit->rules, file_get_contents('templates/tie/index.tpl'));
+if (array_key_exists('slacks', $_GET) && $_GET['slacks'])
+{
+    echo json_encode($suit->log);
+}
+else
+{
+    echo $template;
+}
 ?>

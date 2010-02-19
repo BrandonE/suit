@@ -8,7 +8,7 @@
 <div class="redirect">
     <p>[var]message[/var]</p>
     <p>[var]seconds[/var]</p>
-    <p><a href="[var]url[/var]">[var]language=>clickhere[/var]</a></p>
+    <p><a href="[var]url[/var]">[var]language.clickhere[/var]</a></p>
 </div>
 <debug />
 </body>
