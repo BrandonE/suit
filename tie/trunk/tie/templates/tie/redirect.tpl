@@ -7,7 +7,7 @@
 <body>
 <div class="redirect">
     <p>[var]message[/var]</p>
-    <p>[var]seconds[/var]</p>
+    <p>[execute][var]seconds[/var][/execute]</p>
     <p><a href="[var]url[/var]">[var]language.clickhere[/var]</a></p>
 </div>
 <debug />

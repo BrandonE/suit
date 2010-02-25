@@ -16,10 +16,8 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-class Rules
+class Templating
 {
-    public $version = '0.0.0';
-
     public function __construct()
     {
         $this->rules = array

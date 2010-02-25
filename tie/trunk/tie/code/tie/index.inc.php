@@ -72,7 +72,7 @@ else
         }
         $suit->condition['currentversion'] = ($suit->version != $version);
         $suit->condition['version'] = true;
-        $suit->vars['version'] = $version;
+        $suit->version = $version;
     }
     else
     {

@@ -22,7 +22,7 @@ try:
 except ImportError:
     import json
 
-__version__ = '0.0.2'
+__version__ = '2.0.0'
 
 CACHE = {
     'escape': {},
@@ -41,6 +41,7 @@ LOG = {
 }
 
 def cacherules(rules, keys):
+    """Cache the provided items of the rules"""
     cachedrules = {}
     for key, value in rules.items():
         cachedkeys = {
@@ -657,9 +658,14 @@ def walkarray(params, key):
         del params['returnedvar']
     #Else, execute it, ignoring the original opening string, with no rule
     else:
+        tree = {
+            'case': '',
+            'contents': params['tree']['contents'][key]['contents'],
+            'parallel': []
+        }
         result = walk(params['rules'], tree, params['config'], True)
         if 'rule' in params['tree']['contents'][key]:
-            params['tree']['case'][key] += params['tree']['contents'][
+            params['tree']['case'] += params['tree']['contents'][
                 key
             ]['rule']
         params['tree']['case'] += result['tree']['case']

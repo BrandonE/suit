@@ -18,8 +18,6 @@ http://www.suitframework.com/docs/credits
 import suit
 from rulebox import templating
 
-__version__ = '0.0.0'
-
 def attribute(params):
     """Create rule out of attribute"""
     if 'create' in params:
@@ -50,7 +48,9 @@ def listitems(params):
         'I'
     ):
         params['tree']['case'] = params['tree']['case'].replace('<br />', '')
-        params['tree']['case'] = params['tree']['case'].split(params['var']['delimiter'])
+        params['tree']['case'] = params['tree']['case'].split(
+            params['var']['delimiter']
+        )
         for key, value in enumerate(params['tree']['case']):
             if key != 0:
                 params['tree']['case'][key] = ''.join((

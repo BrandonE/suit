@@ -26,8 +26,6 @@ except ImportError:
     import json
 import sys
 
-__version__ = '0.0.0'
-
 def assign(params):
     """Assign variable in template"""
     #If a variable is provided and it not is whitelisted or blacklisted
@@ -150,7 +148,7 @@ def condition(params):
 
 def entities(params):
     """Convert HTML characters to their respective entities"""
-    params['tree']['case'] = cgi.escape(params['tree']['case'])
+    params['tree']['case'] = cgi.escape(params['tree']['case'], True)
     return params
 
 def escape(params):

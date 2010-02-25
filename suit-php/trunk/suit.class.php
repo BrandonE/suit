@@ -35,7 +35,7 @@ class SUIT
         'tree' => array()
     );
 
-    public $version = '1.3.4';
+    public $version = '2.0.0';
 
     public function cacherules($rules, $keys)
     {
@@ -757,7 +757,13 @@ class SUIT
         //Else, execute it, ignoring the original opening string, with no rule
         else
         {
-            $result = $this->walk($params['rules'], $params['tree'], $params['config']);
+            $tree = array
+            (
+                'case' => '',
+                'contents' => $params['tree']['contents'][$key]['contents'],
+                'parallel' => array()
+            );
+            $result = $this->walk($params['rules'], $tree, $params['config']);
             if (array_key_exists('rule', $params['tree']['contents'][$key]))
             {
                 $params['tree']['case'] .= $params['tree']['contents'][$key]['rule'];

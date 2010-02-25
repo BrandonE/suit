@@ -18,8 +18,6 @@ http://www.suitframework.com/docs/credits
 **/
 class BBNode
 {
-    public $version = '0.0.0';
-
     public function __construct()
     {
         $this->rules = array

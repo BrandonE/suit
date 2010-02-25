@@ -32,7 +32,7 @@ class TIE
 
     public $settings = array();
 
-    public $version = '1.3.4';
+    public $version = '2.0.0';
 
     /**
     http://www.suitframework.com/docs/TIE+Construct
@@ -876,7 +876,7 @@ class TIE
                     }
                     $this->owner->loop['directories'] = $directoriesarray;
                     $this->owner->loop['files'] = $filesarray;
-                    $xml = $this->owner->execute($this->owner->nodes, $xml);
+                    $xml = $this->owner->execute($this->owner->rules, $xml);
                     header('Pragma: public');
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -1033,7 +1033,6 @@ class TIE
                 $this->owner->condition['directoryplural'] = (count($directorytitles) != 1);
                 $this->owner->loop['titles'] = $titles;
                 $this->owner->loop['directorytitles'] = $directorytitles;
-                $message = $this->owner->execute($this->owner->nodes, $message);
                 $this->owner->message = $message;
             }
             else
@@ -1054,7 +1053,7 @@ class TIE
                 $this->owner->template = htmlspecialchars(strval($posted['template']));
                 $this->owner->title = htmlspecialchars(strval($posted['title']));
             }
-            $return = $this->owner->execute($this->owner->nodes, $return);
+            $return = $this->owner->execute($this->owner->rules, $return);
         }
         else
         {
@@ -1161,7 +1160,7 @@ class TIE
             $this->owner->list = urlencode($this->settings['list']);
             $this->owner->search = urlencode($this->settings['search']);
             $this->owner->start = urlencode($this->settings['start']);
-            $return = $this->owner->execute($this->owner->nodes, $return);
+            $return = $this->owner->execute($this->owner->rules, $return);
         }
         $array = array();
         foreach ($directory['array'] as $value)
@@ -1213,7 +1212,7 @@ class TIE
         $this->owner->navigationpath = $path;
         $this->owner->search = urlencode($this->settings['search']);
         $this->owner->start = urlencode($this->settings['start']);
-        $return['current'] = $this->owner->execute($this->owner->nodes, $return['current']);
+        $return['current'] = $this->owner->execute($this->owner->rules, $return['current']);
         $num = $this->reduce($count - 1);
         $array = array();
         $result = $this->helper->pagelink($count, ($this->settings['start'] - ($this->settings['list'] * ($config['pages'] + 1))), 0, $this->owner->language['first'], false, $pagelink);
@@ -1314,11 +1313,10 @@ class TIE
             $this->owner->condition['s'] = ($config['refresh'] != 1);
             $this->owner->seconds = $this->owner->language['seconds'];
             $this->owner->refresh = $config['refresh'];
-            $this->owner->seconds = $this->owner->execute($this->owner->nodes, $this->owner->seconds);
             $this->owner->message = $message;
             $this->owner->name = $this->owner->language['redirecting'];
             $this->owner->url = htmlspecialchars($url);
-            $content = $this->owner->execute($this->owner->nodes, $content);
+            $content = $this->owner->execute($this->owner->rules, $content);
             $nodes = array
             (
                 '<slacks' => array
@@ -1433,7 +1431,7 @@ class TIEHelper
             $this->owner->owner->navigationpath = $path;
             $this->owner->owner->search = urlencode($this->owner->settings['search']);
             $this->owner->owner->start = urlencode($start);
-            $return = $this->owner->owner->execute($this->owner->owner->nodes, $return);
+            $return = $this->owner->owner->execute($this->owner->owner->rules, $return);
         }
         return $return;
     }

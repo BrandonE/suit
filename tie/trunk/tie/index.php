@@ -19,7 +19,7 @@ http://www.suitframework.com/docs/credits
 require 'suit.class.php';
 require 'rulebox/templating.class.php';
 $suit = new SUIT();
-$rules = new Rules();
+$rules = new Templating();
 $suit->rules = $rules->rules;
 $suit->rules['[template]']['var']['list'] = array();
 foreach (scandir('templates') as $value)
@@ -68,9 +68,16 @@ $suit->loop = array();
 include 'code/tie/main.inc.php';
 include 'code/tie/index.inc.php';
 $template = $suit->execute($suit->rules, file_get_contents('templates/tie/index.tpl'));
-if (array_key_exists('slacks', $_GET) && $_GET['slacks'])
+if ((array_key_exists('slacks', $_POST) && $_POST['slacks']) || (array_key_exists('slacks', $_GET) && $_GET['slacks']))
 {
-    echo json_encode($suit->log);
+    $tree = json_encode($suit->log['tree']);
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Content-type: text/json');
+    header('Content-Disposition: attachment; filename=tree.json');
+    header('Content-Length: ' . strlen($tree));
+    echo $tree;
 }
 else
 {

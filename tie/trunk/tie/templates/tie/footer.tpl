@@ -7,7 +7,7 @@
 		<a href="http://www.suitframework.com/" target="_blank"><img src="images/suit.png" alt="SUIT" /></a>
 		<a href="http://php.net/" target="_blank"><img src="images/php.gif" alt="PHP" /></a>
 	</p>
-    <p><a href="http://www.suitframework.com/slacks/">[var]language.slacks[/var]</a></p>
+    <p><a href="http://www.suitframework.com/slacks/?referrer=true">[var]language.slacks[/var]</a></p>
 </div>
 </body>
 </html>

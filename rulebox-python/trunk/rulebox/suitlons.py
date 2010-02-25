@@ -24,11 +24,8 @@ except ImportError:
 from pylons import config, tmpl_context as c, url
 from pylons.i18n import ugettext as _gettext
 from rulebox import templating
-from suitframework.lib.templating import render
 import suit
 from webhelpers.html import escape
-
-__version__ = '0.0.0'
 
 def assign(params):
     """Assign variable in template"""
@@ -105,7 +102,10 @@ def tmpl_context(params):
                 try:
                     params['tree']['case'] = params['tree']['case'][int(value)]
                 except (AttributeError, TypeError, ValueError):
-                    params['tree']['case'] = getattr(params['tree']['case'], value)
+                    params['tree']['case'] = getattr(
+                        params['tree']['case'],
+                        value
+                    )
     if params['var']['json']:
         params['tree']['case'] = json.dumps(params['tree']['case'])
     if params['var']['serialize']:
@@ -125,40 +125,41 @@ def templates(params):
     return params
 
 def url_for(params): 
-    """Returns a URL for the given URL settings supplied as parameters.""" 
-    url_params = {} 
-    for k, v in params['var'].items(): 
-        url_params[str(k)] = v 
-    params['tree']['case'] = url(**url_params) 
+    """Returns a URL for the given URL settings supplied as parameters."""
+    url_params = {}
+    for key, value in params['var'].items():
+        url_params[str(key)] = value
+    params['tree']['case'] = url(**url_params)
     return params
-suitrules = templating.RULES.copy()
 
-decode = ('entities', 'json', 'serialize')
-list = ('entities', 'json', 'serialize')
+SUITRULES = templating.RULES.copy()
+
+DECODE = ('entities', 'json', 'serialize')
+WHITELIST = ('entities', 'json', 'serialize')
 
 # Adjust the default rules for Pylons' convenience.
-suitrules['[assign]']['var']['var']['delimiter'] = '.'
-suitrules['[try]']['var']['var']['delimiter'] = '.'
-suitrules['[loopvar]']['var']['var']['delimiter'] = '.'
-suitrules['[var]']['var']['var']['delimiter'] = '.'
+SUITRULES['[assign]']['var']['var']['delimiter'] = '.'
+SUITRULES['[try]']['var']['var']['delimiter'] = '.'
+SUITRULES['[loopvar]']['var']['var']['delimiter'] = '.'
+SUITRULES['[var]']['var']['var']['delimiter'] = '.'
 
-suitrules['[assign]']['postwalk'] = [templating.attribute, assign]
-suitrules['[template]']['postwalk'] = [templates]
-suitrules['[code]']['postwalk'] = [code]
+SUITRULES['[assign]']['postwalk'] = [templating.attribute, assign]
+SUITRULES['[template]']['postwalk'] = [templates]
+SUITRULES['[code]']['postwalk'] = [code]
 
-suitrules['[loopvar]']['var']['var']['decode'] = decode
-suitrules['[var]']['var']['var']['decode'] = decode
+SUITRULES['[loopvar]']['var']['var']['decode'] = DECODE
+SUITRULES['[var]']['var']['var']['decode'] = DECODE
 
-suitrules['[loopvar]']['var']['list'] = list
-suitrules['[var]']['var']['list'] = list
+SUITRULES['[loopvar]']['var']['list'] = WHITELIST
+SUITRULES['[var]']['var']['list'] = WHITELIST
 
-suitrules['[loopvar]']['var']['var']['entities'] = 'true'
-suitrules['[var]']['var']['var']['entities'] = 'true'
+SUITRULES['[loopvar]']['var']['var']['entities'] = 'true'
+SUITRULES['[var]']['var']['var']['entities'] = 'true'
 
-suitrules['[var]']['postwalk'].append(filtering)
-suitrules['[loopvar]']['postwalk'].append(filtering)
+SUITRULES['[var]']['postwalk'].append(filtering)
+SUITRULES['[loopvar]']['postwalk'].append(filtering)
 
-pylonsrules = {
+PYLONSRULES = {
     '[c]':
     {
         'close': '[/c]',
@@ -189,8 +190,8 @@ pylonsrules = {
         'create': '[c]',
         'skip': True
     },
-    '[gettext]': 
-    { 
+    '[gettext]':
+    {
         'close': '[/gettext]',
         'postwalk': [gettext],
         'var':
@@ -200,13 +201,13 @@ pylonsrules = {
             'var': {}
         }
     },
-    '[url': 
+    '[url':
     {
         'close': '/]',
         'postwalk': [
             templating.attribute,
             url_for
-        ], 
+        ],
         'skip': True,
         'var':
         {
@@ -218,4 +219,4 @@ pylonsrules = {
     }
 }
 
-RULES = dict(suitrules, **pylonsrules)
+RULES = dict(SUITRULES, **PYLONSRULES)
