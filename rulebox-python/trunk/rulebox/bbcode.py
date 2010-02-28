@@ -18,6 +18,11 @@ http://www.suitframework.com/docs/credits
 import suit
 from rulebox import templating
 
+__all__ = [
+    'attribute', 'bracket', 'linebreaks', 'listitems', 'size', 'style',
+    'template', 'rules'
+]
+
 def attribute(params):
     """Create rule out of attribute"""
     if 'create' in params:
@@ -89,15 +94,15 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    suit.case = params['tree']['case']
-    suit.equal = params['var']['equal']
+    suit.vars.case = params['tree']['case']
+    suit.vars.equal = params['var']['equal']
     params['tree']['case'] = suit.execute(
-        templating.RULES,
+        templating.rules,
         params['var']['template']
     )
     return params
 
-RULES = {
+rules = {
     '[':
     {
         'close': ']',

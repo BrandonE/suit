@@ -492,7 +492,7 @@ class Templating
         {
             //Split up the file, paying attention to escape strings
             $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
-            $this->assignvariable($split, $params['tree']['case'], $params['suit']);
+            $this->assignvariable($split, $params['tree']['case'], $params['suit']->vars);
         }
         $params['tree']['case'] = '';
         return $params;
@@ -878,16 +878,22 @@ class Templating
         {
             //Split up the file, paying attention to escape strings
             $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
-            $params['tree']['case'] = $params['suit'];
-            foreach ($split as $value)
+            foreach ($split as $key => $value)
             {
-                if (is_array($params['tree']['case']))
+                if ($key == 0)
                 {
-                    $params['tree']['case'] = $params['tree']['case'][$value];
+                    $params['tree']['case'] = $params['suit']->vars->$value;
                 }
                 else
                 {
-                    $params['tree']['case'] = $params['tree']['case']->$value;
+                    if (is_array($params['tree']['case']))
+                    {
+                        $params['tree']['case'] = $params['tree']['case'][$value];
+                    }
+                    else
+                    {
+                        $params['tree']['case'] = $params['tree']['case']->$value;
+                    }
                 }
             }
             if ($params['var']['json'])

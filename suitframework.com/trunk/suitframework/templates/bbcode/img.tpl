@@ -1,0 +1,1 @@
+<img src="[var]case[/var]" alt="[var]case[/var]" />

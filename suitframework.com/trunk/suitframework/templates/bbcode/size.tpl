@@ -1,0 +1,1 @@
+<span style="font-size: [var]equal[/var]pt">[var]case[/var]</span>

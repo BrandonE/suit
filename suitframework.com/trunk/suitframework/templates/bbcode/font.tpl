@@ -1,0 +1,1 @@
+<span style="font-family: '[var]equal[/var]'">[var]case[/var]</span>

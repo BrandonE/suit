@@ -22,9 +22,16 @@ try:
 except ImportError:
     import json
 
+__all__ = [
+    'cache', 'cacherules', 'close', 'closingstring', 'escape', 'evalrules',
+    'execute', 'explodeunescape', 'functions', 'log', 'notclosed', 'MyClass',
+    'openingstring', 'parse', 'positions', 'positionsloop', 'rules', 'Singleton',
+    'skip', 'tokens', 'walk', 'walkarray'
+]
+
 __version__ = '2.0.0'
 
-CACHE = {
+cache = {
     'escape': {},
     'execute':
     {
@@ -34,11 +41,27 @@ CACHE = {
     'explodeunescape': {}
 }
 
-LOG = {
+log = {
     'id': 0,
     'parallel': [],
     'tree': []
 }
+
+class Singleton(type):
+    def __init__(cls, name, bases, dict):
+        super(Singleton, cls).__init__(name, bases, dict)
+        cls.instance = None
+
+    def __call__(cls, *args, **kw):
+        if cls.instance is None:
+            cls.instance = super(Singleton, cls).__call__(*args, **kw)
+
+        return cls.instance
+
+class MyClass(object):
+    __metaclass__ = Singleton
+
+vars = MyClass()
 
 def cacherules(rules, keys):
     """Cache the provided items of the rules"""
@@ -133,8 +156,8 @@ def escape(strings, string, escapestring = '\\', insensitive = True):
         ))
     ).hexdigest()
     #If positions are cached for this case, load them
-    if cachekey in CACHE['escape']:
-        pos = CACHE['escape'][cachekey]
+    if cachekey in cache['escape']:
+        pos = cache['escape'][cachekey]
     else:
         positionstrings = {}
         for value in strings:
@@ -160,7 +183,7 @@ def escape(strings, string, escapestring = '\\', insensitive = True):
         #Order the positions from smallest to biggest
         pos = sorted(pos.items())
         #Cache the positions
-        CACHE['escape'][cachekey] = pos
+        cache['escape'][cachekey] = pos
     temp = string
     for key, value in enumerate(pos):
         #Adjust position to changes in length
@@ -211,12 +234,12 @@ def execute(rules, string, config = None):
         ))
     ).hexdigest()
     #If positions are cached for this case, load them
-    if cachekey in CACHE['execute']['tokens']:
-        pos = CACHE['execute']['tokens'][cachekey]
+    if cachekey in cache['execute']['tokens']:
+        pos = cache['execute']['tokens'][cachekey]
     else:
         pos = tokens(rules, string, config)
         #Cache the positions
-        CACHE['execute']['tokens'][cachekey] = pos
+        cache['execute']['tokens'][cachekey] = pos
     cachekey = md5(
         json.dumps((
             string,
@@ -227,8 +250,8 @@ def execute(rules, string, config = None):
         ))
     ).hexdigest()
     #If a tree is cached for this case, load it
-    if cachekey in CACHE['execute']['parse']:
-        tree = CACHE['execute']['parse'][cachekey]
+    if cachekey in cache['execute']['parse']:
+        tree = cache['execute']['parse'][cachekey]
     else:
         tree = {
             'case': '',
@@ -238,14 +261,14 @@ def execute(rules, string, config = None):
         if '' in rules:
             tree['rule'] = ''
         #Cache the tree
-        CACHE['execute']['parse'][cachekey] = tree
+        cache['execute']['parse'][cachekey] = tree
     #If the parallel array is not empty, mark that this call is running next to
     #it
-    if LOG['parallel']:
-        LOG['parallel'][len(LOG['parallel']) - 1].append(LOG['id'])
+    if log['parallel']:
+        log['parallel'][len(log['parallel']) - 1].append(log['id'])
     result = walk(rules, tree, config)
     result['tree']['original'] = string
-    LOG['tree'].append(result['tree'])
+    log['tree'].append(result['tree'])
     return result['tree']['case']
 
 def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
@@ -258,8 +281,8 @@ def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
         ))
     ).hexdigest()
     #If positions are cached for this case, load them
-    if cachekey in CACHE['explodeunescape']:
-        pos = CACHE['explodeunescape'][cachekey]
+    if cachekey in cache['explodeunescape']:
+        pos = cache['explodeunescape'][cachekey]
     else:
         pos = []
         if explode:
@@ -276,7 +299,7 @@ def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
             #the string should be checked for escape strings
             pos.append(len(string))
         #Cache the positions
-        CACHE['explodeunescape'][cachekey] = pos
+        cache['explodeunescape'][cachekey] = pos
     last = 0
     temp = string
     for value in pos:
@@ -586,8 +609,8 @@ def walk(rules, tree, config, recursed = False):
         'tree': tree,
         'walk': True
     }
-    params['tree']['id'] = LOG['id']
-    LOG['id'] += 1
+    params['tree']['id'] = log['id']
+    log['id'] += 1
     if ('rule' in params['tree'] and
     'var' in params['rules'][params['tree']['rule']]):
         params['var'] = params['rules'][params['tree']['rule']]['var']
@@ -595,14 +618,14 @@ def walk(rules, tree, config, recursed = False):
         params['create'] = params['tree']['create']
     if ('rule' in params['tree'] and
     'prewalk' in params['rules'][params['tree']['rule']]):
-        LOG['parallel'].append([])
+        log['parallel'].append([])
         #Run the functions meant to be executed before walking through the tree
         params = functions(
             params,
             params['rules'][params['tree']['rule']]['prewalk']
         )
-        if LOG['parallel']:
-            params['tree']['parallel'].extend(LOG['parallel'].pop())
+        if log['parallel']:
+            params['tree']['parallel'].extend(log['parallel'].pop())
     for value in enumerate(params['tree']['contents']):
         if not params['walk']:
             break
@@ -613,14 +636,14 @@ def walk(rules, tree, config, recursed = False):
     if ('rule' in params['tree'] and
     'postwalk' in params['rules'][params['tree']['rule']]):
         params['function'] = True
-        LOG['parallel'].append([])
+        log['parallel'].append([])
         #Transform the case with the specified functions
         params = functions(
             params,
             params['rules'][params['tree']['rule']]['postwalk']
         )
-        if LOG['parallel']:
-            params['tree']['parallel'].extend(LOG['parallel'].pop())
+        if log['parallel']:
+            params['tree']['parallel'].extend(log['parallel'].pop())
     params['tree']['case'] = str(params['tree']['case'])
     return {
         'functions': params['returnfunctions'],
@@ -650,10 +673,10 @@ def walkarray(params, key):
         #Run the functions that have been returned
         params['key'] = key
         params['returnedvar'] = result['var']
-        LOG['parallel'].append([])
+        log['parallel'].append([])
         params = functions(params, result['functions'])
-        if LOG['parallel']:
-            params['tree']['parallel'].extend(LOG['parallel'].pop())
+        if log['parallel']:
+            params['tree']['parallel'].extend(log['parallel'].pop())
         del params['key']
         del params['returnedvar']
     #Else, execute it, ignoring the original opening string, with no rule

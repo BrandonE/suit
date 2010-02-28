@@ -16,7 +16,7 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
-class BBNode
+class BBCode
 {
     public function __construct()
     {
@@ -472,8 +472,8 @@ class BBNode
 
     public function template($params)
     {
-        $params['suit']->case = $params['tree']['case'];
-        $params['suit']->equal = $params['var']['equal'];
+        $params['suit']->vars->case = $params['tree']['case'];
+        $params['suit']->vars->equal = $params['var']['equal'];
         $params['tree']['case'] = $params['suit']->execute($params['suit']->rules, $params['var']['template']);
         return $params;
     }

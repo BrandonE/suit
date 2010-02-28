@@ -15,16 +15,25 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
-import cgi
 import os
-import pickle
+import sys
 import re
-import suit
+import pickle
+import cgi
 try:
     import simplejson as json
 except ImportError:
     import json
-import sys
+
+import suit
+
+__all__ = [
+    'assign', 'assignvariable', 'attribute', 'bracket', 'code', 'comments',
+    'condition', 'entities', 'escape', 'evaluation', 'execute', 'jsondecode',
+    'listing', 'loop', 'loopvariables', 'replace', 'returning',
+    'returningfunction', 'skip', 'templates', 'trim', 'trimexecute', 'trying',
+    'unserialize', 'variables'
+]
 
 def assign(params):
     """Assign variable in template"""
@@ -36,7 +45,7 @@ def assign(params):
             params['var']['var'],
             params['config']['escape']
         )
-        assignvariable(split, params['tree']['case'], suit)
+        assignvariable(split, params['tree']['case'], suit.vars)
     params['tree']['case'] = ''
     return params
 
@@ -135,7 +144,7 @@ def condition(params):
     #Hide the case if necessary
     if (
         (
-            params['var']['condition'] and 
+            params['var']['condition'] and
             params['var']['else']
         ) or
         (
@@ -184,7 +193,6 @@ def jsondecode(params):
 
 def listing(name, var):
     """Check if the variable is whitelisted or blacklisted"""
-    returnvalue = True
     #If the variable is whitelisted or blacklisted
     if (
         'list' in var and
@@ -203,8 +211,8 @@ def listing(name, var):
             )
         )
     ):
-        returnvalue = False
-    return returnvalue
+        return False
+    return True
 
 def loop(params):
     """Loop a string with different variables"""
@@ -392,7 +400,7 @@ def trying(params):
                 params['var']['var'],
                 params['config']['escape']
             )
-            assignvariable(split, inst, suit)
+            assignvariable(split, inst, suit.vars)
         params['tree']['case'] = ''
     return params
 
@@ -413,17 +421,21 @@ def variables(params):
             params['tree']['case'],
             params['config']['escape']
         )
-        params['tree']['case'] = suit
-        for value in split:
-            try:
-                params['tree']['case'] = params['tree']['case'][value]
-            except (AttributeError, TypeError):
+        for key, value in enumerate(split):
+            if key == 0:
+                params['tree']['case'] = getattr(suit.vars, value)
+            else:
                 try:
-                    params['tree']['case'] = params['tree']['case'][int(value)]
-                except (AttributeError, TypeError, ValueError):
-                    params['tree']['case'] = getattr(
-                        params['tree']['case'], value
-                    )
+                    params['tree']['case'] = params['tree']['case'][value]
+                except (AttributeError, TypeError):
+                    try:
+                        params['tree']['case'] = params['tree']['case'][
+                            int(value)
+                        ]
+                    except (AttributeError, TypeError, ValueError):
+                        params['tree']['case'] = getattr(
+                            params['tree']['case'], value
+                        )
         if params['var']['json']:
             params['tree']['case'] = json.dumps(params['tree']['case'])
         if params['var']['serialize']:
@@ -432,7 +444,7 @@ def variables(params):
         params['tree']['case'] = ''
     return params
 
-RULES = {
+rules = {
     '[':
     {
         'close': ']',
@@ -720,7 +732,7 @@ RULES = {
     }
 }
 
-EVALRULES = {
+evalrules = {
     '[eval]':
     {
         'close': '[/eval]',

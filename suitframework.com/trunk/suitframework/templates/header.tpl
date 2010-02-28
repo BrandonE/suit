@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>[c]title[/c]</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="/style.css" rel="stylesheet" type="text/css" />
+<link href="/pygments.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/jquery.js"></script>
+<script type="text/javascript" src="/javascript.js"></script>
+</head>
+<body>
+<div class="header">
+    <div class="left">
+        <h1 class="title"><a href="#">SUIT Framework</a></h1>
+        <div class="slogan">Scripting Using Integrated Templates</div>
+    </div>
+    <div class="right">
+        <form class="languages" action="#" method="get">
+        <p>
+            <select name="language">
+            <option value="default">Default</option>
+            [loop vars="[c json='true']loop.languages[/c]"]
+            <option value="[loopvar]id[/loopvar]"[if condition="[loopvar json='true']selected[/loopvar]"] selected="selected"[/if]>[loopvar]title[/loopvar]</option>
+            [/loop]
+            </select>
+            <input type="submit" value="Update" />
+        </p>
+        </form>
+    </div>
+</div>
+<div class="nav">
+    <div class="space"></div>
+    <ul>
+        <li[if condition="[c json='true']condition.home[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="index" /]">[gettext]Home[/gettext]</a></li>
+        <li[if condition="[c json='true']condition.download[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="download" /]">[gettext]Download[/gettext]</a></li>
+        <li[if condition="[c json='true']condition.docs[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="docs" /]">[gettext]Docs[/gettext]</a></li>
+        <li[if condition="[c json='true']condition.tryit[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="tryit" /]">[gettext]Try It[/gettext]</a></li>
+        <li[if condition="[c json='true']condition.slacks[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="slacks" /]">[gettext]SLACKS[/gettext]</a></li>
+        <li><a href="http://suitframework.svn.sourceforge.net/viewvc/suitframework/" target="_blank">[gettext]SVN[/gettext]</a></li>
+    </ul>
+</div>
+<div class="content">

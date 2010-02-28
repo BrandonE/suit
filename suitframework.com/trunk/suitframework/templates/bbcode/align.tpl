@@ -1,0 +1,1 @@
+<div style="text-align: [var]equal[/var]">[var]case[/var]</div>

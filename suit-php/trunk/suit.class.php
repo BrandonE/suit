@@ -15,6 +15,28 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 **/
+final class Singleton
+{
+    protected static $_instance;
+
+    private function __construct()
+    {
+    }
+
+    private function __clone()
+    {
+    }
+
+    public static function getInstance()
+    {
+        if (self::$_instance === NULL)
+        {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+}
+
 class SUIT
 {
     public $cache = array
@@ -36,6 +58,11 @@ class SUIT
     );
 
     public $version = '2.0.0';
+
+    public function __construct()
+    {
+        $this->vars = Singleton::getInstance();
+    }
 
     public function cacherules($rules, $keys)
     {

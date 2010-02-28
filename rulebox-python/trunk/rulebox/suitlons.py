@@ -16,16 +16,24 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
 import os
+import sys
 import pickle
 try:
     import simplejson as json
 except ImportError:
     import json
-from pylons import config, tmpl_context as c, url
-from pylons.i18n import ugettext as _gettext
-from rulebox import templating
+
 import suit
+from pylons import config, tmpl_context as c, url
+from pylons.i18n import ugettext as _
 from webhelpers.html import escape
+
+from rulebox import templating
+
+__all__ = [
+    'assign', 'gettext', 'helpers', 'filtering', 'rules', 'templates',
+    'tmpl_context', 'url_for'
+]
 
 def assign(params):
     """Assign variable in template"""
@@ -36,41 +44,18 @@ def assign(params):
             params['var']['var'],
             params['config']['escape']
         )
-        assignvariable(split, params['tree']['case'], c)
-    params['tree']['case'] = ''
-    return params
-
-def assignvariable(split, assignment, var):
-    """Assign a variable based on split"""
-    for key, value in enumerate(split):
-        if key < len(split) - 1:
-            try:
-                var = var[value]
-            except (AttributeError, TypeError):
-                try:
-                    var = var[int(value)]
-                except (AttributeError, TypeError, ValueError):
-                    var = getattr(var, value)
-    try:
-        var[split[len(split) - 1]] = assignment
-    except (AttributeError, TypeError):
-        setattr(var, split[len(split) - 1], assignment)
-
-def code(params):
-    """Execute a code file"""
-    try:
-        module = os.path.join(config['suit.templates'], 'logic',
-            '%s.py' % (params['tree']['case'].replace('.', '/'))
-        )
-        execfile(module)
-    except ImportError:
-        pass
+        templating.assignvariable(split, params['tree']['case'], c)
     params['tree']['case'] = ''
     return params
 
 def gettext(params):
     """Grabs a gettext string."""
-    params['tree']['case'] = _gettext(params['tree']['case'])
+    params['tree']['case'] = _(params['tree']['case'])
+    return params
+
+def helpers(params):
+    helper = getattr(params['var']['helpers'], params['tree']['case'])()
+    params['tree']['case'] = ''
     return params
 
 def filtering(params):
@@ -83,6 +68,18 @@ def filtering(params):
         params['tree']['case'] = escape(params['tree']['case'])
     return params
 
+def templates(params):
+    """Grab a template from a file"""
+    #If the template is not whitelisted or blacklisted
+    try:
+        filepath = os.path.join(config['pylons.paths']['templates'],
+            os.path.normpath(params['tree']['case'])
+        )
+        params['tree']['case'] = open(filepath).read()
+    except IOError:
+        params['tree']['case'] = ''
+    return params
+
 def tmpl_context(params):
     """Rip-off of SUIT's default [var] rule. Reads variables from the
     tmpl_context.
@@ -92,12 +89,12 @@ def tmpl_context(params):
         params['tree']['case'],
         params['config']['escape']
     )
-    for key, value in enumerate(split): 
+    for key, value in enumerate(split):
         if key == 0:
             params['tree']['case'] = getattr(c, value)
         else:
             try:
-                params['tree']['case'] = params['tree']['case'][value] 
+                params['tree']['case'] = params['tree']['case'][value]
             except (AttributeError, TypeError):
                 try:
                     params['tree']['case'] = params['tree']['case'][int(value)]
@@ -112,19 +109,7 @@ def tmpl_context(params):
         params['tree']['case'] = pickle.dumps(params['tree']['case'])
     return params
 
-def templates(params):
-    """Grab a template from a file"""
-    #If the template is not whitelisted or blacklisted
-    try:
-        filepath = os.path.join(config['suit.templates'], 
-            os.path.normpath(params['tree']['case'])
-        )
-        params['tree']['case'] = open(filepath).read()
-    except IOError:
-        params['tree']['case'] = ''
-    return params
-
-def url_for(params): 
+def url_for(params):
     """Returns a URL for the given URL settings supplied as parameters."""
     url_params = {}
     for key, value in params['var'].items():
@@ -132,34 +117,33 @@ def url_for(params):
     params['tree']['case'] = url(**url_params)
     return params
 
-SUITRULES = templating.RULES.copy()
+suitrules = templating.rules.copy()
 
-DECODE = ('entities', 'json', 'serialize')
-WHITELIST = ('entities', 'json', 'serialize')
+decode = ('entities', 'json', 'serialize')
+whitelist = ('entities', 'json', 'serialize')
 
 # Adjust the default rules for Pylons' convenience.
-SUITRULES['[assign]']['var']['var']['delimiter'] = '.'
-SUITRULES['[try]']['var']['var']['delimiter'] = '.'
-SUITRULES['[loopvar]']['var']['var']['delimiter'] = '.'
-SUITRULES['[var]']['var']['var']['delimiter'] = '.'
+suitrules['[assign]'] = suitrules['[assign]'].copy()
+suitrules['[assign]']['postwalk'] = [templating.attribute, assign]
 
-SUITRULES['[assign]']['postwalk'] = [templating.attribute, assign]
-SUITRULES['[template]']['postwalk'] = [templates]
-SUITRULES['[code]']['postwalk'] = [code]
+suitrules['[loopvar]'] = suitrules['[loopvar]'].copy()
+suitrules['[loopvar]']['var'] = suitrules['[loopvar]']['var'].copy()
+suitrules['[loopvar]']['var']['var'] = (
+    suitrules['[loopvar]']['var']['var'].copy()
+)
+suitrules['[loopvar]']['var']['var']['decode'] = decode
+suitrules['[loopvar]']['var']['list'] = whitelist
+suitrules['[loopvar]']['var']['var']['entities'] = 'true'
+suitrules['[loopvar]']['postwalk'] = suitrules['[loopvar]']['postwalk'][:]
+suitrules['[loopvar]']['postwalk'].append(filtering)
 
-SUITRULES['[loopvar]']['var']['var']['decode'] = DECODE
-SUITRULES['[var]']['var']['var']['decode'] = DECODE
+suitrules['[template]'] = suitrules['[template]'].copy()
+suitrules['[template]']['postwalk'] = [templates]
 
-SUITRULES['[loopvar]']['var']['list'] = WHITELIST
-SUITRULES['[var]']['var']['list'] = WHITELIST
+del suitrules['[var]']
+del suitrules['[code]']
 
-SUITRULES['[loopvar]']['var']['var']['entities'] = 'true'
-SUITRULES['[var]']['var']['var']['entities'] = 'true'
-
-SUITRULES['[var]']['postwalk'].append(filtering)
-SUITRULES['[loopvar]']['postwalk'].append(filtering)
-
-PYLONSRULES = {
+pylonsrules = {
     '[c]':
     {
         'close': '[/c]',
@@ -201,6 +185,12 @@ PYLONSRULES = {
             'var': {}
         }
     },
+    '[h]':
+    {
+        'close': '[/h]',
+        'postwalk': [helpers],
+        'var': {}
+    },
     '[url':
     {
         'close': '/]',
@@ -219,4 +209,4 @@ PYLONSRULES = {
     }
 }
 
-RULES = dict(SUITRULES, **PYLONSRULES)
+rules = dict(suitrules, **pylonsrules)

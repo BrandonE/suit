@@ -1,0 +1,1 @@
+<span style="text-decoration: underline">[var]case[/var]</span>
