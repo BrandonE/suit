@@ -10,6 +10,8 @@ except ImportError:
 import os
 
 from pylons import config, response, request, tmpl_context as c, url
+from paste.request import construct_url
+from paste.httpexceptions import HTTPMovedPermanently
 
 import suit
 from suitframework.lib.base import BaseController, render

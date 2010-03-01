@@ -10,13 +10,76 @@ try:
 except ImportError:
     import json
 import os
-from pylons import config, request, response, tmpl_context as c
+from glob import glob
+from pylons import config, request, response, tmpl_context as c, url
+from pylons.controllers.util import redirect
 from pylons.i18n import get_lang, set_lang, ugettext as _gettext
 import suit
 import urllib
 from webhelpers.html import escape
 
-def language():
+def docs():
+    c.articles = [
+        {
+            'articles': 
+            [
+                {
+                    'article': 'FAQ',
+                    'articleurl': 'faq'
+                },
+                {
+                    'article': 'Getting Started',
+                    'articleurl': 'gettingstarted'
+                }
+            ],
+            'category': 'General',
+            'categoryurl': 'general'
+        }
+    ]
+    c.condition['404'] = False
+    c.condition['article'] = False
+    c.condition['index'] = False
+    c.condition['matches'] = False
+    if not c.parameter1:
+        c.condition['index'] = True
+    elif os.path.isfile(
+        os.path.join(
+            config['pylons.paths']['templates'],
+            'docs',
+            os.path.normpath(c.parameter1.lower()) + '.tpl'
+        )
+    ):
+        for value in c.articles:
+            for value2 in value['articles']:
+                if c.parameter1 == value2['articleurl']:
+                    c.article = value2['article']
+        c.condition['article'] = True
+    else:
+        c.search = []
+        for value in c.articles:
+            for value2 in value['articles']:
+                if os.path.basename(
+                    value2['articleurl']
+                ).find(c.parameter1.lower()) != -1:
+                    value2['categoryurl'] = value['categoryurl']
+                    c.search.append(value2)
+        c.condition['404'] = True
+        c.condition['matches'] = (c.search)
+
+def header():
+    if ('submit' in request.POST and
+    request.POST['submit'] == _gettext('Search')):
+        redirect(
+            url(
+                controller = 'root',
+                action = 'template',
+                templatefile = 'docs',
+                parameter1 = request.POST['search'].replace(' ', '').lower()
+            ),
+            code = 303
+        )
+    #if ('submit' in request.POST and
+    #request.POST['submit'] == _gettext('Update')):
     c.loop['languages'] = [
         {
             'id': 'en',

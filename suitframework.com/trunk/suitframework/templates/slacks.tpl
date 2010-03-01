@@ -1,11 +1,9 @@
 [trim]
-[h]language[/h]
+[h]header[/h]
 [h]slacks[/h]
 [assign var="condition.slacks"]true[/assign]
-[assign var="title"][gettext]SUIT Framework - SLACKS[/gettext][/assign]
+[assign var="title"][gettext]SLACKS[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]
-    <div class="section">
-        <h2>[gettext]SLACKS[/gettext]</h2>
         <div class="yesscript" style="display: none">
         [if condition="[c json='true']condition.tree[/c]"]
         [loop vars="[c json='true']loop.tree[/c]"]
@@ -30,6 +28,5 @@
                 [gettext]Enable Javascript[/gettext]
             </p>
         </noscript>
-    </div>
 [execute][template]footer.tpl[/template][/execute]
 [/trim]

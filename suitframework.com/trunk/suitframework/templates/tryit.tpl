@@ -1,11 +1,9 @@
 [trim]
-[h]language[/h]
+[h]header[/h]
 [h]tryit[/h]
 [assign var="condition.tryit"]true[/assign]
-[assign var="title"][gettext]SUIT Framework - Try It[if condition="[c json='true']condition.rule[/c]"] - [c]rule[/c][/if][/gettext][/assign]
+[assign var="title"][gettext]Try It[if condition="[c json='true']condition.rule[/c]"] - [c]rule[/c][/if][/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]
-    <div class="section">
-        <h2>[gettext]Try it[if condition="[c json='true']condition.rule[/c]"] - [c]rule[/c][/if][/gettext]</h2>
 [/trim]
         [if condition="[c json='true']condition.rule[/c]"]
         <p><strong>[gettext]This editor is running on SUIT for Python, but it provides all versions of the code applicable. The templates contain comments about the few (if any) things that need to be changed for the other versions.[/gettext]</strong></p>
@@ -58,6 +56,5 @@
             <li><a href="[url controller="root" action="template" templatefile="tryit" parameter1="bbcode" /]">[gettext]BBCode[/gettext]</a></li>
         </ul>
         [/if]
-    </div>
 [execute][template]footer.tpl[/template][/execute]
 [/trim]

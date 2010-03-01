@@ -1,10 +1,8 @@
 [trim]
-[h]language[/h]
+[h]header[/h]
 [assign var="condition.download"]true[/assign]
-[assign var="title"][gettext]SUIT Framework - Download[/gettext][/assign]
+[assign var="title"][gettext]Download[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]
-    <div class="section">
-        <h2>[gettext]Download[/gettext]</h2>
         <h3>[gettext]SUIT Framework[/gettext]</h3>
         <p>[gettext]The main package. It holds a file containing the functions for using SUIT.[/gettext]</p>
         <p>[gettext]For SUIT for PHP, you need to include it and <a href="#initialize">initialize</a> it, while in SUIT for Python you merely need to import it. In addition, SUIT for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
@@ -36,6 +34,5 @@
         <ul>
             <li><a href="http://sourceforge.net/projects/suitframework/files/CAPE/CAPE_0.0.0.zip/download">[gettext]Download CAPE 0.0.0[/gettext]</a></li>
         </ul>
-    </div>
 [execute][template]footer.tpl[/template][/execute]
 [/trim]

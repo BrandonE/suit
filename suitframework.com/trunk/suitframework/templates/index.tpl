@@ -1,10 +1,8 @@
 [trim]
-[h]language[/h]
+[h]header[/h]
 [assign var="condition.home"]true[/assign]
-[assign var="title"][gettext]SUIT Framework - Home[/gettext][/assign]
+[assign var="title"][gettext]Home[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]
-    <div class="section">
-        <h2>[gettext]Home[/gettext]</h2>
         <img src="/images/logo.png" alt="Logo" style="float: left; padding: 20px;" />
         <p>[gettext]The World Wide Web has come a long way. Back in the day, if a website provided good information, it could be displayed in plain text with no interaction, and everyone would be satisfied. Although these sites still serve their purpose, today's websites must have a style and dynamic pages to get the average user's attention.[/gettext]</p>
         
@@ -15,6 +13,5 @@
         <p>[gettext]Introducing the <strong>SUIT Framework</strong> (Scripting Using Integrated Templates), an open-source web templating framework. It provides a lightweight and powerful solution to this problem by allowing developers to define your own syntax through the usage of <a href="#Link explaining rules">rules</a> in your server side language of choice. Then, transform the string using SUIT, and problem solved. SUIT currently has both PHP and Python implementations.[/gettext]</p>
 
         <p>[gettext]So, read the docs, get help in the community, and enjoy clean coding![/gettext]</p>
-    </div>
 [execute][template]footer.tpl[/template][/execute]
 [/trim]

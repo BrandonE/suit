@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>[c]title[/c]</title>
+<title>[gettext]SUIT Framework[/gettext] - [c]title[/c]</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link href="/style.css" rel="stylesheet" type="text/css" />
 <link href="/pygments.css" rel="stylesheet" type="text/css" />
@@ -15,13 +15,18 @@
         <div class="slogan">Scripting Using Integrated Templates</div>
     </div>
     <div class="right">
-        <form class="languages" action="#" method="get">
+        <form action="#" method="post">
+        <p>
+            <input name="search" type="text" /> <input name="submit" type="submit" value="Search" />
+        </p>
+        </form>
+        <form class="languages" action="#" method="post">
         <p>
             <select name="language">
-            <option value="default">Default</option>
-            [loop vars="[c json='true']loop.languages[/c]"]
-            <option value="[loopvar]id[/loopvar]"[if condition="[loopvar json='true']selected[/loopvar]"] selected="selected"[/if]>[loopvar]title[/loopvar]</option>
-            [/loop]
+                <option value="default">Default</option>
+                [loop vars="[c json='true']loop.languages[/c]"]
+                <option value="[loopvar]id[/loopvar]"[if condition="[loopvar json='true']selected[/loopvar]"] selected="selected"[/if]>[loopvar]title[/loopvar]</option>
+                [/loop]
             </select>
             <input type="submit" value="Update" />
         </p>
@@ -40,3 +45,8 @@
     </ul>
 </div>
 <div class="content">
+    <div class="section">
+        <h2>[c]title[/c]</h2>
+        <p style="text-align: center">
+            <strong>[gettext]mm/dd/YY: Something x.x.x has been released.[/gettext]</strong>
+        </p>
