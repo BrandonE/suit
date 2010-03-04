@@ -94,8 +94,8 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    suit.vars.case = params['tree']['case']
-    suit.vars.equal = params['var']['equal']
+    suit.var.case = params['tree']['case']
+    suit.var.equal = params['var']['equal']
     params['tree']['case'] = suit.execute(
         templating.rules,
         params['var']['template']

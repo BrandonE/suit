@@ -1,6 +1,6 @@
 [trim]
-[h]header[/h]
-[h]tryit[/h]
+[call function="header" /]
+[call function="tryit" /]
 [assign var="condition.tryit"]true[/assign]
 [assign var="title"][gettext]Try It[if condition="[c json='true']condition.rule[/c]"] - [c]rule[/c][/if][/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]

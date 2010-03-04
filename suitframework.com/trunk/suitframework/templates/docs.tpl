@@ -1,6 +1,6 @@
 [trim]
-[h]header[/h]
-[h]docs[/h]
+[call function="header" /]
+[call function="docs" /]
 [assign var="condition.docs"]true[/assign]
 [assign var="title"][gettext]Docs - [if condition="[c json='true']condition.index[/c]"]Index[/if][if condition="[c json='true']condition.article[/c]"][c]article[/c][/if][if condition="[c json='true']condition.404[/c]"]404[/if][/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]

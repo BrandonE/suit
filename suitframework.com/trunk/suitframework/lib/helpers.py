@@ -65,6 +65,7 @@ def docs():
                     c.search.append(value2)
         c.condition['404'] = True
         c.condition['matches'] = (c.search)
+    return ''
 
 def header():
     if ('submit' in request.POST and
@@ -87,6 +88,7 @@ def header():
             'selected': (get_lang() == 'en')
         }
     ]
+    return ''
 
 def slacks():
     if ('submit' in request.POST and
@@ -139,6 +141,7 @@ def slacks():
         ValueError
     ):
         pass
+    return ''
 
 def slacksrecurse(tree, nowrapper, wrapper):
     for key, value in enumerate(tree):
@@ -252,3 +255,4 @@ def tryit():
         c.php = highlight(c.php, PhpLexer(), HtmlFormatter())
         c.python = highlight(c.python, PythonLexer(), HtmlFormatter())
     c.executed = suit.execute(rules, c.template)
+    return ''

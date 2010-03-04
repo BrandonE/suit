@@ -47,17 +47,24 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'decode'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'assign'
                     )
                 ),
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('var'),
+                    'list' => array('json', 'var'),
                     'quote' => array('"', '\''),
                     'var' => array
                     (
+                        'decode' => array('json'),
                         'delimiter' => '.',
+                        'json' => 'false',
                         'var' => ''
                     )
                 )
@@ -67,6 +74,31 @@ class Templating
                 'close' => ']',
                 'create' => '[assign]',
                 'skip' => true
+            ),
+            '[call' => array
+            (
+                'close' => '/]',
+                'postwalk' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'functions'
+                    )
+                ),
+                'skip' => true,
+                'var' => array
+                (
+                    'equal' => '=',
+                    'onesided' => true,
+                    'quote' => array('"', '\''),
+                    'var' => array()
+                )
             ),
             '[code]' => array
             (
@@ -106,46 +138,6 @@ class Templating
                     )
                 )
             ),
-            '[escape]' => array
-            (
-                'close' => '[/escape]',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'jsondecode'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'escape'
-                    )
-                ),
-                'var' => array
-                (
-                    'blacklist' => true,
-                    'equal' => '=',
-                    'list' => array('decode'),
-                    'quote' => array('"', '\''),
-                    'var' => array
-                    (
-                        'decode' => array('strings'),
-                        'strings' => '[]',
-                    )
-                )
-            ),
-            '[escape' => array
-            (
-                'close' => ']',
-                'create' => '[escape]',
-                'skip' => true
-            ),
             '[execute]' => array
             (
                 'close' => '[/execute]',
@@ -171,7 +163,7 @@ class Templating
                     array
                     (
                         'class' => $this,
-                        'function' => 'jsondecode'
+                        'function' => 'decode'
                     ),
                     array
                     (
@@ -212,7 +204,7 @@ class Templating
                     array
                     (
                         'class' => $this,
-                        'function' => 'jsondecode'
+                        'function' => 'decode'
                     ),
                     array
                     (
@@ -254,7 +246,7 @@ class Templating
                     array
                     (
                         'class' => $this,
-                        'function' => 'jsondecode'
+                        'function' => 'decode'
                     ),
                     array
                     (
@@ -265,14 +257,13 @@ class Templating
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('json', 'serialize'),
+                    'list' => array('json'),
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('json', 'serialize'),
+                        'decode' => array('json'),
                         'delimiter' => '.',
                         'json' => 'false',
-                        'serialize' => 'false',
                         'var' => array()
                     )
                 )
@@ -329,7 +320,7 @@ class Templating
                     array
                     (
                         'class' => $this,
-                        'function' => 'jsondecode'
+                        'function' => 'decode'
                     ),
                     array
                     (
@@ -377,6 +368,40 @@ class Templating
                     )
                 ),
                 'var' => array()
+            ),
+            '[transform]' => array
+            (
+                'close' => '[/transform]',
+                'postwalk' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'attribute'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'transform'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'functions'
+                    )
+                ),
+                'var' => array
+                (
+                    'equal' => '=',
+                    'quote' => array('"', '\''),
+                    'var' => array()
+                )
+            ),
+            '[transform' => array
+            (
+                'close' => ']',
+                'create' => '[transform]',
+                'skip' => true
             ),
             '[trim]' => array
             (
@@ -439,7 +464,7 @@ class Templating
                     array
                     (
                         'class' => $this,
-                        'function' => 'jsondecode'
+                        'function' => 'decode'
                     ),
                     array
                     (
@@ -450,14 +475,13 @@ class Templating
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('json', 'serialize'),
+                    'list' => array('json'),
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('json', 'serialize'),
+                        'decode' => array('json'),
                         'delimiter' => '.',
-                        'json' => 'false',
-                        'serialize' => 'false'
+                        'json' => 'false'
                     )
                 )
             ),
@@ -487,19 +511,22 @@ class Templating
 
     public function assign($params)
     {
-        //If a variable is provided and it not is whitelisted or blacklisted
-        if ($params['var']['var'] && $this->listing($params['var']['var'], $params['var']))
+        //If a variable is provided
+        if ($params['var']['var'])
         {
-            //Split up the file, paying attention to escape strings
-            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
-            $this->assignvariable($split, $params['tree']['case'], $params['suit']->vars);
+            if ($params['var']['json'])
+            {
+                $params['tree']['case'] = json_decode($params['tree']['case']);
+            }
+            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['tree']['case'], $params['suit']->var);
         }
         $params['tree']['case'] = '';
         return $params;
     }
 
-    public function assignvariable($split, $assign, &$var)
+    public function assignvariable($string, $split, $assign, &$var)
     {
+        $split = explode($split, $string);
         $size = count($split);
         for ($i = 0; $i < $size - 1; $i++)
         {
@@ -557,7 +584,7 @@ class Templating
         if ($quote)
         {
             //Define the variables
-            $split = $params['suit']->explodeunescape($quote, $case, $params['config']['escape'], $params['config']['insensitive']);
+            $split = explode($quote, $case);
             unset($split[count($split) - 1]);
             $size = count($split);
             for ($i = 0; $i < $size; $i++)
@@ -618,15 +645,18 @@ class Templating
         return $params;
     }
 
-    public function entities($params)
+    public function decode($params)
     {
-        $params['tree']['case'] = htmlentities($params['tree']['case']);
+        foreach ($params['var']['decode'] as $value)
+        {
+            $params['var'][$value] = json_decode($params['var'][$value]);
+        }
         return $params;
     }
 
-    public function escape($params)
+    public function entities($params)
     {
-        $params['tree']['case'] = $params['suit']->escape($params['var']['strings'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
+        $params['tree']['case'] = htmlentities($params['tree']['case']);
         return $params;
     }
 
@@ -642,6 +672,23 @@ class Templating
         return $params;
     }
 
+    public function functions($params)
+    {
+        $kwargs = $params['var'];
+        unset($kwargs['function']);
+        unset($kwargs['owner']);
+        //Note whether or not the function is in a class
+        if (array_key_exists('owner', $params['var']))
+        {
+            $params['tree']['case'] = $params['var']['owner']->$params['var']['function']($kwargs);
+        }
+        else
+        {
+            $params['tree']['case'] = $params['var']['function']($kwargs);
+        }
+        return $params;
+    }
+
     public function listing($name, $var)
     {
         $return = true;
@@ -651,15 +698,6 @@ class Templating
             $return = false;
         }
         return $return;
-    }
-
-    public function jsondecode($params)
-    {
-        foreach ($params['var']['decode'] as $value)
-        {
-            $params['var'][$value] = json_decode($params['var'][$value]);
-        }
-        return $params;
     }
 
     public function loop($params)
@@ -703,8 +741,7 @@ class Templating
 
     public function loopvariables($params)
     {
-        //Split up the file, paying attention to escape strings
-        $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
+        $split = explode($params['var']['delimiter'], $params['tree']['case']);
         $params['tree']['case'] = $params['var']['var'];
         foreach ($split as $value)
         {
@@ -720,10 +757,6 @@ class Templating
         if ($params['var']['json'])
         {
             $params['tree']['case'] = json_encode($params['tree']['case']);
-        }
-        if ($params['var']['serialize'])
-        {
-            $params['tree']['case'] = serialize($params['tree']['case']);
         }
         return $params;
     }
@@ -790,33 +823,42 @@ class Templating
         return $params;
     }
 
+    public function transform($params)
+    {
+        $params['var']['string'] = $params['tree']['case'];
+        return $params;
+    }
+
     public function trim($params)
     {
-        $rules = array
-        (
-            '' => array
+        $params['tree']['case'] = $params['suit']->execute(
+            array
             (
-                'prewalk' => array
+                '' => array
                 (
-                    array
+                    'prewalk' => array
                     (
-                        'function' => 'trimexecute',
-                        'class' => $this
+                        array
+                        (
+                            'function' => 'trimexecute',
+                            'class' => $this
+                        )
                     )
+                ),
+                '<pre' => array
+                (
+                    'close' => '</pre>',
+                    'skip' => true
+                ),
+                '<textarea' => array
+                (
+                    'close' => '</textarea>',
+                    'skip' => true
                 )
             ),
-            '<pre' => array
-            (
-                'close' => '</pre>',
-                'skip' => true
-            ),
-            '<textarea' => array
-            (
-                'close' => '</textarea>',
-                'skip' => true
-            )
+            $params['tree']['case'],
+            $params['config']
         );
-        $params['tree']['case'] = $params['suit']->execute($rules, $params['tree']['case'], $params['config']);
         $params['tree']['case'] = trim($params['tree']['case']);
         return $params;
     }
@@ -850,64 +892,40 @@ class Templating
         }
         catch (Exception $e)
         {
-            //If a variable is provided and it not is whitelisted or blacklisted
-            if ($params['var']['var'] && $this->listing($params['var']['var'], $params['var']))
+            //If a variable is provided
+            if ($params['var']['var'])
             {
-                //Split up the file, paying attention to escape strings
-                $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['var']['var'], $params['config']['escape'], $params['config']['insensitive']);
-                $this->assignvariable($split, $e, $params['suit']);
+                $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['suit']);
             }
             $params['tree']['case'] = '';
-        }
-        return $params;
-    }
-
-    public function unserialize($params)
-    {
-        foreach ($params['var']['decode'] as $value)
-        {
-            $params['var'][$value] = unserialize($params['var'][$value]);
         }
         return $params;
     }
 
     public function variables($params)
     {
-        //If the variable is not whitelisted or blacklisted
-        if ($this->listing($params['tree']['case'], $params['var']))
+        $split = explode($params['var']['delimiter'], $params['tree']['case']);
+        foreach ($split as $key => $value)
         {
-            //Split up the file, paying attention to escape strings
-            $split = $params['suit']->explodeunescape($params['var']['delimiter'], $params['tree']['case'], $params['config']['escape'], $params['config']['insensitive']);
-            foreach ($split as $key => $value)
+            if ($key == 0)
             {
-                if ($key == 0)
+                $params['tree']['case'] = $params['suit']->var->$value;
+            }
+            else
+            {
+                if (is_array($params['tree']['case']))
                 {
-                    $params['tree']['case'] = $params['suit']->vars->$value;
+                    $params['tree']['case'] = $params['tree']['case'][$value];
                 }
                 else
                 {
-                    if (is_array($params['tree']['case']))
-                    {
-                        $params['tree']['case'] = $params['tree']['case'][$value];
-                    }
-                    else
-                    {
-                        $params['tree']['case'] = $params['tree']['case']->$value;
-                    }
+                    $params['tree']['case'] = $params['tree']['case']->$value;
                 }
             }
-            if ($params['var']['json'])
-            {
-                $params['tree']['case'] = json_encode($params['tree']['case']);
-            }
-            if ($params['var']['serialize'])
-            {
-                $params['tree']['case'] = serialize($params['tree']['case']);
-            }
         }
-        else
+        if ($params['var']['json'])
         {
-            $params['tree']['case'] = '';
+            $params['tree']['case'] = json_encode($params['tree']['case']);
         }
         return $params;
     }

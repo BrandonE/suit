@@ -41,13 +41,8 @@ class SUIT
 {
     public $cache = array
     (
-        'escape' => array(),
-        'execute' => array
-        (
-            'parse' => array(),
-            'tokens' => array()
-        ),
-        'explodeunescape' => array()
+        'parse' => array(),
+        'tokens' => array()
     );
 
     public $log = array
@@ -61,7 +56,7 @@ class SUIT
 
     public function __construct()
     {
-        $this->vars = Singleton::getInstance();
+        $this->var = Singleton::getInstance();
     }
 
     public function cacherules($rules, $keys)
@@ -183,70 +178,6 @@ class SUIT
         return $params;
     }
 
-    public function escape($strings, $string, $escapestring = '\\', $insensitive = true)
-    {
-        $cachekey = md5(json_encode(array($string, $strings)));
-        //If positions are cached for this case, load them
-        if (array_key_exists($cachekey, $this->cache['escape']))
-        {
-            $pos = $this->cache['escape'][$cachekey];
-        }
-        else
-        {
-            $positionstrings = array();
-            foreach ($strings as $value)
-            {
-                $positionstrings[$value] = NULL;
-            }
-            //Order the strings by the length, descending
-            uksort($positionstrings, array('SUIT', 'sort'));
-            $params = array
-            (
-                'insensitive' => $insensitive,
-                'pos' => array(),
-                'repeated' => array(),
-                'string' => $string,
-                'strings' => $positionstrings
-            );
-            $pos = $this->positions($params);
-            //On top of the strings to be escaped, the last position in the string should be checked for escape strings
-            $pos[strlen($string)] = NULL;
-            //Order the positions from smallest to biggest
-            ksort($pos);
-            //Cache the positions
-            $this->cache['escape'][$cachekey] = $pos;
-        }
-        $temp = $string;
-        $key = array_keys($pos);
-        $size = count($key);
-        for ($i = 0; $i < $size; $i++)
-        {
-            //Adjust position to changes in length
-            $position = $key[$i] + strlen($string) - strlen($temp);
-            $count = 0;
-            //If the escape string is not empty
-            if ($escapestring)
-            {
-                //Count how many escape characters are directly to the left of this position
-                while (abs($start = $position - $count - strlen($escapestring)) == $start && substr($string, $start, strlen($escapestring)) == $escapestring)
-                {
-                    $count += strlen($escapestring);
-                }
-                //Determine how many escape strings are directly to the left of this position
-                $count = $count / strlen($escapestring);
-            }
-            //If this is not the final position, add an additional escape string
-            $plus = 0;
-            if ($i != $size - 1)
-            {
-                $plus = 1;
-            }
-            //Replace the escape strings with two escape strings, escaping each of them
-            $string = substr_replace($string, str_repeat($escapestring, ($count * 2) + $plus), $position - ($count * strlen($escapestring)), $count * strlen($escapestring));
-        }
-        return $string;
-    }
-
     public function execute($rules, $string, $config = array())
     {
         if (!array_key_exists('escape', $config))
@@ -267,21 +198,21 @@ class SUIT
         }
         $cachekey = md5(json_encode(array($string, $this->cacherules($rules, array('close')), $config['insensitive'])));
         //If positions are cached for this case, load them
-        if (array_key_exists($cachekey, $this->cache['execute']['tokens']))
+        if (array_key_exists($cachekey, $this->cache['tokens']))
         {
-            $pos = $this->cache['execute']['tokens'][$cachekey];
+            $pos = $this->cache['tokens'][$cachekey];
         }
         else
         {
             $pos = $this->tokens($rules, $string, $config);
             //Cache the positions
-            $this->cache['execute']['tokens'][$cachekey] = $pos;
+            $this->cache['tokens'][$cachekey] = $pos;
         }
         $cachekey = md5(json_encode(array($string, $this->cacherules($rules, array('close', 'create', 'skip')), $config['insensitive'], $config['escape'], $config['mismatched'])));
         //If a tree is cached for this case, load it
-        if (array_key_exists($cachekey, $this->cache['execute']['parse']))
+        if (array_key_exists($cachekey, $this->cache['parse']))
         {
-            $tree = $this->cache['execute']['parse'][$cachekey];
+            $tree = $this->cache['parse'][$cachekey];
         }
         else
         {
@@ -296,7 +227,7 @@ class SUIT
                 $tree['rule'] = '';
             }
             //Cache the tree
-            $this->cache['execute']['parse'][$cachekey] = $tree;
+            $this->cache['parse'][$cachekey] = $tree;
         }
         //If the parallel array is not empty, mark that this call is running next to it
         if (!empty($this->log['parallel']))
@@ -307,81 +238,6 @@ class SUIT
         $result['tree']['original'] = $string;
         $this->log['tree'][] = $result['tree'];
         return $result['tree']['case'];
-    }
-
-    public function explodeunescape($explode, $string, $escapestring = '\\', $insensitive = true)
-    {
-        $array = array();
-        $cachekey = md5(json_encode(array($string, $explode)));
-        //If positions are cached for this case, load them
-        if (array_key_exists($cachekey, $this->cache['explodeunescape']))
-        {
-            $pos = $this->cache['explodeunescape'][$cachekey];
-        }
-        else
-        {
-            $pos = array();
-            if ($explode)
-            {
-                $function = 'strpos';
-                if ($insensitive)
-                {
-                    $function = 'stripos';
-                }
-                $position = -1;
-                //Find the next position of the string
-                while (($position = $function($string, $explode, $position + 1)) !== false)
-                {
-                    $pos[] = $position;
-                }
-                //On top of the explode string to be escaped, the last position in the string should be checked for escape strings
-                $pos[] = strlen($string);
-                //Cache the positions
-                $this->cache['explodeunescape'][$cachekey] = $pos;
-            }
-        }
-        $last = 0;
-        $temp = $string;
-        foreach ($pos as $value)
-        {
-            //Adjust position to changes in length
-            $value += strlen($string) - strlen($temp);
-            $count = 0;
-            //If the escape string is not empty
-            if ($escapestring)
-            {
-                //Count how many escape characters are directly to the left of this position
-                while (abs($start = $value - $count - strlen($escapestring)) == $start && substr($string, $start, strlen($escapestring)) == $escapestring)
-                {
-                    $count += strlen($escapestring);
-                }
-                //Determine how many escape strings are directly to the left of this position
-                $count = $count / strlen($escapestring);
-            }
-            $condition = $count % 2;
-            //If the number of escape strings directly to the left of this position are odd, (x + 1) / 2 of them should be removed
-            if ($condition)
-            {
-                $count++;
-            }
-            //If there are escape strings directly to the left of this position
-            if ($count)
-            {
-                //Remove the decided number of escape strings
-                $string = substr_replace($string, '', $value - (($count / 2) * strlen($escapestring)), ($count / 2) * strlen($escapestring));
-                //Adjust the value
-                $value -= ($count / 2) * strlen($escapestring);
-            }
-            //If the number of escape strings directly to the left of this position are even
-            if (!$condition)
-            {
-                //This separator is not overlooked, so append the accumulated value to the return array
-                $array[] = substr($string, $last, $value - $last);
-                //Make sure not to include anything we appended in a future value
-                $last = $value + strlen($explode);
-            }
-        }
-        return $array;
     }
 
     public function functions($params, $function)

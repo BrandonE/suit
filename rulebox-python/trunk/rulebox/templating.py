@@ -18,7 +18,6 @@ http://www.suitframework.com/docs/credits
 import os
 import sys
 import re
-import pickle
 import cgi
 try:
     import simplejson as json
@@ -29,28 +28,30 @@ import suit
 
 __all__ = [
     'assign', 'assignvariable', 'attribute', 'bracket', 'code', 'comments',
-    'condition', 'entities', 'escape', 'evaluation', 'execute', 'jsondecode',
+    'condition', 'entities', 'escape', 'evaluation', 'execute', 'decode',
     'listing', 'loop', 'loopvariables', 'replace', 'returning',
     'returningfunction', 'skip', 'templates', 'trim', 'trimexecute', 'trying',
-    'unserialize', 'variables'
+    'variables'
 ]
 
 def assign(params):
     """Assign variable in template"""
-    #If a variable is provided and it not is whitelisted or blacklisted
-    if params['var']['var'] and listing(params['var']['var'], params['var']):
-        #Split up the file, paying attention to escape strings
-        split = suit.explodeunescape(
-            params['var']['delimiter'],
+    #If a variable is provided
+    if params['var']['var']:
+        if params['var']['json']:
+            params['tree']['case'] = json.loads(params['tree']['case'])
+        assignvariable(
             params['var']['var'],
-            params['config']['escape']
+            params['var']['delimiter'],
+            params['tree']['case'],
+            suit.var
         )
-        assignvariable(split, params['tree']['case'], suit.vars)
     params['tree']['case'] = ''
     return params
 
-def assignvariable(split, assignment, var):
+def assignvariable(string, split, assignment, var):
     """Assign a variable based on split"""
+    split = string.split(split)
     for key, value in enumerate(split):
         if key < len(split) - 1:
             try:
@@ -67,7 +68,7 @@ def assignvariable(split, assignment, var):
 
 def attribute(params):
     """Create rule out of attributes"""
-    var = params['var'].copy()
+    var = params['var']
     params['var'] = params['var']['var'].copy()
     if 'onesided' in var and var['onesided']:
         case = params['tree']['case']
@@ -89,11 +90,7 @@ def attribute(params):
             smallest = position
     if quote:
         #Define the variables
-        split = suit.explodeunescape(
-            quote,
-            case,
-            params['config']['escape']
-        )
+        split = case.split(quote)
         del split[-1]
         for key, value in enumerate(split):
             #If this is the first iteration of the pair
@@ -155,19 +152,16 @@ def condition(params):
         params['walk'] = False
     return params
 
+def decode(params):
+    """Decode a JSON String"""
+    params['var'] = params['var'].copy()
+    for value in params['var']['decode']:
+        params['var'][value] = json.loads(params['var'][value])
+    return params
+
 def entities(params):
     """Convert HTML characters to their respective entities"""
     params['tree']['case'] = cgi.escape(params['tree']['case'], True)
-    return params
-
-def escape(params):
-    """Escape the case"""
-    params['tree']['case'] = suit.escape(
-        params['var']['strings'],
-        params['tree']['case'],
-        params['config']['escape'],
-        params['config']['insensitive']
-    )
     return params
 
 def evaluation(params):
@@ -184,11 +178,15 @@ def execute(params):
     )
     return params
 
-def jsondecode(params):
-    """Decode a JSON String"""
-    params['var'] = params['var'].copy()
-    for value in params['var']['decode']:
-        params['var'][value] = json.loads(params['var'][value])
+def functions(params):
+    """Perform a function call"""
+    kwargs = params['var'].copy()
+    del kwargs['function']
+    del kwargs['owner']
+    params['tree']['case'] = getattr(
+        params['var']['owner'],
+        params['var']['function']
+    )(**kwargs)
     return params
 
 def listing(name, var):
@@ -269,12 +267,7 @@ def loop(params):
 
 def loopvariables(params):
     """Parse variables in a loop"""
-    #Split up the file, paying attention to escape strings
-    split = suit.explodeunescape(
-        params['var']['delimiter'],
-        params['tree']['case'],
-        params['config']['escape']
-    )
+    split = params['tree']['case'].split(params['var']['delimiter'])
     params['tree']['case'] = params['var']['var']
     for value in split:
         try:
@@ -286,8 +279,6 @@ def loopvariables(params):
                 params['tree']['case'] = getattr(params['tree']['case'], value)
     if params['var']['json']:
         params['tree']['case'] = json.dumps(params['tree']['case'])
-    if params['var']['serialize']:
-        params['tree']['case'] = pickle.dumps(params['tree']['case'])
     return params
 
 def replace(params):
@@ -334,24 +325,28 @@ def templates(params):
         params['tree']['case'] = ''
     return params
 
+def transform(params):
+    """Send case as argument for functions"""
+    params['var']['string'] = params['tree']['case']
+    return params
+
 def trim(params):
     """Prepare the trim rules"""
-    rules = {
-        '':
-        {
-            'prewalk': [trimexecute]
-        },
-        '<pre':
-        {
-            'close': '</pre>'
-        },
-        '<textarea':
-        {
-            'close': '</textarea>'
-        }
-    }
     params['tree']['case'] = suit.execute(
-        rules,
+        {
+            '':
+            {
+                'prewalk': [trimexecute]
+            },
+            '<pre':
+            {
+                'close': '</pre>'
+            },
+            '<textarea':
+            {
+                'close': '</textarea>'
+            }
+        },
         params['tree']['case'],
         params['config']
     )
@@ -389,59 +384,38 @@ def trying(params):
             params['config']
         )
     except Exception, inst:
-        #If a variable is provided and it not is whitelisted or blacklisted
-        if params['var']['var'] and listing(
-            params['var']['var'],
-            params['var']
-        ):
-            #Split up the file, paying attention to escape strings
-            split = suit.explodeunescape(
-                params['var']['delimiter'],
+        #If a variable is provided
+        if params['var']['var']:
+            assignvariable(
                 params['var']['var'],
-                params['config']['escape']
+                params['var']['delimiter'],
+                inst,
+                suit.var
             )
-            assignvariable(split, inst, suit.vars)
         params['tree']['case'] = ''
-    return params
-
-def unserialize(params):
-    """Unserialize a variable"""
-    params['var'] = params['var'].copy()
-    for value in params['var']['decode']:
-        params['var'][value] = pickle.loads(params['var'][value])
     return params
 
 def variables(params):
     """Parse variables"""
-    #If the variable is not whitelisted or blacklisted
-    if listing(params['tree']['case'], params['var']):
-        #Split up the file, paying attention to escape strings
-        split = suit.explodeunescape(
-            params['var']['delimiter'],
-            params['tree']['case'],
-            params['config']['escape']
-        )
-        for key, value in enumerate(split):
-            if key == 0:
-                params['tree']['case'] = getattr(suit.vars, value)
-            else:
+    for key, value in enumerate(
+        params['tree']['case'].split(params['var']['delimiter'])
+    ):
+        if key == 0:
+            params['tree']['case'] = getattr(suit.var, value)
+        else:
+            try:
+                params['tree']['case'] = params['tree']['case'][value]
+            except (AttributeError, TypeError):
                 try:
-                    params['tree']['case'] = params['tree']['case'][value]
-                except (AttributeError, TypeError):
-                    try:
-                        params['tree']['case'] = params['tree']['case'][
-                            int(value)
-                        ]
-                    except (AttributeError, TypeError, ValueError):
-                        params['tree']['case'] = getattr(
-                            params['tree']['case'], value
-                        )
-        if params['var']['json']:
-            params['tree']['case'] = json.dumps(params['tree']['case'])
-        if params['var']['serialize']:
-            params['tree']['case'] = pickle.dumps(params['tree']['case'])
-    else:
-        params['tree']['case'] = ''
+                    params['tree']['case'] = params['tree']['case'][
+                        int(value)
+                    ]
+                except (AttributeError, TypeError, ValueError):
+                    params['tree']['case'] = getattr(
+                        params['tree']['case'], value
+                    )
+    if params['var']['json']:
+        params['tree']['case'] = json.dumps(params['tree']['case'])
     return params
 
 rules = {
@@ -455,16 +429,19 @@ rules = {
         'close': '[/assign]',
         'postwalk': [
             attribute,
+            decode,
             assign
         ],
         'var':
         {
             'equal': '=',
-            'list': ('var',),
+            'list': ('json', 'var'),
             'quote': ('"', '\''),
             'var':
             {
+                'decode': ('json',),
                 'delimiter': '.',
+                'json': 'false',
                 'var': ''
             }
         }
@@ -474,6 +451,22 @@ rules = {
         'close': ']',
         'create': '[assign]',
         'skip': True
+    },
+    '[call':
+    {
+        'close': '/]',
+        'postwalk': [
+            attribute,
+            functions
+        ],
+        'skip': True,
+        'var':
+        {
+            'equal': '=',
+            'onesided': True,
+            'quote': ('"', '\''),
+            'var': {}
+        }
     },
     '[code]':
     {
@@ -492,33 +485,6 @@ rules = {
         'close': '[/entities]',
         'postwalk': [entities]
     },
-    '[escape]':
-    {
-        'close': '[/escape]',
-        'postwalk': [
-            attribute,
-            jsondecode,
-            escape
-        ],
-        'var':
-        {
-            'blacklist': True,
-            'equal': '=',
-            'list': ('decode',),
-            'quote': ('"', '\''),
-            'var':
-            {
-                'decode': ('strings',),
-                'strings': '[]',
-            }
-        }
-    },
-    '[escape':
-    {
-        'close': ']',
-        'create': '[escape]',
-        'skip': True
-    },
     '[execute]':
     {
         'close': '[/execute]',
@@ -530,7 +496,7 @@ rules = {
         'close': '[/if]',
         'prewalk': [
             attribute,
-            jsondecode,
+            decode,
             condition
         ],
         'transform': False,
@@ -559,7 +525,7 @@ rules = {
         'close': '[/loop]',
         'prewalk': [
             attribute,
-            jsondecode,
+            decode,
             loop
         ],
         'var':
@@ -587,20 +553,19 @@ rules = {
         'close': '[/loopvar]',
         'postwalk': [
             attribute,
-            jsondecode,
+            decode,
             loopvariables
         ],
         'var':
         {
             'equal': '=',
-            'list': ('json', 'serialize'),
+            'list': ('json',),
             'quote': ('"', '\''),
             'var':
             {
-                'decode': ('json', 'serialize'),
+                'decode': ('json',),
                 'delimiter': '.',
                 'json': 'false',
-                'serialize': 'false',
                 'var': {}
             }
         }
@@ -641,7 +606,7 @@ rules = {
         'postwalk':
         [
             attribute,
-            jsondecode,
+            decode,
             returning
         ],
         'skip': True,
@@ -670,6 +635,27 @@ rules = {
         'close': '[/template]',
         'postwalk': [templates],
         'var': {}
+    },
+    '[transform]':
+    {
+        'close': '[/transform]',
+        'postwalk': [
+            attribute,
+            transform,
+            functions
+        ],
+        'var':
+        {
+            'equal': '=',
+            'quote': ('"', '\''),
+            'var': {}
+        }
+    },
+    '[transform':
+    {
+        'close': ']',
+        'create': '[transform]',
+        'skip': True
     },
     '[trim]':
     {
@@ -707,20 +693,19 @@ rules = {
         'close': '[/var]',
         'postwalk': [
             attribute,
-            jsondecode,
+            decode,
             variables
         ],
         'var':
         {
             'equal': '=',
-            'list': ('json', 'serialize'),
+            'list': ('json',),
             'quote': ('"', '\''),
             'var':
             {
-                'decode': ('json', 'serialize'),
+                'decode': ('json',),
                 'delimiter': '.',
-                'json': 'false',
-                'serialize': 'false'
+                'json': 'false'
             }
         }
     },

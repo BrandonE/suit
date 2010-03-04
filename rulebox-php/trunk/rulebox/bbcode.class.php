@@ -472,8 +472,8 @@ class BBCode
 
     public function template($params)
     {
-        $params['suit']->vars->case = $params['tree']['case'];
-        $params['suit']->vars->equal = $params['var']['equal'];
+        $params['suit']->var->case = $params['tree']['case'];
+        $params['suit']->var->equal = $params['var']['equal'];
         $params['tree']['case'] = $params['suit']->execute($params['suit']->rules, $params['var']['template']);
         return $params;
     }

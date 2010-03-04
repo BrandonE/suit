@@ -1,5 +1,5 @@
 [trim]
-[h]header[/h]
+[call function="header" /]
 [assign var="condition.home"]true[/assign]
 [assign var="title"][gettext]Home[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]

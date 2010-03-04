@@ -1,6 +1,6 @@
 [trim]
-[h]header[/h]
-[h]slacks[/h]
+[call function="header" /]
+[call function="slacks" /]
 [assign var="condition.slacks"]true[/assign]
 [assign var="title"][gettext]SLACKS[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]

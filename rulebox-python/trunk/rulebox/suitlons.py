@@ -37,14 +37,16 @@ __all__ = [
 
 def assign(params):
     """Assign variable in template"""
+    #If a variable is provided
     if params['var']['var']:
-        #Split up the file, paying attention to escape strings
-        split = suit.explodeunescape(
-            params['var']['delimiter'],
+        if params['var']['json']:
+            params['tree']['case'] = json.loads(params['tree']['case'])
+        templating.assignvariable(
             params['var']['var'],
-            params['config']['escape']
+            params['var']['delimiter'],
+            params['tree']['case'],
+            c
         )
-        templating.assignvariable(split, params['tree']['case'], c)
     params['tree']['case'] = ''
     return params
 
@@ -53,18 +55,11 @@ def gettext(params):
     params['tree']['case'] = _(params['tree']['case'])
     return params
 
-def helpers(params):
-    helper = getattr(params['var']['helpers'], params['tree']['case'])()
-    params['tree']['case'] = ''
-    return params
-
 def filtering(params):
     """Escapes HTML; by default, all rules follow this basic rule to simulate
     how Pylons configured Mako to run.
     """
-    if (not params['var']['json'] and not params['var']['serialize']
-            and params['var']['entities']
-    ):
+    if not params['var']['json'] and params['var']['entities']:
         params['tree']['case'] = escape(params['tree']['case'])
     return params
 
@@ -84,12 +79,9 @@ def tmpl_context(params):
     """Rip-off of SUIT's default [var] rule. Reads variables from the
     tmpl_context.
     """
-    split = suit.explodeunescape(
-        params['var']['delimiter'],
-        params['tree']['case'],
-        params['config']['escape']
-    )
-    for key, value in enumerate(split):
+    for key, value in enumerate(
+        params['tree']['case'].split(params['var']['delimiter'])
+    ):
         if key == 0:
             params['tree']['case'] = getattr(c, value)
         else:
@@ -105,8 +97,6 @@ def tmpl_context(params):
                     )
     if params['var']['json']:
         params['tree']['case'] = json.dumps(params['tree']['case'])
-    if params['var']['serialize']:
-        params['tree']['case'] = pickle.dumps(params['tree']['case'])
     return params
 
 def url_for(params):
@@ -119,12 +109,12 @@ def url_for(params):
 
 suitrules = templating.rules.copy()
 
-decode = ('entities', 'json', 'serialize')
-whitelist = ('entities', 'json', 'serialize')
+decode = ('entities', 'json')
+whitelist = ('entities', 'json')
 
 # Adjust the default rules for Pylons' convenience.
 suitrules['[assign]'] = suitrules['[assign]'].copy()
-suitrules['[assign]']['postwalk'] = [templating.attribute, assign]
+suitrules['[assign]']['postwalk'] = [templating.attribute, templating.decode, assign]
 
 suitrules['[loopvar]'] = suitrules['[loopvar]'].copy()
 suitrules['[loopvar]']['var'] = suitrules['[loopvar]']['var'].copy()
@@ -149,22 +139,21 @@ pylonsrules = {
         'close': '[/c]',
         'postwalk': [
             templating.attribute,
-            templating.jsondecode,
+            templating.decode,
             tmpl_context,
             filtering
         ],
         'var':
         {
             'equal': '=',
-            'list': ('entities', 'json', 'serialize'),
+            'list': ('entities', 'json'),
             'quote': ('"', '\''),
             'var':
             {
-                'decode': ('entities', 'json', 'serialize'),
+                'decode': ('entities', 'json'),
                 'delimiter': '.',
                 'entities': 'true',
-                'json': 'false',
-                'serialize': 'false'
+                'json': 'false'
             }
         }
     },
@@ -184,12 +173,6 @@ pylonsrules = {
             'quote': ('"', '\''),
             'var': {}
         }
-    },
-    '[h]':
-    {
-        'close': '[/h]',
-        'postwalk': [helpers],
-        'var': {}
     },
     '[url':
     {

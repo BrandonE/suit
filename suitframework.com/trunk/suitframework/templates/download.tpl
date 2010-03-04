@@ -1,5 +1,5 @@
 [trim]
-[h]header[/h]
+[call function="header" /]
 [assign var="condition.download"]true[/assign]
 [assign var="title"][gettext]Download[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]

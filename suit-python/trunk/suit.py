@@ -25,20 +25,15 @@ except ImportError:
 __all__ = [
     'cache', 'cacherules', 'close', 'closingstring', 'escape', 'evalrules',
     'execute', 'explodeunescape', 'functions', 'log', 'notclosed', 'MyClass',
-    'openingstring', 'parse', 'positions', 'positionsloop', 'rules', 'Singleton',
-    'skip', 'tokens', 'walk', 'walkarray'
+    'openingstring', 'parse', 'positions', 'positionsloop', 'rules',
+    'Singleton', 'skip', 'tokens', 'walk', 'walkarray'
 ]
 
 __version__ = '2.0.0'
 
 cache = {
-    'escape': {},
-    'execute':
-    {
-        'parse': {},
-        'tokens': {}
-    },
-    'explodeunescape': {}
+    'parse': {},
+    'tokens': {}
 }
 
 log = {
@@ -48,6 +43,7 @@ log = {
 }
 
 class Singleton(type):
+    """Singleton implementation"""
     def __init__(cls, name, bases, dict):
         super(Singleton, cls).__init__(name, bases, dict)
         cls.instance = None
@@ -59,9 +55,10 @@ class Singleton(type):
         return cls.instance
 
 class MyClass(object):
+    """Wrapper for Singleton"""
     __metaclass__ = Singleton
 
-vars = MyClass()
+var = MyClass()
 
 def cacherules(rules, keys):
     """Cache the provided items of the rules"""
@@ -147,73 +144,6 @@ def closingstring(params):
         params['skipstack'].append(params['skip'])
     return params
 
-def escape(strings, string, escapestring = '\\', insensitive = True):
-    """Escape a string"""
-    cachekey = md5(
-        json.dumps((
-            string,
-            strings
-        ))
-    ).hexdigest()
-    #If positions are cached for this case, load them
-    if cachekey in cache['escape']:
-        pos = cache['escape'][cachekey]
-    else:
-        positionstrings = {}
-        for value in strings:
-            positionstrings[value] = None
-        positionstrings = positionstrings.items()
-        #Order the strings by the length, descending
-        positionstrings.sort(
-            key = lambda item: len(item[0]),
-            reverse = True
-        )
-        params = {
-            'insensitive': insensitive,
-            'pos': {},
-            'repeated': [],
-            'string': string,
-            'strings': positionstrings,
-            'taken': []
-        }
-        pos = positions(params)
-        #On top of the strings to be escaped, the last position in the string
-        #should be checked for escape strings
-        pos[len(string)] = None
-        #Order the positions from smallest to biggest
-        pos = sorted(pos.items())
-        #Cache the positions
-        cache['escape'][cachekey] = pos
-    temp = string
-    for key, value in enumerate(pos):
-        #Adjust position to changes in length
-        position = value[0] + len(string) - len(temp)
-        count = 0
-        #If the escape string is not empty
-        if escapestring:
-            start = position - len(escapestring)
-            #Count how many escape characters are directly to the left of this
-            #position
-            while (abs(start) == start and
-            string[start:start + len(escapestring)] == escapestring):
-                count += len(escapestring)
-                start = position - count - len(escapestring)
-            #Determine how many escape strings are directly to the left of this
-            #position
-            count = count / len(escapestring)
-        #If this is not the final position, add an additional escape string
-        plus = 0
-        if key != len(pos) - 1:
-            plus = 1
-        #Replace the escape strings with two escape strings, escaping each of
-        #them
-        string = ''.join((
-            string[0:position - (count * len(escapestring))],
-            escapestring * ((count * 2) + plus),
-            string[position:len(string)]
-        ))
-    return string
-
 def execute(rules, string, config = None):
     """Parse string using rules"""
     if config == None:
@@ -234,12 +164,12 @@ def execute(rules, string, config = None):
         ))
     ).hexdigest()
     #If positions are cached for this case, load them
-    if cachekey in cache['execute']['tokens']:
-        pos = cache['execute']['tokens'][cachekey]
+    if cachekey in cache['tokens']:
+        pos = cache['tokens'][cachekey]
     else:
         pos = tokens(rules, string, config)
         #Cache the positions
-        cache['execute']['tokens'][cachekey] = pos
+        cache['tokens'][cachekey] = pos
     cachekey = md5(
         json.dumps((
             string,
@@ -250,8 +180,8 @@ def execute(rules, string, config = None):
         ))
     ).hexdigest()
     #If a tree is cached for this case, load it
-    if cachekey in cache['execute']['parse']:
-        tree = cache['execute']['parse'][cachekey]
+    if cachekey in cache['parse']:
+        tree = cache['parse'][cachekey]
     else:
         tree = {
             'case': '',
@@ -261,7 +191,7 @@ def execute(rules, string, config = None):
         if '' in rules:
             tree['rule'] = ''
         #Cache the tree
-        cache['execute']['parse'][cachekey] = tree
+        cache['parse'][cachekey] = tree
     #If the parallel array is not empty, mark that this call is running next to
     #it
     if log['parallel']:
@@ -270,75 +200,6 @@ def execute(rules, string, config = None):
     result['tree']['original'] = string
     log['tree'].append(result['tree'])
     return result['tree']['case']
-
-def explodeunescape(explode, string, escapestring = '\\', insensitive = True):
-    """Split up the file, paying attention to escape strings"""
-    array = []
-    cachekey = md5(
-        json.dumps((
-            string,
-            explode
-        ))
-    ).hexdigest()
-    #If positions are cached for this case, load them
-    if cachekey in cache['explodeunescape']:
-        pos = cache['explodeunescape'][cachekey]
-    else:
-        pos = []
-        if explode:
-            haystack = string
-            if insensitive:
-                haystack = haystack.lower()
-                explode = explode.lower()
-            position = string.find(explode)
-            #Find the next position of the string
-            while position != -1:
-                pos.append(position)
-                position = string.find(explode, position + 1)
-            #On top of the explode string to be escaped, the last position in
-            #the string should be checked for escape strings
-            pos.append(len(string))
-        #Cache the positions
-        cache['explodeunescape'][cachekey] = pos
-    last = 0
-    temp = string
-    for value in pos:
-        #Adjust position to changes in length
-        value += len(string) - len(temp)
-        count = 0
-        #If the escape string is not empty
-        if escapestring:
-            start = value - len(escapestring)
-            #Count how many escape characters are directly to the left of this
-            #position
-            while (abs(start) == start and
-            string[start:start + len(escapestring)] == escapestring):
-                count += len(escapestring)
-                start = value - count - len(escapestring)
-            #Determine how many escape strings are directly to the left of this
-            #position
-            count = count / len(escapestring)
-        condition = count % 2
-        #If the number of escape strings directly to the left of this position
-        #are odd, (x + 1) / 2 of them should be removed
-        if condition:
-            count += 1
-        #If there are escape strings directly to the left of this position
-        if count:
-            #Remove the decided number of escape strings
-            string = ''.join((
-                string[0:value - ((count / 2) * len(escapestring))],
-                string[value:len(string)]
-            ))
-            #Adjust the value
-            value -= (count / 2) * len(escapestring)
-        if not condition:
-            #This separator is not overlooked, so append the accumulated value
-            #to the array
-            array.append(string[last:value])
-            #Make sure not to include anything we appended in a future value
-            last = value + len(explode)
-    return array
 
 def functions(params, function):
     """Run through the provided functions"""
