@@ -62,20 +62,20 @@ class SUIT
     public function cacherules($rules, $keys)
     {
         $cachedrules = array();
-        foreach ($rules as $key => $value)
+        foreach ($rules as $rulekey => $rulevalue)
         {
             $cachedkeys = array
             (
-                'key' => $key
+                'key' => $rulekey
             );
-            foreach ($keys as $value2)
+            foreach ($keys as $property)
             {
-                if (array_key_exists($value2, $value))
+                if (array_key_exists($property, $rulevalue))
                 {
-                    $cachedkeys[$value2] = $value[$value2];
+                    $cachedkeys[$property] = $rulevalue[$property];
                 }
             }
-            $cachedrules[$key] = $cachedkeys;
+            $cachedrules[$rulekey] = $cachedkeys;
         }
         return $cachedrules;
     }

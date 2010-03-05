@@ -52,6 +52,11 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'predefine'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'assign'
                     )
                 ),
@@ -100,19 +105,6 @@ class Templating
                     'var' => array()
                 )
             ),
-            '[code]' => array
-            (
-                'close' => '[/code]',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'code'
-                    )
-                ),
-                'var' => array()
-            ),
             '[comment]' => array
             (
                 'close' => '[/comment]',
@@ -134,8 +126,19 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'decode'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'entities'
                     )
+                ),
+                'var' => array
+                (
+                    'decode' => array('entities', 'json'),
+                    'entities' => 'true',
+                    'json' => 'false'
                 )
             ),
             '[execute]' => array
@@ -209,6 +212,11 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'predefine'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'loop'
                     )
                 ),
@@ -216,14 +224,13 @@ class Templating
                 (
                     'blacklist' => true,
                     'equal' => '=',
-                    'list' => array('decode', 'rule'),
+                    'list' => array('decode', 'owner'),
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('skip', 'vars'),
+                        'decode' => array('in', 'recurse'),
                         'delimiter' => '',
-                        'rule' => '[loopvar]',
-                        'vars' => '[]'
+                        'in' => '[]'
                     )
                 )
             ),
@@ -231,80 +238,6 @@ class Templating
             (
                 'close' => ']',
                 'create' => '[loop]',
-                'skip' => true
-            ),
-            '[loopvar]' => array
-            (
-                'close' => '[/loopvar]',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'decode'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'loopvariables'
-                    )
-                ),
-                'var' => array
-                (
-                    'equal' => '=',
-                    'list' => array('json'),
-                    'quote' => array('"', '\''),
-                    'var' => array
-                    (
-                        'decode' => array('json'),
-                        'delimiter' => '.',
-                        'json' => 'false',
-                        'var' => array()
-                    )
-                )
-            ),
-            '[loopvar' => array
-            (
-                'close' => ']',
-                'create' => '[loopvar]',
-                'skip' => true
-            ),
-            '[replace]' => array
-            (
-                'close' => '[/replace]',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'replace'
-                    )
-                ),
-                'var' => array
-                (
-                    'equal' => '=',
-                    'quote' => array('"', '\''),
-                    'var' => array
-                    (
-                        'replace' => '',
-                        'search' => ''
-                    )
-                )
-            ),
-            '[replace' => array
-            (
-                'close' => ']',
-                'create' => '[replace]',
                 'skip' => true
             ),
             '[return' => array
@@ -345,14 +278,6 @@ class Templating
             '[skip]' => array
             (
                 'close' => '[/skip]',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'skip'
-                    )
-                ),
                 'skip' => true,
                 'skipescape' => true
             ),
@@ -428,6 +353,11 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'predefine'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'trying'
                     )
                 ),
@@ -469,18 +399,29 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'predefine'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'variables'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'entities'
                     )
                 ),
                 'var' => array
                 (
                     'equal' => '=',
-                    'list' => array('json'),
+                    'list' => array('entities', 'json'),
                     'quote' => array('"', '\''),
                     'var' => array
                     (
-                        'decode' => array('json'),
+                        'decode' => array('entities', 'json'),
                         'delimiter' => '.',
+                        'entities' => 'true',
                         'json' => 'false'
                     )
                 )
@@ -617,18 +558,6 @@ class Templating
         return $params;
     }
 
-    public function code($params)
-    {
-        //If the code file is not whitelisted or blacklisted and the file exists
-        if ($this->listing($params['tree']['case'], $params['var']) && is_file($params['tree']['case']))
-        {
-            $suit = $params['suit'];
-            include str_replace('../', '', str_replace('..\'', '', $params['tree']['case']));
-        }
-        $params['tree']['case'] = '';
-        return $params;
-    }
-
     public function comments($params)
     {
         $params['tree']['case'] = '';
@@ -656,7 +585,10 @@ class Templating
 
     public function entities($params)
     {
-        $params['tree']['case'] = htmlentities($params['tree']['case']);
+        if (!$params['var']['json'] && $params['var']['entities'])
+        {
+            $params['tree']['case'] = htmlentities($params['tree']['case']);
+        }
         return $params;
     }
 
@@ -702,24 +634,6 @@ class Templating
 
     public function loop($params)
     {
-        $iterationvars = array();
-        if (!is_array($params['var']['vars']))
-        {
-            $params['tree']['case'] = '';
-            return $params;
-        }
-        foreach ($params['var']['vars'] as $value)
-        {
-            $var = array
-            (
-                $params['var']['rule'] => $params['rules'][$params['var']['rule']]
-            );
-            foreach ($value as $key => $value2)
-            {
-                $var[$params['var']['rule']]['var']['var']['var'][$key] = $value2;
-            }
-            $iterationvars[] = $var;
-        }
         $iterations = array();
         $tree = array
         (
@@ -727,11 +641,69 @@ class Templating
             'contents' => $params['tree']['contents'],
             'parallel' => array()
         );
-        foreach ($iterationvars as $value)
+        foreach ($params['var']['in'] as $key => $value)
         {
-            //Parse for this iteration
-            $result = $params['suit']->walk(array_merge($params['rules'], $value), $tree, $params['config']);
+            $old = array();
+            if (array_key_exists('key', $params['var']))
+            {
+                if (is_array($params['var']['owner']))
+                {
+                    if (array_key_exists($params['var']['key'], $params['var']['owner']))
+                    {
+                        $old['dictkey'] = $params['var']['owner'][$params['var']['key']];
+                    }
+                    $params['var']['owner'][$params['var']['key']] = $key;
+                }
+                else
+                {
+                    if (isset($params['var']['owner']->$params['var']['key']))
+                    {
+                        $old['objkey'] = $params['var']['owner']->$params['var']['key'];
+                    }
+                    $params['var']['owner']->$params['var']['key'] = $key;
+                }
+            }
+            if (array_key_exists('value', $params['var']))
+            {
+                if (is_array($params['var']['owner']))
+                {
+                    if (array_key_exists($params['var']['value'], $params['var']['owner']))
+                    {
+                        $old['dictvalue'] = $params['var']['owner'][$params['var']['value']];
+                    }
+                    $params['var']['owner'][$params['var']['value']] = $value;
+                }
+                else
+                {
+                    if (isset($params['var']['owner']->$params['var']['value']))
+                    {
+                        $old['objvalue'] = $params['var']['owner']->$params['var']['value'];
+                    }
+                    $params['var']['owner']->$params['var']['value'] = $value;
+                }
+            }
+            //Execute for this iteration
+            $result = $params['suit']->walk($params['rules'], $tree, $params['config']);
             $iterations[] = $result['tree']['case'];
+            if (array_key_exists('recurse', $params['var']) && $params['var']['recurse'])
+            {
+                if (array_key_exists('dictkey', $old))
+                {
+                    $params['var']['owner'][$params['var']['key']] = $old['dictkey'];
+                }
+                if (array_key_exists('objkey', $old))
+                {
+                    $params['var']['owner']->$params['var']['key'] = $old['objkey'];
+                }
+                if (array_key_exists('dictvalue', $old))
+                {
+                    $params['var']['owner'][$params['var']['value']] = $old['dictvalue'];
+                }
+                if (array_key_exists('objvalue', $old))
+                {
+                    $params['var']['owner']->$params['var']['value'] = $old['objvalue'];
+                }
+            }
         }
         //Implode the iterations
         $params['tree']['case'] = implode($params['var']['delimiter'], $iterations);
@@ -739,31 +711,12 @@ class Templating
         return $params;
     }
 
-    public function loopvariables($params)
+    public function predefine($params)
     {
-        $split = explode($params['var']['delimiter'], $params['tree']['case']);
-        $params['tree']['case'] = $params['var']['var'];
-        foreach ($split as $value)
+        if (!array_key_exists('owner', $params['var']))
         {
-            if (is_array($params['tree']['case']))
-            {
-                $params['tree']['case'] = $params['tree']['case'][$value];
-            }
-            else
-            {
-                $params['tree']['case'] = $params['tree']['case']->$value;
-            }
+            $params['var']['owner'] = $params['suit']->var;
         }
-        if ($params['var']['json'])
-        {
-            $params['tree']['case'] = json_encode($params['tree']['case']);
-        }
-        return $params;
-    }
-
-    public function replace($params)
-    {
-        $params['tree']['case'] = str_replace($params['var']['search'], $params['var']['replace'], $params['tree']['case']);
         return $params;
     }
 
@@ -801,11 +754,6 @@ class Templating
             $params['returnfunctions'] = $params['returnedvar']['returnfunctions'];
         }
         $params['walk'] = false;
-        return $params;
-    }
-
-    public function skip($params)
-    {
         return $params;
     }
 
@@ -895,7 +843,7 @@ class Templating
             //If a variable is provided
             if ($params['var']['var'])
             {
-                $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['suit']);
+                $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
             }
             $params['tree']['case'] = '';
         }
@@ -909,7 +857,7 @@ class Templating
         {
             if ($key == 0)
             {
-                $params['tree']['case'] = $params['suit']->var->$value;
+                $params['tree']['case'] = $params['var']['owner']->$value;
             }
             else
             {

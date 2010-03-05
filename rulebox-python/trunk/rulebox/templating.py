@@ -16,7 +16,6 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
 import os
-import sys
 import re
 import cgi
 try:
@@ -29,9 +28,8 @@ import suit
 __all__ = [
     'assign', 'assignvariable', 'attribute', 'bracket', 'code', 'comments',
     'condition', 'entities', 'escape', 'evaluation', 'execute', 'decode',
-    'listing', 'loop', 'loopvariables', 'replace', 'returning',
-    'returningfunction', 'skip', 'templates', 'trim', 'trimexecute', 'trying',
-    'variables'
+    'listing', 'loop', 'replace', 'returning', 'returningfunction',
+    'skip', 'templates', 'trim', 'trimexecute', 'trying', 'variables'
 ]
 
 def assign(params):
@@ -44,7 +42,7 @@ def assign(params):
             params['var']['var'],
             params['var']['delimiter'],
             params['tree']['case'],
-            suit.var
+            params['var']['owner']
         )
     params['tree']['case'] = ''
     return params
@@ -120,17 +118,6 @@ def bracket(params):
     ))
     return params
 
-def code(params):
-    """Execute a code file"""
-    #If the code file is not whitelisted or blacklisted
-    if listing(params['tree']['case'], params['var']):
-        params['tree']['case'] = os.path.normpath(params['tree']['case'])
-        sys.path.append(os.path.dirname(params['tree']['case']))
-        sys.path.reverse()
-        __import__(os.path.basename(params['tree']['case']).split('.', 2)[0])
-    params['tree']['case'] = ''
-    return params
-
 def comments(params):
     """Hide a string"""
     params['tree']['case'] = ''
@@ -161,7 +148,8 @@ def decode(params):
 
 def entities(params):
     """Convert HTML characters to their respective entities"""
-    params['tree']['case'] = cgi.escape(params['tree']['case'], True)
+    if not params['var']['json'] and params['var']['entities']:
+        params['tree']['case'] = cgi.escape(str(params['tree']['case']))
     return params
 
 def evaluation(params):
@@ -180,13 +168,17 @@ def execute(params):
 
 def functions(params):
     """Perform a function call"""
-    kwargs = params['var'].copy()
-    del kwargs['function']
-    del kwargs['owner']
-    params['tree']['case'] = getattr(
-        params['var']['owner'],
-        params['var']['function']
-    )(**kwargs)
+    params['tree']['case'] = ''
+    if 'string' in params['var']:
+        params['tree']['case'] = params['var']['string']
+    if params['var']['function'] and params['var']['owner']:
+        kwargs = params['var'].copy()
+        del kwargs['function']
+        del kwargs['owner']
+        params['tree']['case'] = getattr(
+            params['var']['owner'],
+            params['var']['function']
+        )(**kwargs)
     return params
 
 def listing(name, var):
@@ -214,79 +206,68 @@ def listing(name, var):
 
 def loop(params):
     """Loop a string with different variables"""
-    iterationvars = []
-    for value in params['var']['vars']:
-        var = {
-            params['var']['rule']: params['rules'][
-                params['var']['rule']
-            ].copy()
-        }
-        var[params['var']['rule']]['var'] = var[
-            params['var']['rule']
-        ]['var'].copy()
-        var[params['var']['rule']]['var']['var'] = var[
-            params['var']['rule']
-        ]['var']['var'].copy()
-        var[params['var']['rule']]['var']['var']['var'] = var[
-            params['var']['rule']
-        ]['var']['var']['var'].copy()
-        if hasattr(value, 'items'):
-            for key, value2 in value.items():
-                var[
-                    params['var']['rule']
-                ]['var']['var']['var'][key] = value2
-        else:
-            for value2 in dir(value):
-                if (not value2.startswith('_') and
-                not callable(getattr(value, value2))):
-                    var[
-                        params['var']['rule']
-                    ]['var']['var']['var'][value2] = getattr(
-                        value,
-                        value2
-                    )
-        iterationvars.append(var)
     iterations = []
     tree = {
         'case': '',
         'contents': params['tree']['contents'],
         'parallel': []
     }
-    for value in iterationvars:
-        #Parse for this iteration
-        result = suit.walk(
-            dict(params['rules'].items() + value.items()),
-            tree,
-            params['config']
+    for key, value in enumerate(params['var']['in']):
+        old = {}
+        if 'key' in params['var']:
+            try:
+                if params['var']['key'] in params['var']['owner']:
+                    old['dictkey'] = params['var']['owner'][
+                        params['var']['key']
+                    ]
+                params['var']['owner'][params['var']['key']] = key
+            except (AttributeError, TypeError):
+                if hasattr(params['var']['owner'], params['var']['key']):
+                    old['objkey'] = getattr(
+                        params['var']['owner'],
+                        params['var']['key']
+                    )
+                setattr(params['var']['owner'], params['var']['key'], key)
+        if 'value' in params['var']:
+            try:
+                if params['var']['value'] in params['var']['owner']:
+                    old['dictvalue'] = params['var']['owner'][
+                        params['var']['value']
+                    ]
+                params['var']['owner'][params['var']['value']] = value
+            except (AttributeError, TypeError):
+                if hasattr(params['var']['owner'], params['var']['value']):
+                    old['objvalue'] = getattr(
+                        params['var']['owner'],
+                        params['var']['value']
+                    )
+                setattr(params['var']['owner'], params['var']['value'], value)
+        #Execute for this iteration
+        iterations.append(
+            suit.walk(params['rules'], tree, params['config'])['tree']['case']
         )
-        iterations.append(result['tree']['case'])
+        if 'recurse' in params['var'] and params['var']['recurse']:
+            if 'dictkey' in old:
+                params['var']['owner'][params['var']['key']] = old['dictkey']
+            if 'objkey' in old:
+                setattr(
+                    params['var']['owner'],
+                    params['var']['key'],
+                    old['objkey']
+                )
+            if 'dictvalue' in old:
+                params['var']['owner'][
+                    params['var']['value']
+                ] = old['dictvalue']
+            if 'objvalue' in old:
+                setattr(
+                    params['var']['owner'],
+                    params['var']['value'],
+                    old['objvalue']
+                )
     #Implode the iterations
     params['tree']['case'] = params['var']['delimiter'].join(iterations)
     params['walk'] = False
-    return params
-
-def loopvariables(params):
-    """Parse variables in a loop"""
-    split = params['tree']['case'].split(params['var']['delimiter'])
-    params['tree']['case'] = params['var']['var']
-    for value in split:
-        try:
-            params['tree']['case'] = params['tree']['case'][value]
-        except (AttributeError, TypeError):
-            try:
-                params['tree']['case'] = params['tree']['case'][int(value)]
-            except (AttributeError, TypeError, ValueError):
-                params['tree']['case'] = getattr(params['tree']['case'], value)
-    if params['var']['json']:
-        params['tree']['case'] = json.dumps(params['tree']['case'])
-    return params
-
-def replace(params):
-    """Replace in the case"""
-    params['tree']['case'] = params['tree']['case'].replace(
-        params['var']['search'],
-        params['var']['replace']
-    )
     return params
 
 def returning(params):
@@ -308,10 +289,6 @@ def returningfunction(params):
         params['returnvar'] = params['returnedvar']
         params['returnfunctions'] = params['returnedvar']['returnfunctions']
     params['walk'] = False
-    return params
-
-def skip(params):
-    """Skip over the case"""
     return params
 
 def templates(params):
@@ -390,7 +367,7 @@ def trying(params):
                 params['var']['var'],
                 params['var']['delimiter'],
                 inst,
-                suit.var
+                params['var']['owner']
             )
         params['tree']['case'] = ''
     return params
@@ -401,7 +378,7 @@ def variables(params):
         params['tree']['case'].split(params['var']['delimiter'])
     ):
         if key == 0:
-            params['tree']['case'] = getattr(suit.var, value)
+            params['tree']['case'] = getattr(params['var']['owner'], value)
         else:
             try:
                 params['tree']['case'] = params['tree']['case'][value]
@@ -442,6 +419,7 @@ rules = {
                 'decode': ('json',),
                 'delimiter': '.',
                 'json': 'false',
+                'owner': suit.var,
                 'var': ''
             }
         }
@@ -465,14 +443,12 @@ rules = {
             'equal': '=',
             'onesided': True,
             'quote': ('"', '\''),
-            'var': {}
+            'var':
+            {
+                'function': '',
+                'owner': None
+            }
         }
-    },
-    '[code]':
-    {
-        'close': '[/code]',
-        'postwalk': [code],
-        'var': {}
     },
     '[comment]':
     {
@@ -483,7 +459,12 @@ rules = {
     '[entities]':
     {
         'close': '[/entities]',
-        'postwalk': [entities]
+        'postwalk': [entities],
+        'var':
+        {
+            'entities': True,
+            'json': False
+        }
     },
     '[execute]':
     {
@@ -530,15 +511,17 @@ rules = {
         ],
         'var':
         {
+            'blacklist': True,
             'equal': '=',
-            'list': ('delimiter', 'vars'),
+            'list': ('decode', 'owner'),
             'quote': ('"', '\''),
             'var':
             {
-                'decode': ('vars',),
+                'decode': ('in', 'recurse'),
                 'delimiter': '',
-                'rule': '[loopvar]',
-                'vars': '[]'
+                'in': '[]',
+                'owner': suit.var,
+                'recurse': 'false'
             }
         }
     },
@@ -546,58 +529,6 @@ rules = {
     {
         'close': ']',
         'create': '[loop]',
-        'skip': True
-    },
-    '[loopvar]':
-    {
-        'close': '[/loopvar]',
-        'postwalk': [
-            attribute,
-            decode,
-            loopvariables
-        ],
-        'var':
-        {
-            'equal': '=',
-            'list': ('json',),
-            'quote': ('"', '\''),
-            'var':
-            {
-                'decode': ('json',),
-                'delimiter': '.',
-                'json': 'false',
-                'var': {}
-            }
-        }
-    },
-    '[loopvar':
-    {
-        'close': ']',
-        'create': '[loopvar]',
-        'skip': True
-    },
-    '[replace]':
-    {
-        'close': '[/replace]',
-        'postwalk': [
-            attribute,
-            replace
-        ],
-        'var':
-        {
-            'equal': '=',
-            'quote': ('"', '\''),
-            'var':
-            {
-                'replace': '',
-                'search': ''
-            }
-        }
-    },
-    '[replace':
-    {
-        'close': ']',
-        'create': '[replace]',
         'skip': True
     },
     '[return':
@@ -626,7 +557,6 @@ rules = {
     '[skip]':
     {
         'close': '[/skip]',
-        'postwalk': [skip],
         'skip': True,
         'skipescape': True
     },
@@ -648,7 +578,12 @@ rules = {
         {
             'equal': '=',
             'quote': ('"', '\''),
-            'var': {}
+            'var':
+            {
+                'function': '',
+                'owner': None,
+                'string': ''
+            }
         }
     },
     '[transform':
@@ -678,6 +613,7 @@ rules = {
             'var':
             {
                 'delimiter': '.',
+                'owner': suit.var,
                 'var': ''
             }
         }
@@ -694,18 +630,21 @@ rules = {
         'postwalk': [
             attribute,
             decode,
-            variables
+            variables,
+            entities
         ],
         'var':
         {
             'equal': '=',
-            'list': ('json',),
+            'list': ('entities', 'json'),
             'quote': ('"', '\''),
             'var':
             {
-                'decode': ('json',),
+                'decode': ('entities', 'json'),
                 'delimiter': '.',
-                'json': 'false'
+                'entities': 'true',
+                'json': 'false',
+                'owner': suit.var
             }
         }
     },

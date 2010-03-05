@@ -28,8 +28,8 @@ def load_environment(global_conf, app_conf):
     config['routes.map'] = make_map()
     config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = suitframework.lib.helpers
-    suitlons.rules['[call']['var']['var']['helpers'] = config['pylons.h']
-    suitlons.rules['[transform]']['var']['var']['helpers'] = config['pylons.h']
+    suitlons.rules['[call']['var']['var']['owner'] = config['pylons.h']
+    suitlons.rules['[transform]']['var']['var']['owner'] = config['pylons.h']
 
     # Setup PySUIT templating rules.
     config['suit.templates'] = paths['templates']

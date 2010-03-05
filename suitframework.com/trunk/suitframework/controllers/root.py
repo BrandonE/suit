@@ -9,7 +9,7 @@ except ImportError:
 
 import os
 
-from pylons import config, response, request, tmpl_context as c, url
+from pylons import config, response, request, tmpl_context as c
 from paste.request import construct_url
 from paste.httpexceptions import HTTPMovedPermanently
 
@@ -20,11 +20,11 @@ class RootController(BaseController):
     def template(self, templatefile, parameter1 = None, parameter2 = None):
         c.parameter1 = parameter1
         c.parameter2 = parameter2
-        c.condition['home'] = False
-        c.condition['docs'] = False
-        c.condition['download'] = False
-        c.condition['tryit'] = False
-        c.condition['slacks'] = False
+        c.condition.home = False
+        c.condition.docs = False
+        c.condition.download = False
+        c.condition.tryit = False
+        c.condition.slacks = False
         cachefile = open(os.path.join(config['app_conf']['cache_dir'], 'suit.cache'), 'r')
         try:
             suit.cache = json.loads(cachefile.read())

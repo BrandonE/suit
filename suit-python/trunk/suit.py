@@ -63,14 +63,14 @@ var = MyClass()
 def cacherules(rules, keys):
     """Cache the provided items of the rules"""
     cachedrules = {}
-    for key, value in rules.items():
+    for rulekey, rulevalue in rules.items():
         cachedkeys = {
-            'key': key
+            'key': rulekey
         }
-        for value2 in keys:
-            if value2 in value:
-                cachedkeys[value2] = value[value2]
-        cachedrules[key] = cachedkeys
+        for property in keys:
+            if property in rulevalue:
+                cachedkeys[property] = rulevalue[property]
+        cachedrules[rulekey] = cachedkeys
     return cachedrules
 
 def close(params, pop, closed):

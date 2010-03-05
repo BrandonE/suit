@@ -24,8 +24,8 @@
         <p>
             <select name="language">
                 <option value="default">Default</option>
-                [loop vars="[c json='true']loop.languages[/c]"]
-                <option value="[loopvar]id[/loopvar]"[if condition="[loopvar json='true']selected[/loopvar]"] selected="selected"[/if]>[loopvar]title[/loopvar]</option>
+                [loop key="key" value="value" in="[c json='true']loop.languages[/c]"]
+                <option value="[c]value.id[/c]">[c]value.title[/c]</option>
                 [/loop]
             </select>
             <input type="submit" value="Update" />

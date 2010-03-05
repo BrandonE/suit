@@ -17,7 +17,6 @@ http://www.suitframework.com/docs/credits
 """
 import os
 import sys
-import pickle
 try:
     import simplejson as json
 except ImportError:
@@ -50,17 +49,15 @@ def assign(params):
     params['tree']['case'] = ''
     return params
 
+def entities(params):
+    """Convert HTML characters to their respective entities"""
+    if not params['var']['json'] and params['var']['entities']:
+        params['tree']['case'] = escape(params['tree']['case'])
+    return params
+
 def gettext(params):
     """Grabs a gettext string."""
     params['tree']['case'] = _(params['tree']['case'])
-    return params
-
-def filtering(params):
-    """Escapes HTML; by default, all rules follow this basic rule to simulate
-    how Pylons configured Mako to run.
-    """
-    if not params['var']['json'] and params['var']['entities']:
-        params['tree']['case'] = escape(params['tree']['case'])
     return params
 
 def templates(params):
@@ -109,60 +106,33 @@ def url_for(params):
 
 suitrules = templating.rules.copy()
 
-decode = ('entities', 'json')
-whitelist = ('entities', 'json')
-
 # Adjust the default rules for Pylons' convenience.
 suitrules['[assign]'] = suitrules['[assign]'].copy()
-suitrules['[assign]']['postwalk'] = [templating.attribute, templating.decode, assign]
+suitrules['[assign]']['var']['var']['owner'] = c
 
-suitrules['[loopvar]'] = suitrules['[loopvar]'].copy()
-suitrules['[loopvar]']['var'] = suitrules['[loopvar]']['var'].copy()
-suitrules['[loopvar]']['var']['var'] = (
-    suitrules['[loopvar]']['var']['var'].copy()
-)
-suitrules['[loopvar]']['var']['var']['decode'] = decode
-suitrules['[loopvar]']['var']['list'] = whitelist
-suitrules['[loopvar]']['var']['var']['entities'] = 'true'
-suitrules['[loopvar]']['postwalk'] = suitrules['[loopvar]']['postwalk'][:]
-suitrules['[loopvar]']['postwalk'].append(filtering)
+suitrules['[c]'] = suitrules['[var]'].copy()
+suitrules['[c]']['close'] = '[/c]'
+suitrules['[c]']['postwalk'] = suitrules['[c]']['postwalk'][:]
+suitrules['[c]']['postwalk'][-1] = templating.entities
+suitrules['[c]']['var'] = suitrules['[c]']['var'].copy()
+suitrules['[c]']['var']['var']['owner'] = c
+suitrules['[c'] = suitrules['[var'].copy()
+suitrules['[c']['create'] = '[c]'
+
+suitrules['[entities]'] = suitrules['[entities]'].copy()
+suitrules['[entities]']['postwalk'] = [templating.entities]
+
+suitrules['[loop]'] = suitrules['[loop]'].copy()
+suitrules['[loop]']['var'] = suitrules['[loop]']['var'].copy()
+suitrules['[loop]']['var']['var']['owner'] = c
 
 suitrules['[template]'] = suitrules['[template]'].copy()
 suitrules['[template]']['postwalk'] = [templates]
 
 del suitrules['[var]']
-del suitrules['[code]']
+del suitrules['[var']
 
 pylonsrules = {
-    '[c]':
-    {
-        'close': '[/c]',
-        'postwalk': [
-            templating.attribute,
-            templating.decode,
-            tmpl_context,
-            filtering
-        ],
-        'var':
-        {
-            'equal': '=',
-            'list': ('entities', 'json'),
-            'quote': ('"', '\''),
-            'var':
-            {
-                'decode': ('entities', 'json'),
-                'delimiter': '.',
-                'entities': 'true',
-                'json': 'false'
-            }
-        }
-    },
-    '[c':
-    {
-        'close': ']',
-        'create': '[c]',
-        'skip': True
-    },
     '[gettext]':
     {
         'close': '[/gettext]',

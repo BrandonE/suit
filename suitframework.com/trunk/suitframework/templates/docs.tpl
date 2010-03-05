@@ -2,14 +2,14 @@
 [call function="header" /]
 [call function="docs" /]
 [assign var="condition.docs"]true[/assign]
-[assign var="title"][gettext]Docs - [if condition="[c json='true']condition.index[/c]"]Index[/if][if condition="[c json='true']condition.article[/c]"][c]article[/c][/if][if condition="[c json='true']condition.404[/c]"]404[/if][/gettext][/assign]
+[assign var="title"][gettext]Docs - [if condition="[c json='true']condition.index[/c]"]Index[/if][if condition="[c json='true']condition.article[/c]"][c]article[/c][/if][if condition="[c json='true']condition.notfound[/c]"]notfound[/if][/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]
         [if condition="[c json='true']condition.index[/c]"]
-        [loop vars="[c json='true']articles[/c]"]
-        <a href="#[loopvar]categoryurl[/loopvar]" id="[loopvar]categoryurl[/loopvar]"><h3>[gettext][loopvar]category[/loopvar][/gettext]</h3>
+        [loop value="category" in="[c json='true']loop.articles[/c]"]
+        <a href="#[c]category.url[/c]" id="[c]category.url[/c]"><h3>[gettext][c]category.title[/c][/gettext]</h3>
             <ul>
-                [loop vars="[loopvar json='true']articles[/loopvar]"]
-                <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="[loopvar]articleurl[/loopvar]" /]">[gettext][loopvar]article[/loopvar][/gettext]</a></li>
+                [loop value="article" in="[c json='true']category.articles[/c]"]
+                <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="[c]article.url[/c]" /]">[gettext][c]article.title[/c][/gettext]</a></li>
                 [/loop]
             </ul>
         [/loop]
@@ -17,13 +17,13 @@
         [if condition="[c json='true']condition.article[/c]"]
 [template]docs/[c]parameter1[/c].tpl[/template]
         [/if]
-        [if condition="[c json='true']condition.404[/c]"]
+        [if condition="[c json='true']condition.notfound[/c]"]
         <p>[gettext]This article does not exist.[/gettext]</p>
         [if condition="[c json='true']condition.matches[/c]"]
         <p>[gettext]Did you mean:[/gettext]</p>
         <ul>
-            [loop vars="[c json='true']search[/c]"]
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="[loopvar]articleurl[/loopvar]" /]">[gettext][loopvar]article[/loopvar][/gettext]</a></li>
+            [loop value="value" in="[c json='true']loop.search[/c]"]
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="[c]value.url[/c]" /]">[gettext][c]value.title[/c][/gettext]</a></li>
             [/loop]
         </ul>
         [/if]

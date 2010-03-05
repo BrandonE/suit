@@ -19,29 +19,29 @@ import urllib
 from webhelpers.html import escape
 
 def docs():
-    c.articles = [
+    c.loop.articles = [
         {
             'articles': 
             [
                 {
-                    'article': 'FAQ',
-                    'articleurl': 'faq'
+                    'title': 'FAQ',
+                    'url': 'faq'
                 },
                 {
-                    'article': 'Getting Started',
-                    'articleurl': 'gettingstarted'
+                    'title': 'Getting Started',
+                    'url': 'gettingstarted'
                 }
             ],
-            'category': 'General',
-            'categoryurl': 'general'
+            'title': 'General',
+            'url': 'general'
         }
     ]
-    c.condition['404'] = False
-    c.condition['article'] = False
-    c.condition['index'] = False
-    c.condition['matches'] = False
+    c.condition.notfound = False
+    c.condition.article = False
+    c.condition.index = False
+    c.condition.matches = False
     if not c.parameter1:
-        c.condition['index'] = True
+        c.condition.index = True
     elif os.path.isfile(
         os.path.join(
             config['pylons.paths']['templates'],
@@ -49,22 +49,21 @@ def docs():
             os.path.normpath(c.parameter1.lower()) + '.tpl'
         )
     ):
-        for value in c.articles:
-            for value2 in value['articles']:
-                if c.parameter1 == value2['articleurl']:
-                    c.article = value2['article']
-        c.condition['article'] = True
+        for category in c.loop.articles:
+            for article in category['articles']:
+                if c.parameter1 == article['url']:
+                    c.article = article['title']
+        c.condition.article = True
     else:
-        c.search = []
-        for value in c.articles:
-            for value2 in value['articles']:
+        c.loop.search = []
+        for category in c.loop.articles:
+            for article in category['articles']:
                 if os.path.basename(
-                    value2['articleurl']
+                    article['url']
                 ).find(c.parameter1.lower()) != -1:
-                    value2['categoryurl'] = value['categoryurl']
-                    c.search.append(value2)
-        c.condition['404'] = True
-        c.condition['matches'] = (c.search)
+                    c.loop.search.append(article)
+        c.condition.notfound = True
+        c.condition.matches = (c.loop.search)
     return ''
 
 def header():
@@ -81,7 +80,7 @@ def header():
         )
     #if ('submit' in request.POST and
     #request.POST['submit'] == _gettext('Update')):
-    c.loop['languages'] = [
+    c.loop.languages = [
         {
             'id': 'en',
             'title': 'English',
@@ -107,10 +106,10 @@ def slacks():
             code = 303
         )
     c.referrer = request.headers["referer"]
-    c.condition['tree'] = False
-    c.condition['referrer'] = ('referrer' in request.GET and
+    c.condition.tree = False
+    c.condition.referrer = ('referrer' in request.GET and
     request.GET['referrer'])
-    c.loop['tree'] = []
+    c.loop.tree = []
     try:
         tree = ''
         if 'url' in request.GET:
@@ -130,8 +129,8 @@ def slacks():
             _gettext('No Wrapper'),
             _gettext('Wrapper')
         )
-        c.condition['tree'] = True
-        c.loop['tree'] = tree
+        c.condition.tree = True
+        c.loop.tree = tree
     except (
         AttributeError,
         EOFError,
@@ -186,12 +185,11 @@ def tryit():
         except TypeError:
             c.template = ''
     c.rule = ''
-    c.condition['rule'] = True
+    c.condition.rule = True
     rules = {}
     if c.parameter1 == 'templating':
         from rulebox import templating
         rules = templating.rules.copy()
-        rules['[code]']['var']['list'] = []
         rules['[template]']['var']['list'] = []
         c.rule = 'Templating'
     elif c.parameter1 == 'suitlons':
@@ -216,12 +214,12 @@ def tryit():
         ).replace('\n','<br />\n')
         c.rule = 'BBCode'
     elif c.parameter1 == None:
-        c.condition['rule'] = False
+        c.condition.rule = False
     c.php = ''
     c.python = ''
-    c.condition['php'] = False
-    c.condition['python'] = False
-    c.condition['pygments'] = False
+    c.condition.php = False
+    c.condition.python = False
+    c.condition.pygments = False
     try:
         python = os.path.join(
             config['suit.templates'],
@@ -231,10 +229,10 @@ def tryit():
         )
         execfile(python)
         c.python = open(python).read()
-        c.condition['python'] = True
+        c.condition.python = True
         try:
             import pygments
-            c.condition['pygments'] = True
+            c.condition.pygments = True
         except ImportError:
             pass
         c.php = open(
@@ -245,10 +243,10 @@ def tryit():
                 c.parameter2 + '.php'
             )
         ).read()
-        c.condition['php'] = True
+        c.condition.php = True
     except (IOError, TypeError):
         pass
-    if c.condition['pygments']:
+    if c.condition.pygments:
         from pygments import highlight
         from pygments.lexers import PhpLexer, PythonLexer
         from pygments.formatters import HtmlFormatter

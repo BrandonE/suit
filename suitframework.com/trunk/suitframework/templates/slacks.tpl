@@ -6,7 +6,7 @@
 [execute][template]header.tpl[/template][/execute]
         <div class="yesscript" style="display: none">
         [if condition="[c json='true']condition.tree[/c]"]
-        [loop vars="[c json='true']loop.tree[/c]"]
+        [loop value="value" in="[c json='true']loop.tree[/c]" recurse="true"]
         [execute][template]slacksrecurse.tpl[/template][/execute]
         [/loop]
         [/if]
