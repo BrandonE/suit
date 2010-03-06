@@ -1,1 +1,0 @@
-Hi again. This template has no template logic, as it's just a simple page to confirm that the URL node is working correctly.

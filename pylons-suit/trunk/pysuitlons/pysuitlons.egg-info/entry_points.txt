@@ -1,4 +1,0 @@
-
-        [paste.paster_create_template]
-        pysuit = pysuitlons.template:PySUITTemplate
-    
