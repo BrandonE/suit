@@ -1,16 +1,18 @@
 import os
 
+import suit
 from pylons import config
-from {{package}}.lib.suit import suit
+from rulebox import suitlons
+
 
 def render(template):
     """Provide our own rendering function for PySUIT."""
-    filepath = os.path.join(config['suit.templates'],
+    filepath = os.path.join(config['pylons.paths']['templates'],
         os.path.normpath(template)
     )
     try:
         content = open(filepath).read()
     except IOError:
         raise IOError('Template does not exist: %s' % filepath)
-    return suit.execute(config['suit.nodes'], content)
+    return suit.execute(suitlons.rules, content)
 __all__ = ['render']

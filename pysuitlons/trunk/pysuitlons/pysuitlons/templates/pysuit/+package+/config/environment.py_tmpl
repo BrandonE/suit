@@ -1,6 +1,7 @@
 """Pylons environment configuration"""
 import os
 
+import pylons
 from pylons.configuration import PylonsConfig
 {{if sqlalchemy}}
 from sqlalchemy import engine_from_config
@@ -8,7 +9,6 @@ from sqlalchemy import engine_from_config
 
 import {{package}}.lib.app_globals as app_globals
 import {{package}}.lib.helpers
-from {{package}}.lib.suit import nodes_pylons
 from {{package}}.config.routing import make_map
 {{if sqlalchemy}}
 from {{package}}.model import init_model
@@ -33,11 +33,6 @@ def load_environment(global_conf, app_conf):
     config['pylons.h'] = suitframework.lib.helpers
     
     # Setup cache object as early as possible
-    import pylons
     pylons.cache._push_object(config['pylons.app_globals'].cache)
-
-    # Setup PySUIT templating nodes.
-    config['suit.nodes'] = nodes_pylons.NODES
-    config['suit.templates'] = paths['templates']
 
     return config
