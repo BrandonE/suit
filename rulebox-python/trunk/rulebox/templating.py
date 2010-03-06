@@ -374,25 +374,18 @@ def trying(params):
 
 def variables(params):
     """Parse variables"""
-    for key, value in enumerate(
-        params['tree']['case'].split(params['var']['delimiter'])
-    ):
-        if key == 0:
-            params['tree']['case'] = getattr(params['var']['owner'], value)
-        else:
+    variable = params['var']['owner']
+    for value in params['tree']['case'].split(params['var']['delimiter']):
+        try:
+            variable = variable[value]
+        except (AttributeError, TypeError):
             try:
-                params['tree']['case'] = params['tree']['case'][value]
-            except (AttributeError, TypeError):
-                try:
-                    params['tree']['case'] = params['tree']['case'][
-                        int(value)
-                    ]
-                except (AttributeError, TypeError, ValueError):
-                    params['tree']['case'] = getattr(
-                        params['tree']['case'], value
-                    )
+                variable = variable[int(value)]
+            except (AttributeError, TypeError, ValueError):
+                variable = getattr(variable, value)
     if params['var']['json']:
-        params['tree']['case'] = json.dumps(params['tree']['case'])
+        variable = json.dumps(variable)
+    params['tree']['case'] = variable
     return params
 
 rules = {

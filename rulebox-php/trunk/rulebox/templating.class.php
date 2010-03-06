@@ -852,29 +852,23 @@ class Templating
 
     public function variables($params)
     {
-        $split = explode($params['var']['delimiter'], $params['tree']['case']);
-        foreach ($split as $key => $value)
+        $variable = $params['var']['owner'];
+        foreach (explode($params['var']['delimiter'], $params['tree']['case']) as $value)
         {
-            if ($key == 0)
+            if (is_array($variable))
             {
-                $params['tree']['case'] = $params['var']['owner']->$value;
+                $variable = $variable[$value];
             }
             else
             {
-                if (is_array($params['tree']['case']))
-                {
-                    $params['tree']['case'] = $params['tree']['case'][$value];
-                }
-                else
-                {
-                    $params['tree']['case'] = $params['tree']['case']->$value;
-                }
+                $variable = $variable->$value;
             }
         }
         if ($params['var']['json'])
         {
-            $params['tree']['case'] = json_encode($params['tree']['case']);
+            $variable = json_encode($variable);
         }
+        $params['tree']['case'] = $variable;
         return $params;
     }
 }
