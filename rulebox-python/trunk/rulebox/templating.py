@@ -317,11 +317,13 @@ def trim(params):
             },
             '<pre':
             {
-                'close': '</pre>'
+                'close': '</pre>',
+                'skip': True
             },
             '<textarea':
             {
-                'close': '</textarea>'
+                'close': '</textarea>',
+                'skip': True
             }
         },
         params['tree']['case'],
@@ -342,11 +344,17 @@ def trimexecute(params):
                 ]['close']
             ))
         else:
-            params['tree']['case'] += re.sub(
-                '(?m)[\s]+$',
-                '',
-                params['tree']['contents'][value[0]]
-            )
+            params['tree']['case'] += ''.join((
+                re.sub(
+                    '(?m)[\s]+$',
+                    '',
+                    params['tree']['contents'][value[0]]
+                ),
+                params['tree']['contents'][value[0]][
+                    len(params['tree']['contents'][value[0]].rstrip()):
+                    len(params['tree']['contents'][value[0]])
+                ]
+            ))
     params['walk'] = False
     return params
 
