@@ -62,14 +62,16 @@ def gettext(params):
 
 def templates(params):
     """Grab a template from a file"""
-    #If the template is not whitelisted or blacklisted
     try:
-        filepath = os.path.join(config['pylons.paths']['templates'],
-            os.path.normpath(params['tree']['case'])
+        filename = os.path.normpath(params['tree']['case'])
+        filepath = os.path.abspath(
+            os.path.join(config['pylons.paths']['templates'], filename)
         )
-        params['tree']['case'] = open(filepath).read()
-    except IOError:
         params['tree']['case'] = ''
+        if filepath.startswith(config['pylons.paths']['templates']):
+            params['tree']['case'] = open(filepath).read()
+    except IOError:
+        pass
     return params
 
 def tmpl_context(params):
