@@ -6,10 +6,10 @@
         </tr>
     </thead>
     <tbody>
-        [loop vars="[var json='true']members[/var]"]
+        [loop value="value" in="[var json='true']members[/var]"]
         <tr>
-            <td>[loopvar]name[/loopvar]</td>
-            <td>[loopvar]group[/loopvar]</td>
+            <td>[var]value.name[/var]</td>
+            <td>[var]value.group[/var]</td>
         </tr>
         [/loop]
     </tbody>

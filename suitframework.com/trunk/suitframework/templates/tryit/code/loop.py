@@ -1,5 +1,5 @@
-from suit import vars
-vars.members = [
+from suit import var
+var.members = [
     {
         'name': 'Brandon',
         'group': 'Administrator'

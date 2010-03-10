@@ -91,21 +91,29 @@ strong
     color: #000000;
 }
 
-table.dashboard
+table
 {
     border: 1px solid #000;
     border-collapse: collapse;
     width: 100%;
 }
 
-table.dashboard th, table.dashboard td.category
+table
+{
+    border: 1px solid #000;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table th
 {
     font-weight: 700;
 }
 
-table.dashboard td
+table td
 {
     padding: 1em;
+    text-align: center;
 }
 
 ul, ol

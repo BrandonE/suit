@@ -26,23 +26,13 @@
         [if condition="[c json='true']condition.php[/c]"]
         <fieldset>
             <legend>[gettext]PHP[/gettext]</legend>
-            [if condition="[c json='true']condition.pygments[/c]"]
-            [c entities="false"]php[/c]
-            [/if]
-            [if condition="[c json='true']condition.pygments[/c]" else="true"]
-            <pre>[c]php[/c]</pre>
-            [/if]
+            [transform function="pygments" lexer="php"][c entities="false"]php[/c][/transform]
         </fieldset>
         [/if]
         [if condition="[c json='true']condition.python[/c]"]
         <fieldset>
             <legend>[gettext]Python[/gettext]</legend>
-            [if condition="[c json='true']condition.pygments[/c]"]
-            [c entities="false"]python[/c]
-            [/if]
-            [if condition="[c json='true']condition.pygments[/c]" else="true"]
-            <pre>[c]python[/c]</pre>
-            [/if]
+            [transform function="pygments" lexer="python"][c entities="false"]python[/c][/transform]
         </fieldset>
         [/if]
 [/trim]

@@ -17,6 +17,10 @@ from pylons.i18n import get_lang, set_lang, ugettext as _gettext
 import suit
 import urllib
 from webhelpers.html import escape
+from webhelpers.html.builder import literal
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
 
 def docs():
     c.loop.articles = [
@@ -25,15 +29,34 @@ def docs():
             [
                 {
                     'title': 'FAQ',
+                    'jump': '',
                     'url': 'faq'
                 },
                 {
                     'title': 'Getting Started',
+                    'jump': '',
                     'url': 'gettingstarted'
                 }
             ],
             'title': 'General',
             'url': 'general'
+        },
+        {
+            'articles': 
+            [
+                {
+                    'title': 'execute',
+                    'jump': '',
+                    'url': 'execute'
+                },
+                {
+                    'title': 'What!? That\'s it?',
+                    'jump': 'whatthatsit',
+                    'url': 'faq'
+                }
+            ],
+            'title': 'SUIT Functions',
+            'url': 'suitfunctions'
         }
     ]
     c.condition.notfound = False
@@ -51,7 +74,7 @@ def docs():
     ):
         for category in c.loop.articles:
             for article in category['articles']:
-                if c.parameter1 == article['url']:
+                if c.parameter1 == article['url'] and not article['jump']:
                     c.article = article['title']
         c.condition.article = True
     else:
@@ -89,6 +112,9 @@ def header():
     ]
     return ''
 
+def pygments(lexer, string):
+    return highlight(string, get_lexer_by_name(lexer), HtmlFormatter())
+    
 def slacks():
     if ('submit' in request.POST and
     request.POST['submit'] == _gettext('Submit')):
@@ -219,7 +245,6 @@ def tryit():
     c.python = ''
     c.condition.php = False
     c.condition.python = False
-    c.condition.pygments = False
     try:
         python = os.path.join(
             config['suit.templates'],
@@ -230,11 +255,6 @@ def tryit():
         execfile(python)
         c.python = open(python).read()
         c.condition.python = True
-        try:
-            import pygments
-            c.condition.pygments = True
-        except ImportError:
-            pass
         c.php = open(
             os.path.join(
                 config['suit.templates'],
@@ -246,11 +266,5 @@ def tryit():
         c.condition.php = True
     except (IOError, TypeError):
         pass
-    if c.condition.pygments:
-        from pygments import highlight
-        from pygments.lexers import PhpLexer, PythonLexer
-        from pygments.formatters import HtmlFormatter
-        c.php = highlight(c.php, PhpLexer(), HtmlFormatter())
-        c.python = highlight(c.python, PythonLexer(), HtmlFormatter())
     c.executed = suit.execute(rules, c.template)
     return ''

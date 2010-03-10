@@ -1,2 +1,2 @@
-from suit import vars
-vars.installed = True
+from suit import var
+var.installed = True

@@ -1,5 +1,5 @@
 <?php
-$suit->vars->members = array
+$suit->var->members = array
 (
     array
     (

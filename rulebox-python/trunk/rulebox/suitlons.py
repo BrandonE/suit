@@ -110,6 +110,10 @@ suitrules = templating.rules.copy()
 
 # Adjust the default rules for Pylons' convenience.
 suitrules['[assign]'] = suitrules['[assign]'].copy()
+suitrules['[assign]']['var'] = suitrules['[assign]']['var'].copy()
+suitrules['[assign]']['var']['var'] = suitrules[
+    '[assign]'
+]['var']['var'].copy()
 suitrules['[assign]']['var']['var']['owner'] = c
 
 suitrules['[c]'] = suitrules['[var]'].copy()
@@ -117,6 +121,7 @@ suitrules['[c]']['close'] = '[/c]'
 suitrules['[c]']['postwalk'] = suitrules['[c]']['postwalk'][:]
 suitrules['[c]']['postwalk'][-1] = templating.entities
 suitrules['[c]']['var'] = suitrules['[c]']['var'].copy()
+suitrules['[c]']['var']['var'] = suitrules['[c]']['var']['var'].copy()
 suitrules['[c]']['var']['var']['owner'] = c
 suitrules['[c'] = suitrules['[var'].copy()
 suitrules['[c']['create'] = '[c]'
@@ -126,6 +131,7 @@ suitrules['[entities]']['postwalk'] = [templating.entities]
 
 suitrules['[loop]'] = suitrules['[loop]'].copy()
 suitrules['[loop]']['var'] = suitrules['[loop]']['var'].copy()
+suitrules['[loop]']['var']['var'] = suitrules['[loop]']['var']['var'].copy()
 suitrules['[loop]']['var']['var']['owner'] = c
 
 suitrules['[template]'] = suitrules['[template]'].copy()

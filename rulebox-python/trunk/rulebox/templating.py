@@ -175,10 +175,21 @@ def functions(params):
         kwargs = params['var'].copy()
         del kwargs['function']
         del kwargs['owner']
-        params['tree']['case'] = getattr(
-            params['var']['owner'],
-            params['var']['function']
-        )(**kwargs)
+        try:
+            params['var']['function'] = params['var']['owner'][
+                params['var']['function']
+            ]
+        except (AttributeError, TypeError):
+            try:
+                params['var']['function'] = params['var']['owner'][
+                    int(params['var']['function'])
+                ]
+            except (AttributeError, TypeError, ValueError):
+                params['var']['function'] = getattr(
+                    params['var']['owner'],
+                    params['var']['function']
+                )
+        params['tree']['case'] = params['var']['function'](**kwargs)
     return params
 
 def listing(name, var):

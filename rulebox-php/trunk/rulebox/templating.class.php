@@ -587,7 +587,7 @@ class Templating
     {
         if (!$params['var']['json'] && $params['var']['entities'])
         {
-            $params['tree']['case'] = htmlentities($params['tree']['case']);
+            $params['tree']['case'] = htmlentities(strval($params['tree']['case']));
         }
         return $params;
     }

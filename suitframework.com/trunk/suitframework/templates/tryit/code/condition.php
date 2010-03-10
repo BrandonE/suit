@@ -1,3 +1,3 @@
 <?php
-$suit->vars->installed = true;
+$suit->var->installed = true;
 ?>
