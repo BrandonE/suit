@@ -39,37 +39,37 @@ def assign(params):
     #If a variable is provided
     if params['var']['var']:
         if params['var']['json']:
-            params['tree']['case'] = json.loads(params['tree']['case'])
+            params['case'] = json.loads(params['case'])
         templating.assignvariable(
             params['var']['var'],
             params['var']['delimiter'],
-            params['tree']['case'],
+            params['case'],
             c
         )
-    params['tree']['case'] = ''
+    params['case'] = ''
     return params
 
 def entities(params):
     """Convert HTML characters to their respective entities"""
     if not params['var']['json'] and params['var']['entities']:
-        params['tree']['case'] = escape(params['tree']['case'])
+        params['case'] = escape(params['case'])
     return params
 
 def gettext(params):
     """Grabs a gettext string."""
-    params['tree']['case'] = _(params['tree']['case'])
+    params['case'] = _(params['case'])
     return params
 
 def templates(params):
     """Grab a template from a file"""
     try:
-        filename = os.path.normpath(params['tree']['case'])
+        filename = os.path.normpath(params['case'])
         filepath = os.path.abspath(
             os.path.join(config['pylons.paths']['templates'], filename)
         )
-        params['tree']['case'] = ''
+        params['case'] = ''
         if filepath.startswith(config['pylons.paths']['templates']):
-            params['tree']['case'] = open(filepath).read()
+            params['case'] = open(filepath).read()
     except IOError:
         pass
     return params
@@ -79,23 +79,23 @@ def tmpl_context(params):
     tmpl_context.
     """
     for key, value in enumerate(
-        params['tree']['case'].split(params['var']['delimiter'])
+        params['case'].split(params['var']['delimiter'])
     ):
         if key == 0:
-            params['tree']['case'] = getattr(c, value)
+            params['case'] = getattr(c, value)
         else:
             try:
-                params['tree']['case'] = params['tree']['case'][value]
+                params['case'] = params['case'][value]
             except (AttributeError, TypeError):
                 try:
-                    params['tree']['case'] = params['tree']['case'][int(value)]
+                    params['case'] = params['case'][int(value)]
                 except (AttributeError, TypeError, ValueError):
-                    params['tree']['case'] = getattr(
-                        params['tree']['case'],
+                    params['case'] = getattr(
+                        params['case'],
                         value
                     )
     if params['var']['json']:
-        params['tree']['case'] = json.dumps(params['tree']['case'])
+        params['case'] = json.dumps(params['case'])
     return params
 
 def url_for(params):
@@ -103,7 +103,7 @@ def url_for(params):
     url_params = {}
     for key, value in params['var'].items():
         url_params[str(key)] = value
-    params['tree']['case'] = url(**url_params)
+    params['case'] = url(**url_params)
     return params
 
 suitrules = templating.rules.copy()

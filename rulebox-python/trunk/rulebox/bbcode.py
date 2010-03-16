@@ -31,16 +31,16 @@ def attribute(params):
 
 def bracket(params):
     """Handle brackets unrelated to the rules"""
-    params['tree']['case'] = ''.join((
+    params['case'] = ''.join((
         params['tree']['rule'],
-        params['tree']['case'],
+        params['case'],
         params['rules'][params['tree']['rule']]['close']
     ))
     return params
 
 def linebreaks(params):
     """Remove the HTML line breaks"""
-    params['tree']['case'] = params['tree']['case'].replace('<br />', '')
+    params['case'] = params['case'].replace('<br />', '')
     return params
 
 def listitems(params):
@@ -52,22 +52,22 @@ def listitems(params):
         'i',
         'I'
     ):
-        params['tree']['case'] = params['tree']['case'].replace('<br />', '')
-        params['tree']['case'] = params['tree']['case'].split(
+        params['case'] = params['case'].replace('<br />', '')
+        params['case'] = params['case'].split(
             params['var']['delimiter']
         )
-        for key, value in enumerate(params['tree']['case']):
+        for key, value in enumerate(params['case']):
             if key != 0:
-                params['tree']['case'][key] = ''.join((
+                params['case'][key] = ''.join((
                     params['var']['open'],
                     value,
                     params['var']['close']
                 ))
-        params['tree']['case'] = ''.join(params['tree']['case'])
+        params['case'] = ''.join(params['case'])
     else:
         params['var']['template'] = ''.join((
             params['open']['open'],
-            params['tree']['case'],
+            params['case'],
             params['open']['rule']['close']
         ))
     return params
@@ -94,9 +94,9 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    suit.var.case = params['tree']['case']
+    suit.var.case = params['case']
     suit.var.equal = params['var']['equal']
-    params['tree']['case'] = suit.execute(
+    params['case'] = suit.execute(
         templating.rules,
         params['var']['template']
     )

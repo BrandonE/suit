@@ -419,13 +419,13 @@ class BBCode
 
     public function bracket($params)
     {
-        $params['tree']['case'] = $params['tree']['rule'] . $params['tree']['case'] . $params['rules'][$params['tree']['rule']]['close'];
+        $params['case'] = $params['tree']['rule'] . $params['case'] . $params['rules'][$params['tree']['rule']]['close'];
         return $params;
     }
 
     public function linebreaks($params)
     {
-        $params['tree']['case'] = str_replace('<br />', '', $params['tree']['case']);
+        $params['case'] = str_replace('<br />', '', $params['case']);
         return $params;
     }
 
@@ -433,21 +433,21 @@ class BBCode
     {
         if (!$params['var']['equal'] || in_array($params['var']['equal'], array('1', 'a', 'A', 'i', 'I')))
         {
-            $params['tree']['case'] = str_replace('<br />', '', $params['tree']['case']);
-            $params['tree']['case'] = explode($params['var']['delimiter'], $params['tree']['case']);
-            $size = count($params['tree']['case']);
+            $params['case'] = str_replace('<br />', '', $params['case']);
+            $params['case'] = explode($params['var']['delimiter'], $params['case']);
+            $size = count($params['case']);
             for ($i = 0; $i < $size; $i++)
             {
                 if ($i != 0)
                 {
-                    $params['tree']['case'][$i] = $params['var']['open'] . $params['tree']['case'][$i] . $params['var']['close'];
+                    $params['case'][$i] = $params['var']['open'] . $params['case'][$i] . $params['var']['close'];
                 }
             }
-            $params['tree']['case'] = implode('', $params['tree']['case']);
+            $params['case'] = implode('', $params['case']);
         }
         else
         {
-            $params['var']['template'] = $params['tree']['rule'] . $params['tree']['case'] . $params['rules'][$params['tree']['rule']]['close'];
+            $params['var']['template'] = $params['tree']['rule'] . $params['case'] . $params['rules'][$params['tree']['rule']]['close'];
         }
         return $params;
     }
@@ -472,9 +472,9 @@ class BBCode
 
     public function template($params)
     {
-        $params['suit']->var->case = $params['tree']['case'];
+        $params['suit']->var->case = $params['case'];
         $params['suit']->var->equal = $params['var']['equal'];
-        $params['tree']['case'] = $params['suit']->execute($params['suit']->rules, $params['var']['template']);
+        $params['case'] = $params['suit']->execute($params['suit']->rules, $params['var']['template']);
         return $params;
     }
 }

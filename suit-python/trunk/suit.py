@@ -16,7 +16,6 @@ http://www.selfframework.com/docs/credits
 """
 import copy
 from hashlib import md5
-from sets import Set
 try:
     import simplejson as json
 except ImportError:
@@ -36,23 +35,18 @@ cache = {
     'tokens': {}
 }
 
-log = {
-    'id': 0,
-    'parallel': [],
-    'tree': []
-}
+log = []
 
 class Singleton(type):
     """Singleton implementation"""
-    def __init__(cls, name, bases, dict):
-        super(Singleton, cls).__init__(name, bases, dict)
-        cls.instance = None
+    def __init__(mcs, name, bases, dictionary):
+        super(Singleton, mcs).__init__(name, bases, dictionary)
+        mcs.instance = None
 
-    def __call__(cls, *args, **kw):
-        if cls.instance is None:
-            cls.instance = super(Singleton, cls).__call__(*args, **kw)
-
-        return cls.instance
+    def __call__(mcs, *args, **kw):
+        if mcs.instance is None:
+            mcs.instance = super(Singleton, mcs).__call__(*args, **kw)
+        return mcs.instance
 
 class MyClass(object):
     """Wrapper for Singleton"""
@@ -67,9 +61,9 @@ def cacherules(rules, keys):
         cachedkeys = {
             'key': rulekey
         }
-        for property in keys:
-            if property in rulevalue:
-                cachedkeys[property] = rulevalue[property]
+        for key in keys:
+            if key in rulevalue:
+                cachedkeys[key] = rulevalue[key]
         cachedrules[rulekey] = cachedkeys
     return cachedrules
 
@@ -90,7 +84,6 @@ def close(params, pop, closed):
         params['flat'].discard(params['rule'])
     else:
         append = {
-            'case': '',
             'contents': [],
             'create': append,
             'rule': params['rules'][pop['rule']]['create'],
@@ -145,7 +138,7 @@ def closingstring(params):
     return params
 
 def execute(rules, string, config = None):
-    """Parse string using rules"""
+    """Translate string using rules"""
     if config == None:
         config = {}
     if not 'escape' in config:
@@ -184,7 +177,6 @@ def execute(rules, string, config = None):
         tree = cache['parse'][cachekey]
     else:
         tree = {
-            'case': '',
             'contents': parse(rules, string, config, pos),
             'parallel': []
         }
@@ -192,14 +184,16 @@ def execute(rules, string, config = None):
             tree['rule'] = ''
         #Cache the tree
         cache['parse'][cachekey] = tree
-    #If the parallel array is not empty, mark that this call is running next to
-    #it
-    if log['parallel']:
-        log['parallel'][len(log['parallel']) - 1].append(log['id'])
-    result = walk(rules, tree, config)
-    result['tree']['original'] = string
-    log['tree'].append(result['tree'])
-    return result['tree']['case']
+    key = len(log)
+    log.append({
+        'config': config,
+        'rules': logrules(rules),
+        'parse': tree,
+        'string': string,
+        'tokens': pos
+    })
+    log[key]['walk'] = walk(rules, tree, config)['case']
+    return log[key]['walk']
 
 def functions(params, function):
     """Run through the provided functions"""
@@ -208,6 +202,19 @@ def functions(params, function):
         if not params['function']:
             break
     return params
+
+def logrules(rules):
+    """Prepare the rules for logging"""
+    rules = rules.copy()
+    for key, value in rules.items():
+        rules[key] = rules[key].copy()
+        if 'postwalk' in value:
+            del rules[key]['postwalk']
+        if 'prewalk' in value:
+            del rules[key]['prewalk']
+        if 'var' in value:
+            del rules[key]['var']
+    return rules
 
 def notclosed(tree):
     """Check whether or not the last item is a closed rule"""
@@ -243,7 +250,6 @@ def openingstring(params):
                 params['tree'].append(append)
             #Add the rule to the tree
             append = {
-                'case': '',
                 'contents': [],
                 'rule': params['rule'],
                 'parallel': []
@@ -278,7 +284,7 @@ def parse(rules, string, config, pos):
     """Generate the tree for execute"""
     params = {
         'config': config,
-        'flat': Set([]),
+        'flat': set([]),
         'last': 0,
         'rules': rules,
         'skipstack': [],
@@ -461,6 +467,7 @@ def walk(rules, tree, config, recursed = False):
     if not recursed:
         tree = copy.deepcopy(tree)
     params = {
+        'case': '',
         'config': config,
         'function': True,
         'rules': rules,
@@ -470,8 +477,6 @@ def walk(rules, tree, config, recursed = False):
         'tree': tree,
         'walk': True
     }
-    params['tree']['id'] = log['id']
-    log['id'] += 1
     if ('rule' in params['tree'] and
     'var' in params['rules'][params['tree']['rule']]):
         params['var'] = params['rules'][params['tree']['rule']]['var']
@@ -479,34 +484,29 @@ def walk(rules, tree, config, recursed = False):
         params['create'] = params['tree']['create']
     if ('rule' in params['tree'] and
     'prewalk' in params['rules'][params['tree']['rule']]):
-        log['parallel'].append([])
         #Run the functions meant to be executed before walking through the tree
         params = functions(
             params,
             params['rules'][params['tree']['rule']]['prewalk']
         )
-        if log['parallel']:
-            params['tree']['parallel'].extend(log['parallel'].pop())
     for value in enumerate(params['tree']['contents']):
         if not params['walk']:
             break
         if isinstance(params['tree']['contents'][value[0]], dict):
             params = walkarray(params, value[0])
         else:
-            params['tree']['case'] += params['tree']['contents'][value[0]]
+            params['case'] += params['tree']['contents'][value[0]]
     if ('rule' in params['tree'] and
     'postwalk' in params['rules'][params['tree']['rule']]):
         params['function'] = True
-        log['parallel'].append([])
         #Transform the case with the specified functions
         params = functions(
             params,
             params['rules'][params['tree']['rule']]['postwalk']
         )
-        if log['parallel']:
-            params['tree']['parallel'].extend(log['parallel'].pop())
-    params['tree']['case'] = str(params['tree']['case'])
+    params['case'] = str(params['case'])
     return {
+        'case': params['case'],
         'functions': params['returnfunctions'],
         'tree': params['tree'],
         'var': params['returnvar']
@@ -530,27 +530,23 @@ def walkarray(params, key):
             True
         )
         params['tree']['contents'][key] = result['tree']
-        params['tree']['case'] += result['tree']['case']
+        params['case'] += result['case']
         #Run the functions that have been returned
         params['key'] = key
         params['returnedvar'] = result['var']
-        log['parallel'].append([])
         params = functions(params, result['functions'])
-        if log['parallel']:
-            params['tree']['parallel'].extend(log['parallel'].pop())
         del params['key']
         del params['returnedvar']
     #Else, execute it, ignoring the original opening string, with no rule
     else:
         tree = {
-            'case': '',
             'contents': params['tree']['contents'][key]['contents'],
             'parallel': []
         }
         result = walk(params['rules'], tree, params['config'], True)
         if 'rule' in params['tree']['contents'][key]:
-            params['tree']['case'] += params['tree']['contents'][
+            params['case'] += params['tree']['contents'][
                 key
             ]['rule']
-        params['tree']['case'] += result['tree']['case']
+        params['case'] += result['case']
     return params

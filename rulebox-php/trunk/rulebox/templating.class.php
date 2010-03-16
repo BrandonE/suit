@@ -457,11 +457,11 @@ class Templating
         {
             if ($params['var']['json'])
             {
-                $params['tree']['case'] = json_decode($params['tree']['case']);
+                $params['case'] = json_decode($params['case']);
             }
-            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['tree']['case'], $params['suit']->var);
+            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['case'], $params['suit']->var);
         }
-        $params['tree']['case'] = '';
+        $params['case'] = '';
         return $params;
     }
 
@@ -496,7 +496,7 @@ class Templating
         $params['var'] = $params['var']['var'];
         if (array_key_exists('onesided', $var) && $var['onesided'])
         {
-            $case = $params['tree']['case'];
+            $case = $params['case'];
         }
         elseif (array_key_exists('create', $params))
         {
@@ -554,13 +554,13 @@ class Templating
 
     public function bracket($params)
     {
-        $params['tree']['case'] = $params['tree']['rule'] . $params['tree']['case'] . $params['rules'][$params['tree']['rule']]['close'];
+        $params['case'] = $params['tree']['rule'] . $params['case'] . $params['rules'][$params['tree']['rule']]['close'];
         return $params;
     }
 
     public function comments($params)
     {
-        $params['tree']['case'] = '';
+        $params['case'] = '';
         return $params;
     }
 
@@ -587,20 +587,20 @@ class Templating
     {
         if (!$params['var']['json'] && $params['var']['entities'])
         {
-            $params['tree']['case'] = htmlentities(strval($params['tree']['case']));
+            $params['case'] = htmlentities(strval($params['case']));
         }
         return $params;
     }
 
     public function evaluation($params)
     {
-        $params['tree']['case'] = eval($params['tree']['case']);
+        $params['case'] = eval($params['case']);
         return $params;
     }
 
     public function execute($params)
     {
-        $params['tree']['case'] = $params['suit']->execute($params['rules'], $params['tree']['case'], $params['config']);
+        $params['case'] = $params['suit']->execute($params['rules'], $params['case'], $params['config']);
         return $params;
     }
 
@@ -612,11 +612,11 @@ class Templating
         //Note whether or not the function is in a class
         if (array_key_exists('owner', $params['var']))
         {
-            $params['tree']['case'] = $params['var']['owner']->$params['var']['function']($kwargs);
+            $params['case'] = $params['var']['owner']->$params['var']['function']($kwargs);
         }
         else
         {
-            $params['tree']['case'] = $params['var']['function']($kwargs);
+            $params['case'] = $params['var']['function']($kwargs);
         }
         return $params;
     }
@@ -706,7 +706,7 @@ class Templating
             }
         }
         //Implode the iterations
-        $params['tree']['case'] = implode($params['var']['delimiter'], $iterations);
+        $params['case'] = implode($params['var']['delimiter'], $iterations);
         $params['walk'] = false;
         return $params;
     }
@@ -738,7 +738,7 @@ class Templating
             );
             $params['returnfunctions'] = $params['returnvar']['returnfunctions'];
         }
-        $params['tree']['case'] = '';
+        $params['case'] = '';
         return $params;
     }
 
@@ -760,26 +760,26 @@ class Templating
     public function templates($params)
     {
         //If the variable is not whitelisted or blacklisted and the file exists
-        if ($this->listing($params['tree']['case'], $params['var']) && is_file($params['tree']['case']))
+        if ($this->listing($params['case'], $params['var']) && is_file($params['case']))
         {
-            $params['tree']['case'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['tree']['case'])));
+            $params['case'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['case'])));
         }
         else
         {
-            $params['tree']['case'] = '';
+            $params['case'] = '';
         }
         return $params;
     }
 
     public function transform($params)
     {
-        $params['var']['string'] = $params['tree']['case'];
+        $params['var']['string'] = $params['case'];
         return $params;
     }
 
     public function trim($params)
     {
-        $params['tree']['case'] = $params['suit']->execute(
+        $params['case'] = $params['suit']->execute(
             array
             (
                 '' => array
@@ -804,10 +804,10 @@ class Templating
                     'skip' => true
                 )
             ),
-            $params['tree']['case'],
+            $params['case'],
             $params['config']
         );
-        $params['tree']['case'] = trim($params['tree']['case']);
+        $params['case'] = trim($params['case']);
         return $params;
     }
 
@@ -817,11 +817,11 @@ class Templating
         {
             if (is_array($params['tree']['contents'][$key]))
             {
-                $params['tree']['case'] .= $params['tree']['contents'][$key]['rule'] . $params['tree']['contents'][$key]['contents'][0] . $params['rules'][$params['tree']['contents'][$key]['rule']]['close'];
+                $params['case'] .= $params['tree']['contents'][$key]['rule'] . $params['tree']['contents'][$key]['contents'][0] . $params['rules'][$params['tree']['contents'][$key]['rule']]['close'];
             }
             else
             {
-                $params['tree']['case'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]) . substr($params['tree']['contents'][$key], strlen(rtrim($params['tree']['contents'][$key])));
+                $params['case'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]) . substr($params['tree']['contents'][$key], strlen(rtrim($params['tree']['contents'][$key])));
             }
         }
         $params['walk'] = false;
@@ -836,7 +836,7 @@ class Templating
         }
         try
         {
-            $result = $params['suit']->execute($params['rules'], $params['tree']['case'], $params['config']);
+            $result = $params['suit']->execute($params['rules'], $params['case'], $params['config']);
         }
         catch (Exception $e)
         {
@@ -845,7 +845,7 @@ class Templating
             {
                 $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
             }
-            $params['tree']['case'] = '';
+            $params['case'] = '';
         }
         return $params;
     }
@@ -853,7 +853,7 @@ class Templating
     public function variables($params)
     {
         $variable = $params['var']['owner'];
-        foreach (explode($params['var']['delimiter'], $params['tree']['case']) as $value)
+        foreach (explode($params['var']['delimiter'], $params['case']) as $value)
         {
             if (is_array($variable))
             {
@@ -868,7 +868,7 @@ class Templating
         {
             $variable = json_encode($variable);
         }
-        $params['tree']['case'] = $variable;
+        $params['case'] = $variable;
         return $params;
     }
 }

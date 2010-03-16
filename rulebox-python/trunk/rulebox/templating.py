@@ -37,14 +37,14 @@ def assign(params):
     #If a variable is provided
     if params['var']['var']:
         if params['var']['json']:
-            params['tree']['case'] = json.loads(params['tree']['case'])
+            params['case'] = json.loads(params['case'])
         assignvariable(
             params['var']['var'],
             params['var']['delimiter'],
-            params['tree']['case'],
+            params['case'],
             params['var']['owner']
         )
-    params['tree']['case'] = ''
+    params['case'] = ''
     return params
 
 def assignvariable(string, split, assignment, var):
@@ -69,7 +69,7 @@ def attribute(params):
     var = params['var']
     params['var'] = params['var']['var'].copy()
     if 'onesided' in var and var['onesided']:
-        case = params['tree']['case']
+        case = params['case']
     elif 'create' in params:
         case = params['create']
     else:
@@ -111,16 +111,16 @@ def attribute(params):
 
 def bracket(params):
     """Handle brackets unrelated to the rules"""
-    params['tree']['case'] = ''.join((
+    params['case'] = ''.join((
         params['tree']['rule'],
-        params['tree']['case'],
+        params['case'],
         params['rules'][params['tree']['rule']]['close']
     ))
     return params
 
 def comments(params):
     """Hide a string"""
-    params['tree']['case'] = ''
+    params['case'] = ''
     return params
 
 def condition(params):
@@ -149,28 +149,28 @@ def decode(params):
 def entities(params):
     """Convert HTML characters to their respective entities"""
     if not params['var']['json'] and params['var']['entities']:
-        params['tree']['case'] = cgi.escape(str(params['tree']['case']))
+        params['case'] = cgi.escape(str(params['case']))
     return params
 
 def evaluation(params):
     """Evaluate a Python statement"""
-    params['tree']['case'] = eval(params['tree']['case'])
+    params['case'] = eval(params['case'])
     return params
 
 def execute(params):
     """Execute the case"""
-    params['tree']['case'] = suit.execute(
+    params['case'] = suit.execute(
         params['rules'],
-        params['tree']['case'],
+        params['case'],
         params['config']
     )
     return params
 
 def functions(params):
     """Perform a function call"""
-    params['tree']['case'] = ''
+    params['case'] = ''
     if 'string' in params['var']:
-        params['tree']['case'] = params['var']['string']
+        params['case'] = params['var']['string']
     if params['var']['function'] and params['var']['owner']:
         kwargs = params['var'].copy()
         del kwargs['function']
@@ -189,7 +189,7 @@ def functions(params):
                     params['var']['owner'],
                     params['var']['function']
                 )
-        params['tree']['case'] = params['var']['function'](**kwargs)
+        params['case'] = params['var']['function'](**kwargs)
     return params
 
 def listing(name, var):
@@ -255,7 +255,7 @@ def loop(params):
                 setattr(params['var']['owner'], params['var']['value'], value)
         #Execute for this iteration
         iterations.append(
-            suit.walk(params['rules'], tree, params['config'])['tree']['case']
+            suit.walk(params['rules'], tree, params['config'])['case']
         )
         if 'recurse' in params['var'] and params['var']['recurse']:
             if 'dictkey' in old:
@@ -277,7 +277,7 @@ def loop(params):
                     old['objvalue']
                 )
     #Implode the iterations
-    params['tree']['case'] = params['var']['delimiter'].join(iterations)
+    params['case'] = params['var']['delimiter'].join(iterations)
     params['walk'] = False
     return params
 
@@ -289,7 +289,7 @@ def returning(params):
             'layers': params['var']['layers']
         }
         params['returnfunctions'] = params['returnvar']['returnfunctions']
-    params['tree']['case'] = ''
+    params['case'] = ''
     return params
 
 def returningfunction(params):
@@ -305,22 +305,22 @@ def returningfunction(params):
 def templates(params):
     """Grab a template from a file"""
     #If the template is not whitelisted or blacklisted
-    if listing(params['tree']['case'], params['var']):
-        params['tree']['case'] = open(
-            os.path.normpath(params['tree']['case'])
+    if listing(params['case'], params['var']):
+        params['case'] = open(
+            os.path.normpath(params['case'])
         ).read()
     else:
-        params['tree']['case'] = ''
+        params['case'] = ''
     return params
 
 def transform(params):
     """Send case as argument for functions"""
-    params['var']['string'] = params['tree']['case']
+    params['var']['string'] = params['case']
     return params
 
 def trim(params):
     """Prepare the trim rules"""
-    params['tree']['case'] = suit.execute(
+    params['case'] = suit.execute(
         {
             '':
             {
@@ -337,17 +337,17 @@ def trim(params):
                 'skip': True
             }
         },
-        params['tree']['case'],
+        params['case'],
         params['config']
     )
-    params['tree']['case'] = params['tree']['case'].lstrip()
+    params['case'] = params['case'].lstrip()
     return params
 
 def trimexecute(params):
     """Trim unnecessary whitespace"""
     for value in enumerate(params['tree']['contents']):
         if isinstance(params['tree']['contents'][value[0]], dict):
-            params['tree']['case'] += ''.join((
+            params['case'] += ''.join((
                 params['tree']['contents'][value[0]]['rule'],
                 params['tree']['contents'][value[0]]['contents'][0],
                 params['rules'][
@@ -355,7 +355,7 @@ def trimexecute(params):
                 ]['close']
             ))
         else:
-            params['tree']['case'] += ''.join((
+            params['case'] += ''.join((
                 re.sub(
                     '(?m)[\s]+$',
                     '',
@@ -374,9 +374,9 @@ def trying(params):
     if params['var']['var']:
         setattr(suit, params['var']['var'], '')
     try:
-        params['tree']['case'] = suit.execute(
+        params['case'] = suit.execute(
             params['rules'],
-            params['tree']['case'],
+            params['case'],
             params['config']
         )
     except Exception, inst:
@@ -388,13 +388,13 @@ def trying(params):
                 inst,
                 params['var']['owner']
             )
-        params['tree']['case'] = ''
+        params['case'] = ''
     return params
 
 def variables(params):
     """Parse variables"""
     variable = params['var']['owner']
-    for value in params['tree']['case'].split(params['var']['delimiter']):
+    for value in params['case'].split(params['var']['delimiter']):
         try:
             variable = variable[value]
         except (AttributeError, TypeError):
@@ -404,7 +404,7 @@ def variables(params):
                 variable = getattr(variable, value)
     if params['var']['json']:
         variable = json.dumps(variable)
-    params['tree']['case'] = variable
+    params['case'] = variable
     return params
 
 rules = {
