@@ -34,68 +34,47 @@ __all__ = [
     'tmpl_context', 'url_for'
 ]
 
-def assign(params):
-    """Assign variable in template"""
-    #If a variable is provided
-    if params['var']['var']:
-        if params['var']['json']:
-            params['case'] = json.loads(params['case'])
-        templating.assignvariable(
-            params['var']['var'],
-            params['var']['delimiter'],
-            params['case'],
-            c
-        )
-    params['case'] = ''
-    return params
-
-def entities(params):
-    """Convert HTML characters to their respective entities"""
-    if not params['var']['json'] and params['var']['entities']:
-        params['case'] = escape(params['case'])
-    return params
-
 def gettext(params):
     """Grabs a gettext string."""
-    params['case'] = _(params['case'])
+    params['string'] = _(params['string'])
     return params
 
 def templates(params):
     """Grab a template from a file"""
     try:
-        filename = os.path.normpath(params['case'])
+        filename = os.path.normpath(params['string'])
         filepath = os.path.abspath(
             os.path.join(config['pylons.paths']['templates'], filename)
         )
-        params['case'] = ''
+        params['string'] = ''
         if filepath.startswith(config['pylons.paths']['templates']):
-            params['case'] = open(filepath).read()
+            params['string'] = open(filepath).read()
     except IOError:
         pass
     return params
 
 def tmpl_context(params):
-    """Rip-off of SUIT's default [var] rule. Reads variables from the
+    """Rip-off of SUIT's templating.default [var] rule. Reads variables from the
     tmpl_context.
     """
     for key, value in enumerate(
-        params['case'].split(params['var']['delimiter'])
+        params['string'].split(params['var']['delimiter'])
     ):
         if key == 0:
-            params['case'] = getattr(c, value)
+            params['string'] = getattr(c, value)
         else:
             try:
-                params['case'] = params['case'][value]
+                params['string'] = params['string'][value]
             except (AttributeError, TypeError):
                 try:
-                    params['case'] = params['case'][int(value)]
+                    params['string'] = params['string'][int(value)]
                 except (AttributeError, TypeError, ValueError):
-                    params['case'] = getattr(
-                        params['case'],
+                    params['string'] = getattr(
+                        params['string'],
                         value
                     )
     if params['var']['json']:
-        params['case'] = json.dumps(params['case'])
+        params['string'] = json.dumps(params['string'])
     return params
 
 def url_for(params):
@@ -103,12 +82,12 @@ def url_for(params):
     url_params = {}
     for key, value in params['var'].items():
         url_params[str(key)] = value
-    params['case'] = url(**url_params)
+    params['string'] = url(**url_params)
     return params
 
 suitrules = templating.rules.copy()
 
-# Adjust the default rules for Pylons' convenience.
+# Adjust the templating.default rules for Pylons' convenience.
 suitrules['[assign]'] = suitrules['[assign]'].copy()
 suitrules['[assign]']['var'] = suitrules['[assign]']['var'].copy()
 suitrules['[assign]']['var']['var'] = suitrules[
@@ -118,8 +97,6 @@ suitrules['[assign]']['var']['var']['owner'] = c
 
 suitrules['[c]'] = suitrules['[var]'].copy()
 suitrules['[c]']['close'] = '[/c]'
-suitrules['[c]']['postwalk'] = suitrules['[c]']['postwalk'][:]
-suitrules['[c]']['postwalk'][-1] = templating.entities
 suitrules['[c]']['var'] = suitrules['[c]']['var'].copy()
 suitrules['[c]']['var']['var'] = suitrules['[c]']['var']['var'].copy()
 suitrules['[c]']['var']['var']['owner'] = c
@@ -144,13 +121,7 @@ pylonsrules = {
     '[gettext]':
     {
         'close': '[/gettext]',
-        'postwalk': [gettext],
-        'var':
-        {
-            'equal': '=',
-            'quote': ('"', '\''),
-            'var': {}
-        }
+        'postwalk': [gettext]
     },
     '[url':
     {
@@ -162,9 +133,10 @@ pylonsrules = {
         'skip': True,
         'var':
         {
-            'equal': '=',
+            'equal': templating.default['equal'],
+            'log': templating.default['log'],
             'onesided': True,
-            'quote': ('"', '\''),
+            'quote': templating.default['quote'],
             'var': {}
         }
     }

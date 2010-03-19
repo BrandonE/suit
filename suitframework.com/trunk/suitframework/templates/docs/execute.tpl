@@ -11,7 +11,7 @@
 	<legend><a id="parameters" href="#parameters">[gettext]Parameters[/gettext]</a></legend>
 	<fieldset>
 		<legend><a id="rules" href="#rules">rules</a></legend>
-		<p>[gettext]The rules to use to translate the string.[/gettext]</p>
+		<p>[gettext]The <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a> to use to translate the string.[/gettext]</p>
 	</fieldset>
 	<fieldset>
 		<legend><a id="string" href="#string">string</a></legend>
@@ -31,7 +31,7 @@
                 <tbody>
                     <tr>
                         <td>escape</td>
-                        <td>[gettext]str: The escape string.[/gettext]</td>
+                        <td>[gettext]str: The <a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">escape</a> string.[/gettext]</td>
                         <td>\</td>
                     </tr>
                 </tbody>
@@ -78,12 +78,58 @@
         <fieldset>
             <legend><a id="basicusagephp" href="#basicusagephp">[gettext]PHP[/gettext]</a></legend>
             [transform function="pygments" lexer="php"]<?php
-echo 'Test';
+function upper($params)
+{
+    $params['case'] = strtoupper($params['case']);
+    return $params;
+}
+
+require 'suit.class.php';
+$suit = new SUIT();
+
+$template = file_get_contents('template.tpl');
+$rules = array
+(
+    '[upper]' => array
+    (
+        'close' => '[/upper]',
+        'postwalk' => array
+        (
+            array
+            (
+                'function' => 'upper'
+            )
+        )
+    )
+);
+echo $suit->execute($rules, $template); //Welcome to the site of SUIT Framework.
 ?>[/transform]
         </fieldset>
         <fieldset>
             <legend><a id="basicusagepython" href="#basicusagepython">[gettext]Python[/gettext]</a></legend>
-            [transform function="pygments" lexer="python"]import test[/transform]
+            [transform function="pygments" lexer="python"]def upper(params):
+    params['case'] = params['case'].upper()
+    return params
+
+import suit
+
+template = open('template.tpl').read()
+rules = {
+    '[upper]': {
+        'close': '[/upper]',
+        'postwalk': [upper]
+    }
+}
+print suit.execute(rules, template) #Welcome to the site of SUIT Framework.
+[/transform]
         </fieldset>
     </fieldset>
+</fieldset>
+
+<fieldset>
+	<legend><a id="seealso" href="#seealso">[gettext]See Also[/gettext]</a></legend>
+		<ul>
+			<li><a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">[gettext]Rules[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">[gettext]Escaping[/gettext]</a></li>
+		</ul>
 </fieldset>

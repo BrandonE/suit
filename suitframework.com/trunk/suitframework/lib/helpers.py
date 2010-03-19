@@ -11,6 +11,7 @@ except ImportError:
     import json
 import os
 from glob import glob
+from pprint import pformat
 from pylons import config, request, response, tmpl_context as c, url
 from pylons.controllers.util import redirect
 from pylons.i18n import get_lang, set_lang, ugettext as _gettext
@@ -28,14 +29,39 @@ def docs():
             'articles': 
             [
                 {
+                    'title': 'Getting Started',
+                    'jump': '',
+                    'url': 'gettingstarted'
+                },
+                {
+                    'title': 'Rules',
+                    'jump': '',
+                    'url': 'rules'
+                },
+                {
+                    'title': 'Rules Vs. Functions',
+                    'jump': '',
+                    'url': 'rulesvsfunctions'
+                },
+                {
+                    'title': 'Escaping',
+                    'jump': '',
+                    'url': 'gettingstarted'
+                },
+                {
                     'title': 'FAQ',
                     'jump': '',
                     'url': 'faq'
                 },
                 {
-                    'title': 'Getting Started',
+                    'title': 'Changelog',
                     'jump': '',
-                    'url': 'gettingstarted'
+                    'url': 'changelog'
+                },
+                {
+                    'title': 'Credits',
+                    'jump': '',
+                    'url': 'credits'
                 }
             ],
             'title': 'General',
@@ -57,6 +83,31 @@ def docs():
             ],
             'title': 'SUIT Functions',
             'url': 'suitfunctions'
+        },
+        {
+            'articles': [],
+            'title': 'Templating Rules',
+            'url': 'templatingrules'
+        },
+        {
+            'articles': [],
+            'title': 'BBCode Rules',
+            'url': 'bbcoderules'
+        },
+        {
+            'articles': [],
+            'title': 'SUITlons Rules',
+            'url': 'suitlonsrules'
+        },
+        {
+            'articles': [],
+            'title': 'Helper Functions',
+            'url': 'helperfunctions'
+        },
+        {
+            'articles': [],
+            'title': 'Subprojects',
+            'url': 'subprojects'
         }
     ]
     c.condition.notfound = False
@@ -88,6 +139,9 @@ def docs():
         c.condition.notfound = True
         c.condition.matches = (c.loop.search)
     return ''
+
+def format(string):
+    return json.dumps(json.loads(string), sort_keys = True, indent = 4)
 
 def header():
     if ('submit' in request.POST and
@@ -131,15 +185,20 @@ def slacks():
             )),
             code = 303
         )
-    c.referrer = request.headers["referer"]
-    c.condition.tree = False
+    c.referrer = ''
+    if 'referer' in request.headers:
+        c.referrer = request.headers['referer']
+    c.condition.first = True
+    c.condition.log = False
     c.condition.referrer = ('referrer' in request.GET and
     request.GET['referrer'])
-    c.loop.tree = []
+    c.log = []
+    c.parent = '0'
     try:
-        tree = ''
+        c.log = ''
         if 'url' in request.GET:
-            tree = urllib.urlopen(
+            suit.log['entries'] = []
+            c.log = urllib.urlopen(
                 request.GET['url'],
                 urllib.urlencode({
                     'slacks': 'true'
@@ -147,16 +206,9 @@ def slacks():
             ).read()
         elif ('submit' in request.POST and
         request.POST['submit'] == _gettext('Upload')):
-            tree = request.POST['file'].file.read()
-        tree = json.loads(tree)
-        tree.sort(key = lambda item: item['id'])
-        tree = slacksrecurse(
-            tree,
-            _gettext('No Wrapper'),
-            _gettext('Wrapper')
-        )
-        c.condition.tree = True
-        c.loop.tree = tree
+            c.log = request.POST['file'].file.read()
+        c.log = json.loads(c.log)
+        c.condition.log = True
     except (
         AttributeError,
         EOFError,
@@ -168,33 +220,32 @@ def slacks():
         pass
     return ''
 
-def slacksrecurse(tree, nowrapper, wrapper):
-    for key, value in enumerate(tree):
-        tree[key] = {
-            'array': False,
-            'contents': value,
-            'recursed': True
-        }
-        if isinstance(value, dict):
-            tree[key] = value
-            tree[key]['array'] = True
-            tree[key]['recursed'] = (not 'original' in tree[key])
-            tree[key]['created'] = ('create' in tree[key])
-            tree[key]['contents'] = slacksrecurse(
-                value['contents'],
-                nowrapper,
-                wrapper
-            )
-            tree[key]['recursed'] = (not 'original' in value);
-            if not 'rule' in value:
-                tree[key]['rule'] = nowrapper
-            elif not value['rule']:
-                tree[key]['rule'] = wrapper
-            for key2, value2 in enumerate(value['parallel']):
-                tree[key]['parallel'][key2] = {
-                    'parallel': value2
-                }
-    return tree
+def tokenshighlight(tokens, open, close, flat, end, string):
+    tokens = json.loads(tokens)
+    offset = 0
+    original = string
+    last = 0
+    for key, value in tokens:
+        color = open
+        if value['type'] == 'close':
+            color = close
+        elif value['type'] == 'flat':
+            color = flat
+        string = ''.join((
+            string[0:last],
+            escape(string[last:key + offset]),
+            color,
+            escape(string[key + offset:key + offset + len(value['rule'])]),
+            end,
+            string[key + offset + len(value['rule']):len(string)]
+        ))
+        offset = len(string) - len(original)
+        last = key + len(value['rule']) + offset
+    string = ''.join((
+        string[0:last],
+        escape(string[last:len(string)])
+     ))
+    return string
 
 def tryit():
     if 'submit' in request.POST and request.POST['submit']:

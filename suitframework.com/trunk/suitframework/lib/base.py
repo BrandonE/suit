@@ -6,7 +6,8 @@ from pylons import tmpl_context as c
 from pylons.controllers import WSGIController
 from pylons.i18n import ugettext as _
 
-from suit import MyClass
+class Class():
+    pass
 
 from suitframework.lib.templating import render, render_page
 from suitframework.lib import helpers as h
@@ -15,8 +16,8 @@ from suitframework.model import meta
 class BaseController(WSGIController):
 
     def __before__(self): 
-        c.loop = MyClass()
-        c.condition = MyClass()
+        c.loop = Class()
+        c.condition = Class()
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""

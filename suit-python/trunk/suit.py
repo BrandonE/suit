@@ -11,8 +11,8 @@
 **@along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
-http://www.selfframework.com/
-http://www.selfframework.com/docs/credits
+http://www.suitframework.com/
+http://www.suitframework.com/docs/credits
 """
 import copy
 from hashlib import md5
@@ -31,11 +31,15 @@ __all__ = [
 __version__ = '2.0.0'
 
 cache = {
+    'hash': {},
     'parse': {},
     'tokens': {}
 }
 
-log = []
+log = {
+    'hash': {},
+    'entries': []
+}
 
 class Singleton(type):
     """Singleton implementation"""
@@ -53,19 +57,6 @@ class MyClass(object):
     __metaclass__ = Singleton
 
 var = MyClass()
-
-def cacherules(rules, keys):
-    """Cache the provided items of the rules"""
-    cachedrules = {}
-    for rulekey, rulevalue in rules.items():
-        cachedkeys = {
-            'key': rulekey
-        }
-        for key in keys:
-            if key in rulevalue:
-                cachedkeys[key] = rulevalue[key]
-        cachedrules[rulekey] = cachedkeys
-    return cachedrules
 
 def close(params, pop, closed):
     """Close the rule"""
@@ -86,8 +77,7 @@ def close(params, pop, closed):
         append = {
             'contents': [],
             'create': append,
-            'rule': params['rules'][pop['rule']]['create'],
-            'parallel': []
+            'rule': params['rules'][pop['rule']]['create']
         }
         params['tree'].append(append)
         params['skipstack'] = skip(
@@ -137,63 +127,76 @@ def closingstring(params):
         params['skipstack'].append(params['skip'])
     return params
 
-def execute(rules, string, config = None):
+def execute(rules, string, config = {}):
     """Translate string using rules"""
-    if config == None:
-        config = {}
     if not 'escape' in config:
         config['escape'] = '\\'
     if not 'insensitive' in config:
         config['insensitive'] = True
+    if not 'log' in config:
+        config['log'] = True
     if not 'mismatched' in config:
         config['mismatched'] = False
     if not 'unclosed' in config:
         config['unclosed'] = False
     cachekey = md5(
-        json.dumps((
-            string,
-            cacherules(rules, ('close')),
-            config['insensitive']
-        ))
+            json.dumps(
+            (
+                string,
+                ruleitems(rules, ('close')),
+                config['insensitive']
+            ),
+            separators = (',', ':')
+        )
     ).hexdigest()
     #If positions are cached for this case, load them
     if cachekey in cache['tokens']:
-        pos = cache['tokens'][cachekey]
+        pos = cache['hash'][cache['tokens'][cachekey]]
     else:
         pos = tokens(rules, string, config)
         #Cache the positions
-        cache['tokens'][cachekey] = pos
+        hashkey = md5(json.dumps(pos, separators = (',', ':'))).hexdigest()
+        cache['hash'][hashkey] = pos
+        cache['tokens'][cachekey] = hashkey
     cachekey = md5(
-        json.dumps((
-            string,
-            cacherules(rules, ('close', 'create', 'skip')),
-            config['insensitive'],
-            config['escape'],
-            config['mismatched']
-        ))
+        json.dumps(
+            (
+                string,
+                ruleitems(rules, ('close', 'create', 'skip')),
+                config['insensitive'],
+                config['escape'],
+                config['mismatched']
+            ),
+            separators = (',', ':')
+        )
     ).hexdigest()
     #If a tree is cached for this case, load it
     if cachekey in cache['parse']:
-        tree = cache['parse'][cachekey]
+        tree = cache['hash'][cache['parse'][cachekey]]
     else:
         tree = {
-            'contents': parse(rules, string, config, pos),
-            'parallel': []
+            'contents': parse(rules, string, config, pos)
         }
         if '' in rules:
             tree['rule'] = ''
         #Cache the tree
-        cache['parse'][cachekey] = tree
-    key = len(log)
-    log.append({
-        'config': config,
-        'rules': logrules(rules),
-        'parse': tree,
-        'string': string,
-        'tokens': pos
-    })
-    log[key]['walk'] = walk(rules, tree, config)['case']
-    return log[key]['walk']
+        hashkey = md5(json.dumps(tree, separators = (',', ':'))).hexdigest()
+        cache['hash'][hashkey] = tree
+        cache['parse'][cachekey] = hashkey
+    if config['log']:
+        key = len(log['entries'])
+        log['entries'].append({
+            'config': config,
+            'parse': tree,
+            'rules': ruleitems(rules, ('close', 'create', 'skip')),
+            'string': string,
+            'tokens': pos
+        })
+    result = walk(rules, tree, config)['string']
+    if config['log']:
+        log['entries'][key]['walk'] = result
+        log['entries'][key] = loghash(log['entries'][key])
+    return result
 
 def functions(params, function):
     """Run through the provided functions"""
@@ -203,18 +206,13 @@ def functions(params, function):
             break
     return params
 
-def logrules(rules):
-    """Prepare the rules for logging"""
-    rules = rules.copy()
-    for key, value in rules.items():
-        rules[key] = rules[key].copy()
-        if 'postwalk' in value:
-            del rules[key]['postwalk']
-        if 'prewalk' in value:
-            del rules[key]['prewalk']
-        if 'var' in value:
-            del rules[key]['var']
-    return rules
+def loghash(entry):
+    """Hash the keys for logging"""
+    for key, value in entry.items():
+        hashkey = md5(json.dumps(value, separators = (',', ':'))).hexdigest()
+        log['hash'][hashkey] = value
+        entry[key] = hashkey
+    return entry
 
 def notclosed(tree):
     """Check whether or not the last item is a closed rule"""
@@ -251,8 +249,7 @@ def openingstring(params):
             #Add the rule to the tree
             append = {
                 'contents': [],
-                'rule': params['rule'],
-                'parallel': []
+                'rule': params['rule']
             }
             params['tree'].append(append)
             params['skipstack'] = skip(
@@ -422,6 +419,16 @@ def positionsloop(params):
         position = params['string'].find(needle, position + 1)
     return params
 
+def ruleitems(rules, items):
+    """Get the specified items from the rules"""
+    newrules = {}
+    for key, value in rules.items():
+        newrules[key] = {}
+        for value2 in items:
+            if value2 in value:
+                newrules[key][value2] = value[value2]
+    return newrules
+
 def skip(rule, skipstack):
     """Skip parsing if necessary"""
     #If the skip key is true, skip over everything between this opening string
@@ -467,13 +474,13 @@ def walk(rules, tree, config, recursed = False):
     if not recursed:
         tree = copy.deepcopy(tree)
     params = {
-        'case': '',
         'config': config,
         'function': True,
         'rules': rules,
         'returnvar': None,
         'returnedvar': None,
         'returnfunctions': [],
+        'string': '',
         'tree': tree,
         'walk': True
     }
@@ -495,7 +502,7 @@ def walk(rules, tree, config, recursed = False):
         if isinstance(params['tree']['contents'][value[0]], dict):
             params = walkarray(params, value[0])
         else:
-            params['case'] += params['tree']['contents'][value[0]]
+            params['string'] += params['tree']['contents'][value[0]]
     if ('rule' in params['tree'] and
     'postwalk' in params['rules'][params['tree']['rule']]):
         params['function'] = True
@@ -504,9 +511,9 @@ def walk(rules, tree, config, recursed = False):
             params,
             params['rules'][params['tree']['rule']]['postwalk']
         )
-    params['case'] = str(params['case'])
+    params['string'] = str(params['string'])
     return {
-        'case': params['case'],
+        'string': params['string'],
         'functions': params['returnfunctions'],
         'tree': params['tree'],
         'var': params['returnvar']
@@ -530,7 +537,7 @@ def walkarray(params, key):
             True
         )
         params['tree']['contents'][key] = result['tree']
-        params['case'] += result['case']
+        params['string'] += result['string']
         #Run the functions that have been returned
         params['key'] = key
         params['returnedvar'] = result['var']
@@ -540,13 +547,12 @@ def walkarray(params, key):
     #Else, execute it, ignoring the original opening string, with no rule
     else:
         tree = {
-            'contents': params['tree']['contents'][key]['contents'],
-            'parallel': []
+            'contents': params['tree']['contents'][key]['contents']
         }
         result = walk(params['rules'], tree, params['config'], True)
         if 'rule' in params['tree']['contents'][key]:
-            params['case'] += params['tree']['contents'][
+            params['string'] += params['tree']['contents'][
                 key
             ]['rule']
-        params['case'] += result['case']
+        params['string'] += result['string']
     return params

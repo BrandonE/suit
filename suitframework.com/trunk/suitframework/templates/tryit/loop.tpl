@@ -6,7 +6,7 @@
         </tr>
     </thead>
     <tbody>
-        [loop value="value" in="[var json='true']members[/var]"]
+        [loop value="value" list="[var json='true']members[/var]"]
         <tr>
             <td>[var]value.name[/var]</td>
             <td>[var]value.group[/var]</td>

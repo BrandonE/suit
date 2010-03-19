@@ -37,14 +37,14 @@ def assign(params):
     #If a variable is provided
     if params['var']['var']:
         if params['var']['json']:
-            params['case'] = json.loads(params['case'])
+            params['string'] = json.loads(params['string'])
         assignvariable(
             params['var']['var'],
             params['var']['delimiter'],
-            params['case'],
+            params['string'],
             params['var']['owner']
         )
-    params['case'] = ''
+    params['string'] = ''
     return params
 
 def assignvariable(string, split, assignment, var):
@@ -69,7 +69,7 @@ def attribute(params):
     var = params['var']
     params['var'] = params['var']['var'].copy()
     if 'onesided' in var and var['onesided']:
-        case = params['case']
+        case = params['string']
     elif 'create' in params:
         case = params['create']
     else:
@@ -102,25 +102,27 @@ def attribute(params):
                     name = ''
             elif name:
                 #Define the variable
+                config = params['config'].copy()
+                config['log'] = var['log']
                 params['var'][name] = suit.execute(
                     params['rules'],
                     value,
-                    params['config']
+                    config
                 )
     return params
 
 def bracket(params):
     """Handle brackets unrelated to the rules"""
-    params['case'] = ''.join((
+    params['string'] = ''.join((
         params['tree']['rule'],
-        params['case'],
+        params['string'],
         params['rules'][params['tree']['rule']]['close']
     ))
     return params
 
 def comments(params):
     """Hide a string"""
-    params['case'] = ''
+    params['string'] = ''
     return params
 
 def condition(params):
@@ -149,32 +151,37 @@ def decode(params):
 def entities(params):
     """Convert HTML characters to their respective entities"""
     if not params['var']['json'] and params['var']['entities']:
-        params['case'] = cgi.escape(str(params['case']))
+        params['string'] = cgi.escape(str(params['string']))
     return params
 
 def evaluation(params):
     """Evaluate a Python statement"""
-    params['case'] = eval(params['case'])
+    params['string'] = eval(params['string'])
     return params
 
 def execute(params):
     """Execute the case"""
-    params['case'] = suit.execute(
+    config = params['config'].copy()
+    config['log'] = params['var']['log']
+    params['string'] = suit.execute(
         params['rules'],
-        params['case'],
-        params['config']
+        params['string'],
+        config
     )
     return params
 
 def functions(params):
     """Perform a function call"""
-    params['case'] = ''
+    params['string'] = ''
     if 'string' in params['var']:
-        params['case'] = params['var']['string']
+        params['string'] = params['var']['string']
     if params['var']['function'] and params['var']['owner']:
         kwargs = params['var'].copy()
         del kwargs['function']
         del kwargs['owner']
+        for key, value in kwargs.items():
+            del kwargs[key]
+            kwargs[str(key)] = value
         try:
             params['var']['function'] = params['var']['owner'][
                 params['var']['function']
@@ -189,7 +196,7 @@ def functions(params):
                     params['var']['owner'],
                     params['var']['function']
                 )
-        params['case'] = params['var']['function'](**kwargs)
+        params['string'] = params['var']['function'](**kwargs)
     return params
 
 def listing(name, var):
@@ -219,11 +226,11 @@ def loop(params):
     """Loop a string with different variables"""
     iterations = []
     tree = {
-        'case': '',
+        'string': '',
         'contents': params['tree']['contents'],
         'parallel': []
     }
-    for key, value in enumerate(params['var']['in']):
+    for key, value in enumerate(params['var']['list']):
         old = {}
         if 'key' in params['var']:
             try:
@@ -255,7 +262,7 @@ def loop(params):
                 setattr(params['var']['owner'], params['var']['value'], value)
         #Execute for this iteration
         iterations.append(
-            suit.walk(params['rules'], tree, params['config'])['case']
+            suit.walk(params['rules'], tree, params['config'])['string']
         )
         if 'recurse' in params['var'] and params['var']['recurse']:
             if 'dictkey' in old:
@@ -277,7 +284,7 @@ def loop(params):
                     old['objvalue']
                 )
     #Implode the iterations
-    params['case'] = params['var']['delimiter'].join(iterations)
+    params['string'] = params['var']['delimiter'].join(iterations)
     params['walk'] = False
     return params
 
@@ -289,7 +296,7 @@ def returning(params):
             'layers': params['var']['layers']
         }
         params['returnfunctions'] = params['returnvar']['returnfunctions']
-    params['case'] = ''
+    params['string'] = ''
     return params
 
 def returningfunction(params):
@@ -305,22 +312,24 @@ def returningfunction(params):
 def templates(params):
     """Grab a template from a file"""
     #If the template is not whitelisted or blacklisted
-    if listing(params['case'], params['var']):
-        params['case'] = open(
-            os.path.normpath(params['case'])
+    if listing(params['string'], params['var']):
+        params['string'] = open(
+            os.path.normpath(params['string'])
         ).read()
     else:
-        params['case'] = ''
+        params['string'] = ''
     return params
 
 def transform(params):
     """Send case as argument for functions"""
-    params['var']['string'] = params['case']
+    params['var']['string'] = params['string']
     return params
 
 def trim(params):
     """Prepare the trim rules"""
-    params['case'] = suit.execute(
+    config = params['config'].copy()
+    config['log'] = params['var']['log']
+    params['string'] = suit.execute(
         {
             '':
             {
@@ -337,17 +346,17 @@ def trim(params):
                 'skip': True
             }
         },
-        params['case'],
-        params['config']
+        params['string'],
+        config
     )
-    params['case'] = params['case'].lstrip()
+    params['string'] = params['string'].lstrip()
     return params
 
 def trimexecute(params):
     """Trim unnecessary whitespace"""
     for value in enumerate(params['tree']['contents']):
         if isinstance(params['tree']['contents'][value[0]], dict):
-            params['case'] += ''.join((
+            params['string'] += ''.join((
                 params['tree']['contents'][value[0]]['rule'],
                 params['tree']['contents'][value[0]]['contents'][0],
                 params['rules'][
@@ -355,7 +364,7 @@ def trimexecute(params):
                 ]['close']
             ))
         else:
-            params['case'] += ''.join((
+            params['string'] += ''.join((
                 re.sub(
                     '(?m)[\s]+$',
                     '',
@@ -374,10 +383,12 @@ def trying(params):
     if params['var']['var']:
         setattr(suit, params['var']['var'], '')
     try:
-        params['case'] = suit.execute(
+        config = params['config'].copy()
+        config['log'] = params['var']['log']
+        params['string'] = suit.execute(
             params['rules'],
-            params['case'],
-            params['config']
+            params['string'],
+            config
         )
     except Exception, inst:
         #If a variable is provided
@@ -388,13 +399,13 @@ def trying(params):
                 inst,
                 params['var']['owner']
             )
-        params['case'] = ''
+        params['string'] = ''
     return params
 
 def variables(params):
     """Parse variables"""
     variable = params['var']['owner']
-    for value in params['case'].split(params['var']['delimiter']):
+    for value in params['string'].split(params['var']['delimiter']):
         try:
             variable = variable[value]
         except (AttributeError, TypeError):
@@ -403,9 +414,17 @@ def variables(params):
             except (AttributeError, TypeError, ValueError):
                 variable = getattr(variable, value)
     if params['var']['json']:
-        variable = json.dumps(variable)
-    params['case'] = variable
+        variable = json.dumps(variable, separators = (',', ':'))
+    params['string'] = variable
     return params
+
+default = {
+    'delimiter': '.',
+    'equal': '=',
+    'log': False,
+    'owner': suit.var,
+    'quote': ('"', '\'')
+}
 
 rules = {
     '[':
@@ -423,15 +442,16 @@ rules = {
         ],
         'var':
         {
-            'equal': '=',
+            'equal': default['equal'],
             'list': ('json', 'var'),
-            'quote': ('"', '\''),
+            'log': default['log'],
+            'quote': default['quote'],
             'var':
             {
                 'decode': ('json',),
-                'delimiter': '.',
+                'delimiter': default['delimiter'],
                 'json': 'false',
-                'owner': suit.var,
+                'owner': default['owner'],
                 'var': ''
             }
         }
@@ -452,9 +472,10 @@ rules = {
         'skip': True,
         'var':
         {
-            'equal': '=',
+            'equal': default['equal'],
+            'log': default['log'],
             'onesided': True,
-            'quote': ('"', '\''),
+            'quote': default['quote'],
             'var':
             {
                 'function': '',
@@ -481,8 +502,29 @@ rules = {
     '[execute]':
     {
         'close': '[/execute]',
-        'postwalk': [execute],
-        'var': {}
+        'postwalk': [
+            attribute,
+            decode,
+            execute
+        ],
+        'var':
+        {
+            'equal': default['equal'],
+            'list': ('log',),
+            'log': default['log'],
+            'quote': default['quote'],
+            'var':
+            {
+                'decode': ('log',),
+                'log': 'true'
+            }
+        }
+    },
+    '[execute':
+    {
+        'close': ']',
+        'create': '[execute]',
+        'skip': True
     },
     '[if]':
     {
@@ -492,13 +534,13 @@ rules = {
             decode,
             condition
         ],
-        'transform': False,
         'var':
         {
             'blacklist': True,
-            'equal': '=',
+            'equal': default['equal'],
             'list': ('decode',),
-            'quote': ('"', '\''),
+            'log': default['log'],
+            'quote': default['quote'],
             'var':
             {
                 'condition': 'false',
@@ -524,15 +566,16 @@ rules = {
         'var':
         {
             'blacklist': True,
-            'equal': '=',
+            'equal': default['equal'],
             'list': ('decode', 'owner'),
-            'quote': ('"', '\''),
+            'log': default['log'],
+            'quote': default['quote'],
             'var':
             {
-                'decode': ('in', 'recurse'),
+                'decode': ('list', 'recurse'),
                 'delimiter': '',
-                'in': '[]',
-                'owner': suit.var,
+                'list': '[]',
+                'owner': default['owner'],
                 'recurse': 'false'
             }
         }
@@ -555,10 +598,11 @@ rules = {
         'skip': True,
         'var':
         {
-            'equal': '=',
+            'equal': default['equal'],
             'list': ('layers',),
+            'log': default['log'],
             'onesided': True,
-            'quote': ('"', '\''),
+            'quote': default['quote'],
             'var':
             {
                 'decode': ('layers',),
@@ -588,8 +632,9 @@ rules = {
         ],
         'var':
         {
-            'equal': '=',
-            'quote': ('"', '\''),
+            'equal': default['equal'],
+            'log': default['log'],
+            'quote': default['quote'],
             'var':
             {
                 'function': '',
@@ -607,25 +652,51 @@ rules = {
     '[trim]':
     {
         'close': '[/trim]',
-        'postwalk': [trim],
+        'postwalk': [
+            attribute,
+            decode,
+            trim
+        ],
+        'var':
+        {
+            'equal': default['equal'],
+            'list': ('log',),
+            'log': default['log'],
+            'quote': default['quote'],
+            'var':
+            {
+                'decode': ('log',),
+                'log': 'true'
+            }
+        }
+    },
+    '[trim':
+    {
+        'close': ']',
+        'create': '[trim]',
+        'skip': True
     },
     '[try]':
     {
         'close': '[/try]',
         'postwalk': [
             attribute,
+            decode,
             trying
         ],
         'skip': True,
         'var':
         {
-            'equal': '=',
-            'list': ('var',),
-            'quote': ('"', '\''),
+            'equal': default['equal'],
+            'list': ('log', 'var'),
+            'log': default['log'],
+            'quote': default['quote'],
             'var':
             {
-                'delimiter': '.',
-                'owner': suit.var,
+                'decode': ('log',),
+                'delimiter': default['delimiter'],
+                'log': 'false',
+                'owner': default['owner'],
                 'var': ''
             }
         }
@@ -647,16 +718,17 @@ rules = {
         ],
         'var':
         {
-            'equal': '=',
+            'equal': default['equal'],
             'list': ('entities', 'json'),
-            'quote': ('"', '\''),
+            'log': default['log'],
+            'quote': default['quote'],
             'var':
             {
                 'decode': ('entities', 'json'),
-                'delimiter': '.',
+                'delimiter': default['delimiter'],
                 'entities': 'true',
                 'json': 'false',
-                'owner': suit.var
+                'owner': default['owner']
             }
         }
     },

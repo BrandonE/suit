@@ -8,12 +8,14 @@
         [if condition="[c json='true']condition.rule[/c]"]
         <p><strong>[gettext]This editor is running on SUIT for Python, but it provides all versions of the code applicable. The templates contain comments about the few (if any) things that need to be changed for the other versions.[/gettext]</strong></p>
         [if condition="[c json='true']template[/c]"]
-        <fieldset>
-            <legend>[gettext]HTML[/gettext]</legend>
+        <fieldset id="html">
+            <legend class="yesscript" style="display: none"><a href="#null" id="htmllink">[gettext]HTML - Click to toggle[/gettext]</a></legend>
+            <legend class="noscript">[gettext]HTML[/gettext]</legend>
 [c entities="false"]executed[/c]
         </fieldset>
-        <fieldset>
-            <legend>[gettext]Text[/gettext]</legend>
+        <fieldset class="noscript" id="text">
+            <legend class="yesscript" style="display: none"><a href="#null" id="textlink">[gettext]Text - Click to toggle[/gettext]</a></legend>
+            <legend class="noscript">[gettext]Text[/gettext]</legend>
 <pre>[c]executed[/c]</pre>
         </fieldset>
         [/if]
@@ -24,14 +26,16 @@
         <p><input type="submit" name="submit" value="[gettext]Submit[/gettext]" /></p>
         </form>
         [if condition="[c json='true']condition.php[/c]"]
-        <fieldset>
-            <legend>[gettext]PHP[/gettext]</legend>
+        <fieldset id="php">
+            <legend class="yesscript" style="display: none"><a href="#null" id="phplink">[gettext]PHP - Click to toggle[/gettext]</a></legend>
+            <legend class="noscript"><legend>[gettext]PHP[/gettext]</legend>
             [transform function="pygments" lexer="php"][c entities="false"]php[/c][/transform]
         </fieldset>
         [/if]
         [if condition="[c json='true']condition.python[/c]"]
-        <fieldset>
-            <legend>[gettext]Python[/gettext]</legend>
+        <fieldset class="noscript" id="python">
+            <legend class="yesscript" style="display: none"><a href="#null" id="pythonlink">[gettext]Python - Click to toggle[/gettext]</a></legend>
+            <legend class="noscript"><legend>[gettext]Python[/gettext]</legend>
             [transform function="pygments" lexer="python"][c entities="false"]python[/c][/transform]
         </fieldset>
         [/if]

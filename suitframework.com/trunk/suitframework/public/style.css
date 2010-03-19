@@ -95,13 +95,7 @@ table
 {
     border: 1px solid #000;
     border-collapse: collapse;
-    width: 100%;
-}
-
-table
-{
-    border: 1px solid #000;
-    border-collapse: collapse;
+    margin: 20px 0 0;
     width: 100%;
 }
 
@@ -164,107 +158,6 @@ ul, ol
 .languages
 {
     padding: 6px 0 0;
-}
-
-.list
-{
-    background-color: #F1F1F1;
-    color: #9C9B9B;
-    border: 1px solid #B7B6B6;
-    line-height: 19px;
-    margin: 0 0 8px;
-    width: 100%;
-}
-
-.list-entry
-{
-    background-color: #F1F1F1;
-    border-bottom: 1px solid #FFF;
-    clear: both;
-    margin: 0 0 1px;
-    padding: 0 0 9px;
-}
-
-.list-entry a
-{
-    color: #9C9B9B;
-    text-decoration: underline;
-}
-
-.list-entry:hover
-{
-    background: #EAFCFF;
-}
-
-.list-entry:hover .list-hidden
-{
-    visibility: visible;
-}
-
-.list-entry td
-{
-    padding: 10px;
-}
-
-.list-entry-folder
-{
-    background-color: #F5F5DC;
-    color: #996633;
-    border-bottom: 1px solid #FFF;
-    clear: both;
-    margin: 0 0 1px;
-    padding: 0 0 9px;
-}
-
-.list-entry-folder a
-{
-    color: #996633;
-    text-decoration: underline;
-}
-
-.list-entry-folder:hover
-{
-    background: #FFFFE0;
-}
-
-.list-entry-folder:hover .list-hidden
-{
-    visibility: visible;
-}
-
-.list-entry-folder td
-{
-    padding: 10px;
-}
-
-.list-footer
-{
-    clear: both;
-    padding: 2px 0 0 13px;
-}
-
-.list-header
-{
-    clear: both;
-    padding: 3px 0 0 13px;
-}
-
-.list-header, .list-footer
-{
-    background-color: #FFF;
-    height: 29px;
-    line-height: 29px;
-    padding: 2px 0 0 7px;
-}
-
-.list-header td, .list-footer td
-{
-    padding: 2px;
-}
-
-.list-hidden
-{
-    visibility: hidden;
 }
 
 .nav

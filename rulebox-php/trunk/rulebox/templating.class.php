@@ -18,6 +18,14 @@ http://www.suitframework.com/docs/credits
 **/
 class Templating
 {
+    public $default = array
+    (
+        'delimiter' => '.',
+        'equal' => '=',
+        'log' => false,
+        'quote' => array('"', '\'')
+    );
+
     public function __construct()
     {
         $this->rules = array
@@ -62,13 +70,14 @@ class Templating
                 ),
                 'var' => array
                 (
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
                     'list' => array('json', 'var'),
-                    'quote' => array('"', '\''),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
                     'var' => array
                     (
                         'decode' => array('json'),
-                        'delimiter' => '.',
+                        'delimiter' => $this->default['delimiter'],
                         'json' => 'false',
                         'var' => ''
                     )
@@ -99,9 +108,10 @@ class Templating
                 'skip' => true,
                 'var' => array
                 (
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
+                    'log' => $this->default['log'],
                     'onesided' => true,
-                    'quote' => array('"', '\''),
+                    'quote' => $this->default['quote'],
                     'var' => array()
                 )
             ),
@@ -149,9 +159,38 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'attribute'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'decode'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'execute'
                     )
+                ),
+                'var' => array
+                (
+                    'equal' => $this->default['equal'],
+                    'list' => array('log'),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
+                    'var' => array
+                    (
+                        'condition' => 'false',
+                        'decode' => array('log'),
+                        'log' => 'true'
+                    )
                 )
+            ),
+            '[execute' => array
+            (
+                'close' => ']',
+                'create' => '[execute]',
+                'skip' => true
             ),
             '[if]' => array
             (
@@ -177,9 +216,10 @@ class Templating
                 'var' => array
                 (
                     'blacklist' => true,
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
                     'list' => array('decode'),
-                    'quote' => array('"', '\''),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
                     'var' => array
                     (
                         'condition' => 'false',
@@ -223,14 +263,15 @@ class Templating
                 'var' => array
                 (
                     'blacklist' => true,
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
                     'list' => array('decode', 'owner'),
-                    'quote' => array('"', '\''),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'decode' => array('in', 'recurse'),
+                        'decode' => array('list', 'recurse'),
                         'delimiter' => '',
-                        'in' => '[]'
+                        'list' => '[]'
                     )
                 )
             ),
@@ -264,10 +305,11 @@ class Templating
                 'skip' => true,
                 'var' => array
                 (
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
                     'list' => array('layers'),
+                    'log' => $this->default['log'],
                     'onesided' => true,
-                    'quote' => array('"', '\''),
+                    'quote' => $this->default['quote'],
                     'var' => array
                     (
                         'decode' => array('layers'),
@@ -317,8 +359,9 @@ class Templating
                 ),
                 'var' => array
                 (
-                    'equal' => '=',
-                    'quote' => array('"', '\''),
+                    'equal' => $this->default['equal'],
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
                     'var' => array()
                 )
             ),
@@ -336,9 +379,38 @@ class Templating
                     array
                     (
                         'class' => $this,
+                        'function' => 'attribute'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'decode'
+                    ),
+                    array
+                    (
+                        'class' => $this,
                         'function' => 'trim'
                     )
+                ),
+                'var' => array
+                (
+                    'equal' => $this->default['equal'],
+                    'list' => array('log'),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
+                    'var' => array
+                    (
+                        'condition' => 'false',
+                        'decode' => array('log'),
+                        'log' => 'true'
+                    )
                 )
+            ),
+            '[trim' => array
+            (
+                'close' => ']',
+                'create' => '[trim]',
+                'skip' => true
             ),
             '[try]' => array
             (
@@ -349,6 +421,11 @@ class Templating
                     (
                         'class' => $this,
                         'function' => 'attribute'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'decode'
                     ),
                     array
                     (
@@ -364,12 +441,15 @@ class Templating
                 'skip' => true,
                 'var' => array
                 (
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
                     'list' => array('var'),
-                    'quote' => array('"', '\''),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'delimiter' => '.',
+                        'decode' => array('log'),
+                        'delimiter' => $this->default['delimiter'],
+                        'log' => 'false',
                         'var' => ''
                     )
                 )
@@ -414,13 +494,14 @@ class Templating
                 ),
                 'var' => array
                 (
-                    'equal' => '=',
+                    'equal' => $this->default['equal'],
                     'list' => array('entities', 'json'),
-                    'quote' => array('"', '\''),
+                    'log' => $this->default['log'],
+                    'quote' => $this->default['quote'],
                     'var' => array
                     (
                         'decode' => array('entities', 'json'),
-                        'delimiter' => '.',
+                        'delimiter' => $this->default['delimiter'],
                         'entities' => 'true',
                         'json' => 'false'
                     )
@@ -457,11 +538,11 @@ class Templating
         {
             if ($params['var']['json'])
             {
-                $params['case'] = json_decode($params['case']);
+                $params['string'] = json_decode($params['string']);
             }
-            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['case'], $params['suit']->var);
+            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $params['suit']->var);
         }
-        $params['case'] = '';
+        $params['string'] = '';
         return $params;
     }
 
@@ -496,7 +577,7 @@ class Templating
         $params['var'] = $params['var']['var'];
         if (array_key_exists('onesided', $var) && $var['onesided'])
         {
-            $case = $params['case'];
+            $case = $params['string'];
         }
         elseif (array_key_exists('create', $params))
         {
@@ -545,7 +626,9 @@ class Templating
                 elseif ($name)
                 {
                     //Define the variable
-                    $params['var'][$name] = $params['suit']->execute($params['rules'], $split[$i], $params['config']);
+                    $config['log'] = $var['log'];
+                    $config['log'] = $params['var']['log'];
+                    $params['var'][$name] = $params['suit']->execute($params['rules'], $split[$i], $config);
                 }
             }
         }
@@ -554,13 +637,13 @@ class Templating
 
     public function bracket($params)
     {
-        $params['case'] = $params['tree']['rule'] . $params['case'] . $params['rules'][$params['tree']['rule']]['close'];
+        $params['string'] = $params['tree']['rule'] . $params['string'] . $params['rules'][$params['tree']['rule']]['close'];
         return $params;
     }
 
     public function comments($params)
     {
-        $params['case'] = '';
+        $params['string'] = '';
         return $params;
     }
 
@@ -587,20 +670,22 @@ class Templating
     {
         if (!$params['var']['json'] && $params['var']['entities'])
         {
-            $params['case'] = htmlentities(strval($params['case']));
+            $params['string'] = htmlentities(strval($params['string']));
         }
         return $params;
     }
 
     public function evaluation($params)
     {
-        $params['case'] = eval($params['case']);
+        $params['string'] = eval($params['string']);
         return $params;
     }
 
     public function execute($params)
     {
-        $params['case'] = $params['suit']->execute($params['rules'], $params['case'], $params['config']);
+        $config = $params['config'];
+        $config['log'] = $params['var']['log'];
+        $params['string'] = $params['suit']->execute($params['rules'], $params['string'], $config);
         return $params;
     }
 
@@ -612,11 +697,11 @@ class Templating
         //Note whether or not the function is in a class
         if (array_key_exists('owner', $params['var']))
         {
-            $params['case'] = $params['var']['owner']->$params['var']['function']($kwargs);
+            $params['string'] = $params['var']['owner']->$params['var']['function']($kwargs);
         }
         else
         {
-            $params['case'] = $params['var']['function']($kwargs);
+            $params['string'] = $params['var']['function']($kwargs);
         }
         return $params;
     }
@@ -637,11 +722,11 @@ class Templating
         $iterations = array();
         $tree = array
         (
-            'case' => '',
+            'string' => '',
             'contents' => $params['tree']['contents'],
             'parallel' => array()
         );
-        foreach ($params['var']['in'] as $key => $value)
+        foreach ($params['var']['list'] as $key => $value)
         {
             $old = array();
             if (array_key_exists('key', $params['var']))
@@ -684,7 +769,7 @@ class Templating
             }
             //Execute for this iteration
             $result = $params['suit']->walk($params['rules'], $tree, $params['config']);
-            $iterations[] = $result['tree']['case'];
+            $iterations[] = $result['string'];
             if (array_key_exists('recurse', $params['var']) && $params['var']['recurse'])
             {
                 if (array_key_exists('dictkey', $old))
@@ -706,7 +791,7 @@ class Templating
             }
         }
         //Implode the iterations
-        $params['case'] = implode($params['var']['delimiter'], $iterations);
+        $params['string'] = implode($params['var']['delimiter'], $iterations);
         $params['walk'] = false;
         return $params;
     }
@@ -738,7 +823,7 @@ class Templating
             );
             $params['returnfunctions'] = $params['returnvar']['returnfunctions'];
         }
-        $params['case'] = '';
+        $params['string'] = '';
         return $params;
     }
 
@@ -760,26 +845,28 @@ class Templating
     public function templates($params)
     {
         //If the variable is not whitelisted or blacklisted and the file exists
-        if ($this->listing($params['case'], $params['var']) && is_file($params['case']))
+        if ($this->listing($params['string'], $params['var']) && is_file($params['string']))
         {
-            $params['case'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['case'])));
+            $params['string'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['string'])));
         }
         else
         {
-            $params['case'] = '';
+            $params['string'] = '';
         }
         return $params;
     }
 
     public function transform($params)
     {
-        $params['var']['string'] = $params['case'];
+        $params['var']['string'] = $params['string'];
         return $params;
     }
 
     public function trim($params)
     {
-        $params['case'] = $params['suit']->execute(
+        $config = $params['config'];
+        $config['log'] = $params['var']['log'];
+        $params['string'] = $params['suit']->execute(
             array
             (
                 '' => array
@@ -804,10 +891,10 @@ class Templating
                     'skip' => true
                 )
             ),
-            $params['case'],
-            $params['config']
+            $params['string'],
+            $config
         );
-        $params['case'] = trim($params['case']);
+        $params['string'] = trim($params['string']);
         return $params;
     }
 
@@ -817,11 +904,11 @@ class Templating
         {
             if (is_array($params['tree']['contents'][$key]))
             {
-                $params['case'] .= $params['tree']['contents'][$key]['rule'] . $params['tree']['contents'][$key]['contents'][0] . $params['rules'][$params['tree']['contents'][$key]['rule']]['close'];
+                $params['string'] .= $params['tree']['contents'][$key]['rule'] . $params['tree']['contents'][$key]['contents'][0] . $params['rules'][$params['tree']['contents'][$key]['rule']]['close'];
             }
             else
             {
-                $params['case'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]) . substr($params['tree']['contents'][$key], strlen(rtrim($params['tree']['contents'][$key])));
+                $params['string'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]) . substr($params['tree']['contents'][$key], strlen(rtrim($params['tree']['contents'][$key])));
             }
         }
         $params['walk'] = false;
@@ -836,7 +923,9 @@ class Templating
         }
         try
         {
-            $result = $params['suit']->execute($params['rules'], $params['case'], $params['config']);
+            $config = $params['config'];
+            $config['log'] = $params['var']['log'];
+            $result = $params['suit']->execute($params['rules'], $params['string'], $config);
         }
         catch (Exception $e)
         {
@@ -845,7 +934,7 @@ class Templating
             {
                 $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
             }
-            $params['case'] = '';
+            $params['string'] = '';
         }
         return $params;
     }
@@ -853,7 +942,7 @@ class Templating
     public function variables($params)
     {
         $variable = $params['var']['owner'];
-        foreach (explode($params['var']['delimiter'], $params['case']) as $value)
+        foreach (explode($params['var']['delimiter'], $params['string']) as $value)
         {
             if (is_array($variable))
             {
@@ -868,7 +957,7 @@ class Templating
         {
             $variable = json_encode($variable);
         }
-        $params['case'] = $variable;
+        $params['string'] = $variable;
         return $params;
     }
 }

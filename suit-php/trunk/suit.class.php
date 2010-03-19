@@ -41,38 +41,22 @@ class SUIT
 {
     public $cache = array
     (
+        'hash' => array(),
         'parse' => array(),
         'tokens' => array()
     );
 
-    public $log = array();
+    public $log = array
+    (
+        'hash' => array(),
+        'entries' => array()
+    );
 
     public $version = '2.0.0';
 
     public function __construct()
     {
         $this->var = Singleton::getInstance();
-    }
-
-    public function cacherules($rules, $keys)
-    {
-        $cachedrules = array();
-        foreach ($rules as $rulekey => $rulevalue)
-        {
-            $cachedkeys = array
-            (
-                'key' => $rulekey
-            );
-            foreach ($keys as $key)
-            {
-                if (array_key_exists($key, $rulevalue))
-                {
-                    $cachedkeys[$key] = $rulevalue[$key];
-                }
-            }
-            $cachedrules[$rulekey] = $cachedkeys;
-        }
-        return $cachedrules;
     }
 
     public function close($params, $pop, $mark)
@@ -102,8 +86,7 @@ class SUIT
             (
                 'contents' => array(),
                 'create' => $append,
-                'rule' => $params['rules'][$pop['rule']]['create'],
-                'parallel' => array()
+                'rule' => $params['rules'][$pop['rule']]['create']
             );
             $params['tree'][] = $append;
             $params['skipstack'] = $this->skip($params['rules'][$params['rules'][$pop['rule']]['create']], $params['skipstack']);
@@ -182,6 +165,10 @@ class SUIT
         {
             $config['insensitive'] = true;
         }
+        if (!array_key_exists('log', $config))
+        {
+            $config['log'] = false;
+        }
         if (!array_key_exists('mismatched', $config))
         {
             $config['mismatched'] = false;
@@ -190,50 +177,60 @@ class SUIT
         {
             $config['unclosed'] = false;
         }
-        $cachekey = md5(json_encode(array($string, $this->cacherules($rules, array('close')), $config['insensitive'])));
+        $cachekey = md5(json_encode(array($string, $this->ruleitems($rules, array('close')), $config['insensitive'])));
         //If positions are cached for this case, load them
         if (array_key_exists($cachekey, $this->cache['tokens']))
         {
-            $pos = $this->cache['tokens'][$cachekey];
+            $pos = $this->cache['hash'][$this->cache['tokens'][$cachekey]];
         }
         else
         {
             $pos = $this->tokens($rules, $string, $config);
             //Cache the positions
-            $this->cache['tokens'][$cachekey] = &$pos;
+            $hashkey = md5(json_encode($pos));
+            $this->cache['hash'][$hashkey] = $pos;
+            $this->cache['tokens'][$cachekey] = $hashkey;
         }
-        $cachekey = md5(json_encode(array($string, $this->cacherules($rules, array('close', 'create', 'skip')), $config['insensitive'], $config['escape'], $config['mismatched'])));
+        $cachekey = md5(json_encode(array($string, $this->ruleitems($rules, array('close', 'create', 'skip')), $config['insensitive'], $config['escape'], $config['mismatched'])));
         //If a tree is cached for this case, load it
         if (array_key_exists($cachekey, $this->cache['parse']))
         {
-            $tree = $this->cache['parse'][$cachekey];
+            $tree = $this->cache['hash'][$this->cache['parse'][$cachekey]];
         }
         else
         {
             $tree = array
             (
-                'contents' => $this->parse($rules, $string, $config, $pos),
-                'parallel' => array()
+                'contents' => $this->parse($rules, $string, $config, $pos)
             );
             if (array_key_exists('', $rules))
             {
                 $tree['rule'] = '';
             }
             //Cache the tree
-            $this->cache['parse'][$cachekey] = &$tree;
+            $hashkey = md5(json_encode($tree));
+            $this->cache['hash'][$hashkey] = $tree;
+            $this->cache['parse'][$cachekey] = $hashkey;
         }
-        $key = count($this->log);
-        $this->log[] = array
-        (
-            'config' => $config,
-            'rules' => $this->logrules($rules),
-            'parse' => &$tree,
-            'string' => $string,
-            'tokens' => &$pos
-        );
-        $this->log[$key]['walk'] = $this->walk($rules, $tree, $config);
-        $this->log[$key]['walk'] = $this->log[$key]['walk']['case'];
-        return $this->log[$key]['walk'];
+        if ($config['log'])
+        {
+            $key = count($this->log['entries']);
+            $this->log['entries'][] = array
+            (
+                'config' => $config,
+                'rules' => $this->ruleitems($rules, array('close', 'create', 'skip')),
+                'parse' => $tree,
+                'string' => $string,
+                'tokens' => $pos
+            );
+        }
+        $result = $this->walk($rules, $tree, $config);
+        if ($config['log'])
+        {
+            $this->log['entries'][$key]['walk'] = $result['string'];
+            $this->log['entries'][$key] = $this->loghash($this->log['entries'][$key]);
+        }
+        return $result['string'];
     }
 
     public function functions($params, $function)
@@ -257,24 +254,15 @@ class SUIT
         return $params;
     }
 
-    public function logrules($rules)
+    public function loghash($entry)
     {
-        foreach ($rules as $key => $value)
+        foreach ($entry as $key => $value)
         {
-            if (array_key_exists('postwalk', $value))
-            {
-                unset($rules[$key]['postwalk']);
-            }
-            if (array_key_exists('prewalk', $value))
-            {
-                unset($rules[$key]['prewalk']);
-            }
-            if (array_key_exists('var', $value))
-            {
-                unset($rules[$key]['var']);
-            }
+            $hashkey = md5(json_encode($value));
+            $this->log['hash'][$hashkey] = $value;
+            $entry[$key] = $hashkey;
         }
-        return $rules;
+        return $entry;
     }
 
     public function notclosed($tree)
@@ -317,8 +305,7 @@ class SUIT
                 $append = array
                 (
                     'contents' => array(),
-                    'rule' => $params['rule'],
-                    'parallel' => array()
+                    'rule' => $params['rule']
                 );
                 $params['tree'][] = $append;
                 $params['skipstack'] = $this->skip($params['rules'][$params['rule']], $params['skipstack']);
@@ -369,13 +356,12 @@ class SUIT
             'temp' => $string,
             'tree' => array()
         );
-        $key = array_keys($pos);
-        $size = count($key);
+        $size = count($pos);
         for ($i = 0; $i < $size; $i++)
         {
             //Adjust position to changes in length
-            $params['rule'] = $pos[$key[$i]]['rule'];
-            $params['position'] = $key[$i] + strlen($params['string']) - strlen($params['temp']);
+            $params['rule'] = $pos[$i][1]['rule'];
+            $params['position'] = $pos[$i][0] + strlen($params['string']) - strlen($params['temp']);
             $params['unescape'] = array
             (
                 'position' => $params['position'],
@@ -417,7 +403,7 @@ class SUIT
             }
             //Run the appropriate function for the string
             $function = 'openingstring';
-            if ($pos[$key[$i]]['type'] == 'close' || ($pos[$key[$i]]['type'] == 'flat' && array_key_exists($params['rule'], $params['flat'])))
+            if ($pos[$i][1]['type'] == 'close' || ($pos[$i][1]['type'] == 'flat' && array_key_exists($params['rule'], $params['flat'])))
             {
                 $function = 'closingstring';
             }
@@ -500,6 +486,23 @@ class SUIT
         return $params;
     }
 
+    public function ruleitems($rules, $items)
+    {
+        $newrules = array();
+        foreach ($rules as $key => $value)
+        {
+            $newrules[$key] = array();
+            foreach ($items as $value2)
+            {
+                if (array_key_exists($value2, $value))
+                {
+                    $newrules[$key][$value2] = $value[$value2];
+                }
+            }
+        }
+        return $newrules;
+    }
+
     public function skip($rule, $skipstack)
     {
         //If the skip key is true, skip over everything between this opening string and its closing string
@@ -557,23 +560,28 @@ class SUIT
             'string' => $string,
             'strings' => $strings
         );
-        $executetokens = $this->positions($params);
+        $dict = $this->positions($params);
         //Order the positions from smallest to biggest
-        ksort($executetokens);
-        return $executetokens;
+        ksort($dict);
+        $list = array();
+        foreach ($dict as $key => $value)
+        {
+            $list[] = array($key, $value);
+        }
+        return $list;
     }
 
     public function walk($rules, $tree, $config)
     {
         $params = array
         (
-            'case' => '',
             'config' => $config,
             'function' => true,
             'rules' => $rules,
             'returnvar' => NULL,
             'returnedvar' => NULL,
             'returnfunctions' => array(),
+            'string' => '',
             'suit' => $this,
             'tree' => $tree,
             'walk' => true
@@ -603,7 +611,7 @@ class SUIT
             }
             else
             {
-                $params['case'] .= $params['tree']['contents'][$key];
+                $params['string'] .= $params['tree']['contents'][$key];
             }
         }
         if (array_key_exists('rule', $params['tree']) && array_key_exists('postwalk', $params['rules'][$params['tree']['rule']]))
@@ -612,11 +620,11 @@ class SUIT
             //Transform the case with the specified functions
             $params = $this->functions($params, $params['rules'][$params['tree']['rule']]['postwalk']);
         }
-        $params['case'] = strval($params['case']);
+        $params['string'] = strval($params['string']);
         return array
         (
-            'case' => $params['case'],
             'functions' => $params['returnfunctions'],
+            'string' => $params['string'],
             'tree' => $params['tree'],
             'var' => $params['returnvar']
         );
@@ -629,7 +637,7 @@ class SUIT
         {
             $result = $this->walk($params['rules'], $params['tree']['contents'][$key], $params['config']);
             $params['tree']['contents'][$key] = $result['tree'];
-            $params['case'] .= $result['case'];
+            $params['string'] .= $result['string'];
             //Run the functions that have been returned
             $params['key'] = $key;
             $params['returnedvar'] = $result['var'];
@@ -642,15 +650,14 @@ class SUIT
         {
             $tree = array
             (
-                'contents' => $params['tree']['contents'][$key]['contents'],
-                'parallel' => array()
+                'contents' => $params['tree']['contents'][$key]['contents']
             );
             $result = $this->walk($params['rules'], $tree, $params['config']);
             if (array_key_exists('rule', $params['tree']['contents'][$key]))
             {
-                $params['case'] .= $params['tree']['contents'][$key]['rule'];
+                $params['string'] .= $params['tree']['contents'][$key]['rule'];
             }
-            $params['case'] .= $result['case'];
+            $params['string'] .= $result['string'];
         }
         return $params;
     }

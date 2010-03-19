@@ -7,20 +7,20 @@
         <p>[gettext]The main package. It holds a file containing the functions for using SUIT.[/gettext]</p>
         <p>[gettext]For SUIT for PHP, you need to include it and <a href="#initialize">initialize</a> it, while in SUIT for Python you merely need to import it. In addition, SUIT for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
         <ul>
-            <li><a href="#phpsuitdownload">[gettext]Download SUIT for PHP 2.0.0[/gettext]</a></li>
-            <li><a href="#pythonsuitdownload">[gettext]Download SUIT for Python 2.0.0[/gettext]</a></li>
+            <li><a href="#phpsuitdownload">[gettext]Download SUIT 2.0.0 for PHP[/gettext]</a></li>
+            <li><a href="#pythonsuitdownload">[gettext]Download SUIT 2.0.0 for Python[/gettext]</a></li>
         </ul>
         <a href="#pylons" id="pylons"><h3>SUIT for Pylons</h3></a>
         <p>[gettext]An integration for using SUIT as the Pylons templating engine of choice.[/gettext]</p>
         <ul>
-            <li><a href="#pylonssuitdownload">[gettext]Download SUIT for Pylons 2.0.0[/gettext]</a></li>
+            <li><a href="#pylonssuitdownload">[gettext]Download SUIT 2.0.0 for Pylons[/gettext]</a></li>
         </ul>
         <a href="#rulebox" id="rulebox"><h3>Rulebox</h3></a>
         <p>[gettext]A package containing various sets of rules for use with SUIT. If you believe you have a set of rules that can be used for several occassions, post it <a href="#forumurl">here</a> and it may be included into the package.[/gettext]</p>
         <p>[gettext] For Rulebox for PHP, you need to include it and <a href="#initialize">initialize</a> it, while in Rulebox for Python you merely need to import it. In addition, Rulebox for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
         <ul>
-            <li><a href="#phpruleboxdownload">[gettext]Download Rulebox for PHP 1.0.0[/gettext]</a></li>
-            <li><a href="#pythonruleboxdownload">[gettext]Download Rulebox for Python 1.0.0[/gettext]</a></li>
+            <li><a href="#phpruleboxdownload">[gettext]Download Rulebox 1.0.0 for PHP[/gettext]</a></li>
+            <li><a href="#pythonruleboxdownload">[gettext]Download Rulebox 1.0.0 for Python[/gettext]</a></li>
         </ul>
         <a href="#tie" id="tie"><h3>TIE (Discontinued)</h3></a>
         <p>[gettext]A template manager for SUIT for PHP. It stands for Template Integration Environment. The latest version uses SUIT 1.3.4 and should only be used for educational purposes.[/gettext]</p>

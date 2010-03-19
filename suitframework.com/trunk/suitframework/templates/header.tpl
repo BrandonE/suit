@@ -24,7 +24,7 @@
         <p>
             <select name="language">
                 <option value="default">Default</option>
-                [loop key="key" value="value" in="[c json='true']loop.languages[/c]"]
+                [loop key="key" value="value" list="[c json='true']loop.languages[/c]"]
                 <option value="[c]value.id[/c]">[c]value.title[/c]</option>
                 [/loop]
             </select>
