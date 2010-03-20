@@ -11,7 +11,6 @@ except ImportError:
     import json
 import os
 from glob import glob
-from pprint import pformat
 from pylons import config, request, response, tmpl_context as c, url
 from pylons.controllers.util import redirect
 from pylons.i18n import get_lang, set_lang, ugettext as _gettext
@@ -22,6 +21,17 @@ from webhelpers.html.builder import literal
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
+
+def code(string):
+    return string.replace(
+        '\t', '    '
+    ).replace(
+        '\n ', '\n&nbsp;'
+    ).replace(
+        '  ', ' &nbsp;'
+    ).replace(
+        '\n', '<br />'
+    )
 
 def docs():
     c.loop.articles = [
@@ -140,8 +150,11 @@ def docs():
         c.condition.matches = (c.loop.search)
     return ''
 
+def exittemplate(value):
+    exit(value)
+
 def format(string):
-    return json.dumps(json.loads(string), sort_keys = True, indent = 4)
+    return escape(json.dumps(json.loads(string), sort_keys = True, indent = 4))
 
 def header():
     if ('submit' in request.POST and
@@ -166,6 +179,24 @@ def header():
     ]
     return ''
 
+def increment(num):
+    num = json.loads(num)
+    return json.dumps(num + 1)
+
+def indict(obj, key):
+    obj = json.loads(obj)
+    boolean = False
+    if key in obj:
+        boolean = True
+    return json.dumps(boolean)
+
+def isdict(obj):
+    obj = json.loads(obj)
+    boolean = False
+    if isinstance(obj, dict):
+        boolean = True
+    return json.dumps(boolean)
+
 def pygments(lexer, string):
     return highlight(string, get_lexer_by_name(lexer), HtmlFormatter())
     
@@ -189,13 +220,15 @@ def slacks():
     if 'referer' in request.headers:
         c.referrer = request.headers['referer']
     c.condition.first = True
-    c.condition.log = False
     c.condition.referrer = ('referrer' in request.GET and
     request.GET['referrer'])
-    c.log = []
-    c.parent = '0'
+    c.key = -1
+    c.log = {
+        'hash': {},
+        'entries': []
+    }
     try:
-        c.log = ''
+        c.log = json.dumps(c.log, separators = (',', ':'))
         if 'url' in request.GET:
             suit.log['entries'] = []
             c.log = urllib.urlopen(
@@ -208,7 +241,6 @@ def slacks():
         request.POST['submit'] == _gettext('Upload')):
             c.log = request.POST['file'].file.read()
         c.log = json.loads(c.log)
-        c.condition.log = True
     except (
         AttributeError,
         EOFError,
@@ -217,7 +249,10 @@ def slacks():
         TypeError,
         ValueError
     ):
-        pass
+        c.log = {
+            'hash': {},
+            'entries': []
+        }
     return ''
 
 def tokenshighlight(tokens, open, close, flat, end, string):
@@ -233,7 +268,7 @@ def tokenshighlight(tokens, open, close, flat, end, string):
             color = flat
         string = ''.join((
             string[0:last],
-            escape(string[last:key + offset]),
+            code(escape(string[last:key + offset])),
             color,
             escape(string[key + offset:key + offset + len(value['rule'])]),
             end,
@@ -243,7 +278,7 @@ def tokenshighlight(tokens, open, close, flat, end, string):
         last = key + len(value['rule']) + offset
     string = ''.join((
         string[0:last],
-        escape(string[last:len(string)])
+        code(escape(string[last:len(string)]))
      ))
     return string
 

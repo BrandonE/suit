@@ -442,7 +442,7 @@ class Templating
                 'var' => array
                 (
                     'equal' => $this->default['equal'],
-                    'list' => array('var'),
+                    'list' => array('log', 'var'),
                     'log' => $this->default['log'],
                     'quote' => $this->default['quote'],
                     'var' => array
@@ -626,8 +626,8 @@ class Templating
                 elseif ($name)
                 {
                     //Define the variable
+                    $config = $params['config'];
                     $config['log'] = $var['log'];
-                    $config['log'] = $params['var']['log'];
                     $params['var'][$name] = $params['suit']->execute($params['rules'], $split[$i], $config);
                 }
             }

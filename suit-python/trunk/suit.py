@@ -77,6 +77,11 @@ def close(params, pop, closed):
         append = {
             'contents': [],
             'create': append,
+            'createrule': ''.join((
+                pop['rule'],
+                append,
+                params['rules'][pop['rule']]['close']
+            )),
             'rule': params['rules'][pop['rule']]['create']
         }
         params['tree'].append(append)
@@ -184,9 +189,9 @@ def execute(rules, string, config = {}):
         cache['hash'][hashkey] = tree
         cache['parse'][cachekey] = hashkey
     if config['log']:
-        key = len(log['entries'])
         log['entries'].append({
             'config': config,
+            'entries': [],
             'parse': tree,
             'rules': ruleitems(rules, ('close', 'create', 'skip')),
             'string': string,
@@ -194,8 +199,14 @@ def execute(rules, string, config = {}):
         })
     result = walk(rules, tree, config)['string']
     if config['log']:
-        log['entries'][key]['walk'] = result
-        log['entries'][key] = loghash(log['entries'][key])
+        pop = log['entries'].pop()
+        pop['walk'] = result
+        pop = loghash(pop)
+        length = len(log['entries'])
+        if length:
+            log['entries'][length - 1]['entries'].append(pop)
+        else:
+            log['entries'].append(pop)
     return result
 
 def functions(params, function):
@@ -209,9 +220,15 @@ def functions(params, function):
 def loghash(entry):
     """Hash the keys for logging"""
     for key, value in entry.items():
-        hashkey = md5(json.dumps(value, separators = (',', ':'))).hexdigest()
-        log['hash'][hashkey] = value
-        entry[key] = hashkey
+        if key != 'entries':
+            hashkey = md5(
+                json.dumps(
+                    value,
+                    separators = (',', ':')
+                )
+            ).hexdigest()
+            log['hash'][hashkey] = value
+            entry[key] = hashkey
     return entry
 
 def notclosed(tree):

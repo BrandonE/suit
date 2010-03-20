@@ -25,41 +25,10 @@ class RootController(BaseController):
         c.condition.download = False
         c.condition.tryit = False
         c.condition.slacks = False
-        cachefile = open(
-            os.path.join(
-                config['app_conf']['cache_dir'],
-                'suit.cache'
-            ),
-            'r'
-        )
-        try:
-            cache = json.loads(cachefile.read())
-            suit.cache = cache
-        except ValueError:
-            # First load doesn't have a cache.
-            pass
-        cachefile.close()
-        cachecheck = md5(
-            json.dumps(
-                suit.cache,
-                separators = (',', ':')
-            )
-        ).hexdigest()
         try:
             templatefile = render(templatefile + '.tpl')
         except IOError:
             response.status = '404 Not Found'
-        cache = json.dumps(suit.cache, separators = (',', ':'))
-        if cachecheck != md5(cache):
-            cachefile = open(
-                os.path.join(
-                    config['app_conf']['cache_dir'],
-                    'suit.cache'
-                ),
-                'w'
-            )
-            cachefile.write(cache)
-            cachefile.close()
         defaultlog = {
             'hash': {},
             'entries': []
@@ -74,6 +43,8 @@ class RootController(BaseController):
                 request.GET['slacks']
             )
         ):
+            if c.condition.slacks:
+                suit.log = defaultlog
             slacks = json.dumps(suit.log, separators = (',', ':'))
             suit.log = defaultlog
             response.headerlist = [

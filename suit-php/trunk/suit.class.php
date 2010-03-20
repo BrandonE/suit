@@ -86,6 +86,7 @@ class SUIT
             (
                 'contents' => array(),
                 'create' => $append,
+                'createrule' => $pop['rule'] . $append . $params['rules'][$pop['rule']]['close'],
                 'rule' => $params['rules'][$pop['rule']]['create']
             );
             $params['tree'][] = $append;
@@ -167,7 +168,7 @@ class SUIT
         }
         if (!array_key_exists('log', $config))
         {
-            $config['log'] = false;
+            $config['log'] = true;
         }
         if (!array_key_exists('mismatched', $config))
         {
@@ -214,10 +215,10 @@ class SUIT
         }
         if ($config['log'])
         {
-            $key = count($this->log['entries']);
             $this->log['entries'][] = array
             (
                 'config' => $config,
+                'entries' => array(),
                 'rules' => $this->ruleitems($rules, array('close', 'create', 'skip')),
                 'parse' => $tree,
                 'string' => $string,
@@ -227,8 +228,18 @@ class SUIT
         $result = $this->walk($rules, $tree, $config);
         if ($config['log'])
         {
-            $this->log['entries'][$key]['walk'] = $result['string'];
-            $this->log['entries'][$key] = $this->loghash($this->log['entries'][$key]);
+            $pop = array_pop($this->log['entries']);
+            $pop['walk'] = $result['string'];
+            $pop = $this->loghash($pop);
+            $length = count($this->log['entries']);
+            if ($length)
+            {
+                $this->log['entries'][$length - 1]['entries'][] = $pop;
+            }
+            else
+            {
+                $this->log['entries'][] = $pop;
+            }
         }
         return $result['string'];
     }
@@ -258,9 +269,12 @@ class SUIT
     {
         foreach ($entry as $key => $value)
         {
-            $hashkey = md5(json_encode($value));
-            $this->log['hash'][$hashkey] = $value;
-            $entry[$key] = $hashkey;
+            if ($key != 'entries')
+            {
+                $hashkey = md5(json_encode($value));
+                $this->log['hash'][$hashkey] = $value;
+                $entry[$key] = $hashkey;
+            }
         }
         return $entry;
     }

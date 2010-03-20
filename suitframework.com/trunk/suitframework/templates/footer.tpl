@@ -12,7 +12,9 @@
     <p>Powered by <a target="_blank" href="http://www.suitframework.com/">SUIT</a></p>
     <p>Copyright &copy; 2008-2010 Brandon Evans and Chris Santiago. All Rights Reserved.</p>
 	<p><a href="https://lists.sourceforge.net/lists/listinfo/suitframework-news">[gettext]Subscribe to our Mailing List[/gettext]</a></p>
-	<p><a href="http://www.suitframework.com/slacks/?referrer=true">[gettext]See this page built using SLACKS[/gettext]</a></p>
+	[if condition="[c json='true']condition.slacks[/c]" else="true"]
+    <p><a href="http://www.suitframework.com/slacks/?referrer=true">[gettext]Debug this page using SLACKS[/gettext]</a></p>
+    [/if]
     <p>
 		<a href="http://www.suitframework.com/" target="_blank"><img src="/images/poweredby/suit.png" alt="SUIT" /></a>
 		<a href="http://php.net/" target="_blank"><img src="/images/poweredby/php.gif" alt="PHP" /></a>
