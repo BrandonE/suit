@@ -30,7 +30,7 @@ from webhelpers.html import escape
 from rulebox import templating
 
 __all__ = [
-    'assign', 'gettext', 'helpers', 'filtering', 'rules', 'templates',
+    'gettext', 'pylonsrules', 'rules', 'suitrules', 'templates',
     'tmpl_context', 'url_for'
 ]
 

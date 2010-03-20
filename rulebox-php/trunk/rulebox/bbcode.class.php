@@ -18,22 +18,13 @@ http://www.suitframework.com/docs/credits
 **/
 class BBCode
 {
-    public function __construct()
+    public function __construct($suit, $templating)
     {
+        $this->suit = $suit;
+
         $this->rules = array
         (
-            '[' => array
-            (
-                'close' => ']',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'function' => 'bracket',
-                        'class' => $this
-                    )
-                )
-            ),
+            '[' => $templating['['],
             '[align]' => array
             (
                 'close' => '[/align]',
@@ -406,6 +397,7 @@ class BBCode
                 'create' => '[url]'
             ),
         );
+        $this->templating = $templating;
     }
 
     public function attribute($params)
@@ -472,9 +464,9 @@ class BBCode
 
     public function template($params)
     {
-        $params['suit']->var->case = $params['string'];
-        $params['suit']->var->equal = $params['var']['equal'];
-        $params['string'] = $params['suit']->execute($params['suit']->rules, $params['var']['template']);
+        $this->suit->var->case = $params['string'];
+        $this->suit->var->equal = $params['var']['equal'];
+        $params['string'] = $this->suit->execute($this->templating, $params['var']['template']);
         return $params;
     }
 }

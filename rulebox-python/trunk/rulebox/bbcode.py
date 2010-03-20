@@ -19,8 +19,8 @@ import suit
 from rulebox import templating
 
 __all__ = [
-    'attribute', 'bracket', 'linebreaks', 'listitems', 'size', 'style',
-    'template', 'rules'
+    'attribute',  'linebreaks', 'listitems', 'size', 'style', 'template',
+    'rules'
 ]
 
 def attribute(params):
@@ -29,18 +29,9 @@ def attribute(params):
         params['var']['equal'] = params['create']
     return params
 
-def bracket(params):
-    """Handle brackets unrelated to the rules"""
-    params['case'] = ''.join((
-        params['tree']['rule'],
-        params['case'],
-        params['rules'][params['tree']['rule']]['close']
-    ))
-    return params
-
 def linebreaks(params):
     """Remove the HTML line breaks"""
-    params['case'] = params['case'].replace('<br />', '')
+    params['string'] = params['string'].replace('<br />', '')
     return params
 
 def listitems(params):
@@ -52,22 +43,22 @@ def listitems(params):
         'i',
         'I'
     ):
-        params['case'] = params['case'].replace('<br />', '')
-        params['case'] = params['case'].split(
+        params['string'] = params['string'].replace('<br />', '')
+        params['string'] = params['string'].split(
             params['var']['delimiter']
         )
-        for key, value in enumerate(params['case']):
+        for key, value in enumerate(params['string']):
             if key != 0:
-                params['case'][key] = ''.join((
+                params['string'][key] = ''.join((
                     params['var']['open'],
                     value,
                     params['var']['close']
                 ))
-        params['case'] = ''.join(params['case'])
+        params['string'] = ''.join(params['string'])
     else:
         params['var']['template'] = ''.join((
             params['open']['open'],
-            params['case'],
+            params['string'],
             params['open']['rule']['close']
         ))
     return params
@@ -94,20 +85,16 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    suit.var.case = params['case']
+    suit.var.case = params['string']
     suit.var.equal = params['var']['equal']
-    params['case'] = suit.execute(
+    params['string'] = suit.execute(
         templating.rules,
         params['var']['template']
     )
     return params
 
 rules = {
-    '[':
-    {
-        'close': ']',
-        'postwalk': [bracket]
-    },
+    '[': templating.rules['['],
     '[align]':
     {
         'close': '[/align]',

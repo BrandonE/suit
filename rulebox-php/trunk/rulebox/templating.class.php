@@ -26,8 +26,10 @@ class Templating
         'quote' => array('"', '\'')
     );
 
-    public function __construct()
+    public function __construct($suit)
     {
+        $this->suit = $suit;
+
         $this->rules = array
         (
             '[' => array
@@ -540,7 +542,7 @@ class Templating
             {
                 $params['string'] = json_decode($params['string']);
             }
-            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $params['suit']->var);
+            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $this->suit->var);
         }
         $params['string'] = '';
         return $params;
@@ -628,7 +630,7 @@ class Templating
                     //Define the variable
                     $config = $params['config'];
                     $config['log'] = $var['log'];
-                    $params['var'][$name] = $params['suit']->execute($params['rules'], $split[$i], $config);
+                    $params['var'][$name] = $this->suit->execute($params['rules'], $split[$i], $config);
                 }
             }
         }
@@ -685,7 +687,7 @@ class Templating
     {
         $config = $params['config'];
         $config['log'] = $params['var']['log'];
-        $params['string'] = $params['suit']->execute($params['rules'], $params['string'], $config);
+        $params['string'] = $this->suit->execute($params['rules'], $params['string'], $config);
         return $params;
     }
 
@@ -768,7 +770,7 @@ class Templating
                 }
             }
             //Execute for this iteration
-            $result = $params['suit']->walk($params['rules'], $tree, $params['config']);
+            $result = $this->suit->walk($params['rules'], $tree, $params['config']);
             $iterations[] = $result['string'];
             if (array_key_exists('recurse', $params['var']) && $params['var']['recurse'])
             {
@@ -800,7 +802,7 @@ class Templating
     {
         if (!array_key_exists('owner', $params['var']))
         {
-            $params['var']['owner'] = $params['suit']->var;
+            $params['var']['owner'] = $this->suit->var;
         }
         return $params;
     }
@@ -866,7 +868,7 @@ class Templating
     {
         $config = $params['config'];
         $config['log'] = $params['var']['log'];
-        $params['string'] = $params['suit']->execute(
+        $params['string'] = $this->suit->execute(
             array
             (
                 '' => array
@@ -919,13 +921,13 @@ class Templating
     {
         if ($params['var']['var'])
         {
-            $params['suit']->$params['var']['var'] = '';
+            $this->suit->$params['var']['var'] = '';
         }
         try
         {
             $config = $params['config'];
             $config['log'] = $params['var']['log'];
-            $result = $params['suit']->execute($params['rules'], $params['string'], $config);
+            $result = $this->suit->execute($params['rules'], $params['string'], $config);
         }
         catch (Exception $e)
         {

@@ -27,9 +27,9 @@ import suit
 
 __all__ = [
     'assign', 'assignvariable', 'attribute', 'bracket', 'code', 'comments',
-    'condition', 'entities', 'escape', 'evaluation', 'execute', 'decode',
-    'listing', 'loop', 'replace', 'returning', 'returningfunction',
-    'skip', 'templates', 'trim', 'trimexecute', 'trying', 'variables'
+    'condition', 'default', 'entities', 'evalrules', 'evaluation', 'execute',
+    'decode', 'listing', 'loop', 'returning', 'returningfunction', 'rules',
+    'templates', 'trim', 'trimexecute', 'trying', 'variables'
 ]
 
 def assign(params):

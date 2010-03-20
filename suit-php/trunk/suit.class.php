@@ -596,7 +596,6 @@ class SUIT
             'returnedvar' => NULL,
             'returnfunctions' => array(),
             'string' => '',
-            'suit' => $this,
             'tree' => $tree,
             'walk' => true
         );

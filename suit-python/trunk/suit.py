@@ -22,10 +22,10 @@ except ImportError:
     import json
 
 __all__ = [
-    'cache', 'cacherules', 'close', 'closingstring', 'escape', 'evalrules',
-    'execute', 'explodeunescape', 'functions', 'log', 'notclosed', 'MyClass',
-    'openingstring', 'parse', 'positions', 'positionsloop', 'rules',
-    'Singleton', 'skip', 'tokens', 'walk', 'walkarray'
+    'cache', 'close', 'closingstring', 'evalrules', 'execute', 'functions',
+    'log', 'loghash', 'notclosed', 'MyClass', 'openingstring', 'parse',
+    'positions', 'positionsloop', 'ruleitems', 'Singleton', 'skip', 'tokens',
+    'walk', 'walkarray'
 ]
 
 __version__ = '2.0.0'
