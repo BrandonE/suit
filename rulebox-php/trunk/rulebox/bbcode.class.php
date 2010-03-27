@@ -24,12 +24,22 @@ class BBCode
 
         $this->rules = array
         (
-            '[' => $templating['['],
+            '[' => $templating->rules['['],
             '[align]' => array
             (
                 'close' => '[/align]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -61,8 +71,18 @@ class BBCode
             '[b]' => array
             (
                 'close' => '[/b]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -79,8 +99,18 @@ class BBCode
             '[code]' => array
             (
                 'close' => '[/code]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -103,8 +133,18 @@ class BBCode
             '[color]' => array
             (
                 'close' => '[/color]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -136,8 +176,18 @@ class BBCode
             '[email]' => array
             (
                 'close' => '[/email]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -164,8 +214,18 @@ class BBCode
             '[font]' => array
             (
                 'close' => '[/font]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -197,8 +257,18 @@ class BBCode
             '[i]' => array
             (
                 'close' => '[/i]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -215,8 +285,18 @@ class BBCode
             '[img]' => array
             (
                 'close' => '[/img]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -233,8 +313,18 @@ class BBCode
             '[list]' => array
             (
                 'close' => '[/list]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -269,8 +359,18 @@ class BBCode
             '[s]' => array
             (
                 'close' => '[/s]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -287,8 +387,18 @@ class BBCode
             '[size]' => array
             (
                 'close' => '[/size]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -325,8 +435,18 @@ class BBCode
             '[quote]' => array
             (
                 'close' => '[/quote]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -353,8 +473,18 @@ class BBCode
             '[u]' => array
             (
                 'close' => '[/u]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -371,8 +501,18 @@ class BBCode
             '[url]' => array
             (
                 'close' => '[/url]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $templating,
+                        'function' => 'copyvar'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -397,14 +537,15 @@ class BBCode
                 'create' => '[url]'
             ),
         );
+
         $this->templating = $templating;
     }
 
     public function attribute($params)
     {
-        if (array_key_exists('create', $params))
+        if (array_key_exists('create', $params['tree']))
         {
-            $params['var']['equal'] = $params['create'];
+            $params['var']['equal'] = $params['tree']['create'];
         }
         return $params;
     }
@@ -427,15 +568,16 @@ class BBCode
         {
             $params['string'] = str_replace('<br />', '', $params['string']);
             $params['string'] = explode($params['var']['delimiter'], $params['string']);
-            $size = count($params['string']);
-            for ($i = 0; $i < $size; $i++)
+            $split = array();
+            foreach ($params['string'] as $key => $value)
             {
-                if ($i != 0)
+                if ($key != 0)
                 {
-                    $params['string'][$i] = $params['var']['open'] . $params['string'][$i] . $params['var']['close'];
+                    $value = $params['var']['open'] . $value . $params['var']['close'];
                 }
+                $split[] = $value;
             }
-            $params['string'] = implode('', $params['string']);
+            $params['string'] = implode('', $split);
         }
         else
         {
@@ -464,9 +606,9 @@ class BBCode
 
     public function template($params)
     {
-        $this->suit->var->case = $params['string'];
         $this->suit->var->equal = $params['var']['equal'];
-        $params['string'] = $this->suit->execute($this->templating, $params['var']['template']);
+        $this->suit->var->string = $params['string'];
+        $params['string'] = $this->suit->execute($this->templating->rules, $params['var']['template']);
         return $params;
     }
 }

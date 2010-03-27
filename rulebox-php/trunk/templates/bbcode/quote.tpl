@@ -1,4 +1,4 @@
 <fieldset>
-    <legend>Quote[if condition="[var json='true']equal[/var]"] - [var]equal[/var][/if]</legend>
-    [var]case[/var]
+    <legend>Quote[if condition="equal"] - [var entities="false"]equal[/var][/if]</legend>
+    [var entities="false"]string[/var]
 </fieldset>

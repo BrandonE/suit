@@ -1,1 +1,1 @@
-<a href="[var]equal[/var]" target="_blank">[var]case[/var]</a>
+<a href="[var entities="false"]equal[/var]" target="_blank">[var entities="false"]string[/var]</a>

@@ -1,1 +1,1 @@
-<strong>[var]case[/var]</strong>
+<strong>[var entities="false"]string[/var]</strong>

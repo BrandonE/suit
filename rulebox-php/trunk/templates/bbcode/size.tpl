@@ -1,1 +1,1 @@
-<span style="font-size: [var]equal[/var]pt">[var]case[/var]</span>
+<span style="font-size: [var entities="false"]equal[/var]pt">[var entities="false"]string[/var]</span>

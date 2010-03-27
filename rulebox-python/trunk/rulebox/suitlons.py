@@ -30,9 +30,15 @@ from webhelpers.html import escape
 from rulebox import templating
 
 __all__ = [
-    'gettext', 'pylonsrules', 'rules', 'suitrules', 'templates',
+    'entities', 'gettext', 'pylonsrules', 'rules', 'suitrules', 'templates',
     'tmpl_context', 'url_for'
 ]
+
+def entities(params):
+    """Convert HTML characters to their respective entities"""
+    if not params['var']['json'] and params['var']['entities']:
+        params['string'] = escape(str(params['string']))
+    return params
 
 def gettext(params):
     """Grabs a gettext string."""
@@ -104,7 +110,20 @@ suitrules['[c'] = suitrules['[var'].copy()
 suitrules['[c']['create'] = '[c]'
 
 suitrules['[entities]'] = suitrules['[entities]'].copy()
-suitrules['[entities]']['postwalk'] = [templating.entities]
+suitrules['[entities]']['functions'] = [
+    templating.copyvar,
+    templating.walk,
+    entities
+]
+
+suitrules['[if]'] = suitrules['[if]'].copy()
+suitrules['[if]']['var'] = suitrules['[if]']['var'].copy()
+suitrules['[if]']['var']['var'] = suitrules['[if]']['var']['var'].copy()
+suitrules['[if]']['var']['var']['owner'] = c
+
+suitrules['[local]'] = suitrules['[local]'].copy()
+suitrules['[local]']['var'] = suitrules['[local]']['var'].copy()
+suitrules['[local]']['var']['owner'] = c
 
 suitrules['[loop]'] = suitrules['[loop]'].copy()
 suitrules['[loop]']['var'] = suitrules['[loop]']['var'].copy()
@@ -112,7 +131,10 @@ suitrules['[loop]']['var']['var'] = suitrules['[loop]']['var']['var'].copy()
 suitrules['[loop]']['var']['var']['owner'] = c
 
 suitrules['[template]'] = suitrules['[template]'].copy()
-suitrules['[template]']['postwalk'] = [templates]
+suitrules['[template]']['functions'] = [
+    templating.walk,
+    templates
+]
 
 del suitrules['[var]']
 del suitrules['[var']
@@ -121,15 +143,12 @@ pylonsrules = {
     '[gettext]':
     {
         'close': '[/gettext]',
-        'postwalk': [gettext]
+        'functions': [templating.walk, gettext]
     },
     '[url':
     {
         'close': '/]',
-        'postwalk': [
-            templating.attribute,
-            url_for
-        ],
+        'functions': [templating.walk, templating.attribute, url_for],
         'skip': True,
         'var':
         {

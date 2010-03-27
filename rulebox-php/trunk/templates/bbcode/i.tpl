@@ -1,1 +1,1 @@
-<em>[var]case[/var]</em>
+<em>[var entities="false"]string[/var]</em>

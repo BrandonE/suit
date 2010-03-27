@@ -11,7 +11,7 @@
 <body>
 <div class="header">
     <div class="left">
-        <h1 class="title"><a href="#">SUIT Framework</a></h1>
+        <h1 class="title"><a href="[url controller="root" action="template" templatefile="index" /]">SUIT Framework</a></h1>
         <div class="slogan">Scripting Using Integrated Templates</div>
     </div>
     <div class="right">
@@ -24,7 +24,7 @@
         <p>
             <select name="language">
                 <option value="default">Default</option>
-                [loop key="key" value="value" list="[c json='true']loop.languages[/c]"]
+                [loop key="key" value="value" list="loop.languages"]
                 <option value="[c]value.id[/c]">[c]value.title[/c]</option>
                 [/loop]
             </select>
@@ -36,11 +36,11 @@
 <div class="nav">
     <div class="space"></div>
     <ul>
-        <li[if condition="[c json='true']condition.home[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="index" /]">[gettext]Home[/gettext]</a></li>
-        <li[if condition="[c json='true']condition.download[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="download" /]">[gettext]Download[/gettext]</a></li>
-        <li[if condition="[c json='true']condition.docs[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="docs" /]">[gettext]Docs[/gettext]</a></li>
-        <li[if condition="[c json='true']condition.tryit[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="tryit" /]">[gettext]Try It[/gettext]</a></li>
-        <li[if condition="[c json='true']condition.slacks[/c]"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="slacks" /]">[gettext]SLACKS[/gettext]</a></li>
+        <li[if condition="condition.home"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="index" /]">[gettext]Home[/gettext]</a></li>
+        <li[if condition="condition.download"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="download" /]">[gettext]Download[/gettext]</a></li>
+        <li[if condition="condition.docs"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="docs" /]">[gettext]Docs[/gettext]</a></li>
+        <li[if condition="condition.tryit"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="tryit" /]">[gettext]Try It[/gettext]</a></li>
+        <li[if condition="condition.slacks"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="slacks" /]">[gettext]SLACKS[/gettext]</a></li>
         <li><a href="http://suitframework.svn.sourceforge.net/viewvc/suitframework/" target="_blank">[gettext]SVN[/gettext]</a></li>
     </ul>
 </div>

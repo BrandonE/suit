@@ -1,1 +1,1 @@
-<span style="color: [var]equal[/var]">[var]case[/var]</span>
+<span style="color: [var entities="false"]equal[/var]">[var entities="false"]string[/var]</span>

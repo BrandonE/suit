@@ -1,1 +1,1 @@
-<del>[var]case[/var]</del>
+<del>[var entities="false"]string[/var]</del>

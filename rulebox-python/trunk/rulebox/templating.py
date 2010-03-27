@@ -15,6 +15,7 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 """
+import copy
 import os
 import re
 import cgi
@@ -26,10 +27,10 @@ except ImportError:
 import suit
 
 __all__ = [
-    'assign', 'assignvariable', 'attribute', 'bracket', 'code', 'comments',
-    'condition', 'default', 'entities', 'evalrules', 'evaluation', 'execute',
-    'decode', 'listing', 'loop', 'returning', 'returningfunction', 'rules',
-    'templates', 'trim', 'trimexecute', 'trying', 'variables'
+    'assign', 'attribute', 'bracket', 'comments', 'condition', 'decode',
+    'default', 'entities', 'evalrules', 'evaluation', 'execute', 'getvariable',
+    'listing', 'loadlocal', 'loop', 'returning', 'rules', 'savelocal',
+    'setvariable', 'templates', 'trim', 'trying', 'variables', 'walk'
 ]
 
 def assign(params):
@@ -38,7 +39,7 @@ def assign(params):
     if params['var']['var']:
         if params['var']['json']:
             params['string'] = json.loads(params['string'])
-        assignvariable(
+        setvariable(
             params['var']['var'],
             params['var']['delimiter'],
             params['string'],
@@ -47,37 +48,20 @@ def assign(params):
     params['string'] = ''
     return params
 
-def assignvariable(string, split, assignment, var):
-    """Assign a variable based on split"""
-    split = string.split(split)
-    for key, value in enumerate(split):
-        if key < len(split) - 1:
-            try:
-                var = var[value]
-            except (AttributeError, TypeError):
-                try:
-                    var = var[int(value)]
-                except (AttributeError, TypeError, ValueError):
-                    var = getattr(var, value)
-    try:
-        var[split[len(split) - 1]] = assignment
-    except (AttributeError, TypeError):
-        setattr(var, split[len(split) - 1], assignment)
-
 def attribute(params):
     """Create rule out of attributes"""
-    var = params['var']
-    params['var'] = params['var']['var'].copy()
+    var = params['rules'][params['tree']['rule']]['var'].copy()
+    params['var'] = var['var'].copy()
     if 'onesided' in var and var['onesided']:
-        case = params['string']
-    elif 'create' in params:
-        case = params['create']
+        string = params['string']
+    elif 'create' in params['tree']:
+        string = params['tree']['create']
     else:
         return params
     quote = ''
     smallest = False
     for value in var['quote']:
-        haystack = case
+        haystack = string
         needle = value
         if params['config']['insensitive']:
             haystack = haystack.lower()
@@ -88,7 +72,7 @@ def attribute(params):
             smallest = position
     if quote:
         #Define the variables
-        split = case.split(quote)
+        split = string.split(quote)
         del split[-1]
         for key, value in enumerate(split):
             #If this is the first iteration of the pair
@@ -120,25 +104,30 @@ def bracket(params):
     ))
     return params
 
-def comments(params):
-    """Hide a string"""
-    params['string'] = ''
-    return params
-
 def condition(params):
-    """Hide the case if necessary"""
-    #Hide the case if necessary
+    """Show the case if necessary"""
+    var = getvariable(
+        params['var']['condition'],
+        params['var']['delimiter'],
+        params['var']['owner']
+    )
+    #Show the case if necessary
     if (
         (
-            params['var']['condition'] and
-            params['var']['else']
+            var and
+            not params['var']['not']
         ) or
         (
-            not params['var']['condition'] and
-            not params['var']['else']
+            not var and
+            params['var']['not']
         )
     ):
-        params['walk'] = False
+        params = walk(params)
+    return params
+
+def copyvar(params):
+    """Copy the rule's variable from the tree"""
+    params['var'] = params['rules'][params['tree']['rule']]['var'].copy()
     return params
 
 def decode(params):
@@ -199,10 +188,22 @@ def functions(params):
         params['string'] = params['var']['function'](**kwargs)
     return params
 
+def getvariable(string, delimiter, owner):
+    """Get variable based on split"""
+    for value in string.split(delimiter):
+        try:
+            owner = owner[value]
+        except (AttributeError, TypeError):
+            try:
+                owner = owner[int(value)]
+            except (AttributeError, TypeError, ValueError):
+                owner = getattr(owner, value)
+    return owner
+
 def listing(name, var):
     """Check if the variable is whitelisted or blacklisted"""
     #If the variable is whitelisted or blacklisted
-    if (
+    return not(
         'list' in var and
         (
             (
@@ -218,96 +219,130 @@ def listing(name, var):
                 name in var['list']
             )
         )
-    ):
-        return False
-    return True
+    )
+
+def loadlocal(params):
+    """Load the variables set before this section"""
+    if hasattr(params['var']['owner'], 'items'):
+        for key, value in params['var']['owner'].items():
+            if key in params['var']['local']:
+                params['var']['owner'][key] = params['var']['local'][key]
+            else:
+                del params['var']['owner'][key]
+    else:
+        try:
+            for key, value in enumerate(params['var']['owner']):
+                if key < len(params['var']['local']) - 1:
+                    params['var']['owner'][key] = value
+                else:
+                    del params['var']['owner'][key]
+        except (TypeError, RuntimeError):
+            for value in dir(params['var']['owner']):
+                if (not value.startswith('_') and
+                not callable(getattr(params['var']['owner'], value))):
+                    if value in params['var']['local']:
+                        setattr(
+                            params['var']['owner'],
+                            value,
+                            params['var']['local'][value]
+                        )
+                    else:
+                        delattr(
+                            params['var']['owner'],
+                            value
+                        )
+    return params
 
 def loop(params):
     """Loop a string with different variables"""
+    var = getvariable(
+        params['var']['list'],
+        params['var']['delimiter'],
+        params['var']['owner']
+    )
     iterations = []
-    tree = {
-        'string': '',
-        'contents': params['tree']['contents'],
-        'parallel': []
+    params['tree'] = {
+        'contents': params['tree']['contents']
     }
-    for key, value in enumerate(params['var']['list']):
-        old = {}
+    for key, value in enumerate(var):
         if 'key' in params['var']:
-            try:
-                if params['var']['key'] in params['var']['owner']:
-                    old['dictkey'] = params['var']['owner'][
-                        params['var']['key']
-                    ]
-                params['var']['owner'][params['var']['key']] = key
-            except (AttributeError, TypeError):
-                if hasattr(params['var']['owner'], params['var']['key']):
-                    old['objkey'] = getattr(
-                        params['var']['owner'],
-                        params['var']['key']
-                    )
-                setattr(params['var']['owner'], params['var']['key'], key)
+            setvariable(
+                params['var']['key'],
+                params['var']['delimiter'],
+                key,
+                params['var']['owner']
+            )
         if 'value' in params['var']:
-            try:
-                if params['var']['value'] in params['var']['owner']:
-                    old['dictvalue'] = params['var']['owner'][
-                        params['var']['value']
-                    ]
-                params['var']['owner'][params['var']['value']] = value
-            except (AttributeError, TypeError):
-                if hasattr(params['var']['owner'], params['var']['value']):
-                    old['objvalue'] = getattr(
-                        params['var']['owner'],
-                        params['var']['value']
-                    )
-                setattr(params['var']['owner'], params['var']['value'], value)
-        #Execute for this iteration
+            setvariable(
+                params['var']['value'],
+                params['var']['delimiter'],
+                value,
+                params['var']['owner']
+            )
+        #Walk for this iteration
         iterations.append(
-            suit.walk(params['rules'], tree, params['config'])['string']
+            walk(params)['string']
         )
-        if 'recurse' in params['var'] and params['var']['recurse']:
-            if 'dictkey' in old:
-                params['var']['owner'][params['var']['key']] = old['dictkey']
-            if 'objkey' in old:
-                setattr(
-                    params['var']['owner'],
-                    params['var']['key'],
-                    old['objkey']
-                )
-            if 'dictvalue' in old:
-                params['var']['owner'][
-                    params['var']['value']
-                ] = old['dictvalue']
-            if 'objvalue' in old:
-                setattr(
-                    params['var']['owner'],
-                    params['var']['value'],
-                    old['objvalue']
-                )
     #Implode the iterations
-    params['string'] = params['var']['delimiter'].join(iterations)
-    params['walk'] = False
+    params['string'] = params['var']['implode'].join(iterations)
     return params
 
 def returning(params):
     """Prepare to return from this point on"""
-    if params['var']['layers']:
-        params['returnvar'] = {
-            'returnfunctions': [returningfunction],
-            'layers': params['var']['layers']
-        }
-        params['returnfunctions'] = params['returnvar']['returnfunctions']
     params['string'] = ''
+    if not params['var']['layers']:
+        return params
+    if isinstance(params['var']['layers'], int):
+        params['var']['layers'] -= 1
+    for value in enumerate(params['tree']['parent']['contents']):
+        if value[0] > params['tree']['key']:
+            del params['tree']['parent']['contents'][value[0]]
+    if params['var']['layers'] and 'parent' in params['tree']['parent']:
+        params['tree']['parent'] = params['tree']['parent']['parent']
+        params = returning(params)
     return params
 
-def returningfunction(params):
-    """Return from this point on"""
-    if not isinstance(params['returnedvar']['layers'], bool):
-        params['returnedvar']['layers'] -= 1
-    if params['returnedvar']['layers']:
-        params['returnvar'] = params['returnedvar']
-        params['returnfunctions'] = params['returnedvar']['returnfunctions']
-    params['walk'] = False
+def savelocal(params):
+    """Save the variables set before this section"""
+    params['var']['local'] = {}
+    if hasattr(params['var']['owner'], 'items'):
+        for key, value in params['var']['owner'].items():
+            params['var']['local'][key] = copy.deepcopy(value)
+    else:
+        try:
+            for key, value in enumerate(params['var']['owner']):
+                params['var']['local'][key] = value
+        except (TypeError, RuntimeError):
+            for value in dir(params['var']['owner']):
+                if (not value.startswith('_') and
+                not callable(getattr(params['var']['owner'], value))):
+                    params['var']['local'][value] = copy.deepcopy(
+                        getattr(
+                            params['var']['owner'],
+                            value
+                        )
+                    )
     return params
+
+def setvariable(string, split, assignment, owner):
+    """Set a variable based on split"""
+    split = string.split(split)
+    for key, value in enumerate(split):
+        if key < len(split) - 1:
+            try:
+                owner = owner[value]
+            except (AttributeError, TypeError):
+                try:
+                    owner = owner[int(value)]
+                except (AttributeError, TypeError, ValueError):
+                    owner = getattr(owner, value)
+    try:
+        owner[split[len(split) - 1]] = assignment
+    except (AttributeError, TypeError):
+        try:
+            owner[int(split[len(split) - 1])] = assignment
+        except (AttributeError, TypeError, ValueError):
+            setattr(owner, split[len(split) - 1], assignment)
 
 def templates(params):
     """Grab a template from a file"""
@@ -326,56 +361,47 @@ def transform(params):
     return params
 
 def trim(params):
-    """Prepare the trim rules"""
-    config = params['config'].copy()
-    config['log'] = params['var']['log']
-    params['string'] = suit.execute(
-        {
-            '':
-            {
-                'prewalk': [trimexecute]
-            },
-            '<pre':
-            {
-                'close': '</pre>',
-                'skip': True
-            },
-            '<textarea':
-            {
-                'close': '</textarea>',
-                'skip': True
-            }
-        },
-        params['string'],
-        config
-    )
-    params['string'] = params['string'].lstrip()
-    return params
-
-def trimexecute(params):
     """Trim unnecessary whitespace"""
-    for value in enumerate(params['tree']['contents']):
-        if isinstance(params['tree']['contents'][value[0]], dict):
+    rules = {
+        '<pre':
+        {
+            'close': '</pre>',
+            'skip': True
+        },
+        '<textarea':
+        {
+            'close': '</textarea>',
+            'skip': True
+        }
+    }
+    pos = suit.tokens(rules, params['string'], params['config'])
+    tree = suit.parse(
+        rules,
+        pos,
+        params['string'],
+        params['config']
+    )['contents']
+    params['string'] = ''
+    for value in tree:
+        if isinstance(value, dict):
             params['string'] += ''.join((
-                params['tree']['contents'][value[0]]['rule'],
-                params['tree']['contents'][value[0]]['contents'][0],
-                params['rules'][
-                    params['tree']['contents'][value[0]]['rule']
-                ]['close']
+                value['rule'],
+                value['contents'][0],
+                rules[value['rule']]['close']
             ))
         else:
             params['string'] += ''.join((
                 re.sub(
                     '(?m)[\s]+$',
                     '',
-                    params['tree']['contents'][value[0]]
+                    value
                 ),
-                params['tree']['contents'][value[0]][
-                    len(params['tree']['contents'][value[0]].rstrip()):
-                    len(params['tree']['contents'][value[0]])
+                value[
+                    len(value.rstrip()):
+                    len(value)
                 ]
             ))
-    params['walk'] = False
+    params['string'] = params['string'].lstrip()
     return params
 
 def trying(params):
@@ -383,17 +409,15 @@ def trying(params):
     if params['var']['var']:
         setattr(suit, params['var']['var'], '')
     try:
-        config = params['config'].copy()
-        config['log'] = params['var']['log']
-        params['string'] = suit.execute(
+        params['string'] = suit.walk(
             params['rules'],
-            params['string'],
-            config
+            params['tree'],
+            params['config']
         )
     except Exception, inst:
         #If a variable is provided
         if params['var']['var']:
-            assignvariable(
+            setvariable(
                 params['var']['var'],
                 params['var']['delimiter'],
                 inst,
@@ -404,18 +428,24 @@ def trying(params):
 
 def variables(params):
     """Parse variables"""
-    variable = params['var']['owner']
-    for value in params['string'].split(params['var']['delimiter']):
-        try:
-            variable = variable[value]
-        except (AttributeError, TypeError):
-            try:
-                variable = variable[int(value)]
-            except (AttributeError, TypeError, ValueError):
-                variable = getattr(variable, value)
+    params['string'] = getvariable(
+        params['string'],
+        params['var']['delimiter'],
+        params['var']['owner']
+    )
     if params['var']['json']:
-        variable = json.dumps(variable, separators = (',', ':'))
-    params['string'] = variable
+        params['string'] = json.dumps(
+            params['string'],
+            separators = (',', ':')
+        )
+    return params
+
+def walk(params):
+    params['string'] = suit.walk(
+        params['rules'],
+        params['tree'],
+        params['config']
+    )
     return params
 
 default = {
@@ -430,16 +460,12 @@ rules = {
     '[':
     {
         'close': ']',
-        'postwalk': [bracket]
+        'functions': [walk, bracket]
     },
     '[assign]':
     {
         'close': '[/assign]',
-        'postwalk': [
-            attribute,
-            decode,
-            assign
-        ],
+        'functions': [walk, attribute, decode, assign],
         'var':
         {
             'equal': default['equal'],
@@ -465,10 +491,7 @@ rules = {
     '[call':
     {
         'close': '/]',
-        'postwalk': [
-            attribute,
-            functions
-        ],
+        'functions': [walk, attribute, functions],
         'skip': True,
         'var':
         {
@@ -486,13 +509,12 @@ rules = {
     '[comment]':
     {
         'close': '[/comment]',
-        'postwalk': [comments],
         'skip': True
     },
     '[entities]':
     {
         'close': '[/entities]',
-        'postwalk': [entities],
+        'functions': [copyvar, walk, entities],
         'var':
         {
             'entities': True,
@@ -502,11 +524,7 @@ rules = {
     '[execute]':
     {
         'close': '[/execute]',
-        'postwalk': [
-            attribute,
-            decode,
-            execute
-        ],
+        'functions': [walk, attribute, decode, execute],
         'var':
         {
             'equal': default['equal'],
@@ -529,23 +547,20 @@ rules = {
     '[if]':
     {
         'close': '[/if]',
-        'prewalk': [
-            attribute,
-            decode,
-            condition
-        ],
+        'functions': [attribute, decode, condition],
         'var':
         {
-            'blacklist': True,
             'equal': default['equal'],
-            'list': ('decode',),
+            'list': ('condition', 'not'),
             'log': default['log'],
             'quote': default['quote'],
             'var':
             {
-                'condition': 'false',
-                'decode': ('condition', 'else'),
-                'else': 'false'
+                'condition': '',
+                'decode': ('not',),
+                'delimiter': default['delimiter'],
+                'not': 'false',
+                'owner': default['owner']
             }
         }
     },
@@ -555,28 +570,32 @@ rules = {
         'create': '[if]',
         'skip': True
     },
+    '[local]':
+    {
+        'close': '[/local]',
+        'functions': [copyvar, savelocal, walk, loadlocal],
+        'var':
+        {
+            'owner': default['owner']
+        }
+    },
     '[loop]':
     {
         'close': '[/loop]',
-        'prewalk': [
-            attribute,
-            decode,
-            loop
-        ],
+        'functions': [attribute, loop],
         'var':
         {
             'blacklist': True,
             'equal': default['equal'],
-            'list': ('decode', 'owner'),
+            'list': ('delimiter', 'owner'),
             'log': default['log'],
             'quote': default['quote'],
             'var':
             {
-                'decode': ('list', 'recurse'),
-                'delimiter': '',
-                'list': '[]',
-                'owner': default['owner'],
-                'recurse': 'false'
+                'delimiter': default['delimiter'],
+                'implode': '',
+                'list': '',
+                'owner': default['owner']
             }
         }
     },
@@ -589,12 +608,7 @@ rules = {
     '[return':
     {
         'close': '/]',
-        'postwalk':
-        [
-            attribute,
-            decode,
-            returning
-        ],
+        'functions': [walk, attribute, decode, returning],
         'skip': True,
         'var':
         {
@@ -613,23 +627,20 @@ rules = {
     '[skip]':
     {
         'close': '[/skip]',
+        'functions': [walk],
         'skip': True,
         'skipescape': True
     },
     '[template]':
     {
         'close': '[/template]',
-        'postwalk': [templates],
+        'functions': [copyvar, walk, templates],
         'var': {}
     },
     '[transform]':
     {
         'close': '[/transform]',
-        'postwalk': [
-            attribute,
-            transform,
-            functions
-        ],
+        'functions': [walk, attribute, transform, functions],
         'var':
         {
             'equal': default['equal'],
@@ -652,50 +663,21 @@ rules = {
     '[trim]':
     {
         'close': '[/trim]',
-        'postwalk': [
-            attribute,
-            decode,
-            trim
-        ],
-        'var':
-        {
-            'equal': default['equal'],
-            'list': ('log',),
-            'log': default['log'],
-            'quote': default['quote'],
-            'var':
-            {
-                'decode': ('log',),
-                'log': 'true'
-            }
-        }
-    },
-    '[trim':
-    {
-        'close': ']',
-        'create': '[trim]',
-        'skip': True
+        'functions': [walk, trim],
     },
     '[try]':
     {
         'close': '[/try]',
-        'postwalk': [
-            attribute,
-            decode,
-            trying
-        ],
-        'skip': True,
+        'functions': [attribute, trying],
         'var':
         {
             'equal': default['equal'],
-            'list': ('log', 'var'),
+            'list': ('var',),
             'log': default['log'],
             'quote': default['quote'],
             'var':
             {
-                'decode': ('log',),
                 'delimiter': default['delimiter'],
-                'log': 'false',
                 'owner': default['owner'],
                 'var': ''
             }
@@ -710,12 +692,7 @@ rules = {
     '[var]':
     {
         'close': '[/var]',
-        'postwalk': [
-            attribute,
-            decode,
-            variables,
-            entities
-        ],
+        'functions': [walk, attribute, decode, variables, entities],
         'var':
         {
             'equal': default['equal'],
@@ -744,6 +721,6 @@ evalrules = {
     '[eval]':
     {
         'close': '[/eval]',
-        'postwalk': [evaluation]
+        'functions': [walk, evaluation]
     }
 }

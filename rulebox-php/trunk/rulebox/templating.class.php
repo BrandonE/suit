@@ -28,6 +28,8 @@ class Templating
 
     public function __construct($suit)
     {
+        $this->default['owner'] = $suit->var;
+
         $this->suit = $suit;
 
         $this->rules = array
@@ -35,8 +37,13 @@ class Templating
             '[' => array
             (
                 'close' => ']',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -47,8 +54,13 @@ class Templating
             '[assign]' => array
             (
                 'close' => '[/assign]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -58,11 +70,6 @@ class Templating
                     (
                         'class' => $this,
                         'function' => 'decode'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'predefine'
                     ),
                     array
                     (
@@ -81,6 +88,7 @@ class Templating
                         'decode' => array('json'),
                         'delimiter' => $this->default['delimiter'],
                         'json' => 'false',
+                        'owner' => $this->default['owner'],
                         'var' => ''
                     )
                 )
@@ -94,8 +102,13 @@ class Templating
             '[call' => array
             (
                 'close' => '/]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -120,25 +133,22 @@ class Templating
             '[comment]' => array
             (
                 'close' => '[/comment]',
-                'postwalk' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'comments'
-                    )
-                ),
                 'skip' => true
             ),
             '[entities]' => array
             (
                 'close' => '[/entities]',
-                'postwalk' => array
+                'functions' => array
                 (
                     array
                     (
                         'class' => $this,
-                        'function' => 'decode'
+                        'function' => 'copyvar'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
                     ),
                     array
                     (
@@ -148,16 +158,20 @@ class Templating
                 ),
                 'var' => array
                 (
-                    'decode' => array('entities', 'json'),
-                    'entities' => 'true',
-                    'json' => 'false'
+                    'entities' => true,
+                    'json' => false
                 )
             ),
             '[execute]' => array
             (
                 'close' => '[/execute]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -197,7 +211,7 @@ class Templating
             '[if]' => array
             (
                 'close' => '[/if]',
-                'prewalk' => array
+                'functions' => array
                 (
                     array
                     (
@@ -217,16 +231,17 @@ class Templating
                 ),
                 'var' => array
                 (
-                    'blacklist' => true,
                     'equal' => $this->default['equal'],
-                    'list' => array('decode'),
+                    'list' => array('condition', 'not'),
                     'log' => $this->default['log'],
                     'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'condition' => 'false',
-                        'decode' => array('condition', 'else'),
-                        'else' => 'false'
+                        'condition' => '',
+                        'decode' => array('not'),
+                        'delimiter' => $this->default['delimiter'],
+                        'not' => 'false',
+                        'owner' => $this->default['owner']
                     )
                 )
             ),
@@ -236,25 +251,46 @@ class Templating
                 'create' => '[if]',
                 'skip' => true
             ),
+            '[local]' => array
+            (
+                'close' => '[/local]',
+                'functions' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'copyvar'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'savelocal'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'loadlocal'
+                    )
+                ),
+                'var' => array
+                (
+                    'owner' => $this->default['owner']
+                )
+            ),
             '[loop]' => array
             (
                 'close' => '[/loop]',
-                'prewalk' => array
+                'functions' => array
                 (
                     array
                     (
                         'class' => $this,
                         'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'decode'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'predefine'
                     ),
                     array
                     (
@@ -266,14 +302,15 @@ class Templating
                 (
                     'blacklist' => true,
                     'equal' => $this->default['equal'],
-                    'list' => array('decode', 'owner'),
+                    'list' => array('delimiter', 'owner'),
                     'log' => $this->default['log'],
                     'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'decode' => array('list', 'recurse'),
-                        'delimiter' => '',
-                        'list' => '[]'
+                        'delimiter' => $this->default['delimiter'],
+                        'implode' => '',
+                        'list' => '',
+                        'owner' => $this->default['owner']
                     )
                 )
             ),
@@ -286,8 +323,13 @@ class Templating
             '[return' => array
             (
                 'close' => '/]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -322,14 +364,32 @@ class Templating
             '[skip]' => array
             (
                 'close' => '[/skip]',
+                'functions' => array
+                (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    )
+                ),
                 'skip' => true,
                 'skipescape' => true
             ),
             '[template]' => array
             (
                 'close' => '[/template]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'copyvar'
+                    ),
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -341,8 +401,13 @@ class Templating
             '[transform]' => array
             (
                 'close' => '[/transform]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -376,35 +441,17 @@ class Templating
             '[trim]' => array
             (
                 'close' => '[/trim]',
-                'postwalk' => array
+                'functions' => array
                 (
                     array
                     (
                         'class' => $this,
-                        'function' => 'attribute'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'decode'
+                        'function' => 'walk'
                     ),
                     array
                     (
                         'class' => $this,
                         'function' => 'trim'
-                    )
-                ),
-                'var' => array
-                (
-                    'equal' => $this->default['equal'],
-                    'list' => array('log'),
-                    'log' => $this->default['log'],
-                    'quote' => $this->default['quote'],
-                    'var' => array
-                    (
-                        'condition' => 'false',
-                        'decode' => array('log'),
-                        'log' => 'true'
                     )
                 )
             ),
@@ -417,7 +464,7 @@ class Templating
             '[try]' => array
             (
                 'close' => '[/try]',
-                'postwalk' => array
+                'functions' => array
                 (
                     array
                     (
@@ -427,31 +474,19 @@ class Templating
                     array
                     (
                         'class' => $this,
-                        'function' => 'decode'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'predefine'
-                    ),
-                    array
-                    (
-                        'class' => $this,
                         'function' => 'trying'
                     )
                 ),
-                'skip' => true,
                 'var' => array
                 (
                     'equal' => $this->default['equal'],
-                    'list' => array('log', 'var'),
+                    'list' => array('var'),
                     'log' => $this->default['log'],
                     'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'decode' => array('log'),
                         'delimiter' => $this->default['delimiter'],
-                        'log' => 'false',
+                        'owner' => $this->default['owner'],
                         'var' => ''
                     )
                 )
@@ -466,8 +501,13 @@ class Templating
             (
                 'close' => '[/var]',
                 'class' => $this,
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -477,11 +517,6 @@ class Templating
                     (
                         'class' => $this,
                         'function' => 'decode'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'predefine'
                     ),
                     array
                     (
@@ -505,7 +540,8 @@ class Templating
                         'decode' => array('entities', 'json'),
                         'delimiter' => $this->default['delimiter'],
                         'entities' => 'true',
-                        'json' => 'false'
+                        'json' => 'false',
+                        'owner' => $this->default['owner']
                     )
                 )
             ),
@@ -521,8 +557,13 @@ class Templating
             '[eval]' => array
             (
                 'close' => '[/eval]',
-                'postwalk' => array
+                'functions' => array
                 (
+                    array
+                    (
+                        'class' => $this,
+                        'function' => 'walk'
+                    ),
                     array
                     (
                         'class' => $this,
@@ -540,50 +581,25 @@ class Templating
         {
             if ($params['var']['json'])
             {
-                $params['string'] = json_decode($params['string']);
+                $params['string'] = json_decode($params['string'], true);
             }
-            $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $this->suit->var);
+            $this->setvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $this->suit->var);
         }
         $params['string'] = '';
         return $params;
     }
 
-    public function assignvariable($string, $split, $assign, &$var)
-    {
-        $split = explode($split, $string);
-        $size = count($split);
-        for ($i = 0; $i < $size - 1; $i++)
-        {
-            if (is_array($var))
-            {
-                $var = &$var[$split[$i]];
-            }
-            else
-            {
-                $var = &$var->$split[$i];
-            }
-        }
-        if (is_array($var))
-        {
-            $var[$split[$size - 1]] = $assign;
-        }
-        else
-        {
-            $var->$split[$size - 1] = $assign;
-        }
-    }
-
     public function attribute($params)
     {
-        $var = $params['var'];
-        $params['var'] = $params['var']['var'];
+        $var = $params['rules'][$params['tree']['rule']]['var'];
+        $params['var'] = $var['var'];
         if (array_key_exists('onesided', $var) && $var['onesided'])
         {
-            $case = $params['string'];
+            $string = $params['string'];
         }
-        elseif (array_key_exists('create', $params))
+        elseif (array_key_exists('create', $params['tree']))
         {
-            $case = $params['create'];
+            $string = $params['tree']['create'];
         }
         else
         {
@@ -598,7 +614,7 @@ class Templating
         }
         foreach ($var['quote'] as $value)
         {
-            $position = $function($case, $value);
+            $position = $function($string, $value);
             if ($position !== false && ($smallest === false || $position < $smallest))
             {
                 $quote = $value;
@@ -608,15 +624,14 @@ class Templating
         if ($quote)
         {
             //Define the variables
-            $split = explode($quote, $case);
+            $split = explode($quote, $string);
             unset($split[count($split) - 1]);
-            $size = count($split);
-            for ($i = 0; $i < $size; $i++)
+            foreach ($split as $key => $value)
             {
                 //If this is the first iteration of the pair
-                if ($i % 2 == 0)
+                if ($key % 2 == 0)
                 {
-                    $name = trim($split[$i]);
+                    $name = trim($value);
                     $syntax = (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal']);
                     $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
                     //If the syntax is not valid or variable is whitelisted or blacklisted, do not prepare to define the variable
@@ -630,7 +645,7 @@ class Templating
                     //Define the variable
                     $config = $params['config'];
                     $config['log'] = $var['log'];
-                    $params['var'][$name] = $this->suit->execute($params['rules'], $split[$i], $config);
+                    $params['var'][$name] = $this->suit->execute($params['rules'], $value, $config);
                 }
             }
         }
@@ -643,19 +658,20 @@ class Templating
         return $params;
     }
 
-    public function comments($params)
+    public function condition($params)
     {
-        $params['string'] = '';
+        $var = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
+        //Show the case if necessary
+        if (($var && !$params['var']['not']) || (!$var && $params['var']['else']))
+        {
+            $params = $this->walk($params);
+        }
         return $params;
     }
 
-    public function condition($params)
+    public function copyvar($params)
     {
-        //Hide the case if necessary
-        if (($params['var']['condition'] && $params['var']['else']) || (!$params['var']['condition'] && !$params['var']['else']))
-        {
-            $params['walk'] = false;
-        }
+        $params['var'] = $params['rules'][$params['tree']['rule']]['var'];
         return $params;
     }
 
@@ -663,7 +679,7 @@ class Templating
     {
         foreach ($params['var']['decode'] as $value)
         {
-            $params['var'][$value] = json_decode($params['var'][$value]);
+            $params['var'][$value] = json_decode($params['var'][$value], true);
         }
         return $params;
     }
@@ -708,140 +724,125 @@ class Templating
         return $params;
     }
 
+    public function getvariable($string, $delimiter, $owner)
+    {
+        foreach (explode($delimiter, $string) as $value)
+        {
+            if (is_array($owner))
+            {
+                $owner = $owner[$value];
+            }
+            else
+            {
+                $owner = $owner->$value;
+            }
+        }
+        return $owner;
+    }
+
     public function listing($name, $var)
     {
-        $return = true;
-        //If the variable is whitelisted or blacklisted
-        if (array_key_exists('list', $var) && (((!array_key_exists('blacklist', $var) || !$var['blacklist']) && !in_array($name, $var['list'])) || (array_key_exists('blacklist', $var) && $var['blacklist'] && in_array($name, $var['list']))))
+        return (!(array_key_exists('list', $var) && (((!array_key_exists('blacklist', $var) || !$var['blacklist']) && !in_array($name, $var['list'])) || (array_key_exists('blacklist', $var) && $var['blacklist'] && in_array($name, $var['list'])))));
+    }
+
+    public function loadlocal($params)
+    {
+        foreach ($params['var']['local'] as $key => $value)
         {
-            $return = false;
+            $this->setvariable($key, true, $value, $params['var']['owner']);
         }
-        return $return;
+        return $params;
     }
 
     public function loop($params)
     {
+        $var = $this->getvariable($params['var']['list'], $params['var']['delimiter'], $params['var']['owner']);
         $iterations = array();
         $tree = array
         (
-            'string' => '',
-            'contents' => $params['tree']['contents'],
-            'parallel' => array()
+            'contents' => $params['tree']['contents']
         );
-        foreach ($params['var']['list'] as $key => $value)
+        foreach ($var as $key => $value)
         {
-            $old = array();
             if (array_key_exists('key', $params['var']))
             {
-                if (is_array($params['var']['owner']))
-                {
-                    if (array_key_exists($params['var']['key'], $params['var']['owner']))
-                    {
-                        $old['dictkey'] = $params['var']['owner'][$params['var']['key']];
-                    }
-                    $params['var']['owner'][$params['var']['key']] = $key;
-                }
-                else
-                {
-                    if (isset($params['var']['owner']->$params['var']['key']))
-                    {
-                        $old['objkey'] = $params['var']['owner']->$params['var']['key'];
-                    }
-                    $params['var']['owner']->$params['var']['key'] = $key;
-                }
+                $this->setvariable($params['var']['key'], $params['var']['delimiter'], $key, $params['var']['owner']);
             }
             if (array_key_exists('value', $params['var']))
             {
-                if (is_array($params['var']['owner']))
-                {
-                    if (array_key_exists($params['var']['value'], $params['var']['owner']))
-                    {
-                        $old['dictvalue'] = $params['var']['owner'][$params['var']['value']];
-                    }
-                    $params['var']['owner'][$params['var']['value']] = $value;
-                }
-                else
-                {
-                    if (isset($params['var']['owner']->$params['var']['value']))
-                    {
-                        $old['objvalue'] = $params['var']['owner']->$params['var']['value'];
-                    }
-                    $params['var']['owner']->$params['var']['value'] = $value;
-                }
+                $this->setvariable($params['var']['value'], $params['var']['delimiter'], $value, $params['var']['owner']);
             }
-            //Execute for this iteration
-            $result = $this->suit->walk($params['rules'], $tree, $params['config']);
+            //Walk for this iteration
+            $result = $this->walk($params);
             $iterations[] = $result['string'];
-            if (array_key_exists('recurse', $params['var']) && $params['var']['recurse'])
-            {
-                if (array_key_exists('dictkey', $old))
-                {
-                    $params['var']['owner'][$params['var']['key']] = $old['dictkey'];
-                }
-                if (array_key_exists('objkey', $old))
-                {
-                    $params['var']['owner']->$params['var']['key'] = $old['objkey'];
-                }
-                if (array_key_exists('dictvalue', $old))
-                {
-                    $params['var']['owner'][$params['var']['value']] = $old['dictvalue'];
-                }
-                if (array_key_exists('objvalue', $old))
-                {
-                    $params['var']['owner']->$params['var']['value'] = $old['objvalue'];
-                }
-            }
         }
         //Implode the iterations
-        $params['string'] = implode($params['var']['delimiter'], $iterations);
-        $params['walk'] = false;
-        return $params;
-    }
-
-    public function predefine($params)
-    {
-        if (!array_key_exists('owner', $params['var']))
-        {
-            $params['var']['owner'] = $this->suit->var;
-        }
+        $params['string'] = implode($params['var']['implode'], $iterations);
         return $params;
     }
 
     public function returning($params)
     {
-        if ($params['var']['layers'])
-        {
-            $params['returnvar'] = array
-            (
-                'returnfunctions' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'returningfunction'
-                    )
-                ),
-                'layers' => $params['var']['layers']
-            );
-            $params['returnfunctions'] = $params['returnvar']['returnfunctions'];
-        }
         $params['string'] = '';
+        if (!$params['var']['layers'])
+        {
+            return $params;
+        }
+        if (is_int($params['var']['layers']))
+        {
+            $params['var']['layers'] -= 1;
+        }
+        $size = count($params['tree']['parent']['contents']);
+        for ($i = 0; $i < $size; $i++)
+        {
+            if ($i > $params['tree']['key'])
+            {
+                unset($params['tree']['parent']['contents'][$i]);
+            }
+        }
+        if ($params['var']['layers'] && array_key_exists('parent', $params['tree']['parent']))
+        {
+            $params['tree']['parent'] = &$params['tree']['parent']['parent'];
+            $params = $this->returning($params);
+        }
         return $params;
     }
 
-    public function returningfunction($params)
+    public function savelocal($params)
     {
-        if (is_int($params['returnedvar']['layers']))
+        $params['var']['local'] = array();
+        foreach ($params['var']['owner'] as $key => $value)
         {
-            $params['returnedvar']['layers']--;
+            $params['var']['local'][$key] = $value;
         }
-        if ($params['returnedvar']['layers'])
-        {
-            $params['returnvar'] = $params['returnedvar'];
-            $params['returnfunctions'] = $params['returnedvar']['returnfunctions'];
-        }
-        $params['walk'] = false;
         return $params;
+    }
+
+    public function setvariable($string, $split, $assignment, &$owner)
+    {
+        $split = explode($split, $string);
+        foreach ($split as $key => $value)
+        {
+            if ($key < count($split) - 1)
+            {
+                if (is_array($owner))
+                {
+                    $owner = &$owner[$value];
+                }
+                else
+                {
+                    $owner = &$owner->$value;
+                }
+            }
+        }
+        if (is_array($owner))
+        {
+            $owner[$split[count($split) - 1]] = $assignment;
+        }
+        else
+        {
+            $owner->$split[count($split) - 1] = $assignment;
+        }
     }
 
     public function templates($params)
@@ -866,54 +867,35 @@ class Templating
 
     public function trim($params)
     {
-        $config = $params['config'];
-        $config['log'] = $params['var']['log'];
-        $params['string'] = $this->suit->execute(
-            array
+        $rules = array
+        (
+            '<pre' => array
             (
-                '' => array
-                (
-                    'prewalk' => array
-                    (
-                        array
-                        (
-                            'function' => 'trimexecute',
-                            'class' => $this
-                        )
-                    )
-                ),
-                '<pre' => array
-                (
-                    'close' => '</pre>',
-                    'skip' => true
-                ),
-                '<textarea' => array
-                (
-                    'close' => '</textarea>',
-                    'skip' => true
-                )
+                'close' => '</pre>',
+                'skip' => true
             ),
-            $params['string'],
-            $config
+            '<textarea' => array
+            (
+                'close' => '</textarea>',
+                'skip' => true
+            )
         );
-        $params['string'] = trim($params['string']);
-        return $params;
-    }
-
-    public function trimexecute($params)
-    {
-        foreach ($params['tree']['contents'] as $key => $value)
+        $pos = $this->suit->tokens($rules, $params['string'], $params['config']);
+        $tree = $this->suit->parse($rules, $pos, $params['string'], $params['config']);
+        $tree = $tree['contents'];
+        $params['string'] = '';
+        foreach ($tree as $value)
         {
-            if (is_array($params['tree']['contents'][$key]))
+            if (is_array($value))
             {
-                $params['string'] .= $params['tree']['contents'][$key]['rule'] . $params['tree']['contents'][$key]['contents'][0] . $params['rules'][$params['tree']['contents'][$key]['rule']]['close'];
+                $params['string'] .= $value['rule'] . $value['contents'][0] . $rules[$value['rule']]['close'];
             }
             else
             {
-                $params['string'] .= preg_replace('/[\s]+$/m', '', $params['tree']['contents'][$key]) . substr($params['tree']['contents'][$key], strlen(rtrim($params['tree']['contents'][$key])));
+                $params['string'] .= preg_replace('/[\s]+$/m', '', $value) . substr($value, strlen(rtrim($value)));
             }
         }
-        $params['walk'] = false;
+        $params['string'] = ltrim($params['string']);
         return $params;
     }
 
@@ -925,16 +907,14 @@ class Templating
         }
         try
         {
-            $config = $params['config'];
-            $config['log'] = $params['var']['log'];
-            $result = $this->suit->execute($params['rules'], $params['string'], $config);
+            $params['string'] = $this->suit->walk($params['rules'], $params['tree'], $params['config']);
         }
         catch (Exception $e)
         {
             //If a variable is provided
             if ($params['var']['var'])
             {
-                $this->assignvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
+                $this->setvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
             }
             $params['string'] = '';
         }
@@ -943,23 +923,17 @@ class Templating
 
     public function variables($params)
     {
-        $variable = $params['var']['owner'];
-        foreach (explode($params['var']['delimiter'], $params['string']) as $value)
-        {
-            if (is_array($variable))
-            {
-                $variable = $variable[$value];
-            }
-            else
-            {
-                $variable = $variable->$value;
-            }
-        }
+        $params['string'] = $this->getvariable($params['string'], $params['var']['delimiter'], $params['var']['owner']);
         if ($params['var']['json'])
         {
-            $variable = json_encode($variable);
+            $params['string'] = json_encode($params['string']);
         }
-        $params['string'] = $variable;
+        return $params;
+    }
+
+    public function walk($params)
+    {
+        $params['string'] = $this->suit->walk($params['rules'], $params['tree'], $params['config']);
         return $params;
     }
 }

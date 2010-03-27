@@ -19,14 +19,15 @@ import suit
 from rulebox import templating
 
 __all__ = [
-    'attribute',  'linebreaks', 'listitems', 'size', 'style', 'template',
-    'rules'
+    'attribute',  'linebreaks', 'listitems', 'rules', 'size', 'style',
+    'template'
 ]
 
 def attribute(params):
     """Create rule out of attribute"""
-    if 'create' in params:
-        params['var']['equal'] = params['create']
+    params['var'] = params['var'].copy()
+    if 'create' in params['tree']:
+        params['var']['equal'] = params['tree']['create']
     return params
 
 def linebreaks(params):
@@ -37,24 +38,22 @@ def linebreaks(params):
 def listitems(params):
     """Create the list items"""
     if not params['var']['equal'] or params['var']['equal'] in (
-        '1',
-        'a',
-        'A',
-        'i',
-        'I'
+        '1', 'a', 'A', 'i', 'I'
     ):
         params['string'] = params['string'].replace('<br />', '')
         params['string'] = params['string'].split(
             params['var']['delimiter']
         )
+        split = []
         for key, value in enumerate(params['string']):
             if key != 0:
-                params['string'][key] = ''.join((
+                value = ''.join((
                     params['var']['open'],
                     value,
                     params['var']['close']
                 ))
-        params['string'] = ''.join(params['string'])
+            split.append(value)
+        params['string'] = ''.join(split)
     else:
         params['var']['template'] = ''.join((
             params['open']['open'],
@@ -75,18 +74,16 @@ def style(params):
     explode = params['var']['equal'].split(';', 2)
     params['var']['equal'] = explode[0]
     params['var']['equal'] = params['var']['equal'].replace(
-        '"',
-        ''
+        '"', ''
     ).replace(
-        '\'',
-        ''
+        '\'', ''
     )
     return params
 
 def template(params):
     """Substitute variables into the template"""
-    suit.var.case = params['string']
     suit.var.equal = params['var']['equal']
+    suit.var.string = params['string']
     params['string'] = suit.execute(
         templating.rules,
         params['var']['template']
@@ -98,11 +95,9 @@ rules = {
     '[align]':
     {
         'close': '[/align]',
-        'postwalk':
+        'functions':
         [
-            attribute,
-            style,
-            template
+            templating.walk, templating.copyvar, attribute, style, template
         ],
         'var':
         {
@@ -119,7 +114,7 @@ rules = {
     '[b]':
     {
         'close': '[/b]',
-        'postwalk': [template],
+        'functions': [templating.walk, templating.copyvar, template],
         'var':
         {
             'equal': '',
@@ -130,9 +125,9 @@ rules = {
     '[code]':
     {
         'close': '[/code]',
-        'postwalk': [
-            linebreaks,
-            template
+        'functions':
+        [
+            templating.walk, templating.copyvar, linebreaks, template
         ],
         'skip': True,
         'var':
@@ -145,11 +140,9 @@ rules = {
     '[color]':
     {
         'close': '[/color]',
-        'postwalk':
+        'functions':
         [
-            attribute,
-            style,
-            template
+            templating.walk, templating.copyvar, attribute, style, template
         ],
         'var':
         {
@@ -166,9 +159,9 @@ rules = {
     '[email]':
     {
         'close': '[/email]',
-        'postwalk': [
-            attribute,
-            template
+        'functions':
+        [
+            templating.walk, templating.copyvar, attribute, template
         ],
         'var':
         {
@@ -185,11 +178,9 @@ rules = {
     '[font]':
     {
         'close': '[/font]',
-        'postwalk':
+        'functions':
         [
-            attribute,
-            style,
-            template
+            templating.walk, templating.copyvar, attribute, style, template
         ],
         'var':
         {
@@ -206,7 +197,7 @@ rules = {
     '[i]':
     {
         'close': '[/i]',
-        'postwalk': [template],
+        'functions': [templating.walk, templating.copyvar, template],
         'var':
         {
             'equal': '',
@@ -217,7 +208,7 @@ rules = {
     '[img]':
     {
         'close': '[/img]',
-        'postwalk': [template],
+        'functions': [templating.walk, templating.copyvar, template],
         'var':
         {
             'equal': '',
@@ -228,11 +219,9 @@ rules = {
     '[list]':
     {
         'close': '[/list]',
-        'postwalk':
+        'functions':
         [
-            attribute,
-            listitems,
-            template
+            templating.walk, templating.copyvar, attribute, listitems, template
         ],
         'var':
         {
@@ -252,7 +241,7 @@ rules = {
     '[s]':
     {
         'close': '[/s]',
-        'postwalk': [template],
+        'functions': [templating.walk, templating.copyvar, template],
         'var':
         {
             'equal': '',
@@ -263,11 +252,9 @@ rules = {
     '[size]':
     {
         'close': '[/size]',
-        'postwalk':
+        'functions':
         [
-            attribute,
-            style,
-            size,
+            templating.walk, templating.copyvar, attribute, style, size,
             template
         ],
         'var':
@@ -285,9 +272,9 @@ rules = {
     '[quote]':
     {
         'close': '[/quote]',
-        'postwalk': [
-            attribute,
-            template
+        'functions':
+        [
+            templating.walk, templating.copyvar, attribute, template
         ],
         'var':
         {
@@ -304,9 +291,9 @@ rules = {
     '[u]':
     {
         'close': '[/u]',
-        'postwalk': [
-            attribute,
-            template
+        'functions':
+        [
+            templating.walk, templating.copyvar, attribute, template
         ],
         'var':
         {
@@ -318,9 +305,9 @@ rules = {
     '[url]':
     {
         'close': '[/url]',
-        'postwalk': [
-            attribute,
-            template
+        'functions':
+        [
+            templating.walk, templating.copyvar, attribute, template
         ],
         'var':
         {

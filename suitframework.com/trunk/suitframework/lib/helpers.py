@@ -15,6 +15,7 @@ from pylons import config, request, response, tmpl_context as c, url
 from pylons.controllers.util import redirect
 from pylons.i18n import get_lang, set_lang, ugettext as _gettext
 import suit
+from rulebox import templating
 import urllib
 from webhelpers.html import escape
 from webhelpers.html.builder import literal
@@ -150,11 +151,12 @@ def docs():
         c.condition.matches = (c.loop.search)
     return ''
 
-def exittemplate(value):
+def exittemplate(value = None):
     exit(value)
 
 def format(string):
-    return escape(json.dumps(json.loads(string), sort_keys = True, indent = 4))
+    string = templating.getvariable(string, '.', c)
+    return escape(json.dumps(string, sort_keys = True, indent = 4))
 
 def header():
     if ('submit' in request.POST and
@@ -180,18 +182,18 @@ def header():
     return ''
 
 def increment(num):
-    num = json.loads(num)
+    num = templating.getvariable(num, '.', c)
     return json.dumps(num + 1)
 
 def indict(obj, key):
-    obj = json.loads(obj)
+    obj = templating.getvariable(obj, '.', c)
     boolean = False
     if key in obj:
         boolean = True
     return json.dumps(boolean)
 
 def isdict(obj):
-    obj = json.loads(obj)
+    obj = templating.getvariable(obj, '.', c)
     boolean = False
     if isinstance(obj, dict):
         boolean = True
@@ -219,6 +221,7 @@ def slacks():
     c.referrer = ''
     if 'referer' in request.headers:
         c.referrer = request.headers['referer']
+    c.condition.error = False
     c.condition.first = True
     c.condition.referrer = ('referrer' in request.GET and
     request.GET['referrer'])
@@ -241,6 +244,8 @@ def slacks():
         request.POST['submit'] == _gettext('Upload')):
             c.log = request.POST['file'].file.read()
         c.log = json.loads(c.log)
+        for key, value in c.log['hash'].items():
+            c.log['hash'][key] = json.loads(value)
     except (
         AttributeError,
         EOFError,
@@ -253,10 +258,11 @@ def slacks():
             'hash': {},
             'entries': []
         }
+        c.condition.error = True
     return ''
 
 def tokenshighlight(tokens, open, close, flat, end, string):
-    tokens = json.loads(tokens)
+    tokens = templating.getvariable(tokens, '.', c)
     offset = 0
     original = string
     last = 0
@@ -296,8 +302,9 @@ def tryit():
             ).read()
         except TypeError:
             c.template = ''
-    c.rule = ''
     c.condition.rule = True
+    c.rule = ''
+    c.executed = c.template
     rules = {}
     if c.parameter1 == 'templating':
         from rulebox import templating
@@ -320,8 +327,8 @@ def tryit():
                             value[1]['var']['label'] + '.tpl'
                         )
                     ).read()
-        c.template = escape(
-            c.template,
+        c.executed = escape(
+            c.executed,
             True
         ).replace('\n','<br />\n')
         c.rule = 'BBCode'
@@ -352,5 +359,5 @@ def tryit():
         c.condition.php = True
     except (IOError, TypeError):
         pass
-    c.executed = suit.execute(rules, c.template)
+    c.executed = suit.execute(rules, c.executed)
     return ''

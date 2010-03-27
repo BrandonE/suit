@@ -1,1 +1,1 @@
-<img src="[var]case[/var]" alt="[var]case[/var]" />
+<img src="[var entities="false"]string[/var]" alt="[var entities="false"]string[/var]" />

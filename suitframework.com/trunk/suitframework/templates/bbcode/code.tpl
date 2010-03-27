@@ -1,4 +1,4 @@
 <fieldset>
     <legend>Code</legend>
-    <pre>[var]case[/var]</pre>
+    <pre>[var entities="false"]string[/var]</pre>
 </fieldset>
