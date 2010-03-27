@@ -749,7 +749,28 @@ class Templating
     {
         foreach ($params['var']['local'] as $key => $value)
         {
-            $this->setvariable($key, true, $value, $params['var']['owner']);
+            if (is_array($params['var']['owner']))
+            {
+                $params['var']['owner'][$key] = $value;
+            }
+            else
+            {
+                $params['var']['owner']->$key = $value;
+            }
+        }
+        foreach ($params['var']['owner'] as $key => $value)
+        {
+            if (!array_key_exists($key, $params['var']['local']))
+            {
+                if (is_array($params['var']['owner']))
+                {
+                    unset($params['var']['owner'][$key]);
+                }
+                else
+                {
+                    unset($params['var']['owner']->$key);
+                }
+            }
         }
         return $params;
     }

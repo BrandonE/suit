@@ -223,30 +223,32 @@ def listing(name, var):
 
 def loadlocal(params):
     """Load the variables set before this section"""
+    for key, value in params['var']['local'].items():
+        if hasattr(params['var']['owner'], 'items'):
+            params['var']['owner'][key] = value
+        else:
+            try:
+                params['var']['owner'][int(key)] = value
+            except (AttributeError, TypeError, ValueError):
+                setattr(
+                    params['var']['owner'],
+                    key,
+                    value
+                )
     if hasattr(params['var']['owner'], 'items'):
         for key, value in params['var']['owner'].items():
-            if key in params['var']['local']:
-                params['var']['owner'][key] = params['var']['local'][key]
-            else:
+            if not key in params['var']['local']:
                 del params['var']['owner'][key]
     else:
         try:
             for key, value in enumerate(params['var']['owner']):
-                if key < len(params['var']['local']) - 1:
-                    params['var']['owner'][key] = value
-                else:
+                if key >= len(params['var']['local']) - 1:
                     del params['var']['owner'][key]
         except (TypeError, RuntimeError):
             for value in dir(params['var']['owner']):
                 if (not value.startswith('_') and
                 not callable(getattr(params['var']['owner'], value))):
-                    if value in params['var']['local']:
-                        setattr(
-                            params['var']['owner'],
-                            value,
-                            params['var']['local'][value]
-                        )
-                    else:
+                    if not value in params['var']['local']:
                         delattr(
                             params['var']['owner'],
                             value
