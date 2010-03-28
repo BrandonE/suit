@@ -27,11 +27,17 @@ except ImportError:
 import suit
 
 __all__ = [
-    'assign', 'attribute', 'bracket', 'comments', 'condition', 'decode',
-    'default', 'entities', 'evalrules', 'evaluation', 'execute', 'getvariable',
-    'listing', 'loadlocal', 'loop', 'returning', 'rules', 'savelocal',
-    'setvariable', 'templates', 'trim', 'trying', 'variables', 'walk'
+    'assign', 'attribute', 'bracket', 'Class', 'comments', 'condition',
+    'decode', 'default', 'entities', 'evalrules', 'evaluation', 'execute',
+    'getvariable', 'listing', 'loadlocal', 'loop', 'returning', 'rules',
+    'savelocal', 'setvariable', 'templates', 'trim', 'trying', 'variables',
+    'walk'
 ]
+
+class Class():
+    pass
+
+var = Class()
 
 def assign(params):
     """Assign variable in template"""
@@ -454,7 +460,7 @@ default = {
     'delimiter': '.',
     'equal': '=',
     'log': False,
-    'owner': suit.var,
+    'owner': var,
     'quote': ('"', '\'')
 }
 

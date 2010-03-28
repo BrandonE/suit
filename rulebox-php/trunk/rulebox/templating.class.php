@@ -28,7 +28,9 @@ class Templating
 
     public function __construct($suit)
     {
-        $this->default['owner'] = $suit->var;
+        $this->var = new stdClass();
+
+        $this->default['owner'] = &$this->var;
 
         $this->suit = $suit;
 
@@ -583,7 +585,7 @@ class Templating
             {
                 $params['string'] = json_decode($params['string'], true);
             }
-            $this->setvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $this->suit->var);
+            $this->setvariable($params['var']['var'], $params['var']['delimiter'], $params['string'], $params['var']['owner']);
         }
         $params['string'] = '';
         return $params;

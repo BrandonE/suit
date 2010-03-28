@@ -32,11 +32,6 @@ class SUIT
 
     public $version = '2.0.0';
 
-    public function __construct()
-    {
-        $this->var = new stdClass();
-    }
-
     public function close($params, $pop, $mark)
     {
         $append = substr($params['string'], $params['last'], $params['position'] - $params['last']);

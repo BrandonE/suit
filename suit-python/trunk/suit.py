@@ -23,9 +23,8 @@ except ImportError:
 
 __all__ = [
     'cache', 'close', 'closingstring', 'compile', 'evalrules', 'execute',
-    'functions', 'log', 'loghash', 'notclosed', 'MyClass', 'openingstring',
-    'parse', 'positions', 'positionsloop', 'ruleitems', 'Singleton', 'skip',
-    'tokens', 'walk'
+    'functions', 'log', 'loghash', 'notclosed', 'openingstring', 'parse',
+    'positions', 'positionsloop', 'ruleitems', 'skip', 'tokens', 'walk'
 ]
 
 __version__ = '2.0.0'
@@ -40,11 +39,6 @@ log = {
     'hash': {},
     'entries': []
 }
-
-class Class():
-    pass
-
-var = Class()
 
 def close(params, pop, closed):
     """Close the rule"""

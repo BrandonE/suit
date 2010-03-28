@@ -82,8 +82,8 @@ def style(params):
 
 def template(params):
     """Substitute variables into the template"""
-    suit.var.equal = params['var']['equal']
-    suit.var.string = params['string']
+    templating.var.equal = params['var']['equal']
+    templating.var.string = params['string']
     params['string'] = suit.execute(
         templating.rules,
         params['var']['template']

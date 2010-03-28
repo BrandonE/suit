@@ -33,16 +33,7 @@ class RootController(BaseController):
             'hash': {},
             'entries': []
         }
-        if (
-            (
-                'slacks' in request.POST and
-                request.POST['slacks']
-            ) or
-            (
-                'slacks' in request.GET and
-                request.GET['slacks']
-            )
-        ):
+        if 'slacks' in request.params:
             if c.condition.slacks:
                 suit.log = defaultlog
             slacks = json.dumps(suit.log, separators = (',', ':'))

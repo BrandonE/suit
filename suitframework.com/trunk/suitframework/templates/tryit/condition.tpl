@@ -1,6 +1,6 @@
-[if condition="[var json='true']installed[/var]"]
+[if condition="installed"]
 <p>The program has been installed.</p>
 [/if]
-[if condition="[var json='true']installed[/var]" not="true"]
+[if condition="installed" not="true"]
 <p>The program has not been installed.</p>
 [/if]
