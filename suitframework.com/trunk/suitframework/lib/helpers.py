@@ -27,6 +27,10 @@ def code(string):
     return string.replace(
         '\t', '    '
     ).replace(
+        '\r\n', '\n'
+    ).replace(
+        '\r', '\'n'
+    ).replace(
         '\n ', '\n&nbsp;'
     ).replace(
         '  ', ' &nbsp;'
@@ -231,7 +235,7 @@ def slacks():
         'entries': []
     }
     try:
-        c.log = json.dumps(c.log, separators = (',', ':'))
+        loaded = False
         if 'url' in request.GET:
             suit.log['entries'] = []
             c.log = urllib.urlopen(
@@ -240,12 +244,17 @@ def slacks():
                     'slacks': 'true'
                 })
             ).read()
+            loaded = True
         elif ('submit' in request.POST and
         request.POST['submit'] == _gettext('Upload')):
             c.log = request.POST['file'].file.read()
-        c.log = json.loads(c.log)
-        for key, value in c.log['hash'].items():
-            c.log['hash'][key] = json.loads(value)
+            loaded = True
+        if loaded:
+            c.log = json.loads(c.log)
+            if not c.log['entries']:
+                raise
+            for key, value in c.log['hash'].items():
+                c.log['hash'][key] = json.loads(value)
     except (
         AttributeError,
         EOFError,
@@ -266,7 +275,8 @@ def tokenshighlight(tokens, open, close, flat, end, string):
     offset = 0
     original = string
     last = 0
-    for key, value in tokens:
+    for value in tokens:
+        start = value['token']['start']
         color = open
         if value['type'] == 'close':
             color = close
@@ -274,14 +284,14 @@ def tokenshighlight(tokens, open, close, flat, end, string):
             color = flat
         string = ''.join((
             string[0:last],
-            code(escape(string[last:key + offset])),
+            code(escape(string[last:start + offset])),
             color,
-            escape(string[key + offset:key + offset + len(value['rule'])]),
+            escape(string[start + offset:start + offset + len(value['rule'])]),
             end,
-            string[key + offset + len(value['rule']):len(string)]
+            string[start + offset + len(value['rule']):len(string)]
         ))
         offset = len(string) - len(original)
-        last = key + len(value['rule']) + offset
+        last = start + len(value['rule']) + offset
     string = ''.join((
         string[0:last],
         code(escape(string[last:len(string)]))
@@ -318,13 +328,14 @@ def tryit():
     elif c.parameter1 == 'bbcode':
         from rulebox import bbcode
         rules = bbcode.rules
-        for value in rules.items():
-            if 'var' in value[1] and 'label' in value[1]['var']:
-                rules[value[0]]['var']['template'] = open(
+        #Load the BBCode templates
+        for key, value in rules.items():
+            if 'var' in value and 'label' in value['var']:
+                rules[key]['var']['template'] = open(
                         os.path.join(
                             config['suit.templates'],
                             'bbcode',
-                            value[1]['var']['label'] + '.tpl'
+                            value['var']['label'] + '.tpl'
                         )
                     ).read()
         c.executed = escape(

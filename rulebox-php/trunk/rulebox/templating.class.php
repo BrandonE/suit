@@ -617,7 +617,12 @@ class Templating
         foreach ($var['quote'] as $value)
         {
             $position = $function($string, $value);
-            if ($position !== false && ($smallest === false || $position < $smallest))
+            if (
+                $position !== false &&
+                (
+                    $smallest === false || $position < $smallest
+                )
+            )
             {
                 $quote = $value;
                 $smallest = $position;
@@ -664,7 +669,14 @@ class Templating
     {
         $var = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
         //Show the case if necessary
-        if (($var && !$params['var']['not']) || (!$var && $params['var']['else']))
+        if (
+            (
+                $var && !$params['var']['not']
+            ) ||
+            (
+                !$var && $params['var']['else']
+            )
+        )
         {
             $params = $this->walk($params);
         }
@@ -744,7 +756,21 @@ class Templating
 
     public function listing($name, $var)
     {
-        return (!(array_key_exists('list', $var) && (((!array_key_exists('blacklist', $var) || !$var['blacklist']) && !in_array($name, $var['list'])) || (array_key_exists('blacklist', $var) && $var['blacklist'] && in_array($name, $var['list'])))));
+        return (
+            !(
+                array_key_exists('list', $var) &&
+                (
+                    (
+                        (
+                            !array_key_exists('blacklist', $var) || !$var['blacklist']
+                        ) && !in_array($name, $var['list'])
+                    ) ||
+                    (
+                        array_key_exists('blacklist', $var) && $var['blacklist'] && in_array($name, $var['list'])
+                    )
+                )
+            )
+        );
     }
 
     public function loadlocal($params)

@@ -16,7 +16,7 @@
         [if condition="condition.error"]
         <p><strong>[gettext]The provided site has not been configured for use with SLACKS.[/gettext]</strong></p>
         [/if]
-        <p>[gettext]SLACKS can be used to show how a page has been built by SUIT.[/gettext]</p>
+        <p>[gettext]<strong>SLACKS</strong> (SLACKS Lets Application Coders Know SUIT) can be used to show how a page has been built by SUIT.[/gettext]</p>
         <p><a href="#install">[gettext]Click here for details on how to make a SUIT page compatible with SLACKS.[/gettext]</a>
         <p>[gettext]To use SLACKS, provide a URL to the SLACKS compatible page you would like to view:[/gettext]</p>
         <input type="text" name="url"[if condition="condition.referrer"] value="[c]referrer[/c]"[/if] />
