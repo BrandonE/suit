@@ -90,8 +90,7 @@ class Templating
                         'decode' => array('json'),
                         'delimiter' => $this->default['delimiter'],
                         'json' => 'false',
-                        'owner' => $this->default['owner'],
-                        'var' => ''
+                        'owner' => $this->default['owner']
                     )
                 )
             ),
@@ -488,8 +487,7 @@ class Templating
                     'var' => array
                     (
                         'delimiter' => $this->default['delimiter'],
-                        'owner' => $this->default['owner'],
-                        'var' => ''
+                        'owner' => $this->default['owner']
                     )
                 )
             ),
@@ -579,7 +577,7 @@ class Templating
     public function assign($params)
     {
         //If a variable is provided
-        if ($params['var']['var'])
+        if (array_key_exists('var', $params['var']))
         {
             if ($params['var']['json'])
             {
@@ -961,7 +959,7 @@ class Templating
         catch (Exception $e)
         {
             //If a variable is provided
-            if ($params['var']['var'])
+            if (array_key_exists('var', $params['var']))
             {
                 $this->setvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
             }

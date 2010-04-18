@@ -58,7 +58,7 @@ var = Class()
 def assign(params):
     """Assign variable in template"""
     #If a variable is provided
-    if params['var']['var']:
+    if 'var' in params['var']:
         if params['var']['json']:
             params['string'] = json.loads(params['string'])
         setvariable(
@@ -162,7 +162,7 @@ def decode(params):
 def entities(params):
     """Convert HTML characters to their respective entities"""
     if not params['var']['json'] and params['var']['entities']:
-        params['string'] = cgi.escape(str(params['string']))
+        params['string'] = cgi.escape(str(params['string']), True)
     return params
 
 def evaluation(params):
@@ -440,7 +440,7 @@ def trying(params):
         )
     except Exception, inst:
         #If a variable is provided
-        if params['var']['var']:
+        if 'var' in params['var']:
             setvariable(
                 params['var']['var'],
                 params['var']['delimiter'],
@@ -501,8 +501,7 @@ rules = {
                 'decode': ('json',),
                 'delimiter': default['delimiter'],
                 'json': 'false',
-                'owner': default['owner'],
-                'var': ''
+                'owner': default['owner']
             }
         }
     },
@@ -702,8 +701,7 @@ rules = {
             'var':
             {
                 'delimiter': default['delimiter'],
-                'owner': default['owner'],
-                'var': ''
+                'owner': default['owner']
             }
         }
     },

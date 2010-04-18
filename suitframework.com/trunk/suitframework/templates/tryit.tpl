@@ -23,6 +23,17 @@
         <form action="#" method="post">
         <p>[gettext]Template[/gettext]: <textarea name="template" style="width: 100%;" wrap="off" rows="20">
 [c]template[/c]</textarea></p>
+        <p>
+            <input type="checkbox" name="entities" value="true"[if condition="executeconfig.entities"] checked="checked"[/if]/> [gettext]Entities[/gettext]
+            <input type="checkbox" name="insensitive" value="true"[if condition="executeconfig.insensitive"] checked="checked"[/if] /> [gettext]Insensitive[/gettext]
+            <input type="checkbox" name="linebreak" value="true"[if condition="executeconfig.linebreak"] checked="checked"[/if] /> [gettext]Line Break[/gettext]
+            <input type="checkbox" name="log" value="true"[if condition="executeconfig.log"] checked="checked"[/if] /> [gettext]Log[/gettext]
+            <input type="checkbox" name="mismatched" value="true"[if condition="executeconfig.mismatched"] checked="checked"[/if] /> [gettext]Mismatched[/gettext]
+            <input type="checkbox" name="unclosed" value="true"[if condition="executeconfig.unclosed"] checked="checked"[/if] /> [gettext]Unclosed[/gettext]
+        </p>
+        <p>
+            [gettext]Escape[/gettext]: <input type="text" name="escape" value="[c]executeconfig.escape[/c]" />
+        </p>
         <p><input type="submit" name="submit" value="[gettext]Submit[/gettext]" /></p>
         </form>
         [if condition="condition.php"]

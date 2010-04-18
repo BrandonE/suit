@@ -270,6 +270,14 @@ def slacks():
         c.condition.error = True
     return ''
 
+def slackslog():
+    c.slackslog = []
+    for key, value in request.POST.items():
+        c.slackslog.append({
+            'key': key,
+            'value': value
+        })
+    return ''
 def tokenshighlight(tokens, open, close, flat, end, string):
     tokens = templating.getvariable(tokens, '.', c)
     offset = 0
@@ -299,23 +307,18 @@ def tokenshighlight(tokens, open, close, flat, end, string):
     return string
 
 def tryit():
-    if 'submit' in request.POST and request.POST['submit']:
-        c.template = request.POST['template']
-    else:
-        try:
-            c.template = open(
-                os.path.join(
-                    config['suit.templates'],
-                    'tryit',
-                    c.parameter2 + '.tpl'
-                )
-            ).read()
-        except TypeError:
-            c.template = ''
     c.condition.rule = True
     c.rule = ''
-    c.executed = c.template
     rules = {}
+    c.executeconfig = {
+        'entities': False,
+        'escape': '\\',
+        'insensitive': True,
+        'linebreak': False,
+        'log': True,
+        'mismatched': False,
+        'unclosed': False
+    }
     if c.parameter1 == 'templating':
         from rulebox import templating
         rules = templating.rules.copy()
@@ -332,19 +335,41 @@ def tryit():
         for key, value in rules.items():
             if 'var' in value and 'label' in value['var']:
                 rules[key]['var']['template'] = open(
-                        os.path.join(
-                            config['suit.templates'],
-                            'bbcode',
-                            value['var']['label'] + '.tpl'
-                        )
-                    ).read()
-        c.executed = escape(
-            c.executed,
-            True
-        ).replace('\n','<br />\n')
+                    os.path.join(
+                        config['suit.templates'],
+                        'bbcode',
+                        value['var']['label'] + '.tpl'
+                    )
+                ).read()
         c.rule = 'BBCode'
+        c.executeconfig['entities'] = True
+        c.executeconfig['escape'] = ''
+        c.executeconfig['linebreak'] = True
     elif c.parameter1 == None:
         c.condition.rule = False
+    if 'submit' in request.POST and request.POST['submit']:
+        c.executeconfig = {
+            'entities': ('entities' in request.POST),
+            'escape': request.POST['escape'],
+            'insensitive': ('insensitive' in request.POST),
+            'linebreak': ('linebreak' in request.POST),
+            'log': ('log' in request.POST),
+            'mismatched': ('mismatched' in request.POST),
+            'unclosed': ('unclosed' in request.POST)
+        }
+        c.template = request.POST['template']
+    else:
+        try:
+            c.template = open(
+                os.path.join(
+                    config['suit.templates'],
+                    'tryit',
+                    c.parameter2 + '.tpl'
+                )
+            ).read()
+        except TypeError:
+            c.template = ''
+    c.executed = c.template
     c.php = ''
     c.python = ''
     c.condition.php = False
@@ -370,5 +395,9 @@ def tryit():
         c.condition.php = True
     except (IOError, TypeError):
         pass
-    c.executed = suit.execute(rules, c.executed)
+    if c.executeconfig['entities']:
+        c.executed = escape(c.executed, True)
+    if c.executeconfig['linebreak']:
+        c.executed = c.executed.replace('\n', '<br />\n')
+    c.executed = suit.execute(rules, c.executed, c.executeconfig)
     return ''
