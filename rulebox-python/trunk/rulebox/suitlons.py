@@ -1,18 +1,17 @@
-#**@This file is part of Rulebox.
-#**@Rulebox is free software: you can redistribute it and/or modify
-#**@it under the terms of the GNU General Public License as published by
-#**@the Free Software Foundation, either version 3 of the License, or
-#**@(at your option) any later version.
-#**@Rulebox is distributed in the hope that it will be useful,
-#**@but WITHOUT ANY WARRANTY; without even the implied warranty of
-#**@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#**@GNU General Public License for more details.
-#**@You should have received a copy of the GNU General Public License
-#**@along with Rulebox.  If not, see <http://www.gnu.org/licenses/>.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
-#http://www.suitframework.com/
-#http://www.suitframework.com/docs/credits
+# Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
+# http://www.suitframework.com/
+# http://www.suitframework.com/docs/credits
 
 """
 Rules to help use SUIT with Pylons.
@@ -20,13 +19,13 @@ Rules to help use SUIT with Pylons.
 Example usage:
 
 import suit
-from rulebox import suitlons #easy_install rulebox
+from rulebox import suitlons # easy_install rulebox
 from pylons import tmpl_context as c
 template = open('template.tpl').read()
-#Template contains "Hello, <strong>[c]username[/c]</strong>!"
+# Template contains "Hello, <strong>[c]username[/c]</strong>!"
 c.username = 'Brandon'
 print suit.execute(suitlons.rules, template)
-#Result: Hello, <strong>Brandon!</strong>
+# Result: Hello, <strong>Brandon!</strong>
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 """
@@ -109,7 +108,7 @@ def url_for(params):
 
 suitrules = templating.rules.copy()
 
-# Adjust the templating.default rules for Pylons' convenience.
+#  Adjust the templating.default rules for Pylons' convenience.
 suitrules['[assign]'] = suitrules['[assign]'].copy()
 suitrules['[assign]']['var'] = suitrules['[assign]']['var'].copy()
 suitrules['[assign]']['var']['var'] = suitrules[
@@ -119,7 +118,14 @@ suitrules['[assign]']['var']['var']['owner'] = c
 
 suitrules['[c]'] = suitrules['[var]'].copy()
 suitrules['[c]']['close'] = '[/c]'
-suitrules['[c]']['var'] = suitrules['[c]']['var'].copy()
+suitrules['[c]']['close'] = '[/c]'
+suitrules['[c]']['functions'] = [
+    templating.walk,
+    templating.attribute,
+    templating.decode,
+    templating.variables,
+    entities
+]
 suitrules['[c]']['var']['var'] = suitrules['[c]']['var']['var'].copy()
 suitrules['[c]']['var']['var']['owner'] = c
 suitrules['[c'] = suitrules['[var'].copy()

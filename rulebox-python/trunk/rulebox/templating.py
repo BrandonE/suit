@@ -1,18 +1,17 @@
-#**@This file is part of Rulebox.
-#**@Rulebox is free software: you can redistribute it and/or modify
-#**@it under the terms of the GNU General Public License as published by
-#**@the Free Software Foundation, either version 3 of the License, or
-#**@(at your option) any later version.
-#**@Rulebox is distributed in the hope that it will be useful,
-#**@but WITHOUT ANY WARRANTY; without even the implied warranty of
-#**@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#**@GNU General Public License for more details.
-#**@You should have received a copy of the GNU General Public License
-#**@along with Rulebox.  If not, see <http://www.gnu.org/licenses/>.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
-#http://www.suitframework.com/
-#http://www.suitframework.com/docs/credits
+# Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
+# http://www.suitframework.com/
+# http://www.suitframework.com/docs/credits
 
 """
 A set of rules used to transfer information from the code to the template in
@@ -21,12 +20,12 @@ order to create an HTML document.
 Example usage:
 
 import suit
-from rulebox import templating #easy_install rulebox
+from rulebox import templating # easy_install rulebox
 template = open('template.tpl').read()
-#Template contains "Hello, <strong>[var]username[/var]</strong>!"
+# Template contains "Hello, <strong>[var]username[/var]</strong>!"
 templating.var.username = 'Brandon'
 print suit.execute(templating.rules, template)
-#Result: Hello, <strong>Brandon!</strong>
+# Result: Hello, <strong>Brandon!</strong>
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 """
@@ -45,9 +44,9 @@ import suit
 __all__ = [
     'assign', 'attribute', 'bracket', 'Class', 'comments', 'condition',
     'decode', 'default', 'entities', 'evalrules', 'evaluation', 'execute',
-    'getvariable', 'listing', 'loadlocal', 'loop', 'returning', 'rules',
-    'savelocal', 'setvariable', 'templates', 'trim', 'trying', 'variables',
-    'walk'
+    'getvariable', 'listing', 'loadlocal', 'loop', 'loopiteration',
+    'returning', 'rules', 'savelocal', 'setvariable', 'templates', 'trim',
+    'trying', 'variables', 'walk'
 ]
 
 class Class():
@@ -57,7 +56,7 @@ var = Class()
 
 def assign(params):
     """Assign variable in template"""
-    #If a variable is provided
+    # If a variable is provided
     if 'var' in params['var']:
         if params['var']['json']:
             params['string'] = json.loads(params['string'])
@@ -93,21 +92,21 @@ def attribute(params):
             quote = value
             smallest = position
     if quote:
-        #Define the variables
+        # Define the variables
         split = string.split(quote)
         del split[-1]
         for key, value in enumerate(split):
-            #If this is the first iteration of the pair
+            # If this is the first iteration of the pair
             if key % 2 == 0:
                 name = value.strip()
                 syntax = (name[len(name) - len(var['equal'])] == var['equal'])
                 name = name[0:len(name) - len(var['equal'])]
-                #If the syntax is not valid or variable is whitelisted or
-                #blacklisted, do not prepare to define the variable
+                # If the syntax is not valid or variable is whitelisted or
+                # blacklisted, do not prepare to define the variable
                 if not syntax or not listing(name, var):
                     name = ''
             elif name:
-                #Define the variable
+                # Define the variable
                 config = params['config'].copy()
                 config['log'] = var['log']
                 params['var'][name] = suit.execute(
@@ -133,7 +132,7 @@ def condition(params):
         params['var']['delimiter'],
         params['var']['owner']
     )
-    #Show the case if necessary
+    # Show the case if necessary
     if (
         (
             var and
@@ -222,9 +221,27 @@ def getvariable(string, delimiter, owner):
                 owner = getattr(owner, value)
     return owner
 
+def iterate(iterable):
+    """Iterate over any object"""
+    if hasattr(iterable, 'items'):
+        iterations = iterable.items()
+    else:
+        try:
+            iterations = enumerate(iterable)
+        except (TypeError, RuntimeError):
+            iterations = []
+            for value in dir(iterable):
+                if (not value.startswith('_') and
+                not callable(getattr(iterable, value))):
+                    iterations.append((
+                        value,
+                        getattr(iterable, value)
+                    ))
+    return iterations
+
 def listing(name, var):
     """Check if the variable is whitelisted or blacklisted"""
-    #If the variable is whitelisted or blacklisted
+    # If the variable is whitelisted or blacklisted
     return not(
         'list' in var and
         (
@@ -280,15 +297,15 @@ def loadlocal(params):
 def loop(params):
     """Loop a string with different variables"""
     var = getvariable(
-        params['var']['list'],
+        params['var']['iterable'],
         params['var']['delimiter'],
         params['var']['owner']
     )
-    iterations = []
     params['tree'] = {
         'contents': params['tree']['contents']
     }
-    for key, value in enumerate(var):
+    iterations = []
+    for key, value in iterate(var):
         if 'key' in params['var']:
             setvariable(
                 params['var']['key'],
@@ -303,11 +320,9 @@ def loop(params):
                 value,
                 params['var']['owner']
             )
-        #Walk for this iteration
-        iterations.append(
-            walk(params)['string']
-        )
-    #Implode the iterations
+        # Walk for this iteration
+        iterations.append(walk(params)['string'])
+    # Implode the iterations
     params['string'] = params['var']['implode'].join(iterations)
     return params
 
@@ -329,23 +344,8 @@ def returning(params):
 def savelocal(params):
     """Save the variables set before this section"""
     params['var']['local'] = {}
-    if hasattr(params['var']['owner'], 'items'):
-        for key, value in params['var']['owner'].items():
-            params['var']['local'][key] = copy.deepcopy(value)
-    else:
-        try:
-            for key, value in enumerate(params['var']['owner']):
-                params['var']['local'][key] = value
-        except (TypeError, RuntimeError):
-            for value in dir(params['var']['owner']):
-                if (not value.startswith('_') and
-                not callable(getattr(params['var']['owner'], value))):
-                    params['var']['local'][value] = copy.deepcopy(
-                        getattr(
-                            params['var']['owner'],
-                            value
-                        )
-                    )
+    for key, value in iterate(params['var']['owner']):
+        params['var']['local'][key] = copy.deepcopy(value)
     return params
 
 def setvariable(string, split, assignment, owner):
@@ -370,7 +370,7 @@ def setvariable(string, split, assignment, owner):
 
 def templates(params):
     """Grab a template from a file"""
-    #If the template is not whitelisted or blacklisted
+    # If the template is not whitelisted or blacklisted
     if listing(params['string'], params['var']):
         params['string'] = open(
             os.path.normpath(params['string'])
@@ -439,7 +439,7 @@ def trying(params):
             params['config']
         )
     except Exception, inst:
-        #If a variable is provided
+        # If a variable is provided
         if 'var' in params['var']:
             setvariable(
                 params['var']['var'],
@@ -617,7 +617,7 @@ rules = {
             {
                 'delimiter': default['delimiter'],
                 'implode': '',
-                'list': '',
+                'iterable': '',
                 'owner': default['owner']
             }
         }

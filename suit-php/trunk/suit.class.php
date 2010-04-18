@@ -1,5 +1,5 @@
 <?php
-/**
+/*
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -42,7 +42,7 @@ log
     Contains information on how the execute function works.
 
 For both log and cache, the hash key contains the actual data. The others reference this to deal with redundant items.
-**/
+*/
 class SUIT
 {
     public $cache = array

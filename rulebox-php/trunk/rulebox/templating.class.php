@@ -1,20 +1,34 @@
 <?php
-/**
-**@This file is part of Rulebox.
-**@Rulebox is free software: you can redistribute it and/or modify
-**@it under the terms of the GNU General Public License as published by
-**@the Free Software Foundation, either version 3 of the License, or
-**@(at your option) any later version.
-**@Rulebox is distributed in the hope that it will be useful,
-**@but WITHOUT ANY WARRANTY; without even the implied warranty of
-**@MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-**@GNU General Public License for more details.
-**@You should have received a copy of the GNU General Public License
-**@along with Rulebox.  If not, see <http://www.gnu.org/licenses/>.
+/*
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
+
+A set of rules used to transfer information from the code to the template in
+order to create an HTML document.
+
+Example usage:
+
+import suit
+from rulebox import templating # easy_install rulebox
+template = open('template.tpl').read()
+# Template contains "Hello, <strong>[var]username[/var]</strong>!"
+templating.var.username = 'Brandon'
+print suit.execute(templating.rules, template)
+# Result: Hello, <strong>Brandon!</strong>
+
+Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 **/
 class Templating
 {
@@ -309,7 +323,7 @@ class Templating
                     'var' => array
                     (
                         'delimiter' => $this->default['delimiter'],
-                        'implode' => '',
+                        'iterable' => '',
                         'list' => '',
                         'owner' => $this->default['owner']
                     )
@@ -576,7 +590,7 @@ class Templating
 
     public function assign($params)
     {
-        //If a variable is provided
+        // If a variable is provided
         if (array_key_exists('var', $params['var']))
         {
             if ($params['var']['json'])
@@ -628,18 +642,18 @@ class Templating
         }
         if ($quote)
         {
-            //Define the variables
+            // Define the variables
             $split = explode($quote, $string);
             unset($split[count($split) - 1]);
             foreach ($split as $key => $value)
             {
-                //If this is the first iteration of the pair
+                // If this is the first iteration of the pair
                 if ($key % 2 == 0)
                 {
                     $name = trim($value);
                     $syntax = (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal']);
                     $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
-                    //If the syntax is not valid or variable is whitelisted or blacklisted, do not prepare to define the variable
+                    // If the syntax is not valid or variable is whitelisted or blacklisted, do not prepare to define the variable
                     if (!$syntax || !$this->listing($name, $var))
                     {
                         $name = '';
@@ -647,7 +661,7 @@ class Templating
                 }
                 elseif ($name)
                 {
-                    //Define the variable
+                    // Define the variable
                     $config = $params['config'];
                     $config['log'] = $var['log'];
                     $params['var'][$name] = $this->suit->execute($params['rules'], $value, $config);
@@ -666,7 +680,7 @@ class Templating
     public function condition($params)
     {
         $var = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
-        //Show the case if necessary
+        // Show the case if necessary
         if (
             (
                 $var && !$params['var']['not']
@@ -724,7 +738,7 @@ class Templating
         $kwargs = $params['var'];
         unset($kwargs['function']);
         unset($kwargs['owner']);
-        //Note whether or not the function is in a class
+        // Note whether or not the function is in a class
         if (array_key_exists('owner', $params['var']))
         {
             $params['string'] = $params['var']['owner']->$params['var']['function']($kwargs);
@@ -803,7 +817,7 @@ class Templating
 
     public function loop($params)
     {
-        $var = $this->getvariable($params['var']['list'], $params['var']['delimiter'], $params['var']['owner']);
+        $var = $this->getvariable($params['var']['iterable'], $params['var']['delimiter'], $params['var']['owner']);
         $iterations = array();
         $tree = array
         (
@@ -819,11 +833,11 @@ class Templating
             {
                 $this->setvariable($params['var']['value'], $params['var']['delimiter'], $value, $params['var']['owner']);
             }
-            //Walk for this iteration
+            // Walk for this iteration
             $result = $this->walk($params);
             $iterations[] = $result['string'];
         }
-        //Implode the iterations
+        // Implode the iterations
         $params['string'] = implode($params['var']['implode'], $iterations);
         return $params;
     }
@@ -894,7 +908,7 @@ class Templating
 
     public function templates($params)
     {
-        //If the variable is not whitelisted or blacklisted and the file exists
+        // If the variable is not whitelisted or blacklisted and the file exists
         if ($this->listing($params['string'], $params['var']) && is_file($params['string']))
         {
             $params['string'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['string'])));
@@ -958,7 +972,7 @@ class Templating
         }
         catch (Exception $e)
         {
-            //If a variable is provided
+            // If a variable is provided
             if (array_key_exists('var', $params['var']))
             {
                 $this->setvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
