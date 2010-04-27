@@ -4,14 +4,14 @@
 [assign var="condition.slacks"]true[/assign]
 [assign var="title"][gettext]SLACKS[/gettext][/assign]
 [execute][template]header.tpl[/template][/execute]
-        [if condition="log.entries"]
+        [if condition="log.contents"]
         [local]
-        [loop value="value" list="log.entries"]
-[execute][template]entries.tpl[/template][/execute]
+        [loop value="value" iterable="log.contents"]
+[execute][template]contents.tpl[/template][/execute]
         [/loop]
         [/local]
         [/if]
-        [if condition="log.entries" not="true"]
+        [if condition="log.contents" not="true"]
         <form action="#" method="post" enctype="multipart/form-data">
         [if condition="condition.error"]
         <p><strong>[gettext]The provided site has not been configured for use with SLACKS.[/gettext]</strong></p>

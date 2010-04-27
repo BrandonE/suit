@@ -19,27 +19,32 @@ A set of rules used to transform BBCode into HTML.
 
 Example usage:
 
-import suit
-from rulebox import bbcode
-rules = bbcode.rules
-# Load the BBCode templates
-for key, value in rules.items():
-    if 'var' in value and 'label' in value['var']:
-        rules[key]['var']['template'] = open(
-                os.path.join(
-                    'bbcode',
-                    value['var']['label'] + '.tpl'
-                )
-            ).read()
-code = escape(
-    '[b]Test[/b],
-    True
-).replace('\n','<br />\n')
-print suit.execute(rules, code)
-# Result: assuming it loaded the default templates, "<strong>Test</strong>"
+require 'suit.class.php';
+require 'templating.class.php';
+require 'bbcode.class.php';
+$suit = new SUIT();
+$templating = new Templating($suit);
+$bbcode = new BBCode($suit, $templating);
+$rules = $bbcode->rules;
+// Load the BBCode templates
+foreach ($rules as $key => $value)
+{
+    if (array_key_exists('var', $value) && array_key_exists('label', $value['var']))
+    {
+        $rules[$key]['var']['template'] = file_get_contents('bbcode/' . $value['var']['label'] . '.tpl');
+    }
+}
+code = nl2br(htmlentities('[b]Test[/b]'));
+$config = array
+(
+    'escape' => ''
+);
+echo $suit->execute($rules, $code, $config);
+// Result: assuming it loaded the default templates, "<strong>Test</strong>"
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 */
+
 class BBCode
 {
     public function __construct($suit, $templating)

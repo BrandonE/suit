@@ -31,7 +31,7 @@ class RootController(BaseController):
             response.status = '404 Not Found'
         defaultlog = {
             'hash': {},
-            'entries': []
+            'contents': []
         }
         if 'slacks' in request.params:
             if c.condition.slacks:

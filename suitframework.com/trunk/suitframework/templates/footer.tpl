@@ -15,9 +15,8 @@
 	[if condition="condition.slacks" not="true"]
     <p><a href="http://www.suitframework.com/slacks/?referrer=true">[gettext]Debug this page using SLACKS[/gettext]</a></p>
     <form action="#" method="post">
-    [call function="slackslog" /]
-    [loop value="value" list="slackslog"]
-    <input type="hidden" name="[c]value.key[/c]" value="[c]value.value[/c]" />
+    [loop key="key" value="value" iterable="slackslog"]
+    <input type="hidden" name="[c]key[/c]" value="[c]value[/c]" />
     [/loop]
     <p><input type="submit" name="slacks" value="Download SLACKS log" /></p>
     </form>

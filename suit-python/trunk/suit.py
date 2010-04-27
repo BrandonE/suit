@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -21,12 +22,15 @@ define their own syntax for transforming templates by using rules.
 Example Usage
 -----------------------------
 
->>> import suit
->>> from rulebox import templating # easy_install rulebox
->>> template = open('template.tpl').read()
->>> # Template contains "Hello, <strong>[var]username[/var]</strong>!"
->>> templating.var.username = 'Brandon'
->>> print suit.execute(templating.rules, template) # Result: Hello, Brandon!
+::
+
+    import suit
+    from rulebox import templating # easy_install rulebox
+    template = open('template.tpl').read()
+    # Template contains "Hello, <strong>[var]username[/var]</strong>!"
+    templating.var.username = 'Brandon'
+    print suit.execute(templating.rules, template)
+    # Result: Hello, <strong>Brandon</strong>!
 
 -----------------------------
 Caching and Logging
@@ -34,9 +38,9 @@ Caching and Logging
 
 Throughout SUIT, two dicts are used by the cache and tokens functions.
 
-**cache**
+``cache``
     Saves processing time by storing the results of these functions.
-**log**
+``log``
     Contains information on how the execute function works.
 
 For both ``log`` and ``cache``, the `hash` key contains the actual data. The
@@ -64,14 +68,35 @@ cache = {
 }
 
 log = {
+    'contents': [],
     'hash': {},
-    'entries': []
 }
 
 separators = (',', ':')
 
-def close(append, pop, rules, tree, skip):
-    """Handle a closed tag"""
+def close(rules, append, pop, tree):
+    """Handle the closing of a rule.
+
+    ``rules``
+        The rules used to determine how to add the string.
+
+    ``append``
+        The string to add.
+
+    ``pop``
+        The last item of the tree.
+
+    ``tree``
+        The parse tree.
+
+    Returns: A dict with this format:
+
+    ``skip``
+        The skip rule, if opened.
+    ``tree``
+        The parse tree with the appended data.
+    """
+    skip = False
     rule = rules[pop['rule']]
     # If this rule does not create other rules
     if not 'create' in rule:
@@ -83,12 +108,12 @@ def close(append, pop, rules, tree, skip):
         # If this node is closed
         if closed(pop):
             create = rule['create']
-            # Prepare to append the rule this rule creates
+            # Prepare to append the rule this rule creates.
             append = {
                 'contents': [],
-                # Store the contents inside of the original rule
+                # Store the contents inside of the original rule.
                 'create': append,
-                # Store the entire rule
+                # Store the entire rule.
                 'createrule': ''.join((
                     pop['rule'],
                     append,
@@ -101,7 +126,7 @@ def close(append, pop, rules, tree, skip):
             if ('skip' in rules[create] and rules[create]['skip']):
                 skip = create
         else:
-            # Prepare to add the open string
+            # Prepare to add the open string.
             append = ''.join((
                 pop['rule'],
                 append
@@ -113,7 +138,13 @@ def close(append, pop, rules, tree, skip):
     }
 
 def closed(node):
-    """Check whether or not this item is an dict and has been closed"""
+    """Check whether or not this item is a dict and has been closed.
+
+    ``node``
+        The item to check.
+
+    Returns: The condition.
+    """
     return (
         not isinstance(node, dict) or
         (
@@ -123,7 +154,15 @@ def closed(node):
     )
 
 def configitems(config, items):
-    """Get the specified items from the config"""
+    """Get the specified items from the config.
+
+    ``config``
+        The dict to grab from.
+    ``items``
+        The items to grab from the dict.
+
+    Returns: The dict with the specified items.
+    """
     newconfig = {}
     for value in items:
         if value in config:
@@ -131,8 +170,12 @@ def configitems(config, items):
     return newconfig
 
 def defaultconfig(config):
-    """Return a default config if required keys are not present for a given
-    dict
+    """Fill a dict with the defaults for the missing items.
+
+    ``config``
+        The dict to fill.
+
+    Returns: The filled dict.
     """
     if config == None:
         config = {}
@@ -152,7 +195,32 @@ def defaultconfig(config):
     return config
 
 def escape(escapestring, position, string, insensitive = True):
-    """Handle escape strings for this position"""
+    """Handle escape strings for this position.
+
+    ``escapestring``
+        The string to check for behind this position.
+
+    ``position``
+        The position of the open or close string to check for.
+
+    ``string``
+        The full string to check in.
+
+    ``insensitive``
+        Whether or not the searching should be done case insensitively.
+
+    Returns: A dict with this format:
+    
+    ``odd``
+        Whether or not the count of the escape strings to the left of this
+        position is odd, escaping the open or close string.
+
+    ``position``
+        The position adjusted to the change in the string.
+
+    ``string``
+        The string omitting the necessary escape strings.
+    """
     count = 0
     caseescape = escapestring
     casestring = string
@@ -163,23 +231,23 @@ def escape(escapestring, position, string, insensitive = True):
     if escapestring:
         focus = position - len(escapestring)
         # Count how many escape characters are directly to the left of this
-        # position
+        # position.
         while (focus == abs(focus) and
         casestring[focus:focus + len(escapestring)] == caseescape):
             count += len(escapestring)
             focus = position - count - len(escapestring)
-        # Adjust the count based on the length
+        # Adjust the count based on the length.
         count = count / len(escapestring)
     # If the number of escape strings directly to the left of this position are
-    # odd, the position should be overlooked
+    # odd, the position should be overlooked.
     odd = count % 2
-    # If the count is odd, (x + 1) / 2 of them should be removed
+    # If the count is odd, (x + 1) / 2 of them should be removed.
     if odd:
         count += 1
     count = (count / 2)
-    # Adjust the position to after the remaining escape strings
+    # Adjust the position to after the remaining escape strings.
     position -= len(escapestring) * count
-    # Remove the decided number of escape strings
+    # Remove the decided number of escape strings.
     string = ''.join((
         string[0:position],
         string[position + len(escapestring) * count:len(string)]
@@ -191,16 +259,30 @@ def escape(escapestring, position, string, insensitive = True):
     }
 
 def execute(rules, string, config = None):
-    """Translate string using rules"""
+    """Translate string using rules.
+
+    ``rules``
+        The rules used to translate the string.
+
+    ``string``
+        The string to translate.
+
+    ``config``
+        Specifics on how the function should work.
+        (Optional. See `defaultconfig`)
+
+    Returns: The transformed string.
+    """
     config = defaultconfig(config)
     pos = tokens(rules, string, config)
     tree = parse(rules, pos, string, config)
     if config['log']:
-        log['entries'].append(
+        # Append this entry, hashing everything but the contents
+        log['contents'].append(
             loghash(
                 {
                     'config': config,
-                    'entries': [],
+                    'contents': [],
                     'parse': tree,
                     'rules': ruleitems(rules, ('close', 'create', 'skip')),
                     'string': string,
@@ -211,18 +293,25 @@ def execute(rules, string, config = None):
         )
     string = walk(rules, tree, config)
     if config['log']:
-        pop = log['entries'].pop()
+        pop = log['contents'].pop()
+        # Add the result to the tree
         pop['walk'] = string
+        # Hash it
         pop = loghash(pop, ('walk',))
-        length = len(log['entries'])
-        if length:
-            log['entries'][length - 1]['entries'].append(pop)
-        else:
-            log['entries'].append(pop)
+        log['contents'] = treeappend((pop,), log['contents'])
     return string
 
 def loghash(entry, items):
-    """Hash specific keys for logging"""
+    """Hash specific keys for logging
+
+    ``entry``
+        The dict.
+
+    ``items``
+        The items to hash in the dict.
+
+    Returns: The dict with the specified items hashed.
+    """
     newlog = {}
     for key, value in entry.items():
         if key in items:
@@ -237,11 +326,43 @@ def loghash(entry, items):
     return newlog
 
 def parse(rules, pos, string, config = None):
-    """Generate the tree for execute"""
+    """Generate the tree from the tokens and string. The tree will show how the
+    string has been broken up and how to transform it.
+
+    ``rules``
+        The rules used to break up the string.
+
+    ``pos``
+        A list of the positions of the various open and close strings.
+
+    ``string``
+        The string to break up.
+
+    ``config``
+        Specifics on how the function should work.
+        (Optional. See `defaultconfig`)
+
+    Returns: {
+        'closed': True # Shown if this node has been closed.
+        'contents':
+        [
+            'string',
+            {
+                'closed': True
+                'contents': [...],
+                'create': ' condition="var"', # The contents of the create rule
+                # if applicable.
+                'createrule': '[if condition="var"]' # The whole create rule.
+                statement if applicable
+            },
+            ...
+        ], # This node's branches.
+    }
+    """
     config = defaultconfig(config)
     # Generate a dict key for a given parameters to save to and load from
     # cache. Thus, the cache key will be the same if the parameters are the
-    # same
+    # same.
     cachekey = md5(
         json.dumps(
             (
@@ -253,24 +374,24 @@ def parse(rules, pos, string, config = None):
             separators=separators
         )
     ).hexdigest()
-    # If a tree is cached for this case, load it
+    # If a tree is cached for this case, load it.
     if cachekey in cache['parse']:
         return json.loads(cache['hash'][cache['parse'][cachekey]])
-    # Contains a set of the flat rules that have been opened and not closed
+    # Contains a set of the flat rules that have been opened and not closed.
     flat = set([])
-    # The position after the last string analyzed
+    # The position after the last string analyzed.
     last = 0
-    # The skip rule, if opened
+    # The skip rule, if opened.
     skip = False
-    # How many additional skip rules to account for
+    # How many additional skip rules to account for.
     skipoffset = 0
-    # The original string
+    # The original string.
     temp = string
-    # The string broken into a tree
+    # The string broken into a tree.
     tree = []
     for value in pos:
-        # Adjust position to changes in length
-        position = value['token']['start'] + len(string) - len(temp)
+        # Adjust position to changes in length.
+        position = value['bounds']['start'] + len(string) - len(temp)
         escapeinfo = escape(
             config['escape'],
             position,
@@ -286,10 +407,10 @@ def parse(rules, pos, string, config = None):
                 rules[skip]['skipescape']
             )
         )
-        flatopen = (value['type'] == 'flat' and not value['rule'] in flat)
-        # If this is an open string
+        flatopen = (value['type'] == 'flat' and not value['string'] in flat)
+        # If this is an open string.
         if value['type'] == 'open' or flatopen:
-            rule = rules[value['rule']]
+            rule = rules[value['string']]
             # If no unclosed skip rules have been opened
             if not skip:
                 position = escapeinfo['position']
@@ -298,21 +419,21 @@ def parse(rules, pos, string, config = None):
                 if not escapeinfo['odd']:
                     # If the inner string is not empty, add it to the tree
                     append = string[last:position]
-                    # Adjust to after this string
-                    last = position + len(value['rule'])
+                    # Adjust to after this string.
+                    last = position + len(value['string'])
                     tree = treeappend((append,), tree)
-                    # Add the rule to the tree
+                    # Add the rule to the tree.
                     tree.append({
                         'contents': [],
-                        'rule': value['rule']
+                        'rule': value['string']
                     })
                     # If the skip key is true, skip over everything between
-                    # this open string and its close string
+                    # this open string and its close string.
                     if 'skip' in rule and rule['skip']:
-                        skip = value['rule']
+                        skip = value['string']
                     # If this rule is flat, the next instance of it will be a
-                    # closing string
-                    flat.add(value['rule'])
+                    # closing string.
+                    flat.add(value['string'])
             else:
                 skipclose = [rule['close']]
                 if 'create' in rule:
@@ -322,66 +443,65 @@ def parse(rules, pos, string, config = None):
                     if escaping:
                         position = escapeinfo['position']
                         string = escapeinfo['string']
-                    # If this position should not be overlooked, account for it
+                    # If this position should not be overlooked, account for it.
                     if not escapeinfo['odd']:
                         skipoffset += 1
         # Else, if no unclosed skip rules have been opened or the close string
         # for this rule matches it
-        elif not skip or value['rule'] == rules[skip]['close']:
+        elif not skip or value['string'] == rules[skip]['close']:
             if escaping:
                 position = escapeinfo['position']
                 string = escapeinfo['string']
             # If this position should not be overlooked
             if not escapeinfo['odd']:
-                # If there is an offset, decrement it
+                # If there is an offset, decrement it.
                 if skipoffset:
                     skipoffset -= 1
                 # Else, if the tree is not empty and last node is not closed
                 elif tree and not closed(tree[len(tree) - 1]):
-                    # Stop skipping
+                    # Stop skipping.
                     skip = False
                     pop = tree.pop()
                     # If this close string matches the last rule's or the
                     # config explicitly says to execute a mismatched case
-                    if (rules[pop['rule']]['close'] == value['rule'] or
+                    if (rules[pop['rule']]['close'] == value['string'] or
                     config['mismatched']):
-                        # Mark the rule as closed
+                        # Mark the rule as closed.
                         pop['closed'] = True
                         result = close(
+                            rules,
                             string[last:position],
                             pop,
-                            rules,
-                            tree,
-                            skip
+                            tree
                         )
                         skip = result['skip']
                         tree = result['tree']
-                        flat.discard(value['rule'])
-                        # Adjust to after this string
-                        last = position + len(value['rule'])
-                    # Else, add the opening string and the contents of the rule
+                        flat.discard(value['string'])
+                        # Adjust to after this string.
+                        last = position + len(value['string'])
+                    # Else, add the opening string and the contents of the rule.
                     else:
                         tree = treeappend(
                             (pop['rule'],) + pop['contents'],
                             tree
                         )
-    # Prepare to add everything after the last string analyzed
+    # Prepare to add everything after the last string analyzed.
     append = string[last:len(string)]
     # While the tree is not empty and the last node is not closed
     while (tree and not closed(tree[len(tree) - 1])):
-        # Add to the last node
+        # Add to the last node.
         pop = tree.pop()
-        tree = close(append, pop, rules, tree, skip)['tree']
-        # Make the last node the next thing to append
+        tree = close(rules, append, pop, tree)['tree']
+        # Make the last node the next thing to append.
         append = tree.pop()
-    # Add to the tree if necessary
+    # Add to the tree if necessary.
     if append:
         tree.append(append)
     tree = {
         'contents': tree,
         'closed': True
     }
-    # Cache the tree
+    # Cache the tree.
     dumped = json.dumps(tree, separators=separators)
     hashkey = md5(dumped).hexdigest()
     cache['hash'][hashkey] = dumped
@@ -389,7 +509,15 @@ def parse(rules, pos, string, config = None):
     return tree
 
 def ruleitems(rules, items):
-    """Get the specified items from the rules"""
+    """Get the specified items from the rules.
+
+    ``rules``
+        The dict to grab from.
+    ``items``
+        The items to grab from the dict.
+
+    Returns: The dict with the specified items.
+    """
     newrules = {}
     for key, value in rules.items():
         newrules[key] = {}
@@ -399,11 +527,36 @@ def ruleitems(rules, items):
     return newrules
 
 def tokens(rules, string, config = None):
-    """Generate the tokens for execute"""
+    """Generate the tokens from the string. Tokens contain the different open
+    and close strings and their positions.
+
+    ``rules``
+        The rules containing the strings to search for.
+
+    ``string``
+        The string to find the strings in.
+
+    ``config``
+        Specifics on how the function should work.
+        (Optional. See `defaultconfig`)
+
+    Returns: A list of dicts with this format:
+
+    ``bounds``
+        Dictionary containing the following:
+            ``start``
+                Where the string starts.
+            ``end``
+                Where the string ends.
+    ``string``
+        The located string.
+    ``type``
+        The type, options being open, close, or flat.
+    """
     config = defaultconfig(config)
     # Generate a dict key for a given parameters to save to and load from
     # cache. Thus, the cache key will be the same if the parameters are the
-    # same
+    # same.
     cachekey = md5(
             json.dumps(
             (
@@ -414,79 +567,83 @@ def tokens(rules, string, config = None):
             separators=separators
         )
     ).hexdigest()
-    # If positions are cached for this case, load them
+    # If positions are cached for this case, load them.
     if cachekey in cache['tokens']:
         return json.loads(cache['hash'][cache['tokens'][cachekey]])
     pos = []
+    repeated = set({})
     strings = []
     for key, value in rules.items():
-        # No need adding the open string if no close string provided
+        # No need adding the open string if no close string provided.
         if 'close' in value:
             # Open strings open a block. Close strings close a block
-            # Flat strings are open or close strings depending on context
+            # Flat strings are open or close strings depending on context.
             stringtype = 'flat'
-            # If the open string is the same as the close string, it is flat
+            # If the open string is the same as the close string, it is flat.
             if key != value['close']:
                 stringtype = 'open'
                 strings.append({
-                    'rule': value['close'],
+                    'string': value['close'],
                     'type': 'close'
                 })
             strings.append({
-                'rule': key,
+                'string': key,
                 'type': stringtype
             })
     # Order the strings by the length, in descending order, so that bigger
-    # strings are given priority over smaller strings
-    strings.sort(key=lambda item: len(item['rule']), reverse=True)
+    # strings are given priority over smaller strings.
+    strings.sort(key=lambda item: len(item['string']), reverse=True)
     if config['insensitive']:
         string = string.lower()
     for value in strings:
-        # Only proceed if there is a rule to match against
-        if value['rule']:
-            caserule = value['rule']
+        tempstring = value['string']
+        # Only proceed if there is a rule to match against and, and it has yet
+        # to be searched for.
+        if tempstring and not tempstring in repeated:
+            casestring = tempstring
             if config['insensitive']:
-                caserule = caserule.lower()
-            length = len(caserule)
-            # Attempt to match against an opening string first
-            position = string.find(caserule)
+                casestring = casestring.lower()
+            length = len(casestring)
+            # Attempt to match against an opening string first.
+            position = string.find(casestring)
             while position != -1:
-                end = position + length
+                endposition = position + length
                 success = True
                 for value2 in pos:
-                    token = value2['token']
+                    start = value2['bounds']['start']
+                    end = value2['bounds']['end']
                     startrange = (
-                        position >= token['start'] and
-                        position < token['end']
+                        position >= start and
+                        position < end
                     )
                     endrange = (
-                        end > token['start'] and
-                        end < token['end']
+                        endposition > start and
+                        endposition < end
                     )
-                    # If this instance is in this reserved range, ignore it
+                    # If this instance is in this reserved range, ignore it.
                     if startrange or endrange:
                         success = False
                         break
                 if success:
                     # If this string instance is not in any reserved range,
-                    # then append it to the positions list
-                    pos.append(
+                    # then append it to the positions list.
+                    pos.append({
+                        'bounds':
                         {
-                            'rule': value['rule'],
-                            'token':
-                            {
-                                'start': position,
-                                'end': end
-                            },
-                            'type': value['type']
-                        }
-                    )
+                            'start': position,
+                            'end': endposition
+                        },
+                        'string': tempstring,
+                        'type': value['type']
+                    })
                 # Find the next position of the string, and continue until
-                # there are no more matches
-                position = string.find(caserule, position + 1)
-    # Order the positions from smallest to biggest
-    pos.sort(key=lambda item: item['token']['start'])
-    # Cache the positions
+                # there are no more matches.
+                position = string.find(casestring, position + 1)
+            # Prevent this rule from being searched for again.
+            repeated.add(tempstring)
+    # Order the positions from smallest to biggest.
+    pos.sort(key=lambda item: item['bounds']['start'])
+    # Cache the positions.
     dumped = json.dumps(pos, separators=separators)
     hashkey = md5(dumped).hexdigest()
     cache['hash'][hashkey] = dumped
@@ -494,30 +651,52 @@ def tokens(rules, string, config = None):
     return pos
 
 def treeappend(append, tree):
-    """Add to the tree in the appropriate place if necessary"""
+    """Add to the tree in the appropriate place if necessary.
+
+    ``append``
+        The item to add.
+
+    ``tree``
+        The tree to add the item on.
+
+    Returns: The updated tree.
+    """
     if append:
-        # If the tree is not empty and the last node is not closed
+        # If the tree is not empty and the last node is not closed.
         if tree and not closed(tree[len(tree) - 1]):
-            # Add to the node
+            # Add to the node.
             pop = tree.pop()
             for value in append:
                 pop['contents'].append(value)
             tree.append(pop)
         else:
-            # Add to the trunk
+            # Add to the trunk.
             for value in append:
                 tree.append(value)
     return tree
 
 def walk(rules, tree, config = None):
-    """Walk through the tree and generate the string"""
+    """Walk through the tree and generate the string.
+
+    ``rules``
+        The rules used to specify how to walk through the tree.
+
+    ``tree``
+        The tree to walk through.
+
+    ``config``
+        Specifics on how the function should work.
+        (Optional. See `defaultconfig`)
+
+    Returns: The generated string.
+    """
     config = defaultconfig(config)
     string = ''
     for key, value in enumerate(tree['contents']):
-        # If this item is a dict
+        # If this item is a dict.
         if isinstance(value, dict):
             # If the tag has been closed or the config explicitly says to walk
-            # through unclosed nodes, walk through the contents with its rule
+            # through unclosed nodes, walk through the contents with its rule.
             if (
                 (
                     'closed' in value and
@@ -525,7 +704,7 @@ def walk(rules, tree, config = None):
                 ) or
                 config['unclosed']
             ):
-                # Give the rule functions parameters to work with
+                # Give the rule functions parameters to work with.
                 params = {
                     'config': config,
                     'rules': rules,
@@ -533,21 +712,21 @@ def walk(rules, tree, config = None):
                     'tree': value
                 }
                 params['tree']['key'] = key
-                # Allow reference to the parent branch
+                # Allow reference to the parent branch.
                 params['tree']['parent'] = tree
                 if 'rule' in value and 'functions' in rules[value['rule']]:
-                    # Run the specified functions
+                    # Run the specified functions.
                     for value2 in rules[value['rule']]['functions']:
                         params = value2(params)
-                # Add the resulting string
+                # Add the resulting string.
                 string += unicode(params['string'])
-            # Else, add the open string and the result of walking through it
+            # Else, add the open string and the result of walking through it.
             else:
                 string += ''.join((
                     value['rule'],
                     walk(rules, value, config)
                 ))
-        # Else, add the string
+        # Else, add the string.
         else:
             string += value
     return string

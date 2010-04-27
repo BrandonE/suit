@@ -5,7 +5,7 @@
                 [assign var="condition.closed" json="true"][call function="indict" obj="node" key="closed" /][/assign]
                 <legend>[if condition="condition.createrule" not="true"][c]node.rule[/c][/if][if condition="condition.createrule"][c]node.createrule[/c][/if][if condition="condition.closed" not="true"] - [gettext]Not Closed[/gettext][/if]</legend>
                 [local]
-                [loop value="node" list="node.contents"]
+                [loop value="node" iterable="node.contents"]
                 [execute][template]tree.tpl[/template][/execute]
                 [/loop]
                 [/local]

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,15 +17,19 @@
 """
 A package containing various sets of rules for use with SUIT.
 
-Example usage:
+-----------------------------
+Example Usage
+-----------------------------
 
-import suit
-from rulebox import templating # easy_install rulebox
-template = open('template.tpl').read()
-# Template contains "Hello, <strong>[var]username[/var]</strong>!"
-templating.var.username = 'Brandon'
-print suit.execute(templating.rules, template)
-# Result: Hello, <strong>Brandon!</strong>
+::
+
+    import suit
+    from rulebox import templating # easy_install rulebox
+    template = open('template.tpl').read()
+    # Template contains "Hello, <strong>[var]username[/var]</strong>!"
+    templating.var.username = 'Brandon'
+    print suit.execute(templating.rules, template)
+    # Result: Hello, <strong>Brandon</strong>!
 
 Basic usage; see http://www.suitframework.com/docs/ for other uses.
 """

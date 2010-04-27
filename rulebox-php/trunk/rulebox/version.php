@@ -15,4 +15,5 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 */
+
 $version = '1.0.0';

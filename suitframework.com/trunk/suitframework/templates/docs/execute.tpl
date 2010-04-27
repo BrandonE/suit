@@ -1,10 +1,10 @@
 <p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
 
-<p>[gettext]Translate string using rules[/gettext]</p>
+<p>[gettext]Translate string using rules.[/gettext]</p>
 
 <fieldset>
 	<legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-	str suit.execute ( dict nodes, str string [, dict config ] )
+	str suit.execute ( dict rules, str string [, dict config ] )
 </fieldset>
 
 <fieldset>
@@ -44,6 +44,13 @@
                 </tbody>
                 <tbody>
                     <tr>
+                        <td>log</td>
+                        <td>[gettext]bool: Whether or not to log this call.[/gettext]</td>
+                        <td>True</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
                         <td>mismatched</td>
                         <td>[gettext]bool: Whether or not to parse if the closing string does not match the opening string.[/gettext]</td>
                         <td>False</td>
@@ -73,54 +80,27 @@
         <legend><a id="basicusage" href="#basicusage">[gettext]Basic Usage[/gettext]</a></legend>
         <fieldset>
             <legend><a id="basicusagetemplate" href="#basicusagetemplate">[gettext]Template[/gettext]</a></legend>
-            <pre>[entities]Welcome to the site of [upper]suit[/upper] Framework.[/entities]</pre>
+            <pre>[entities]Hello, <strong>[var]username[/var]</strong>![/entities]</pre>
         </fieldset>
         <fieldset>
             <legend><a id="basicusagephp" href="#basicusagephp">[gettext]PHP[/gettext]</a></legend>
             [transform function="pygments" lexer="php"]<?php
-function upper($params)
-{
-    $params['case'] = strtoupper($params['case']);
-    return $params;
-}
-
 require 'suit.class.php';
+require 'templating.class.php';
 $suit = new SUIT();
-
-$template = file_get_contents('template.tpl');
-$rules = array
-(
-    '[upper]' => array
-    (
-        'close' => '[/upper]',
-        'postwalk' => array
-        (
-            array
-            (
-                'function' => 'upper'
-            )
-        )
-    )
-);
-echo $suit->execute($rules, $template); //Welcome to the site of SUIT Framework.
+$templating = new Templating($suit);
+$templating->var->username = 'Brandon';
+print $suit->execute($templating->rules, $template);
+// Result: Hello, <strong>Brandon</strong>!
 ?>[/transform]
         </fieldset>
         <fieldset>
             <legend><a id="basicusagepython" href="#basicusagepython">[gettext]Python[/gettext]</a></legend>
-            [transform function="pygments" lexer="python"]def upper(params):
-    params['case'] = params['case'].upper()
-    return params
-
-import suit
-
-template = open('template.tpl').read()
-rules = {
-    '[upper]': {
-        'close': '[/upper]',
-        'postwalk': [upper]
-    }
-}
-print suit.execute(rules, template) #Welcome to the site of SUIT Framework.
+            [transform function="pygments" lexer="python"]import suit
+from rulebox import templating # easy_install rulebox
+templating.var.username = 'Brandon'
+print suit.execute(templating.rules, template)
+# Result: Hello, <strong>Brandon</strong>!
 [/transform]
         </fieldset>
     </fieldset>

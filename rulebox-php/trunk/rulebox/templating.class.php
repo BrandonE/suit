@@ -20,16 +20,18 @@ order to create an HTML document.
 
 Example usage:
 
-import suit
-from rulebox import templating # easy_install rulebox
-template = open('template.tpl').read()
-# Template contains "Hello, <strong>[var]username[/var]</strong>!"
-templating.var.username = 'Brandon'
-print suit.execute(templating.rules, template)
-# Result: Hello, <strong>Brandon!</strong>
+require 'suit.class.php';
+require 'templating.class.php';
+$suit = new SUIT();
+$templating = new Templating($suit);
+$template = file_get_contents('template.tpl');
+// Template contains "Hello, <strong>[var]username[/var]</strong>!"
+echo $suit->execute($templating->rules, $template);
+// Result: Hello, <strong>Brandon</strong>!
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 **/
+
 class Templating
 {
     public $default = array
@@ -252,7 +254,6 @@ class Templating
                     'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'condition' => '',
                         'decode' => array('not'),
                         'delimiter' => $this->default['delimiter'],
                         'not' => 'false',
@@ -323,8 +324,7 @@ class Templating
                     'var' => array
                     (
                         'delimiter' => $this->default['delimiter'],
-                        'iterable' => '',
-                        'list' => '',
+                        'implode' => '',
                         'owner' => $this->default['owner']
                     )
                 )
@@ -679,6 +679,11 @@ class Templating
 
     public function condition($params)
     {
+        // Do not show if no condition provided
+        if (!array_key_exists('condition', $params['var']))
+        {
+            return $params;
+        }
         $var = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
         // Show the case if necessary
         if (
@@ -817,6 +822,11 @@ class Templating
 
     public function loop($params)
     {
+        // Do not loop if no iterable provided
+        if (!array_key_exists('iterable', $params['var']))
+        {
+            return $params;
+        }
         $var = $this->getvariable($params['var']['iterable'], $params['var']['delimiter'], $params['var']['owner']);
         $iterations = array();
         $tree = array

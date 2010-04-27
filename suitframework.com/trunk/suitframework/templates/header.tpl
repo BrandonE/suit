@@ -24,7 +24,7 @@
         <p>
             <select name="language">
                 <option value="default">Default</option>
-                [loop key="key" value="value" list="loop.languages"]
+                [loop key="key" value="value" iterable="loop.languages"]
                 <option value="[c]value.id[/c]">[c]value.title[/c]</option>
                 [/loop]
             </select>

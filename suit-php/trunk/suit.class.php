@@ -27,8 +27,8 @@ $suit = new SUIT();
 $templating = new Templating($suit);
 $template = file_get_contents('template.tpl');
 // Template contains "Hello, <strong>[var]username[/var]</strong>!"
-print $suit->execute($templating->rules, $template);
-#Result: Hello, Brandon!
+echo $suit->execute($templating->rules, $template);
+// Result: Hello, <strong>Brandon</strong>!
 
 -----------------------------
 Caching and Logging
@@ -43,6 +43,7 @@ log
 
 For both log and cache, the hash key contains the actual data. The others reference this to deal with redundant items.
 */
+
 class SUIT
 {
     public $cache = array
@@ -54,20 +55,42 @@ class SUIT
 
     public $log = array
     (
-        'hash' => array(),
-        'entries' => array()
+        'contents' => array(),
+        'hash' => array()
     );
 
     public $version = '2.0.0';
 
-    public function close($append, $pop, $rules, $tree, $skip)
+    public function close($append, $pop, $rules, $tree)
     {
-        // Handle a closed tag
+        /*
+        Handle the closing of a rule.
+
+        rules
+            The rules used to determine how to add the string.
+
+        append
+            The string to add.
+
+        pop
+            The last item of the tree.
+
+        tree
+            The parse tree.
+
+        Returns: A dict with this format:
+
+        skip
+            The skip rule, if opened.
+        tree
+            The parse tree with the appended data.
+        */
+        $skip = false;
         $rule = $rules[$pop['rule']];
         // If this rule does not create other rules
         if (!array_key_exists('create', $rule))
         {
-            // If the inner string is not empty, add it to the rule
+            // If the inner string is not empty, add it to the rule.
             if ($append)
             {
                 $pop['contents'][] = $append;
@@ -80,17 +103,17 @@ class SUIT
             if ($this->closed($pop))
             {
                 $create = $rule['create'];
-                // Prepare to append the rule this rule creates
+                // Prepare to append the rule this rule creates.
                 $append = array
                 (
                     'contents' => array(),
-                    // Store the contents inside of the original rule
+                    // Store the contents inside of the original rule.
                     'create' => $append,
-                    // Store the entire rule
+                    // Store the entire rule.
                     'createrule' => $pop['rule'] . $append . $rule['close'],
                     'rule' => $create
                 );
-                // If the skip key is true, skip over everything between this open string and its close string
+                // If the skip key is true, skip over everything between this open string and its close string.
                 if (array_key_exists('skip', $rules[$create]) && $rules[$create]['skip'])
                 {
                     $skip = $create;
@@ -98,7 +121,7 @@ class SUIT
             }
             else
             {
-                // Prepare to add the open string
+                // Prepare to add the open string.
                 $append = $pop['rule'] . $append;
             }
             $tree[] = $append;
@@ -112,7 +135,14 @@ class SUIT
 
     public function closed($node)
     {
-        // Check whether or not this item is an array and has been closed
+        /*
+        Check whether or not this item is a dict and has been closed.
+
+        node
+            The item to check.
+
+        Returns: The condition.
+        */
         return (
             !is_array($node) ||
             (
@@ -123,7 +153,16 @@ class SUIT
 
     public function configitems($config, $items)
     {
-        // Get the specified items from the config
+        /*
+        Get the specified items from the config.
+
+        config
+            The dict to grab from.
+        items
+            The items to grab from the dict.
+
+        Returns: The dict with the specified items.
+        */
         $newconfig = array();
         foreach ($items as $value)
         {
@@ -137,7 +176,14 @@ class SUIT
 
     public function defaultconfig($config)
     {
-        // Return a default config if required keys are not present for a given dict
+        /*
+        Fill a dict with the defaults for the missing items.
+
+        config
+            The dict to fill.
+
+        Returns: The filled dict.
+        */
         if (!array_key_exists('escape', $config))
         {
             $config['escape'] = '\\';
@@ -166,7 +212,33 @@ class SUIT
 
     public function escape($escapestring, $position, $string, $insensitive = true)
     {
-        // Handle escape strings for this position
+        /*
+        Handle escape strings for this position.
+
+        escapestring
+            The string to check for behind this position.
+
+        position
+            The position of the open or close string to check for.
+
+        string
+            The full string to check in.
+
+        insensitive
+            Whether or not the searching should be done case insensitively.
+
+        Returns: A dict with this format:
+        
+        odd
+            Whether or not the count of the escape strings to the left of this
+            position is odd, escaping the open or close string.
+
+        position
+            The position adjusted to the change in the string.
+
+        string
+            The string omitting the necessary escape strings.
+        */
         $count = 0;
         $caseescape = $escapestring;
         $casestring = $string;
@@ -178,25 +250,25 @@ class SUIT
         // If the escape string is not empty
         if ($escapestring)
         {
-            // Count how many escape characters are directly to the left of this position
+            // Count how many escape characters are directly to the left of this position.
             while (($focus = $position - $count - strlen($escapestring)) == abs($focus) && substr($casestring, $focus, strlen($escapestring)) == $caseescape)
             {
                 $count += strlen($escapestring);
             }
-            // Adjust the count based on the length
+            // Adjust the count based on the length.
             $count = $count / strlen($escapestring);
         }
-        // If the number of escape strings directly to the left of this position are odd, the position should be overlooked
+        // If the number of escape strings directly to the left of this position are odd, the position should be overlooked.
         $odd = $count % 2;
-        // If the count is odd, (x + 1) / 2 of them should be removed
+        // If the count is odd, (x + 1) / 2 of them should be removed.
         if ($odd)
         {
             $count++;
         }
         $count = $count / 2;
-        // Adjust the position to after the remaining escape strings
+        // Adjust the position to after the remaining escape strings.
         $position -= strlen($escapestring) * $count;
-        // Remove the decided number of escape strings
+        // Remove the decided number of escape strings.
         $string = substr_replace($string, '', $position, strlen($escapestring) * $count);
         return array
         (
@@ -208,17 +280,31 @@ class SUIT
 
     public function execute($rules, $string, $config = array())
     {
-        // Translate string using rules
+        /*
+        Translate string using rules.
+
+        rules
+            The rules used to translate the string.
+
+        string
+            The string to translate.
+
+        config
+            Specifics on how the function should work. (Optional. See defaultconfig)
+
+        Returns: The transformed string.
+        */
         $config = $this->defaultconfig($config);
         $pos = $this->tokens($rules, $string, $config);
         $tree = $this->parse($rules, $pos, $string, $config);
         if ($config['log'])
         {
-            $this->log['entries'][] = $this->loghash(
+            // Append this entry, hashing everything but the contents
+            $this->log['contents'][] = $this->loghash(
                 array
                 (
                     'config' => $config,
-                    'entries' => array(),
+                    'contents' => array(),
                     'rules' => $this->ruleitems($rules, array('close', 'create', 'skip')),
                     'parse' => $tree,
                     'string' => $string,
@@ -230,31 +316,35 @@ class SUIT
         $string = $this->walk($rules, $tree, $config);
         if ($config['log'])
         {
-            $pop = array_pop($this->log['entries']);
+            $pop = array_pop($this->log['contents']);
+            // Add the result to the tree
             $pop['walk'] = $string;
+            // Hash it
             $pop = $this->loghash($pop, array('walk'));
-            $length = count($this->log['entries']);
-            if ($length)
-            {
-                $this->log['entries'][$length - 1]['entries'][] = $pop;
-            }
-            else
-            {
-                $this->log['entries'][] = $pop;
-            }
+            $this->log['contents'] = $this->treeappend(array($pop), $this->log['contents']);
         }
         return $string;
     }
 
     public function lengthsort($a, $b)
     {
-        // Order the strings by the length, in descending order, so that bigger strings are given priority over smaller strings
-        return strlen($b['rule']) - strlen($a['rule']);
+        // Order the strings by the length, in descending order, so that bigger strings are given priority over smaller strings.
+        return strlen($b['string']) - strlen($a['string']);
     }
 
     public function loghash($entry, $items)
     {
-        // Hash specific keys for logging
+        /*
+        Hash specific keys for logging
+
+        entry
+            The dict.
+
+        items
+            The items to hash in the dict.
+
+        Returns: The dict with the specified items hashed.
+        */
         $newlog = array();
         foreach ($entry as $key => $value)
         {
@@ -272,9 +362,41 @@ class SUIT
 
     public function parse($rules, $pos, $string, $config = array())
     {
-        // Generate the tree for execute
+        /*
+        Generate the tree from the tokens and string. The tree will show how the string has been broken up and how to transform it.
+
+        rules
+            The rules used to break up the string.
+
+        pos
+            A list of the positions of the various open and close strings.
+
+        string
+            The string to break up.
+
+        config
+            Specifics on how the function should work. (Optional. See defaultconfig)
+
+        Returns: array
+        (
+            'closed' => true // Shown if this node has been closed.
+            'contents' => array
+            (
+                'string',
+                array
+                (
+                    'closed' => true
+                    'contents' => array(...),
+                    'create' => ' condition="var"', // The contents of the create rule if applicable.
+                    'createrule' => '[if condition="var"]' // The whole create rule.
+                    statement if applicable
+                ),
+                ...
+            ), // This node's branches.
+        )
+        */
         $config = $this->defaultconfig($config);
-        //Generate a dict key for a given parameters to save to and load from cache. Thus, the cache key will be the same if the parameters are the same
+        //Generate a dict key for a given parameters to save to and load from cache. Thus, the cache key will be the same if the parameters are the same.
         $cachekey = md5(
             json_encode(
                 array
@@ -286,27 +408,27 @@ class SUIT
                 )
             )
         );
-        // If a tree is cached for this case, load it
+        // If a tree is cached for this case, load it.
         if (array_key_exists($cachekey, $this->cache['parse']))
         {
             $tree = json_decode($this->cache['hash'][$this->cache['parse'][$cachekey]], true);
         }
-        // Contains a set of the flat rules that have been opened and not closed
+        // Contains a set of the flat rules that have been opened and not closed.
         $flat = array();
-        // The position after the last string analyzed
+        // The position after the last string analyzed.
         $last = 0;
-        // The skip rule, if opened
+        // The skip rule, if opened.
         $skip = false;
-        // How many additional skip rules to account for
+        // How many additional skip rules to account for.
         $skipoffset = 0;
-        // The original string
+        // The original string.
         $temp = $string;
-        // The string broken into a tree
+        // The string broken into a tree.
         $tree = array();
         foreach ($pos as $value)
         {
-            // Adjust position to changes in length
-            $position = $value['token']['start'] + strlen($string) - strlen($temp);
+            // Adjust position to changes in length.
+            $position = $value['bounds']['start'] + strlen($string) - strlen($temp);
             $escapeinfo = $this->escape($config['escape'], $position, $string, $config['insensitive']);
             // If no unclosed skip rules have been opened or said rule explicitly says to escape
             $escaping = (
@@ -315,11 +437,11 @@ class SUIT
                     array_key_exists('skipescape', $rules[$skip]) && $rules[$skip]['skipescape']
                 )
             );
-            $flatopen = ($value['type'] == 'flat' && !array_key_exists($value['rule'], $flat));
+            $flatopen = ($value['type'] == 'flat' && !array_key_exists($value['string'], $flat));
             // If this is an open string
             if ($value['type'] == 'open' || $flatopen)
             {
-                $rule = $rules[$value['rule']];
+                $rule = $rules[$value['string']];
                 // If no unclosed skip rules have been opened
                 if (!$skip)
                 {
@@ -328,25 +450,25 @@ class SUIT
                     // If this position should not be overlooked
                     if (!$escapeinfo['odd'])
                     {
-                        // If the inner string is not empty, add it to the tree
+                        // If the inner string is not empty, add it to the tree.
                         $append = substr($string, $last, $position - $last);
-                        // Adjust to after this string
-                        $last = $position + strlen($value['rule']);
+                        // Adjust to after this string.
+                        $last = $position + strlen($value['string']);
                         $tree = $this->treeappend(array($append), $tree);
-                        // Add the rule to the tree
+                        // Add the rule to the tree.
                         $append = array
                         (
                             'contents' => array(),
-                            'rule' => $value['rule']
+                            'rule' => $value['string']
                         );
                         $tree[] = $append;
-                        // If the skip key is true, skip over everything between this open string and its close string
+                        // If the skip key is true, skip over everything between this open string and its close string.
                         if (array_key_exists('skip', $rule) && $rule['skip'])
                         {
-                            $skip = $value['rule'];
+                            $skip = $value['string'];
                         }
-                        // If this rule is flat, the next instance of it will be a closing string
-                        $flat[$value['rule']] = NULL;
+                        // If this rule is flat, the next instance of it will be a closing string.
+                        $flat[$value['string']] = NULL;
                     }
                 }
                 else
@@ -365,7 +487,7 @@ class SUIT
                             $position = $escapeinfo['position'];
                             $string = $escapeinfo['string'];
                         }
-                        // If this position should not be overlooked, account for it
+                        // If this position should not be overlooked, account for it.
                         if (!$escapeinfo['odd'])
                         {
                             $skipoffset++;
@@ -374,7 +496,7 @@ class SUIT
                 }
             }
             // Else, if no unclosed skip rules have been opened or the close string for this rule matches it
-            elseif ($skip === false || $value['rule'] == $rules[$skip]['close'])
+            elseif ($skip === false || $value['string'] == $rules[$skip]['close'])
             {
                 // If it explictly says to escape
                 if ($escaping)
@@ -385,7 +507,7 @@ class SUIT
                 // If this position should not be overlooked
                 if (!$escapeinfo['odd'])
                 {
-                    // If there is an offset, decrement it
+                    // If there is an offset, decrement it.
                     if ($skipoffset)
                     {
                         $skipoffset--;
@@ -393,13 +515,13 @@ class SUIT
                     // Else, if the tree is not empty and the last node is not closed
                     elseif ($tree && !$this->closed($tree[count($tree) - 1]))
                     {
-                        // Stop skipping
+                        // Stop skipping.
                         $skip = false;
                         $pop = array_pop($tree);
                         // If this close string matches the last rule's or the config explicitly says to execute a mismatched case
-                        if ($rules[$pop['rule']]['close'] == $value['rule'] || $config['mismatched'])
+                        if ($rules[$pop['rule']]['close'] == $value['string'] || $config['mismatched'])
                         {
-                            // Mark the rule as closed
+                            // Mark the rule as closed.
                             $pop['closed'] = true;
                             $result = $this->close(
                                 substr(
@@ -409,16 +531,15 @@ class SUIT
                                 ),
                                 $pop,
                                 $rules,
-                                $tree,
-                                $skip
+                                $tree
                             );
                             $skip = $result['skip'];
                             $tree = $result['tree'];
-                            unset($flat[$value['rule']]);
-                            // Adjust to after this string
-                            $last = $position + strlen($value['rule']);
+                            unset($flat[$value['string']]);
+                            // Adjust to after this string.
+                            $last = $position + strlen($value['string']);
                         }
-                        // Else, add the opening string and the contents of the rule
+                        // Else, add the opening string and the contents of the rule.
                         else
                         {
                             $tree = $this->treeappend(array_merge(array($pop['rule']), $pop['contents']), $tree);
@@ -433,14 +554,14 @@ class SUIT
             $tree && !$this->closed($tree[$key])
         )
         {
-            // Add to the last node
+            // Add to the last node.
             $pop = array_pop($tree);
-            $tree = $this->close($append, $pop, $rules, $tree, $skip);
+            $tree = $this->close($append, $pop, $rules, $tree);
             $tree = $tree['tree'];
-            // Make the last node the next thing to append
+            // Make the last node the next thing to append.
             $append = array_pop($tree);
         }
-        // Add to the tree if necessary
+        // Add to the tree if necessary.
         if ($append)
         {
             $tree[] = $append;
@@ -454,7 +575,7 @@ class SUIT
         {
             $tree['rule'] = '';
         }
-        // Cache the tree
+        // Cache the tree.
         $dumped = json_encode($tree);
         $hashkey = md5($dumped);
         $this->cache['hash'][$hashkey] = $dumped;
@@ -464,13 +585,22 @@ class SUIT
 
     public function positionsort($a, $b)
     {
-        // Order the positions from smallest to biggest
-        return $a['token']['start'] - $b['token']['start'];
+        // Order the positions from smallest to biggest.
+        return $a['bounds']['start'] - $b['bounds']['start'];
     }
 
     public function ruleitems($rules, $items)
     {
-        // Get the specified items from the rules
+        /*
+        Get the specified items from the rules.
+
+        rules
+            The dict to grab from.
+        items
+            The items to grab from the dict.
+
+        Returns: The dict with the specified items.
+        */
         $newrules = array();
         foreach ($rules as $key => $value)
         {
@@ -488,9 +618,33 @@ class SUIT
 
     public function tokens($rules, $string, $config = array())
     {
-        // Generate the tokens for execute
+        /*
+        Generate the tokens from the string. Tokens contain the different open and close strings and their positions.
+
+        rules
+            The rules containing the strings to search for.
+
+        string
+            The string to find open and closing strings in.
+
+        config
+            Specifics on how the function should work. (Optional. See defaultconfig)
+
+        Returns: A list of dictionaries with this format:
+
+        bounds
+            Dictionary containing the following:
+                start
+                    Where the string starts.
+                end
+                    Where the string ends.
+        string
+            The located string.
+        type
+            The type, options being open, close, or flat.
+        */
         $config = $this->defaultconfig($config);
-        //Generate a dict key for a given parameters to save to and load from cache. Thus, the cache key will be the same if the parameters are the same
+        //Generate a dict key for a given parameters to save to and load from cache. Thus, the cache key will be the same if the parameters are the same.
         $cachekey = md5(
             json_encode(
                 array
@@ -501,34 +655,35 @@ class SUIT
                 )
             )
         );
-        // If positions are cached for this case, load them
+        // If positions are cached for this case, load them.
         if (array_key_exists($cachekey, $this->cache['tokens']))
         {
             return json_decode($this->cache['hash'][$this->cache['tokens'][$cachekey]], true);
         }
         $pos = array();
+        $repeated = array();
         $strings = array();
         $taken = array();
         foreach ($rules as $key => $value)
         {
-            // No need adding the open string if no close string provided
+            // No need adding the open string if no close string provided.
             if (array_key_exists('close', $value))
             {
-                // Open strings open a block. Close strings close a block. Flat strings are open or close strings depending on context
+                // Open strings open a block. Close strings close a block. Flat strings are open or close strings depending on context.
                 $stringtype = 'flat';
-                // If the open string is the same as the close string, it is flat
+                // If the open string is the same as the close string, it is flat.
                 if ($key != $value['close'])
                 {
                     $stringtype = 'open';
                     $strings[] = array
                     (
-                        'rule' => $value['close'],
+                        'string' => $value['close'],
                         'type' => 'close'
                     );
                 }
                 $strings[] = array
                 (
-                    'rule' => $key,
+                    'string' => $key,
                     'type' => $stringtype
                 );
             }
@@ -536,52 +691,56 @@ class SUIT
         usort($strings, array('SUIT', 'lengthsort'));
         foreach ($strings as $value)
         {
-            // Only proceed if there is a rule to match against
-            if ($value['rule'])
+            $tempstring = $value['string'];
+            // Only proceed if there is a rule to match against, and it has yet to be searched for.
+            if ($tempstring && !in_array($tempstring, $repeated))
             {
                 $function = 'strpos';
                 if ($config['insensitive'])
                 {
                     $function = 'stripos';
                 }
-                $length = strlen($value['rule']);
+                $length = strlen($tempstring);
                 $position = -1;
                 // Find the next position of the string, and continue until there are no more matches
-                while (($position = $function($string, $value['rule'], $position + 1)) !== false)
+                while (($position = $function($string, $tempstring, $position + 1)) !== false)
                 {
-                    $end = $position + $length;
+                    $endposition = $position + $length;
                     $success = true;
                     foreach ($pos as $value2)
                     {
-                        $token = $value2['token'];
-                        $startrange = ($position >= $token['start'] && $position < $token['end']);
-                        $endrange = ($end > $token['start'] && $end < $token['end']);
-                        // If this instance is in this reserved range, ignore it
+                        $start = $value2['bounds']['start'];
+                        $end = $value2['bounds']['end'];
+                        $startrange = ($position >= $start && $position < $end);
+                        $endrange = ($endposition > $start && $endposition < $end);
+                        // If this instance is in this reserved range, ignore it.
                         if ($startrange || $endrange)
                         {
                             $success = false;
                             break;
                         }
                     }
-                    // If this string instance is not in any reserved range, then append it to the positions list
+                    // If this string instance is not in any reserved range, then append it to the positions list.
                     if ($success)
                     {
                         $pos[] = array
                         (
-                            'rule' => $value['rule'],
-                            'token' => array
+                            'bounds' => array
                             (
                                 'start' => $position,
-                                'end' => $end
+                                'end' => $endposition
                             ),
+                            'string' => $tempstring,
                             'type' => $value['type']
                         );
                     }
                 }
+                // Prevent this rule from being searched for again.
+                $repeated[] = $tempstring;
             }
         }
         usort($pos, array('SUIT', 'positionsort'));
-        // Cache the positions
+        // Cache the positions.
         $dumped = json_encode($pos);
         $hashkey = md5($dumped);
         $this->cache['hash'][$hashkey] = $dumped;
@@ -591,13 +750,23 @@ class SUIT
 
     public function treeappend($append, $tree)
     {
-        // Add to the tree in the appropriate place if necessary
+        /*
+        Add to the tree in the appropriate place if necessary.
+
+        append
+            The item to add.
+
+        tree
+            The tree to add the item on.
+
+        Returns: The updated tree.
+        */
         if ($append)
         {
             // If the tree is not empty and the last node is not closed
             if ($tree && !$this->closed($tree[count($tree) - 1]))
             {
-                // Add to the node
+                // Add to the node.
                 $pop = array_pop($tree);
                 foreach ($append as $value)
                 {
@@ -607,7 +776,7 @@ class SUIT
             }
             else
             {
-                // Add to the trunk
+                // Add to the trunk.
                 foreach ($append as $value)
                 {
                     $tree[] = $value;
@@ -619,7 +788,18 @@ class SUIT
 
     public function walk($rules, $tree, $config = array())
     {
-        // Walk through the tree and generate the string
+        /*
+        Walk through the tree and generate the string.
+
+        rules
+            The rules used to specify how to walk through the tree.
+
+        tree
+            The tree to walk through.
+
+        config
+            Specifics on how the function should work. (Optional. See defaultconfig)
+        */
         $config = $this->defaultconfig($config);
         $string = '';
         $size = count($tree['contents']);
@@ -629,7 +809,7 @@ class SUIT
             # If this item is a dict
             if (is_array($value))
             {
-                // If the tag has been closed or the config explicitly says to walk through unclosed nodes, walk through the contents with its rule
+                // If the tag has been closed or the config explicitly says to walk through unclosed nodes, walk through the contents with its rule.
                 if (
                     (
                         array_key_exists('closed', $value) && $value['closed']
@@ -637,7 +817,7 @@ class SUIT
                     $config['unclosed']
                 )
                 {
-                    // Give the rule functions parameters to work with
+                    // Give the rule functions parameters to work with.
                     $params = array
                     (
                         'config' => $config,
@@ -646,14 +826,14 @@ class SUIT
                         'tree' => $value
                     );
                     $params['tree']['key'] = $i;
-                    // Allow reference to the parent branch
+                    // Allow reference to the parent branch.
                     $params['tree']['parent'] = &$tree;
                     if (array_key_exists('rule', $value) && array_key_exists('functions', $rules[$value['rule']]))
                     {
-                        // Run the specified functions
+                        // Run the specified functions.
                         foreach ($rules[$value['rule']]['functions'] as $value2)
                         {
-                            // Note whether or not the function is in a class
+                            // Note whether or not the function is in a class.
                             if (array_key_exists('class', $value2))
                             {
                                 $params = $value2['class']->$value2['function']($params);
@@ -664,16 +844,16 @@ class SUIT
                             }
                         }
                     }
-                    // Add the resulting string
+                    // Add the resulting string.
                     $string .= strval($params['string']);
                 }
-                // Else, add the open string and the result of walking through it
+                // Else, add the open string and the result of walking through it.
                 else
                 {
                     $string .= $value['rule'] . $this->walk($rules, $value, $config);
                 }
             }
-            // Else, add the string
+            // Else, add the string.
             else
             {
                 $string .= $value;

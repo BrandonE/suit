@@ -163,6 +163,7 @@ def format(string):
     return escape(json.dumps(string, sort_keys = True, indent = 4))
 
 def header():
+    c.slackslog = request.POST
     if ('submit' in request.POST and
     request.POST['submit'] == _gettext('Search')):
         redirect(
@@ -232,12 +233,12 @@ def slacks():
     c.key = -1
     c.log = {
         'hash': {},
-        'entries': []
+        'contents': []
     }
     try:
         loaded = False
         if 'url' in request.GET:
-            suit.log['entries'] = []
+            suit.log['contents'] = []
             c.log = urllib.urlopen(
                 request.GET['url'],
                 urllib.urlencode({
@@ -251,7 +252,7 @@ def slacks():
             loaded = True
         if loaded:
             c.log = json.loads(c.log)
-            if not c.log['entries']:
+            if not c.log['contents']:
                 raise
             for key, value in c.log['hash'].items():
                 c.log['hash'][key] = json.loads(value)
@@ -265,26 +266,18 @@ def slacks():
     ):
         c.log = {
             'hash': {},
-            'entries': []
+            'contents': []
         }
         c.condition.error = True
     return ''
 
-def slackslog():
-    c.slackslog = []
-    for key, value in request.POST.items():
-        c.slackslog.append({
-            'key': key,
-            'value': value
-        })
-    return ''
 def tokenshighlight(tokens, open, close, flat, end, string):
     tokens = templating.getvariable(tokens, '.', c)
     offset = 0
     original = string
     last = 0
     for value in tokens:
-        start = value['token']['start']
+        start = value['bounds']['start']
         color = open
         if value['type'] == 'close':
             color = close
@@ -294,12 +287,14 @@ def tokenshighlight(tokens, open, close, flat, end, string):
             string[0:last],
             code(escape(string[last:start + offset])),
             color,
-            escape(string[start + offset:start + offset + len(value['rule'])]),
+            escape(
+                string[start + offset:start + offset + len(value['string'])]
+            ),
             end,
-            string[start + offset + len(value['rule']):len(string)]
+            string[start + offset + len(value['string']):len(string)]
         ))
         offset = len(string) - len(original)
-        last = start + len(value['rule']) + offset
+        last = start + len(value['string']) + offset
     string = ''.join((
         string[0:last],
         code(escape(string[last:len(string)]))

@@ -12,7 +12,7 @@
 
         <p>[gettext]Introducing the <strong>SUIT Framework</strong> (Scripting Using Integrated Templates), an open-source web templating framework. It provides a lightweight and powerful solution to this problem by allowing developers to define their own syntax for transforming templates by using <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a>. The rules should generally allow the transfer of information from the server-side language to the template. Then, <a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">execute</a> the template according to the provided rules, and problem solved.[/gettext]</p>
 
-        <p>[gettext]SUIT currently has both PHP and Python implementations, and provides several sets of rules for both in our <a href"#rulebox">Rulebox</a>. Although the different versions have some differences in setting up the rules and executing, the templates do not directly evaluate in those languages, making our solution safer than many others. In addition, templates used with SUIT for PHP can be used with SUIT for Python.[/gettext]</p>
+        <p>[gettext]SUIT currently has both PHP and Python implementations, and provides several sets of rules for both in our <a href="#rulebox">Rulebox</a>. Although the different versions have some differences in setting up the rules and executing, the templates do not directly evaluate in those languages, making our solution safer than many others. In addition, templates used with SUIT for PHP can be used with SUIT for Python.[/gettext]</p>
 
         <p>[gettext]So, read the docs, get help in the community, and enjoy clean coding![/gettext]</p>
 [execute][template]footer.tpl[/template][/execute]

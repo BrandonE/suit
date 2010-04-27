@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -17,15 +18,19 @@
 A set of rules used to transfer information from the code to the template in
 order to create an HTML document.
 
-Example usage:
+-----------------------------
+Example Usage
+-----------------------------
 
-import suit
-from rulebox import templating # easy_install rulebox
-template = open('template.tpl').read()
-# Template contains "Hello, <strong>[var]username[/var]</strong>!"
-templating.var.username = 'Brandon'
-print suit.execute(templating.rules, template)
-# Result: Hello, <strong>Brandon!</strong>
+::
+
+    import suit
+    from rulebox import templating # easy_install rulebox
+    template = open('template.tpl').read()
+    # Template contains "Hello, <strong>[var]username[/var]</strong>!"
+    templating.var.username = 'Brandon'
+    print suit.execute(templating.rules, template)
+    # Result: Hello, <strong>Brandon</strong>!
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 """
@@ -127,6 +132,9 @@ def bracket(params):
 
 def condition(params):
     """Show the case if necessary"""
+    # Do not show if no condition provided
+    if not 'condition' in params['var']:
+        return params
     var = getvariable(
         params['var']['condition'],
         params['var']['delimiter'],
@@ -296,6 +304,9 @@ def loadlocal(params):
 
 def loop(params):
     """Loop a string with different variables"""
+    # Do not loop if no iterable provided
+    if not 'iterable' in params['var']:
+        return params
     var = getvariable(
         params['var']['iterable'],
         params['var']['delimiter'],
@@ -579,7 +590,6 @@ rules = {
             'quote': default['quote'],
             'var':
             {
-                'condition': '',
                 'decode': ('not',),
                 'delimiter': default['delimiter'],
                 'not': 'false',
@@ -617,7 +627,6 @@ rules = {
             {
                 'delimiter': default['delimiter'],
                 'implode': '',
-                'iterable': '',
                 'owner': default['owner']
             }
         }

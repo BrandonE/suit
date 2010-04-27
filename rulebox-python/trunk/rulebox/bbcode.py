@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,26 +17,34 @@
 """
 A set of rules used to transform BBCode into HTML.
 
-Example usage:
+-----------------------------
+Example Usage
+-----------------------------
 
-import suit
-from rulebox import bbcode
-rules = bbcode.rules
-# Load the BBCode templates
-for key, value in rules.items():
-    if 'var' in value and 'label' in value['var']:
-        rules[key]['var']['template'] = open(
+::
+
+    from cgi import escape
+    import suit
+    from rulebox import bbcode
+    rules = bbcode.rules
+    # Load the BBCode templates
+    for key, value in rules.items():
+        if 'var' in value and 'label' in value['var']:
+            rules[key]['var']['template'] = open(
                 os.path.join(
                     'bbcode',
                     value['var']['label'] + '.tpl'
                 )
             ).read()
-code = escape(
-    '[b]Test[/b],
-    True
-).replace('\n','<br />\n')
-print suit.execute(rules, code)
-# Result: assuming it loaded the default templates, "<strong>Test</strong>"
+    code = escape(
+        '[b]Test[/b],
+        True
+    ).replace('\n','<br />\n')
+    config = {
+        'escape': ''
+    }
+    print suit.execute(rules, code, config)
+    # Result: assuming it loaded the default templates, "<strong>Test</strong>"
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 """
