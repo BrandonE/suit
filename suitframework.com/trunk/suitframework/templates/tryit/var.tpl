@@ -1,0 +1,1 @@
+<p>Welcome, [var]username[/var]!</p>

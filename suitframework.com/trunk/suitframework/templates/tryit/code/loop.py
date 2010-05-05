@@ -1,4 +1,4 @@
-from suit import var
+from rulebox.templating import var
 var.members = [
     {
         'name': 'Brandon',

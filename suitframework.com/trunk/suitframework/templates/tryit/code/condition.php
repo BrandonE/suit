@@ -1,3 +1,3 @@
 <?php
-$suit->var->installed = true;
+$templating->var->loggedin = true;
 ?>

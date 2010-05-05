@@ -1,0 +1,1 @@
+<li><a href="[url controller="root" action="template" templatefile="docs" parameter1="[c]article.url[/c]" /]">[gettext][c]article.title[/c][/gettext]</a></li>

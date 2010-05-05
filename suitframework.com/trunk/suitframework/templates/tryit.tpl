@@ -40,7 +40,7 @@
         <fieldset id="php">
             [if condition="condition.python"]
             <legend class="yesscript" style="display: none"><a href="#null" id="phplink">[gettext]PHP - Click to toggle[/gettext]</a></legend>
-            <legend class="noscript"><legend>[gettext]PHP[/gettext]</legend>
+            <legend class="noscript">[gettext]PHP[/gettext]</legend>
             [/if]
             [if condition="condition.python" not="true"]
             <legend>[gettext]PHP[/gettext]
@@ -52,10 +52,10 @@
         <fieldset class="noscript" id="python">
             [if condition="condition.php"]
             <legend class="yesscript" style="display: none"><a href="#null" id="pythonlink">[gettext]Python - Click to toggle[/gettext]</a></legend>
-            <legend class="noscript"><legend>[gettext]Python[/gettext]</legend>
+            <legend class="noscript">[gettext]Python[/gettext]</legend>
             [/if]
             [if condition="condition.php" not="true"]
-            <legend>[gettext]PHP[/gettext]
+            <legend>[gettext]Python[/gettext]
             [/if]
             [transform function="pygments" lexer="python"][c entities="false"]python[/c][/transform]
         </fieldset>

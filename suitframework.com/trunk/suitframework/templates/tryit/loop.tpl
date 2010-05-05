@@ -6,7 +6,7 @@
         </tr>
     </thead>
     <tbody>
-        [loop value="value" list="members"]
+        [loop value="value" iterable="members"]
         <tr>
             <td>[var]value.name[/var]</td>
             <td>[var]value.group[/var]</td>

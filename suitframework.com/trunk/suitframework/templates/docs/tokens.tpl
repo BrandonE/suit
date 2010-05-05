@@ -1,6 +1,6 @@
 <p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
 
-<p>[gettext]Transform a string using rules. The function calls <a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a>, and <a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">[gettext]walk[/gettext]</a> all in one convenient call.[/gettext]</p>
+<p>[gettext]Generate the tokens from the string. Tokens contain the different open and close strings and their positions.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
@@ -27,7 +27,47 @@
 
 <fieldset>
     <legend><a id="returnvalue" href="#returnvalue">[gettext]Return Value[/gettext]</a></legend>
-    <p>[gettext]The transformed string.[/gettext]</p>
+    <p>[gettext]A list of dicts with the following format:[/gettext]</p>
+    <table width="100%" border="1">
+        <thead>
+            <tr>
+                <th>[gettext]Key[/gettext]</th>
+                <th>[gettext]Description[/gettext]</th>
+            </tr>
+        <tbody>
+            <tr>
+                <td>bounds</td>
+                <td>
+                    [gettext]dict[/gettext]
+                    <table width="100%" border="1">
+                        <thead>
+                            <tr>
+                                <th>[gettext]Key[/gettext]</th>
+                                <th>[gettext]Description[/gettext]</th>
+                            </tr>
+                        <tbody>
+                            <tr>
+                                <td>start</td>
+                                <td>[gettext]int: Where the string starts.[/gettext]</td>
+                            </tr>
+                            <tr>
+                                <td>end</td>
+                                <td>[gettext]int: Where the string ends.[/gettext]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>string</td>
+                <td>[gettext]str: The located string.[/gettext]</td>
+            </tr>
+            <tr>
+                <td>type</td>
+                <td>[gettext]str: The type, options being open, close, or flat.[/gettext]</td>
+            </tr>
+        </tbody>
+    </table>
 </fieldset>
 
 <fieldset>
@@ -47,8 +87,32 @@ require 'templating.class.php';
 $suit = new SUIT();
 $templating = new Templating($suit);
 $templating->var->username = 'Brandon';
-print $suit->execute($templating->rules, $template);
-// Result: Hello, <strong>Brandon</strong>!
+$tokens = $suit->tokens($templating->rules, $template);
+/*
+Result: array
+(
+    array
+    (
+        'bounds' => array
+        (
+            'end' => 20,
+            'start' => 15
+        ),
+        'string' => '[var]',
+        'type' => 'open'
+    ),
+    array
+    (
+        'bounds' => array
+        (
+            'end' => 34,
+            'start' => 28
+        ),
+        'string' => '[/var]',
+        'type' => 'close'
+    )
+)
+*/
 ?>[/transform]
         </fieldset>
         <fieldset class="noscript" id="python">
@@ -57,8 +121,27 @@ print $suit->execute($templating->rules, $template);
             [transform function="pygments" lexer="python"]import suit
 from rulebox import templating # easy_install rulebox
 templating.var.username = 'Brandon'
-print suit.execute(templating.rules, template)
-# Result: Hello, <strong>Brandon</strong>![/transform]
+tokens = suit.tokens(templating.rules, template)
+# Result: [
+#     {
+#         'bounds':
+#         {
+#             'end': 20,
+#             'start': 15
+#         },
+#         'string': '[var]',
+#         'type': 'open'
+#     },
+#     {
+#         'bounds':
+#         {
+#             'end': 34,
+#             'start': 28
+#         },
+#         'string': '[/var]',
+#         'type': 'close'
+#     }
+# ][/transform]
         </fieldset>
     </fieldset>
 </fieldset>
@@ -68,9 +151,7 @@ print suit.execute(templating.rules, template)
         <ul>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">[gettext]Rules[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">[gettext]Escaping[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">[gettext]walk[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">[gettext]execute[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">[gettext]defaultconfig[/gettext]</a></li>
         </ul>
 </fieldset>

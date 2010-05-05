@@ -36,12 +36,12 @@ Caching and Logging
 
 Throughout SUIT, two dicts are used by the cache and tokens functions.
 
-cache
+``cache``
     Saves processing time by storing the results of these functions.
-log
+``log``
     Contains information on how the execute function works.
 
-For both log and cache, the hash key contains the actual data. The others reference this to deal with redundant items.
+For both ``log`` and ``cache``, the `hash` key contains the actual data. The others reference this to deal with redundant items.
 */
 
 class SUIT
@@ -66,23 +66,24 @@ class SUIT
         /*
         Handle the closing of a rule.
 
-        rules
+        ``rules``
             The rules used to determine how to add the string.
 
-        append
+        ``append``
             The string to add.
 
-        pop
+        ``pop``
             The last item of the tree.
 
-        tree
+        ``tree``
             The parse tree.
 
-        Returns: A dict with this format:
+        Returns: A dict with the following format format:
 
-        skip
+        `skip`
             The skip rule, if opened.
-        tree
+
+        `tree`
             The parse tree with the appended data.
         */
         $skip = false;
@@ -138,7 +139,7 @@ class SUIT
         /*
         Check whether or not this item is a dict and has been closed.
 
-        node
+        ``node``
             The item to check.
 
         Returns: The condition.
@@ -156,9 +157,9 @@ class SUIT
         /*
         Get the specified items from the config.
 
-        config
+        ``config``
             The dict to grab from.
-        items
+        ``items``
             The items to grab from the dict.
 
         Returns: The dict with the specified items.
@@ -179,10 +180,25 @@ class SUIT
         /*
         Fill a dict with the defaults for the missing items.
 
-        config
+        ``config``
             The dict to fill.
 
-        Returns: The filled dict.
+        Returns: A dict with the following format:
+        
+        `escape`
+            The escape string.
+
+        `insensitive`
+            Whether or not the searching should be done case insensitively.
+
+        `log`
+            Whether or not the execute call should be logged.
+
+        `mismatched`
+            Whether or not to parse if the closing string does not match the opening string.
+
+        `unclosed`
+            Whether or not the SUIT should walk through the node if it was opened but not closed.
         */
         if (!array_key_exists('escape', $config))
         {
@@ -215,28 +231,28 @@ class SUIT
         /*
         Handle escape strings for this position.
 
-        escapestring
+        ``escapestring``
             The string to check for behind this position.
 
-        position
+        ``position``
             The position of the open or close string to check for.
 
-        string
+        ``string``
             The full string to check in.
 
-        insensitive
+        ``insensitive``
             Whether or not the searching should be done case insensitively.
 
-        Returns: A dict with this format:
+        Returns: A dict with the following format:
         
-        odd
+        `odd`
             Whether or not the count of the escape strings to the left of this
             position is odd, escaping the open or close string.
 
-        position
+        `position`
             The position adjusted to the change in the string.
 
-        string
+        `string`
             The string omitting the necessary escape strings.
         */
         $count = 0;
@@ -281,16 +297,17 @@ class SUIT
     public function execute($rules, $string, $config = array())
     {
         /*
-        Translate string using rules.
+        Transform a string using rules. The function calls ``tokens``, ``parse``, and ``walk`` all in one convenient call.
 
-        rules
-            The rules used to translate the string.
+        ``rules``
+            The rules used to transform the string.
 
-        string
-            The string to translate.
+        ``string``
+            The string to transform.
 
-        config
-            Specifics on how the function should work. (Optional. See defaultconfig)
+        ``config``
+            Specifics on how the function should work.
+            (Optional. See `defaultconfig`)
 
         Returns: The transformed string.
         */
@@ -337,10 +354,10 @@ class SUIT
         /*
         Hash specific keys for logging
 
-        entry
+        ``entry``
             The dict.
 
-        items
+        ``items``
             The items to hash in the dict.
 
         Returns: The dict with the specified items hashed.
@@ -365,17 +382,18 @@ class SUIT
         /*
         Generate the tree from the tokens and string. The tree will show how the string has been broken up and how to transform it.
 
-        rules
+        ``rules``
             The rules used to break up the string.
 
-        pos
+        ``pos``
             A list of the positions of the various open and close strings.
 
-        string
+        ``string``
             The string to break up.
 
-        config
-            Specifics on how the function should work. (Optional. See defaultconfig)
+        ``config``
+            Specifics on how the function should work.
+            (Optional. See `defaultconfig`)
 
         Returns: array
         (
@@ -594,9 +612,9 @@ class SUIT
         /*
         Get the specified items from the rules.
 
-        rules
+        ``rules``
             The dict to grab from.
-        items
+        ``items``
             The items to grab from the dict.
 
         Returns: The dict with the specified items.
@@ -621,26 +639,27 @@ class SUIT
         /*
         Generate the tokens from the string. Tokens contain the different open and close strings and their positions.
 
-        rules
+        ``rules``
             The rules containing the strings to search for.
 
-        string
-            The string to find open and closing strings in.
+        ``string``
+            The string to find the strings in.
 
-        config
-            Specifics on how the function should work. (Optional. See defaultconfig)
+        ``config``
+            Specifics on how the function should work.
+            (Optional. See `defaultconfig`)
 
-        Returns: A list of dictionaries with this format:
+        Returns: A list of dicts with the following format:
 
-        bounds
-            Dictionary containing the following:
-                start
+        `bounds`
+            A dict with the following format:
+                `start`
                     Where the string starts.
-                end
+                `end`
                     Where the string ends.
-        string
+        `string`
             The located string.
-        type
+        `type`
             The type, options being open, close, or flat.
         */
         $config = $this->defaultconfig($config);
@@ -753,10 +772,10 @@ class SUIT
         /*
         Add to the tree in the appropriate place if necessary.
 
-        append
+        ``append``
             The item to add.
 
-        tree
+        ``tree``
             The tree to add the item on.
 
         Returns: The updated tree.
@@ -791,14 +810,17 @@ class SUIT
         /*
         Walk through the tree and generate the string.
 
-        rules
+        ``rules``
             The rules used to specify how to walk through the tree.
 
-        tree
+        ``tree``
             The tree to walk through.
 
-        config
-            Specifics on how the function should work. (Optional. See defaultconfig)
+        ``config``
+            Specifics on how the function should work.
+            (Optional. See `defaultconfig`)
+
+        Returns: The generated string.
         */
         $config = $this->defaultconfig($config);
         $string = '';

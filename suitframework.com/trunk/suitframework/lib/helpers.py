@@ -45,37 +45,42 @@ def docs():
             [
                 {
                     'title': 'Getting Started',
-                    'jump': '',
                     'url': 'gettingstarted'
                 },
                 {
+                    'title': 'Comparison of SUIT to its Alternatives',
+                    'url': 'comparison'
+                },
+                {
+                    'title': 'Features',
+                    'url': 'features'
+                },
+                {
                     'title': 'Rules',
-                    'jump': '',
                     'url': 'rules'
                 },
                 {
                     'title': 'Rules Vs. Functions',
-                    'jump': '',
                     'url': 'rulesvsfunctions'
                 },
                 {
                     'title': 'Escaping',
-                    'jump': '',
                     'url': 'gettingstarted'
                 },
                 {
                     'title': 'FAQ',
-                    'jump': '',
                     'url': 'faq'
                 },
                 {
+                    'title': 'History',
+                    'url': 'history'
+                },
+                {
                     'title': 'Changelog',
-                    'jump': '',
                     'url': 'changelog'
                 },
                 {
                     'title': 'Credits',
-                    'jump': '',
                     'url': 'credits'
                 }
             ],
@@ -87,17 +92,26 @@ def docs():
             [
                 {
                     'title': 'execute',
-                    'jump': '',
                     'url': 'execute'
                 },
                 {
-                    'title': 'What!? That\'s it?',
-                    'jump': 'whatthatsit',
-                    'url': 'faq'
+                    'title': 'tokens',
+                    'url': 'tokens'
                 }
             ],
             'title': 'SUIT Functions',
             'url': 'suitfunctions'
+        },
+        {
+            'articles': 
+            [
+                {
+                    'title': 'defaultconfig',
+                    'url': 'defaultconfig'
+                }
+            ],
+            'title': 'Helper Functions',
+            'url': 'helperfunctions'
         },
         {
             'articles': [],
@@ -140,10 +154,11 @@ def docs():
     ):
         for category in c.loop.articles:
             for article in category['articles']:
-                if c.parameter1 == article['url'] and not article['jump']:
+                if c.parameter1 == article['url']:
                     c.article = article['title']
-        c.condition.article = True
-    else:
+                    c.condition.article = True
+                    break
+    if c.parameter1 and not c.condition.article:
         c.loop.search = []
         for category in c.loop.articles:
             for article in category['articles']:
@@ -160,7 +175,7 @@ def exittemplate(value = None):
 
 def format(string):
     string = templating.getvariable(string, '.', c)
-    return escape(json.dumps(string, sort_keys = True, indent = 4))
+    return escape(json.dumps(string, sort_keys=True, indent=4))
 
 def header():
     c.slackslog = request.POST
@@ -317,18 +332,22 @@ def tryit():
     if c.parameter1 == 'templating':
         from rulebox import templating
         rules = templating.rules.copy()
+        rules['[template]'] = rules['[template]'].copy()
+        rules['[template]']['var'] = rules['[template]']['var'].copy()
         rules['[template]']['var']['list'] = []
         c.rule = 'Templating'
     elif c.parameter1 == 'suitlons':
         from rulebox import suitlons
-        rules = suitlons.rules
+        rules = suitlons.rules.copy()
         c.rule = 'SUITlons'
     elif c.parameter1 == 'bbcode':
         from rulebox import bbcode
-        rules = bbcode.rules
+        rules = bbcode.rules.copy()
         #Load the BBCode templates
         for key, value in rules.items():
             if 'var' in value and 'label' in value['var']:
+                rules[key] = rules[key].copy()
+                rules[key]['var'] = rules[key]['var'].copy()
                 rules[key]['var']['template'] = open(
                     os.path.join(
                         config['suit.templates'],

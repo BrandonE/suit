@@ -89,11 +89,12 @@ def close(rules, append, pop, tree):
     ``tree``
         The parse tree.
 
-    Returns: A dict with this format:
+    Returns: A dict with the following format format:
 
-    ``skip``
+    `skip`
         The skip rule, if opened.
-    ``tree``
+
+    `tree`
         The parse tree with the appended data.
     """
     skip = False
@@ -175,7 +176,24 @@ def defaultconfig(config):
     ``config``
         The dict to fill.
 
-    Returns: The filled dict.
+    Returns: A dict with the following format:
+    
+    `escape`
+        The escape string.
+
+    `insensitive`
+        Whether or not the searching should be done case insensitively.
+
+    `log`
+        Whether or not the execute call should be logged.
+
+    `mismatched`
+        Whether or not to parse if the closing string does not match the
+        opening string.
+
+    `unclosed`
+        Whether or not the SUIT should walk through the node if it was opened
+        but not closed.
     """
     if config == None:
         config = {}
@@ -183,13 +201,10 @@ def defaultconfig(config):
         config['escape'] = '\\'
     if not 'insensitive' in config:
         config['insensitive'] = True
-    # Do you want to log this entry?
     if not 'log' in config:
         config['log'] = True
-    # If the close string doesn't match the open string, should it still close?
     if not 'mismatched' in config:
         config['mismatched'] = False
-    # If a tag was opened but not closed, should it still walk?
     if not 'unclosed' in config:
         config['unclosed'] = False
     return config
@@ -209,16 +224,16 @@ def escape(escapestring, position, string, insensitive = True):
     ``insensitive``
         Whether or not the searching should be done case insensitively.
 
-    Returns: A dict with this format:
+    Returns: A dict with the following format:
     
-    ``odd``
+    `odd`
         Whether or not the count of the escape strings to the left of this
         position is odd, escaping the open or close string.
 
-    ``position``
+    `position`
         The position adjusted to the change in the string.
 
-    ``string``
+    `string`
         The string omitting the necessary escape strings.
     """
     count = 0
@@ -259,13 +274,14 @@ def escape(escapestring, position, string, insensitive = True):
     }
 
 def execute(rules, string, config = None):
-    """Translate string using rules.
+    """Transform a string using rules. The function calls ``tokens``,
+    ``parse``, and ``walk`` all in one convenient call.
 
     ``rules``
-        The rules used to translate the string.
+        The rules used to transform the string.
 
     ``string``
-        The string to translate.
+        The string to transform.
 
     ``config``
         Specifics on how the function should work.
@@ -540,17 +556,17 @@ def tokens(rules, string, config = None):
         Specifics on how the function should work.
         (Optional. See `defaultconfig`)
 
-    Returns: A list of dicts with this format:
+    Returns: A list of dicts with the following format:
 
-    ``bounds``
-        Dictionary containing the following:
-            ``start``
+    `bounds`
+        A dict with the following format:
+            `start`
                 Where the string starts.
-            ``end``
+            `end`
                 Where the string ends.
-    ``string``
+    `string`
         The located string.
-    ``type``
+    `type`
         The type, options being open, close, or flat.
     """
     config = defaultconfig(config)
