@@ -358,22 +358,27 @@ def parse(rules, pos, string, config = None):
         Specifics on how the function should work.
         (Optional. See `defaultconfig`)
 
-    Returns: {
-        'closed': True # Shown if this node has been closed.
-        'contents':
-        [
-            'string',
-            {
-                'closed': True
-                'contents': [...],
-                'create': ' condition="var"', # The contents of the create rule
-                # if applicable.
-                'createrule': '[if condition="var"]' # The whole create rule.
-                statement if applicable
-            },
-            ...
-        ], # This node's branches.
-    }
+    Returns:
+
+    ::
+
+        {
+            'closed': True # Shown if this node has been closed.
+            'contents':
+            [
+                'string',
+                {
+                    'closed': True
+                    'contents': [...],
+                    'create': ' condition="var"', # The contents of the create
+                    # rule if applicable.
+                    'createrule': '[if condition="var"]', # The whole create
+                    # rule statement if applicable.
+                    'rule': '[if]' # The type of rule
+                },
+                ...
+            ], # This node's branches.
+        }
     """
     config = defaultconfig(config)
     # Generate a dict key for a given parameters to save to and load from
@@ -497,8 +502,11 @@ def parse(rules, pos, string, config = None):
                         last = position + len(value['string'])
                     # Else, add the opening string and the contents of the rule.
                     else:
+                        rulestring = pop['rule']
+                        if 'createrule' in pop:
+                            rulestring = pop['createrule']
                         tree = treeappend(
-                            (pop['rule'],) + pop['contents'],
+                            [rulestring] + pop['contents'],
                             tree
                         )
     # Prepare to add everything after the last string analyzed.
@@ -738,8 +746,11 @@ def walk(rules, tree, config = None):
                 string += unicode(params['string'])
             # Else, add the open string and the result of walking through it.
             else:
+                rulestring = value['rule']
+                if 'createrule' in value:
+                    rulestring = value['createrule']
                 string += ''.join((
-                    value['rule'],
+                    rulestring,
                     walk(rules, value, config)
                 ))
         # Else, add the string.

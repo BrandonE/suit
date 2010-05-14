@@ -21,14 +21,16 @@ SUIT Framework (Scripting Using Integrated Templates) allows developers to defin
 Example Usage
 -----------------------------
 
-require 'suit.class.php';
-require 'templating.class.php';
-$suit = new SUIT();
-$templating = new Templating($suit);
-$template = file_get_contents('template.tpl');
-// Template contains "Hello, <strong>[var]username[/var]</strong>!"
-echo $suit->execute($templating->rules, $template);
-// Result: Hello, <strong>Brandon</strong>!
+::
+
+    require 'suit.class.php';
+    require 'templating.class.php';
+    $suit = new SUIT();
+    $templating = new Templating($suit);
+    $template = file_get_contents('template.tpl');
+    // Template contains "Hello, <strong>[var]username[/var]</strong>!"
+    echo $suit->execute($templating->rules, $template);
+    // Result: Hello, <strong>Brandon</strong>!
 
 -----------------------------
 Caching and Logging
@@ -395,23 +397,27 @@ class SUIT
             Specifics on how the function should work.
             (Optional. See `defaultconfig`)
 
-        Returns: array
-        (
-            'closed' => true // Shown if this node has been closed.
-            'contents' => array
+        Returns:
+
+        ::
+
+            array
             (
-                'string',
-                array
+                'closed' => true // Shown if this node has been closed.
+                'contents' => array
                 (
-                    'closed' => true
-                    'contents' => array(...),
-                    'create' => ' condition="var"', // The contents of the create rule if applicable.
-                    'createrule' => '[if condition="var"]' // The whole create rule.
-                    statement if applicable
-                ),
-                ...
-            ), // This node's branches.
-        )
+                    'string',
+                    array
+                    (
+                        'closed' => true
+                        'contents' => array(...),
+                        'create' => ' condition="var"', // The contents of the create rule if applicable.
+                        'createrule' => '[if condition="var"]', // The whole create rule statement if applicable.
+                        'rule' => '[if]' // The type of rule
+                    ),
+                    ...
+                ), // This node's branches.
+            )
         */
         $config = $this->defaultconfig($config);
         //Generate a dict key for a given parameters to save to and load from cache. Thus, the cache key will be the same if the parameters are the same.
@@ -560,7 +566,12 @@ class SUIT
                         // Else, add the opening string and the contents of the rule.
                         else
                         {
-                            $tree = $this->treeappend(array_merge(array($pop['rule']), $pop['contents']), $tree);
+                            $rulestring = $pop['rule'];
+                            if (array_key_exists('createrule', $pop))
+                            {
+                                $rulestring = $pop['createrule'];
+                            }
+                            $tree = $this->treeappend(array_merge(array($rulestring), $pop['contents']), $tree);
                         }
                     }
                 }
@@ -872,7 +883,12 @@ class SUIT
                 // Else, add the open string and the result of walking through it.
                 else
                 {
-                    $string .= $value['rule'] . $this->walk($rules, $value, $config);
+                    $rulestring = $value['rule'];
+                    if (array_key_exists('createrule', $value))
+                    {
+                        $rulestring = $value['createrule'];
+                    }
+                    $string .= $rulestring . $this->walk($rules, $value, $config);
                 }
             }
             // Else, add the string.

@@ -1,21 +1,25 @@
 <p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
 
-<p>[gettext]Generate the tokens from the string. Tokens contain the different open and close strings and their positions.[/gettext]</p>
+<p>[gettext]Generate the tree from the tokens and string. The tree will show how the string has been broken up and how to transform it.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-    str suit.tokens ( dict rules, str string [, dict config ] )
+    str suit.parse ( dict rules, dict pos, str string [, dict config ] )
 </fieldset>
 
 <fieldset>
     <legend><a id="parameters" href="#parameters">[gettext]Parameters[/gettext]</a></legend>
     <fieldset>
         <legend><a id="rules" href="#rules">rules</a></legend>
-        <p>[gettext]The <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a> containing the strings to search for.[/gettext]</p>
+        <p>[gettext]The <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a> used to break up the string.[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="pos" href="#pos">pos</a></legend>
+        <p>[gettext]A list of the positions of the various open and close strings.[/gettext]</p>
     </fieldset>
     <fieldset>
         <legend><a id="string" href="#string">string</a></legend>
-        <p>[gettext]The string to find the strings in.[/gettext]</p>
+        <p>[gettext]The string to break up.[/gettext]</p>
     </fieldset>
     <fieldset>
         <legend><a id="config" href="#config">config</a></legend>
@@ -27,46 +31,23 @@
 
 <fieldset>
     <legend><a id="returnvalue" href="#returnvalue">[gettext]Return Value[/gettext]</a></legend>
-    <p>[gettext]A list of dicts with the following format:[/gettext]</p>
-    <table width="100%" border="1">
-        <thead>
-            <tr>
-                <th>[gettext]Key[/gettext]</th>
-                <th>[gettext]Description[/gettext]</th>
-            </tr>
-        <tbody>
-            <tr>
-                <td>bounds</td>
-                <td>
-                    [gettext]dict[/gettext]
-                    <table width="100%" border="1">
-                        <thead>
-                            <tr>
-                                <th>[gettext]Key[/gettext]</th>
-                                <th>[gettext]Description[/gettext]</th>
-                            </tr>
-                        <tbody>
-                            <tr>
-                                <td>start</td>
-                                <td>[gettext]int: Where the string starts.[/gettext]</td>
-                            </tr>
-                            <tr>
-                                <td>end</td>
-                                <td>[gettext]int: Where the string ends.[/gettext]</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td>string</td>
-                <td>[gettext]str: The located string.[/gettext]</td>
-            </tr>
-            <tr>
-                <td>type</td>
-                <td>[gettext]str: The type, options being open, close, or flat.[/gettext]</td>
-            </tr>
-        </tbody>
+    <p>
+[transform function="pygments" lexer="javascript"]{
+    "closed": true // Shown if this node has been closed.
+    "contents":
+    [
+        "string",
+        {
+            "closed": true
+            "contents": ["etc."],
+            "create": " condition=\"var\"", // The contents of the create rule if applicable.
+            "createrule": "\[if condition=\"var\"\]", // The whole create rule statement if applicable.
+            "rule": "\[if]" // The type of rule
+        },
+        // etc.
+    ], // This node's branches.
+}[/transform]
+    </p>
     </table>
 </fieldset>
 
@@ -88,28 +69,21 @@ $suit = new SUIT();
 $templating = new Templating($suit);
 $templating->var->username = 'Brandon';
 $tokens = $suit->tokens($templating->rules, $template);
+$tree = $suit->parse($templating->rules, $tokens, $template);
 /*
 Result: array
 (
-    array
+    'closed' => true,
+    'contents' => array
     (
-        'bounds' => array
+        'Hello, <strong>',
+        array
         (
-            'end' => 20,
-            'start' => 15
+            'closed' => true,
+            'contents' => array('username'),
+            'rule' => '[var]'
         ),
-        'string' => '[var]',
-        'type' => 'open'
-    ),
-    array
-    (
-        'bounds' => array
-        (
-            'end' => 34,
-            'start' => 28
-        ),
-        'string' => '[/var]',
-        'type' => 'close'
+        '</strong>!'
     )
 )
 */
@@ -122,26 +96,20 @@ Result: array
 from rulebox import templating # easy_install rulebox
 templating.var.username = 'Brandon'
 tokens = suit.tokens(templating.rules, template)
-# Result: [
-#     {
-#         'bounds':
+tree = suit.parse(templating.rules, tokens, template)
+# Result: {
+#     'closed': True,
+#     'contents':
+#     [
+#         'Hello, <strong>',
 #         {
-#             'end': 20,
-#             'start': 15
+#             'closed': True,
+#             'contents': ['username'],
+#             'rule': '[var]'
 #         },
-#         'string': '[var]',
-#         'type': 'open'
-#     },
-#     {
-#         'bounds':
-#         {
-#             'end': 34,
-#             'start': 28
-#         },
-#         'string': '[/var]',
-#         'type': 'close'
-#     }
-# ][/transform]
+#         '</strong>!'
+#     ]
+# }[/transform]
         </fieldset>
     </fieldset>
 </fieldset>
@@ -150,8 +118,8 @@ tokens = suit.tokens(templating.rules, template)
     <legend><a id="seealso" href="#seealso">[gettext]See Also[/gettext]</a></legend>
         <ul>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">[gettext]Rules[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">[gettext]Escaping[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">[gettext]execute[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">[gettext]defaultconfig[/gettext]</a></li>
         </ul>
 </fieldset>

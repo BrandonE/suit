@@ -127,6 +127,8 @@ suitrules['[c]']['functions'] = [
     templating.variables,
     entities
 ]
+
+suitrules['[c]']['var'] = suitrules['[c]']['var'].copy()
 suitrules['[c]']['var']['var'] = suitrules['[c]']['var']['var'].copy()
 suitrules['[c]']['var']['var']['owner'] = c
 suitrules['[c'] = suitrules['[var'].copy()

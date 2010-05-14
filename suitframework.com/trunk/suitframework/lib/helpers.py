@@ -97,6 +97,10 @@ def docs():
                 {
                     'title': 'tokens',
                     'url': 'tokens'
+                },
+                {
+                    'title': 'parse',
+                    'url': 'parse'
                 }
             ],
             'title': 'SUIT Functions',
@@ -175,7 +179,7 @@ def exittemplate(value = None):
 
 def format(string):
     string = templating.getvariable(string, '.', c)
-    return escape(json.dumps(string, sort_keys=True, indent=4))
+    return json.dumps(string, sort_keys=True, indent=4)
 
 def header():
     c.slackslog = request.POST

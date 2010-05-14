@@ -18,16 +18,20 @@ http://www.suitframework.com/docs/credits
 A set of rules used to transfer information from the code to the template in
 order to create an HTML document.
 
-Example usage:
+-----------------------------
+Example Usage
+-----------------------------
 
-require 'suit.class.php';
-require 'templating.class.php';
-$suit = new SUIT();
-$templating = new Templating($suit);
-$template = file_get_contents('template.tpl');
-// Template contains "Hello, <strong>[var]username[/var]</strong>!"
-echo $suit->execute($templating->rules, $template);
-// Result: Hello, <strong>Brandon</strong>!
+::
+
+    require 'suit.class.php';
+    require 'templating.class.php';
+    $suit = new SUIT();
+    $templating = new Templating($suit);
+    $template = file_get_contents('template.tpl');
+    // Template contains "Hello, <strong>[var]username[/var]</strong>!"
+    echo $suit->execute($templating->rules, $template);
+    // Result: Hello, <strong>Brandon</strong>!
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 **/

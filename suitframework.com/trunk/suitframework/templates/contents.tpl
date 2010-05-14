@@ -14,13 +14,11 @@
                 </fieldset>
                 <fieldset id="rules[c]key[/c]" style="display: none">
                     <legend><a href="#NULL" onclick="display({'show': ['config[c]key[/c]'], 'hide': ['rules[c]key[/c]']})">[gettext]rules - Click to toggle[/gettext]</a></legend>
-                    <textarea name="template" style="width: 100%;" wrap="off" rows="20">
-[transform function="format"]log.hash.[c]value.rules[/c][/transform]</textarea>
+[transform function="pygments" lexer="javascript"][transform function="format"]log.hash.[c]value.rules[/c][/transform][/transform]
                 </fieldset>
                 <fieldset id="config[c]key[/c]" style="display: none">
                     <legend><a href="#NULL" onclick="display({'show': ['string[c]key[/c]'], 'hide': ['config[c]key[/c]']})">[gettext]config - Click to toggle[/gettext]</a></legend>
-                    <textarea name="template" style="width: 100%;" wrap="off" rows="20">
-[transform function="format"]log.hash.[c]value.config[/c][/transform]</textarea>
+[transform function="pygments" lexer="javascript"][transform function="format"]log.hash.[c]value.config[/c][/transform][/transform]
                 </fieldset>
             </fieldset>
             <fieldset id="tokens[c]key[/c]" style="display: none">
