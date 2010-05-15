@@ -1,21 +1,21 @@
 <p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
 
-<p>[gettext]Transform a string using rules. The function calls <a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a>, and <a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">[gettext]walk[/gettext]</a> all in one convenient call.[/gettext]</p>
+<p>[gettext]Walk through the tree and generate the string.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-    str suit.execute ( dict rules, str string [, dict config ] )
+    str suit.parse ( dict rules, tree [, dict config ] )
 </fieldset>
 
 <fieldset>
     <legend><a id="parameters" href="#parameters">[gettext]Parameters[/gettext]</a></legend>
     <fieldset>
         <legend><a id="rules" href="#rules">rules</a></legend>
-        <p>[gettext]The <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a> to use to transform the string.[/gettext]</p>
+        <p>[gettext]The <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a> used to specify how to walk through the tree.[/gettext]</p>
     </fieldset>
     <fieldset>
-        <legend><a id="string" href="#string">string</a></legend>
-        <p>[gettext]The string to transform.[/gettext]</p>
+        <legend><a id="tree" href="#tree">tree</a></legend>
+        <p>[gettext]The tree to walk through.[/gettext]</p>
     </fieldset>
     <fieldset>
         <legend><a id="config" href="#config">config</a></legend>
@@ -27,7 +27,8 @@
 
 <fieldset>
     <legend><a id="returnvalue" href="#returnvalue">[gettext]Return Value[/gettext]</a></legend>
-    <p>[gettext]The transformed string.[/gettext]</p>
+    <p>[gettext]The generated string.[/gettext]</p>
+    </table>
 </fieldset>
 
 <fieldset>
@@ -47,7 +48,9 @@ require 'templating.class.php';
 $suit = new SUIT();
 $templating = new Templating($suit);
 $templating->var->username = 'Brandon';
-print $suit->execute($templating->rules, $template);
+$tokens = $suit->tokens($templating->rules, $template);
+$tree = $suit->parse($templating->rules, $tokens, $template);
+echo $suit->walk($templating->rules, $tree);
 // Result: Hello, <strong>Brandon</strong>!
 ?>[/transform]
         </fieldset>
@@ -57,7 +60,9 @@ print $suit->execute($templating->rules, $template);
             [transform function="pygments" lexer="python"]import suit
 from rulebox import templating # easy_install rulebox
 templating.var.username = 'Brandon'
-print suit.execute(templating.rules, template)
+tokens = suit.tokens(templating.rules, template)
+tree = suit.parse(templating.rules, tokens, template)
+print suit.walk(templating.rules, tree)
 # Result: Hello, <strong>Brandon</strong>![/transform]
         </fieldset>
     </fieldset>
@@ -67,7 +72,9 @@ print suit.execute(templating.rules, template)
     <legend><a id="seealso" href="#seealso">[gettext]See Also[/gettext]</a></legend>
         <ul>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">[gettext]Rules[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">[gettext]Escaping[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">[gettext]execute[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">[gettext]defaultconfig[/gettext]</a></li>
         </ul>
 </fieldset>

@@ -101,6 +101,10 @@ def docs():
                 {
                     'title': 'parse',
                     'url': 'parse'
+                },
+                {
+                    'title': 'walk',
+                    'url': 'walk'
                 }
             ],
             'title': 'SUIT Functions',
