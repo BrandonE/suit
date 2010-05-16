@@ -594,7 +594,8 @@ class Templating
 
     public function assign($params)
     {
-        // If a variable is provided
+        // Assign variable in template.
+        // If a variable is provided.
         if (array_key_exists('var', $params['var']))
         {
             if ($params['var']['json'])
@@ -609,8 +610,10 @@ class Templating
 
     public function attribute($params)
     {
+        // Create rule out of attributes.
         $var = $params['rules'][$params['tree']['rule']]['var'];
         $params['var'] = $var['var'];
+        // Decide where to get the attributes from.
         if (array_key_exists('onesided', $var) && $var['onesided'])
         {
             $string = $params['string'];
@@ -630,6 +633,7 @@ class Templating
         {
             $function = 'stripos';
         }
+        // Decide which quote string to use based on which occurs first.
         foreach ($var['quote'] as $value)
         {
             $position = $function($string, $value);
@@ -646,18 +650,18 @@ class Templating
         }
         if ($quote)
         {
-            // Define the variables
+            // Split up the string by quotes.
             $split = explode($quote, $string);
             unset($split[count($split) - 1]);
             foreach ($split as $key => $value)
             {
-                // If this is the first iteration of the pair
+                // If this is the opening quote.
                 if ($key % 2 == 0)
                 {
                     $name = trim($value);
                     $syntax = (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal']);
                     $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
-                    // If the syntax is not valid or variable is whitelisted or blacklisted, do not prepare to define the variable
+                    // If the syntax is not valid or the variable is not whitelisted or blacklisted, do not prepare to define the variable.
                     if (!$syntax || !$this->listing($name, $var))
                     {
                         $name = '';
@@ -665,7 +669,7 @@ class Templating
                 }
                 elseif ($name)
                 {
-                    // Define the variable
+                    // Define the variable.
                     $config = $params['config'];
                     $config['log'] = $var['log'];
                     $params['var'][$name] = $this->suit->execute($params['rules'], $value, $config);
@@ -677,19 +681,21 @@ class Templating
 
     public function bracket($params)
     {
+        // Handle brackets unrelated to the rules.
         $params['string'] = $params['tree']['rule'] . $params['string'] . $params['rules'][$params['tree']['rule']]['close'];
         return $params;
     }
 
     public function condition($params)
     {
-        // Do not show if no condition provided
+        // Show the string if necessary.
+        // Do not show if no condition provided.
         if (!array_key_exists('condition', $params['var']))
         {
             return $params;
         }
         $var = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
-        // Show the case if necessary
+        // Show the string if the condition is true.
         if (
             (
                 $var && !$params['var']['not']
@@ -706,12 +712,14 @@ class Templating
 
     public function copyvar($params)
     {
+        // Copy the rule's variable from the tree.
         $params['var'] = $params['rules'][$params['tree']['rule']]['var'];
         return $params;
     }
 
     public function decode($params)
     {
+        // Decode a JSON String.
         foreach ($params['var']['decode'] as $value)
         {
             $params['var'][$value] = json_decode($params['var'][$value], true);
@@ -721,6 +729,7 @@ class Templating
 
     public function entities($params)
     {
+        // Convert HTML characters to their respective entities.
         if (!$params['var']['json'] && $params['var']['entities'])
         {
             $params['string'] = htmlentities(strval($params['string']));
@@ -730,12 +739,14 @@ class Templating
 
     public function evaluation($params)
     {
+        // Evaluate a PHP statement.
         $params['string'] = eval($params['string']);
         return $params;
     }
 
     public function execute($params)
     {
+        // Execute the string using the same rules used in this template.
         $config = $params['config'];
         $config['log'] = $params['var']['log'];
         $params['string'] = $this->suit->execute($params['rules'], $params['string'], $config);
@@ -744,23 +755,35 @@ class Templating
 
     public function functions($params)
     {
-        $kwargs = $params['var'];
-        unset($kwargs['function']);
-        unset($kwargs['owner']);
-        // Note whether or not the function is in a class
-        if (array_key_exists('owner', $params['var']))
+        // Perform a function call.
+        // If the node using this is one sided, make the string empty by default.
+        if (array_key_exists('onesided', $params['var']) && $params['var']['onesided'])
         {
-            $params['string'] = $params['var']['owner']->$params['var']['function']($kwargs);
+            $params['string'] = '';
         }
-        else
+        // If a function was provided.
+        if ($params['var']['function'] && $params['var']['owner'])
         {
-            $params['string'] = $params['var']['function']($kwargs);
+            $kwargs = $params['var'];
+            // Remove the parameters that shouldn't be used in the call.
+            unset($kwargs['function']);
+            unset($kwargs['owner']);
+            // Note whether or not the function is in a class
+            if (array_key_exists('owner', $params['var']))
+            {
+                $params['string'] = $params['var']['owner']->$params['var']['function']($kwargs);
+            }
+            else
+            {
+                $params['string'] = $params['var']['function']($kwargs);
+            }
         }
         return $params;
     }
 
     public function getvariable($string, $delimiter, $owner)
     {
+        // Get a variable based on a split string.
         foreach (explode($delimiter, $string) as $value)
         {
             if (is_array($owner))
@@ -777,6 +800,7 @@ class Templating
 
     public function listing($name, $var)
     {
+        // Check if the variable is whitelisted or blacklisted.
         return (
             !(
                 array_key_exists('list', $var) &&
@@ -796,6 +820,8 @@ class Templating
 
     public function loadlocal($params)
     {
+        // Reset the variables set before this section.
+        // Set the variables.
         foreach ($params['var']['local'] as $key => $value)
         {
             if (is_array($params['var']['owner']))
@@ -807,6 +833,7 @@ class Templating
                 $params['var']['owner']->$key = $value;
             }
         }
+        // Remove the variables set after this section.
         foreach ($params['var']['owner'] as $key => $value)
         {
             if (!array_key_exists($key, $params['var']['local']))
@@ -826,48 +853,57 @@ class Templating
 
     public function loop($params)
     {
-        // Do not loop if no iterable provided
+        // Loop a string with different variables.
+        // Do not loop if no iterable provided.
         if (!array_key_exists('iterable', $params['var']))
         {
             return $params;
         }
         $var = $this->getvariable($params['var']['iterable'], $params['var']['delimiter'], $params['var']['owner']);
-        $iterations = array();
+        # Remove the rule from the tree.
         $tree = array
         (
+            'closed' => true,
             'contents' => $params['tree']['contents']
         );
+        $iterations = array();
         foreach ($var as $key => $value)
         {
+            // Set the key variable if provided.
             if (array_key_exists('key', $params['var']))
             {
                 $this->setvariable($params['var']['key'], $params['var']['delimiter'], $key, $params['var']['owner']);
             }
+            // Set the value variable if provided.
             if (array_key_exists('value', $params['var']))
             {
                 $this->setvariable($params['var']['value'], $params['var']['delimiter'], $value, $params['var']['owner']);
             }
-            // Walk for this iteration
+            // Walk for this iteration.
             $result = $this->walk($params);
             $iterations[] = $result['string'];
         }
-        // Implode the iterations
+        // Implode the iterations.
         $params['string'] = implode($params['var']['implode'], $iterations);
         return $params;
     }
 
     public function returning($params)
     {
+        // Prepare to return from this point on.
         $params['string'] = '';
+        // If no more layers should be returned out of, don't.
         if (!$params['var']['layers'])
         {
             return $params;
         }
+        // Decrement the amount of layers to return out of if a limit was defined.
         if (is_int($params['var']['layers']))
         {
             $params['var']['layers'] -= 1;
         }
         $size = count($params['tree']['parent']['contents']);
+        // Delete every node after this one.
         for ($i = 0; $i < $size; $i++)
         {
             if ($i > $params['tree']['key'])
@@ -875,6 +911,7 @@ class Templating
                 unset($params['tree']['parent']['contents'][$i]);
             }
         }
+        // If this node was nested, attempt to return out of its parent.
         if ($params['var']['layers'] && array_key_exists('parent', $params['tree']['parent']))
         {
             $params['tree']['parent'] = &$params['tree']['parent']['parent'];
@@ -885,6 +922,7 @@ class Templating
 
     public function savelocal($params)
     {
+        // Save the variables set before this section.
         $params['var']['local'] = array();
         foreach ($params['var']['owner'] as $key => $value)
         {
@@ -895,6 +933,7 @@ class Templating
 
     public function setvariable($string, $split, $assignment, &$owner)
     {
+        // Set a variable based on a split string.
         $split = explode($split, $string);
         foreach ($split as $key => $value)
         {
@@ -922,6 +961,7 @@ class Templating
 
     public function templates($params)
     {
+        // Grab a template from a file.
         // If the variable is not whitelisted or blacklisted and the file exists
         if ($this->listing($params['string'], $params['var']) && is_file($params['string']))
         {
@@ -936,12 +976,14 @@ class Templating
 
     public function transform($params)
     {
+        // Send string as argument for functions.
         $params['var']['string'] = $params['string'];
         return $params;
     }
 
     public function trim($params)
     {
+        // Trim unnecessary whitespace.
         $rules = array
         (
             '<pre' => array
@@ -961,36 +1003,43 @@ class Templating
         $params['string'] = '';
         foreach ($tree as $value)
         {
+            // If this node is a tag we do not want to trim the contents of, put the statement back.
             if (is_array($value))
             {
                 $params['string'] .= $value['rule'] . $value['contents'][0] . $rules[$value['rule']]['close'];
             }
+            // Else, trim it.
             else
             {
                 $params['string'] .= preg_replace('/[\s]+$/m', '', $value) . substr($value, strlen(rtrim($value)));
             }
         }
+        // Remove the whitespace preceding the string.
         $params['string'] = ltrim($params['string']);
         return $params;
     }
 
     public function trying($params)
     {
+        // Try and use exceptions on executing.
         if ($params['var']['var'])
         {
             $this->suit->$params['var']['var'] = '';
         }
+        // Try to walk through this node.
         try
         {
             $params['string'] = $this->suit->walk($params['rules'], $params['tree'], $params['config']);
         }
+        // Catch all exceptions.
         catch (Exception $e)
         {
-            // If a variable is provided
+            // If a variable is provided.
             if (array_key_exists('var', $params['var']))
             {
                 $this->setvariable($params['var']['var'], $params['var']['delimiter'], $e, $params['var']['owner']);
             }
+            // Collapse the node.
             $params['string'] = '';
         }
         return $params;
@@ -998,6 +1047,7 @@ class Templating
 
     public function variables($params)
     {
+        // Grab a variable.
         $params['string'] = $this->getvariable($params['string'], $params['var']['delimiter'], $params['var']['owner']);
         if ($params['var']['json'])
         {
@@ -1008,6 +1058,7 @@ class Templating
 
     public function walk($params)
     {
+        // Walk through this node.
         $params['string'] = $this->suit->walk($params['rules'], $params['tree'], $params['config']);
         return $params;
     }

@@ -522,8 +522,8 @@ def parse(rules, pos, string, config = None):
     if append:
         tree.append(append)
     tree = {
-        'contents': tree,
-        'closed': True
+        'closed': True,
+        'contents': tree
     }
     # Cache the tree.
     dumped = json.dumps(tree, separators=separators)
@@ -744,7 +744,8 @@ def walk(rules, tree, config = None):
                         params = value2(params)
                 # Add the resulting string.
                 string += unicode(params['string'])
-            # Else, add the open string and the result of walking through it.
+            # Else, add the open string and the result of walking through it
+            # without the rule.
             else:
                 rulestring = value['rule']
                 if 'createrule' in value:

@@ -880,7 +880,7 @@ class SUIT
                     // Add the resulting string.
                     $string .= strval($params['string']);
                 }
-                // Else, add the open string and the result of walking through it.
+                // Else, add the open string and the result of walking through it without the rule.
                 else
                 {
                     $rulestring = $value['rule'];

@@ -37,7 +37,7 @@
         <legend><a id="basicusage" href="#basicusage">[gettext]Basic Usage[/gettext]</a></legend>
         <fieldset>
             <legend><a id="basicusagetemplate" href="#basicusagetemplate">[gettext]Template[/gettext]</a></legend>
-            <pre>[entities]Hello, <strong>[var]username[/var]</strong>![/entities]</pre>
+            [transform function="pygments" lexer="html"]Hello, <strong>[var]username[/var]</strong>![/transform]
         </fieldset>
         <fieldset id="php">
             <legend class="yesscript" style="display: none"><a href="#null" id="phplink">[gettext]PHP - Click to toggle[/gettext]</a></legend>

@@ -60,8 +60,8 @@ class Class():
 var = Class()
 
 def assign(params):
-    """Assign variable in template"""
-    # If a variable is provided
+    """Assign variable in the template."""
+    # If a variable is provided.
     if 'var' in params['var']:
         if params['var']['json']:
             params['string'] = json.loads(params['string'])
@@ -75,9 +75,10 @@ def assign(params):
     return params
 
 def attribute(params):
-    """Create rule out of attributes"""
+    """Create rule out of attributes."""
     var = params['rules'][params['tree']['rule']]['var'].copy()
     params['var'] = var['var'].copy()
+    # Decide where to get the attributes from.
     if 'onesided' in var and var['onesided']:
         string = params['string']
     elif 'create' in params['tree']:
@@ -86,6 +87,7 @@ def attribute(params):
         return params
     quote = ''
     smallest = False
+    # Decide which quote string to use based on which occurs first.
     for value in var['quote']:
         haystack = string
         needle = value
@@ -97,21 +99,21 @@ def attribute(params):
             quote = value
             smallest = position
     if quote:
-        # Define the variables
+        # Split up the string by quotes.
         split = string.split(quote)
         del split[-1]
         for key, value in enumerate(split):
-            # If this is the first iteration of the pair
+            # If this is the opening quote.
             if key % 2 == 0:
                 name = value.strip()
                 syntax = (name[len(name) - len(var['equal'])] == var['equal'])
                 name = name[0:len(name) - len(var['equal'])]
-                # If the syntax is not valid or variable is whitelisted or
-                # blacklisted, do not prepare to define the variable
+                # If the syntax is not valid or the variable is not whitelisted
+                # or blacklisted, do not prepare to define the variable.
                 if not syntax or not listing(name, var):
                     name = ''
             elif name:
-                # Define the variable
+                # Define the variable.
                 config = params['config'].copy()
                 config['log'] = var['log']
                 params['var'][name] = suit.execute(
@@ -122,7 +124,7 @@ def attribute(params):
     return params
 
 def bracket(params):
-    """Handle brackets unrelated to the rules"""
+    """Handle brackets unrelated to the rules."""
     params['string'] = ''.join((
         params['tree']['rule'],
         params['string'],
@@ -131,8 +133,8 @@ def bracket(params):
     return params
 
 def condition(params):
-    """Show the case if necessary"""
-    # Do not show if no condition provided
+    """Show the string if necessary."""
+    # Do not show if no condition provided.
     if not 'condition' in params['var']:
         return params
     var = getvariable(
@@ -140,7 +142,7 @@ def condition(params):
         params['var']['delimiter'],
         params['var']['owner']
     )
-    # Show the case if necessary
+    # Show the string if the condition is true.
     if (
         (
             var and
@@ -155,30 +157,30 @@ def condition(params):
     return params
 
 def copyvar(params):
-    """Copy the rule's variable from the tree"""
+    """Copy the rule's variable from the tree."""
     params['var'] = params['rules'][params['tree']['rule']]['var'].copy()
     return params
 
 def decode(params):
-    """Decode a JSON String"""
+    """Decode a JSON String."""
     params['var'] = params['var'].copy()
     for value in params['var']['decode']:
         params['var'][value] = json.loads(params['var'][value])
     return params
 
 def entities(params):
-    """Convert HTML characters to their respective entities"""
+    """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
         params['string'] = cgi.escape(str(params['string']), True)
     return params
 
 def evaluation(params):
-    """Evaluate a Python statement"""
+    """Evaluate a Python statement."""
     params['string'] = eval(params['string'])
     return params
 
 def execute(params):
-    """Execute the case"""
+    """Execute the string using the same rules used in this template."""
     config = params['config'].copy()
     config['log'] = params['var']['log']
     params['string'] = suit.execute(
@@ -189,12 +191,14 @@ def execute(params):
     return params
 
 def functions(params):
-    """Perform a function call"""
-    params['string'] = ''
-    if 'string' in params['var']:
-        params['string'] = params['var']['string']
+    """Perform a function call."""
+    # If the node using this is one sided, make the string empty by default.
+    if 'onesided' in params['var'] and params['var']['onesided']:
+        params['string'] = ''
+    # If a function was provided.
     if params['var']['function'] and params['var']['owner']:
         kwargs = params['var'].copy()
+        # Remove the parameters that shouldn't be used in the call.
         del kwargs['function']
         del kwargs['owner']
         for key, value in kwargs.items():
@@ -218,7 +222,7 @@ def functions(params):
     return params
 
 def getvariable(string, delimiter, owner):
-    """Get variable based on split"""
+    """Get a variable based on a split string."""
     for value in string.split(delimiter):
         try:
             owner = owner[value]
@@ -230,7 +234,7 @@ def getvariable(string, delimiter, owner):
     return owner
 
 def iterate(iterable):
-    """Iterate over any object"""
+    """Iterate over any object."""
     if hasattr(iterable, 'items'):
         iterations = iterable.items()
     else:
@@ -248,8 +252,7 @@ def iterate(iterable):
     return iterations
 
 def listing(name, var):
-    """Check if the variable is whitelisted or blacklisted"""
-    # If the variable is whitelisted or blacklisted
+    """Check if the variable is whitelisted or blacklisted."""
     return not(
         'list' in var and
         (
@@ -269,7 +272,8 @@ def listing(name, var):
     )
 
 def loadlocal(params):
-    """Load the variables set before this section"""
+    """Reset the variables set before this section."""
+    # Set the variables.
     for key, value in params['var']['local'].items():
         if hasattr(params['var']['owner'], 'items'):
             params['var']['owner'][key] = value
@@ -282,6 +286,7 @@ def loadlocal(params):
                     key,
                     value
                 )
+    # Remove the variables set after this section.
     if hasattr(params['var']['owner'], 'items'):
         for key, value in params['var']['owner'].items():
             if not key in params['var']['local']:
@@ -303,8 +308,8 @@ def loadlocal(params):
     return params
 
 def loop(params):
-    """Loop a string with different variables"""
-    # Do not loop if no iterable provided
+    """Loop a string with different variables."""
+    # Do not loop if no iterable provided.
     if not 'iterable' in params['var']:
         return params
     var = getvariable(
@@ -312,11 +317,14 @@ def loop(params):
         params['var']['delimiter'],
         params['var']['owner']
     )
+    # Remove the rule from the tree.
     params['tree'] = {
+        'closed': True,
         'contents': params['tree']['contents']
     }
     iterations = []
     for key, value in iterate(var):
+        # Set the key variable if provided.
         if 'key' in params['var']:
             setvariable(
                 params['var']['key'],
@@ -324,6 +332,7 @@ def loop(params):
                 key,
                 params['var']['owner']
             )
+        # Set the value variable if provided.
         if 'value' in params['var']:
             setvariable(
                 params['var']['value'],
@@ -331,36 +340,40 @@ def loop(params):
                 value,
                 params['var']['owner']
             )
-        # Walk for this iteration
+        # Walk for this iteration.
         iterations.append(walk(params)['string'])
-    # Implode the iterations
+    # Implode the iterations.
     params['string'] = params['var']['implode'].join(iterations)
     return params
 
 def returning(params):
-    """Prepare to return from this point on"""
+    """Prepare to return from this point on."""
     params['string'] = ''
+    # If no more layers should be returned out of, don't.
     if not params['var']['layers']:
         return params
+    # Decrement the amount of layers to return out of if a limit was defined.
     if isinstance(params['var']['layers'], int):
         params['var']['layers'] -= 1
+    # Delete every node after this one.
     for value in enumerate(params['tree']['parent']['contents']):
         if value[0] > params['tree']['key']:
             del params['tree']['parent']['contents'][value[0]]
+    # If this node was nested, attempt to return out of its parent.
     if params['var']['layers'] and 'parent' in params['tree']['parent']:
         params['tree']['parent'] = params['tree']['parent']['parent']
         params = returning(params)
     return params
 
 def savelocal(params):
-    """Save the variables set before this section"""
+    """Save the variables set before this section."""
     params['var']['local'] = {}
     for key, value in iterate(params['var']['owner']):
         params['var']['local'][key] = copy.deepcopy(value)
     return params
 
 def setvariable(string, split, assignment, owner):
-    """Set a variable based on split"""
+    """Set a variable based on a split string."""
     split = string.split(split)
     for key, value in enumerate(split):
         if key < len(split) - 1:
@@ -380,8 +393,8 @@ def setvariable(string, split, assignment, owner):
             setattr(owner, split[len(split) - 1], assignment)
 
 def templates(params):
-    """Grab a template from a file"""
-    # If the template is not whitelisted or blacklisted
+    """Grab a template from a file."""
+    # If the template is not whitelisted or blacklisted.
     if listing(params['string'], params['var']):
         params['string'] = open(
             os.path.normpath(params['string'])
@@ -391,12 +404,12 @@ def templates(params):
     return params
 
 def transform(params):
-    """Send case as argument for functions"""
+    """Send string as argument for functions."""
     params['var']['string'] = params['string']
     return params
 
 def trim(params):
-    """Trim unnecessary whitespace"""
+    """Trim unnecessary whitespace."""
     rules = {
         '<pre':
         {
@@ -418,12 +431,15 @@ def trim(params):
     )['contents']
     params['string'] = ''
     for value in tree:
+        # If this node is a tag we do not want to trim the contents of, put
+        # the statement back.
         if isinstance(value, dict):
             params['string'] += ''.join((
                 value['rule'],
                 value['contents'][0],
                 rules[value['rule']]['close']
             ))
+        # Else, trim it.
         else:
             params['string'] += ''.join((
                 re.sub(
@@ -436,21 +452,24 @@ def trim(params):
                     len(value)
                 ]
             ))
+    # Remove the whitespace preceding the string.
     params['string'] = params['string'].lstrip()
     return params
 
 def trying(params):
-    """Try and use exceptions on parsing"""
+    """Try and use exceptions on executing."""
     if params['var']['var']:
         setattr(suit, params['var']['var'], '')
+    # Try to walk through this node.
     try:
         params['string'] = suit.walk(
             params['rules'],
             params['tree'],
             params['config']
         )
+    # Catch all exceptions.
     except Exception, inst:
-        # If a variable is provided
+        # If a variable is provided.
         if 'var' in params['var']:
             setvariable(
                 params['var']['var'],
@@ -458,11 +477,12 @@ def trying(params):
                 inst,
                 params['var']['owner']
             )
+        # Collapse the node.
         params['string'] = ''
     return params
 
 def variables(params):
-    """Parse variables"""
+    """Grab a variable."""
     params['string'] = getvariable(
         params['string'],
         params['var']['delimiter'],
@@ -476,6 +496,7 @@ def variables(params):
     return params
 
 def walk(params):
+    """Walk through this node."""
     params['string'] = suit.walk(
         params['rules'],
         params['tree'],
