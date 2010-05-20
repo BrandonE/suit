@@ -34,6 +34,7 @@
                 <th>[gettext]Key[/gettext]</th>
                 <th>[gettext]Description[/gettext]</th>
             </tr>
+        </thead>
         <tbody>
             <tr>
                 <td>bounds</td>
@@ -45,6 +46,7 @@
                                 <th>[gettext]Key[/gettext]</th>
                                 <th>[gettext]Description[/gettext]</th>
                             </tr>
+                        </thead>
                         <tbody>
                             <tr>
                                 <td>start</td>

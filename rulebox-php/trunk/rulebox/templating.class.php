@@ -328,7 +328,7 @@ class Templating
                     'var' => array
                     (
                         'delimiter' => $this->default['delimiter'],
-                        'implode' => '',
+                        'join' => '',
                         'owner' => $this->default['owner']
                     )
                 )
@@ -883,8 +883,8 @@ class Templating
             $result = $this->walk($params);
             $iterations[] = $result['string'];
         }
-        // Implode the iterations.
-        $params['string'] = implode($params['var']['implode'], $iterations);
+        // Join the iterations.
+        $params['string'] = implode($params['var']['join'], $iterations);
         return $params;
     }
 

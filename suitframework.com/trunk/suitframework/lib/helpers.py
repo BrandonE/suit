@@ -122,19 +122,33 @@ def docs():
             'url': 'helperfunctions'
         },
         {
-            'articles': [],
+            'articles':
+            [
+                {
+                    'title': 'var',
+                    'url': 'var'
+                },
+                {
+                    'title': 'if',
+                    'url': 'if'
+                },
+                {
+                    'title': 'loop',
+                    'url': 'loop'
+                }
+            ],
             'title': 'Templating Rules',
             'url': 'templatingrules'
         },
         {
             'articles': [],
-            'title': 'BBCode Rules',
-            'url': 'bbcoderules'
+            'title': 'SUITlons Rules',
+            'url': 'suitlonsrules'
         },
         {
             'articles': [],
-            'title': 'SUITlons Rules',
-            'url': 'suitlonsrules'
+            'title': 'BBCode Rules',
+            'url': 'bbcoderules'
         },
         {
             'articles': [],

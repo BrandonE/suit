@@ -112,7 +112,7 @@ class SUIT
                     'contents' => array(),
                     // Store the contents inside of the original rule.
                     'create' => $append,
-                    // Store the entire rule.
+                    // Store the entire rule statement.
                     'createrule' => $pop['rule'] . $append . $rule['close'],
                     'rule' => $create
                 );

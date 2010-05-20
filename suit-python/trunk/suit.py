@@ -114,7 +114,7 @@ def close(rules, append, pop, tree):
                 'contents': [],
                 # Store the contents inside of the original rule.
                 'create': append,
-                # Store the entire rule.
+                # Store the entire rule statement.
                 'createrule': ''.join((
                     pop['rule'],
                     append,

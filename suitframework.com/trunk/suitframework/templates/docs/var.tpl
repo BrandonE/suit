@@ -4,24 +4,22 @@
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-    \[var ( entities="bool" json="bool" )\]var\[/var]
+    [gettext][skip][var ( entities="bool" json="bool" )]var[/var][/skip][/gettext]
 </fieldset>
 
 <fieldset>
     <legend><a id="parameters" href="#parameters">[gettext]Parameters[/gettext]</a></legend>
     <fieldset>
         <legend><a id="var" href="#var">var</a></legend>
-        <p>The name of the variable to grab.[/gettext]</p>
+        <p>[gettext]The name of the variable to grab.[/gettext]</p>
     </fieldset>
     <fieldset>
         <legend><a id="entities" href="#entities">entities</a></legend>
-        <p>[gettext]Whether or not the output should have the HTML entities transformed. (Optional. Default: true)[/gettext]</p>
+        <p>[gettext]Whether or not the output should have the HTML entities transformed. (Default: true)[/gettext]</p>
     </fieldset>
     <fieldset>
         <legend><a id="json" href="#json">json</a></legend>
-        <p>
-            [gettext]Whether or not the variable should be JSON encoded. (Optional. Default: false)[/gettext]
-        </p>
+        <p>[gettext]Whether or not the variable should be JSON encoded. (Default: false)[/gettext]</p>
     </fieldset>
 </fieldset>
 

@@ -32,7 +32,7 @@
 <fieldset>
     <legend><a id="returnvalue" href="#returnvalue">[gettext]Return Value[/gettext]</a></legend>
     <p>
-[transform function="pygments" lexer="javascript"]{
+[transform function="pygments" lexer="javascript"][skip]{
     "closed": true // Shown if this node has been closed.
     "contents":
     [
@@ -41,12 +41,12 @@
             "closed": true
             "contents": ["etc."],
             "create": " condition=\"var\"", // The contents of the create rule if applicable.
-            "createrule": "\[if condition=\"var\"\]", // The whole create rule statement if applicable.
-            "rule": "\[if]" // The type of rule
+            "createrule": "[if condition=\"var\"]", // The whole create rule statement if applicable.
+            "rule": "[if]" // The type of rule
         },
         // etc.
     ], // This node's branches.
-}[/transform]
+}[/skip][/transform]
     </p>
     </table>
 </fieldset>

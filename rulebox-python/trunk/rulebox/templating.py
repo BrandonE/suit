@@ -342,8 +342,8 @@ def loop(params):
             )
         # Walk for this iteration.
         iterations.append(walk(params)['string'])
-    # Implode the iterations.
-    params['string'] = params['var']['implode'].join(iterations)
+    # Join the iterations.
+    params['string'] = params['var']['join'].join(iterations)
     return params
 
 def returning(params):
@@ -647,7 +647,7 @@ rules = {
             'var':
             {
                 'delimiter': default['delimiter'],
-                'implode': '',
+                'join': '',
                 'owner': default['owner']
             }
         }
