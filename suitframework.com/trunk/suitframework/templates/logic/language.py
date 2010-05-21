@@ -1,1 +1,0 @@
-from pylons import tmpl_context as cfrom pylons.i18n import get_lang, set_langc.loop['languages'] = [    {        'id': 'en',        'title': 'English',        'selected': (get_lang() == 'en')    }]

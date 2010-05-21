@@ -60,6 +60,21 @@
             [transform function="pygments" lexer="python"][c entities="false"]python[/c][/transform]
         </fieldset>
         [/if]
+        [if condition="templates"]
+        [loop key="key" value="value" iterable="templates"]
+        <fieldset[if condition="condition.first" not="true"] class="noscript"[/if] id="template[c]key[/c]">
+            [if condition="condition.templates"]
+            <legend class="yesscript" style="display: none"><a href="#null" onclick="toggle([c json="true"]key[/c])">[gettext][c]value.base[/c] - Click to toggle[/gettext]</a></legend>
+            <legend class="noscript">[gettext][c]value.base[/c][/gettext]</legend>
+            [/if]
+            [if condition="condition.templates" not="true"]
+            <legend>[gettext][c]value.base[/c][/gettext]
+            [/if]
+            [transform function="pygments" lexer="html"][template][c]value.path[/c][/template][/transform]
+        </fieldset>
+        [assign json="true" var="condition.first"]false[/assign]
+        [/loop]
+        [/if]
 [/trim]
         [/if]
 [trim]

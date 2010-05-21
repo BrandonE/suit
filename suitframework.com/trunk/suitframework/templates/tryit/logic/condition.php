@@ -1,3 +1,0 @@
-<?php
-$suit->installed = true;
-?>

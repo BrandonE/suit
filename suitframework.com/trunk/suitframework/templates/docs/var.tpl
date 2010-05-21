@@ -24,14 +24,37 @@
 </fieldset>
 
 <fieldset>
+    <legend><a id="staticvariables" href="#staticvariables">[gettext]Static Variables[/gettext]</a></legend>
+    <fieldset>
+        <legend><a id="decode" href="#decode">decode</a></legend>
+        <p>[gettext]The variables to be JSON decoded. (Default: ["entities", "json"])[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="delimiter" href="#delimiter">delimiter</a></legend>
+        <p>[gettext]The string that separates the levels of the variable. (Default: ".")[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="owner" href="#owner">owner</a></legend>
+        <p>[gettext]The object to grab the variable from. (Default: templating.var)[/gettext]</p>
+    </fieldset>
+</fieldset>
+
+<fieldset>
     <legend><a id="output" href="#output">[gettext]Output[/gettext]</a></legend>
     <p>[gettext]The variable.[/gettext]</p>
-    </table>
+</fieldset>
+
+<fieldset>
+    <legend><a id="confignotes" href="#confignotes">[gettext]Config Notes[/gettext]</a></legend>
+    <ul>
+        <li>[gettext]Uses the default <a href="[url controller="root" action="template" templatefile="docs" parameter1="attributes" /]#config">Attribute Config</a>.[/gettext]</li>
+    </ul>
 </fieldset>
 
 <fieldset>
     <legend><a id="seealso" href="#seealso">[gettext]See Also[/gettext]</a></legend>
         <ul>
-            <li><a href="[url controller="root" action="template" templatefile="tryit" parameter1="templating" parameter2="var" /]">[gettext]Try It.[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="tryit" parameter1="templating" parameter2="var" /]">[gettext]Try It[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="attributes" /]">[gettext]Attributes[/gettext]</a></li>
         </ul>
 </fieldset>

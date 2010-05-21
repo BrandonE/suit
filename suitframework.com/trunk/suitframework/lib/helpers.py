@@ -64,6 +64,10 @@ def docs():
                     'url': 'rulesvsfunctions'
                 },
                 {
+                    'title': 'Attributes',
+                    'url': 'attributes'
+                },
+                {
                     'title': 'Escaping',
                     'url': 'gettingstarted'
                 },
@@ -135,6 +139,10 @@ def docs():
                 {
                     'title': 'loop',
                     'url': 'loop'
+                },
+                {
+                    'title': 'template',
+                    'url': 'template'
                 }
             ],
             'title': 'Templating Rules',
@@ -356,7 +364,9 @@ def tryit():
         rules = templating.rules.copy()
         rules['[template]'] = rules['[template]'].copy()
         rules['[template]']['var'] = rules['[template]']['var'].copy()
-        rules['[template]']['var']['list'] = []
+        rules['[template]']['var']['list'] = whitelist(
+            'suitframework/templates'
+        )
         c.rule = 'Templating'
     elif c.parameter1 == 'suitlons':
         from rulebox import suitlons
@@ -408,8 +418,10 @@ def tryit():
     c.executed = c.template
     c.php = ''
     c.python = ''
+    c.templates = []
     c.condition.php = False
     c.condition.python = False
+    c.condition.first = True
     try:
         python = os.path.join(
             config['suit.templates'],
@@ -431,9 +443,34 @@ def tryit():
         c.condition.php = True
     except (IOError, TypeError):
         pass
+    if c.parameter2:
+        for value in glob(
+            os.path.join(
+                config['suit.templates'],
+                'tryit',
+                'templates',
+                c.parameter2,
+                '*'
+            )
+        ):
+            c.templates.append({
+                'path': value,
+                'base': os.path.basename(value)
+            })
+    c.condition.templates = len(c.templates)
     if c.executeconfig['entities']:
         c.executed = escape(c.executed, True)
     if c.executeconfig['linebreak']:
         c.executed = c.executed.replace('\n', '<br />\n')
     c.executed = suit.execute(rules, c.executed, c.executeconfig)
     return ''
+
+def whitelist(dir):
+    filenames = []
+    for value in glob(dir + '/*'):
+        if os.path.isdir(value):
+            filenames.extend(whitelist(value))
+        else:
+            filenames.append(os.path.relpath(value))
+            filenames.append(os.path.abspath(value))
+    return filenames
