@@ -143,6 +143,14 @@ def docs():
                 {
                     'title': 'template',
                     'url': 'template'
+                },
+                {
+                    'title': 'execute (Templating Rule)',
+                    'url': 'executetemplatingrule'
+                },
+                {
+                    'title': 'assign',
+                    'url': 'assign'
                 }
             ],
             'title': 'Templating Rules',

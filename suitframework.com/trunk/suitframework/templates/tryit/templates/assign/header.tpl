@@ -1,0 +1,1 @@
+<h1>[var]title[/var]</h1>

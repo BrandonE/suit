@@ -781,10 +781,23 @@ class Templating
         return $params;
     }
 
-    public function getvariable($string, $delimiter, $owner)
+    public function getvariable($string, $split, $owner)
     {
-        // Get a variable based on a split string.
-        foreach (explode($delimiter, $string) as $value)
+        /*
+        Get a variable based on a split string.
+
+        ``string``
+            The name of the variable to grab.
+
+        ``split``
+            The string that separates the levels of the variable.
+
+        ``owner``
+            The object to grab the variable from.
+
+        Returns: The variable.
+        */
+        foreach (explode($split, $string) as $value)
         {
             if (is_array($owner))
             {
@@ -800,7 +813,17 @@ class Templating
 
     public function listing($name, $var)
     {
-        // Check if the variable is whitelisted or blacklisted.
+        /*
+        Check if the variable is whitelisted or blacklisted.
+
+        ``name``
+            The name of the variable to check.
+
+        ``var``
+            A dict containing the `list` and `blacklist` keys if applicable.
+
+        Returns: Whether or not the variable can be used.
+        */
         return (
             !(
                 array_key_exists('list', $var) &&
@@ -933,7 +956,23 @@ class Templating
 
     public function setvariable($string, $split, $assignment, &$owner)
     {
-        // Set a variable based on a split string.
+        /*
+        Set a variable based on a split string.
+
+        ``string``
+            The name of the variable to set.
+
+        ``split``
+            The string that separates the levels of the variable.
+
+        ``assignment``
+            The value to assign to the variable.
+
+        ``owner``
+            The object to set the variable on.
+
+        Returns: Nothing.
+        */
         $split = explode($split, $string);
         foreach ($split as $key => $value)
         {

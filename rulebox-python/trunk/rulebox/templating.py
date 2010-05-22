@@ -221,9 +221,21 @@ def functions(params):
         params['string'] = params['var']['function'](**kwargs)
     return params
 
-def getvariable(string, delimiter, owner):
-    """Get a variable based on a split string."""
-    for value in string.split(delimiter):
+def getvariable(string, split, owner):
+    """Get a variable based on a split string.
+
+    ``string``
+        The name of the variable to grab.
+
+    ``split``
+        The string that separates the levels of the variable.
+
+    ``owner``
+        The object to grab the variable from.
+
+    Returns: The variable.
+    """
+    for value in string.split(split):
         try:
             owner = owner[value]
         except (AttributeError, TypeError):
@@ -234,7 +246,13 @@ def getvariable(string, delimiter, owner):
     return owner
 
 def iterate(iterable):
-    """Iterate over any object."""
+    """Iterate over any object.
+
+    ``iterable``
+        The object to iterate over.
+
+    Returns: The items in key, value format.
+    """
     if hasattr(iterable, 'items'):
         iterations = iterable.items()
     else:
@@ -252,8 +270,17 @@ def iterate(iterable):
     return iterations
 
 def listing(name, var):
-    """Check if the variable is whitelisted or blacklisted."""
-    return not(
+    """Check if the variable is whitelisted or blacklisted.
+
+    ``name``
+        The name of the variable to check.
+
+    ``var``
+        A dict containing the `list` and `blacklist` keys if applicable.
+
+    Returns: Whether or not the variable can be used.
+    """
+    return not (
         'list' in var and
         (
             (
@@ -373,7 +400,22 @@ def savelocal(params):
     return params
 
 def setvariable(string, split, assignment, owner):
-    """Set a variable based on a split string."""
+    """Set a variable based on a split string.
+
+    ``string``
+        The name of the variable to set.
+
+    ``split``
+        The string that separates the levels of the variable.
+
+    ``assignment``
+        The value to assign to the variable.
+
+    ``owner``
+        The object to set the variable on.
+
+    Returns: Nothing.
+    """
     split = string.split(split)
     for key, value in enumerate(split):
         if key < len(split) - 1:
