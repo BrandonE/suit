@@ -1,5 +1,5 @@
 [if condition="loggedin"]
-<p>Welcome!</p>
+<p>Welcome, [var]username[/var]!</p>
 [/if]
 [if condition="loggedin" not="true"]
 <p>Please log in.</p>

@@ -1,10 +1,15 @@
-[execute][template]suitframework/templates/tryit/templates/execute/header.tpl[/template][/execute]
+[assign var="title"]Examples[/assign]
+[execute][template]suitframework/templates/tryit/templates/assign/header.tpl[/template][/execute]
 [if condition="loggedin"]
 <p>Welcome, [var]username[/var]!</p>
 [/if]
 [if condition="loggedin" not="true"]
 <p>Please log in.</p>
 [/if]
+<fieldset>
+    <legend>My File</legend>
+    <pre>[entities]<p>Welcome, John Doe!</p>[/entities]</pre>
+</fieldset>
 <fieldset>
     <legend>Who's Online?</legend>
     <p>
@@ -17,4 +22,4 @@
         [/loop]
     </p>
 </fieldset>
-[execute][template]suitframework/templates/tryit/templates/execute/footer.tpl[/template][/execute]
+[execute][template]suitframework/templates/tryit/templates/assign/footer.tpl[/template][/execute]

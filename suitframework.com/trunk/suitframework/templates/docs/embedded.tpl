@@ -6,12 +6,14 @@ $members = array
     array
     (
         'name' => 'Brandon',
-        'group' => 'Administrator'
+        'admin' => true,
+        'banned' => false
     ),
     array
     (
         'name' => 'Chris',
-        'group' => 'Banned'
+        'admin' => false,
+        'banned' => true
     )
 );
 ?>
@@ -54,25 +56,43 @@ else:
 <?php
 endif;
 ?>
-<table width="100%" border="1">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Group</th>
-        </tr>
-    </thead>
-    <tbody>
+<fieldset>
+    <legend>Who's Online?</legend>
+    <p>
 <?php
-foreach ($members as $value):
+foreach ($members as $key => $value):
+    if ($value['admin']):
 ?>
-        <tr>
-            <td><?php echo $value['name'] ?></td>
-            <td><?php echo $value['group'] ?></td>
-        </tr>
+            <strong>
 <?php
+    endif;
+    if ($value['banned']):
+?>
+            <del>
+<?php
+    endif;
+?>
+            <?php echo $value['name']; ?>
+
+<?
+    if ($value['admin']):
+?>
+            </strong>
+<?php
+    endif;
+    if ($value['banned']):
+?>
+            </del>
+<?php
+    endif;
+    if ($key != count($members) - 1):
+?>
+            ,
+<?php
+    endif;
 endforeach;
 ?>
-    </tbody>
-</table>
+    </p>
+</fieldset>
 </body>
 </html>

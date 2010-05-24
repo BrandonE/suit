@@ -56,6 +56,10 @@ def docs():
                     'url': 'features'
                 },
                 {
+                    'title': 'Reading Docs',
+                    'url': 'readingdocs'
+                },
+                {
                     'title': 'Rules',
                     'url': 'rules'
                 },
@@ -141,6 +145,10 @@ def docs():
                     'url': 'loop'
                 },
                 {
+                    'title': 'comment',
+                    'url': 'comment'
+                },
+                {
                     'title': 'template',
                     'url': 'template'
                 },
@@ -151,6 +159,14 @@ def docs():
                 {
                     'title': 'assign',
                     'url': 'assign'
+                },
+                {
+                    'title': 'entities',
+                    'url': 'entities'
+                },
+                {
+                    'title': 'skip',
+                    'url': 'skip'
                 }
             ],
             'title': 'Templating Rules',

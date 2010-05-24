@@ -14,24 +14,20 @@
 </p>
 [/if]
 [if condition="loggedin" not="true"]
-<p>Please log in.</p>
+<p>Please log in.</p>'
 [/if]
-<table width="100%" border="1">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Group</th>
-        </tr>
-    </thead>
-    <tbody>
-        [loop value="value" iterable="members"]
-        <tr>
-            <td>[var]value.name[/var]</td>
-            <td>[var]value.group[/var]</td>
-        </tr>
+<fieldset>
+    <legend>Who's Online?</legend>
+    <p>
+        [loop value="value" iterable="members" join=","]
+        [if condition="value.admin"]<strong>[/if]
+        [if condition="value.banned"]<del>[/if]
+        [var]value.name[/var]
+        [if condition="value.admin"]</strong>[/if]
+        [if condition="value.banned"]</del>[/if]
         [/loop]
-    </tbody>
-</table>
+    </p>
+</fieldset>
 </body>
 </html>
 [/trim]

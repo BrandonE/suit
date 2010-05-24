@@ -6,15 +6,16 @@ $members = array
     array
     (
         'name' => 'Brandon',
-        'group' => 'Administrator'
+        'admin' => true,
+        'banned' => false
     ),
     array
     (
         'name' => 'Chris',
-        'group' => 'Banned'
+        'admin' => false,
+        'banned' => true
     )
 );
-
 echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -34,27 +35,42 @@ else
     echo '
 <p>Please log in.</p>';
 }
-
 echo '
-<table width="100%" border="1">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Group</th>
-        </tr>
-    </thead>
-    <tbody>';
-foreach ($members as $value)
+<fieldset>
+    <legend>Who\'s Online?</legend>
+    <p>';
+foreach ($members as $key => $value)
 {
+    if ($value['admin'])
+    {
+        echo '
+        <strong>';
+    }
+    if ($value['banned'])
+    {
+        echo '
+        <del>';
+    }
     echo '
-        <tr>
-            <td>' . $value['name'] . '</td>
-            <td>' . $value['group'] . '</td>
-        </tr>';
+        ' . $value['name'];
+    if ($value['admin'])
+    {
+        echo '
+        </strong>';
+    }
+    if ($value['banned'])
+    {
+        echo '
+        </del>';
+    }
+    if ($key != count($members) - 1)
+    {
+        echo ',';
+    }
 }
 echo '
-    </tbody>
-</table>
+    </p>
+</fieldset>
 </body>
 </html>';
 ?>
