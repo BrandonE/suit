@@ -14,6 +14,7 @@ from glob import glob
 from pylons import config, request, response, tmpl_context as c, url
 from pylons.controllers.util import redirect
 from pylons.i18n import get_lang, set_lang, ugettext as _gettext
+from suitframework.lib import helperstry
 import suit
 from rulebox import templating
 import urllib
@@ -167,6 +168,14 @@ def docs():
                 {
                     'title': 'skip',
                     'url': 'skip'
+                },
+                {
+                    'title': 'call',
+                    'url': 'call'
+                },
+                {
+                    'title': 'transform',
+                    'url': 'transform'
                 }
             ],
             'title': 'Templating Rules',
@@ -391,10 +400,18 @@ def tryit():
         rules['[template]']['var']['list'] = whitelist(
             'suitframework/templates'
         )
+        rules['[call'] = rules['[call'].copy()
+        rules['[call']['var'] = rules['[call']['var'].copy()
+        rules['[call']['var']['var'] = rules['[call']['var']['var'].copy()
+        rules['[call']['var']['var']['owner'] = helperstry
         c.rule = 'Templating'
     elif c.parameter1 == 'suitlons':
         from rulebox import suitlons
         rules = suitlons.rules.copy()
+        rules['[call'] = rules['[call'].copy()
+        rules['[call']['var'] = rules['[call']['var'].copy()
+        rules['[call']['var']['var'] = rules['[call']['var']['var'].copy()
+        rules['[call']['var']['var']['owner'] = helperstry
         c.rule = 'SUITlons'
     elif c.parameter1 == 'bbcode':
         from rulebox import bbcode

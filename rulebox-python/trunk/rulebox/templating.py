@@ -446,7 +446,7 @@ def templates(params):
     return params
 
 def transform(params):
-    """Send string as argument for functions."""
+    """Send string as an argument for functions."""
     params['var']['string'] = params['string']
     return params
 

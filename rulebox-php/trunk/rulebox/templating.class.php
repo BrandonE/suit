@@ -148,7 +148,10 @@ class Templating
                     'log' => $this->default['log'],
                     'onesided' => true,
                     'quote' => $this->default['quote'],
-                    'var' => array()
+                    array
+                    (
+                        'function' => ''
+                    )
                 )
             ),
             '[comment]' => array
@@ -448,7 +451,11 @@ class Templating
                     'equal' => $this->default['equal'],
                     'log' => $this->default['log'],
                     'quote' => $this->default['quote'],
-                    'var' => array()
+                    'var' => array
+                    (
+                        'function' => '',
+                        'string' => ''
+                    )
                 )
             ),
             '[transform' => array
@@ -1015,7 +1022,7 @@ class Templating
 
     public function transform($params)
     {
-        // Send string as argument for functions.
+        // Send string as an argument for functions.
         $params['var']['string'] = $params['string'];
         return $params;
     }

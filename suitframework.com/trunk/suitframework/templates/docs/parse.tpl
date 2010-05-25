@@ -44,8 +44,8 @@
             "createrule": "[if condition=\"var\"]", // The whole create rule statement if applicable.
             "rule": "[if]" // The type of rule
         },
-        // etc.
-    ], // This node's branches.
+        "etc."
+    ] // This node's branches.
 }[/skip][/transform]
     </p>
     </table>
