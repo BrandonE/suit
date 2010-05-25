@@ -377,7 +377,7 @@ def parse(rules, pos, string, config = None):
                     'rule': '[if]' # The type of rule
                 },
                 ...
-            ], # This node's branches.
+            ] # This node's branches.
         }
     """
     config = defaultconfig(config)

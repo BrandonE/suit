@@ -176,6 +176,22 @@ def docs():
                 {
                     'title': 'transform',
                     'url': 'transform'
+                },
+                {
+                    'title': 'local',
+                    'url': 'local'
+                },
+                {
+                    'title': 'try',
+                    'url': 'try'
+                },
+                {
+                    'title': 'return',
+                    'url': 'return'
+                },
+                {
+                    'title': 'trim',
+                    'url': 'trim'
                 }
             ],
             'title': 'Templating Rules',
@@ -399,6 +415,9 @@ def tryit():
         rules['[template]']['var'] = rules['[template]']['var'].copy()
         rules['[template]']['var']['list'] = whitelist(
             'suitframework/templates'
+        )
+        rules['[template]']['var']['list'].append(
+            'suitframework/templates/tryit/templates/try/file.tpl'
         )
         rules['[call'] = rules['[call'].copy()
         rules['[call']['var'] = rules['[call']['var'].copy()

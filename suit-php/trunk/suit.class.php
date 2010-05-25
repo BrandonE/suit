@@ -416,7 +416,7 @@ class SUIT
                         'rule' => '[if]' // The type of rule
                     ),
                     ...
-                ), // This node's branches.
+                ) // This node's branches.
             )
         */
         $config = $this->defaultconfig($config);

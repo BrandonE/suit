@@ -1,5 +1,5 @@
 [assign var="title"]Examples[/assign]
-[execute][template]suitframework/templates/tryit/templates/local/header.tpl[/template][/execute]
+[execute][template]suitframework/templates/tryit/templates/return/header.tpl[/template][/execute]
 [if condition="loggedin"]
 <p>Welcome, [var]username[/var]! The current time is: [call function="currenttime" /]</p>
 [/if]
@@ -10,6 +10,20 @@
     <legend>My File</legend>
     [transform function="pygments" lexer="html"][skip]<p>Welcome, [var]username[/var]!</p>[/skip][/transform]
 </fieldset>
+<fieldset>
+    <legend>My Other File</legend>
+    [comment]
+    As PHP exceptions aren't automatically thrown when an error occurs, this
+    particular example would always pass. The concept still applies.
+    [/comment]
+    [try var="exception"]
+    [transform function="pygments" lexer="html"][template]suitframework/templates/tryit/templates/try/file.tpl[/template][/transform]
+    [/try]
+</fieldset>
+[if condition="exception"]
+[var]exception[/var]
+[return /]
+[/if]
 <fieldset>
     <legend>Who's Online?</legend>
     <p>
@@ -26,4 +40,4 @@
         [comment]The "value" is no longer set.[/comment]
     </p>
 </fieldset>
-[execute][template]suitframework/templates/tryit/templates/local/footer.tpl[/template][/execute]
+[execute][template]suitframework/templates/tryit/templates/return/footer.tpl[/template][/execute]

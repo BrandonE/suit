@@ -932,14 +932,13 @@ class Templating
         {
             $params['var']['layers'] -= 1;
         }
-        $size = count($params['tree']['parent']['contents']);
         // Delete every node after this one.
-        for ($i = 0; $i < $size; $i++)
+        $limit = $params['tree']['key'] + 1;
+        $length = count($params['tree']['parent']['contents']);
+        while ($length > $limit)
         {
-            if ($i > $params['tree']['key'])
-            {
-                unset($params['tree']['parent']['contents'][$i]);
-            }
+            unset($params['tree']['parent']['contents'][$length]);
+            $length--;
         }
         // If this node was nested, attempt to return out of its parent.
         if ($params['var']['layers'] && array_key_exists('parent', $params['tree']['parent']))
@@ -1008,8 +1007,8 @@ class Templating
     public function templates($params)
     {
         // Grab a template from a file.
-        // If the variable is not whitelisted or blacklisted and the file exists
-        if ($this->listing($params['string'], $params['var']) && is_file($params['string']))
+        // If the variable is not whitelisted or blacklisted.
+        if ($this->listing($params['string'], $params['var']))
         {
             $params['string'] = file_get_contents(str_replace('../', '', str_replace('..\'', '', $params['string'])));
         }
@@ -1067,8 +1066,8 @@ class Templating
 
     public function trying($params)
     {
-        // Try and use exceptions on executing.
-        if ($params['var']['var'])
+        // Try to walk and handle exceptions.
+        if (array_key_exists('var', $params['var']) && $params['var']['var'])
         {
             $this->suit->$params['var']['var'] = '';
         }

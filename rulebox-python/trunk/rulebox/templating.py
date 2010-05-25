@@ -380,17 +380,35 @@ def returning(params):
     if not params['var']['layers']:
         return params
     # Decrement the amount of layers to return out of if a limit was defined.
-    if isinstance(params['var']['layers'], int):
+    if not isinstance(params['var']['layers'], bool):
         params['var']['layers'] -= 1
     # Delete every node after this one.
-    for value in enumerate(params['tree']['parent']['contents']):
-        if value[0] > params['tree']['key']:
-            del params['tree']['parent']['contents'][value[0]]
+    returningdelete(
+        params['tree']['parent']['contents'],
+        params['tree']['key'] + 1
+    )
     # If this node was nested, attempt to return out of its parent.
     if params['var']['layers'] and 'parent' in params['tree']['parent']:
         params['tree']['parent'] = params['tree']['parent']['parent']
         params = returning(params)
     return params
+
+def returningdelete(tree, limit = 0):
+    """
+    Delete a tree and all of its contents.
+    
+    ``tree``
+        The parse tree.
+
+    ``limit``
+        What the length of the tree should be limited to.
+
+    Returns: Nothing.
+    """
+    while len(tree) > limit:
+        if isinstance(tree[limit], dict):
+            returningdelete(tree[limit]['contents'])
+        del tree[limit]
 
 def savelocal(params):
     """Save the variables set before this section."""
@@ -499,8 +517,8 @@ def trim(params):
     return params
 
 def trying(params):
-    """Try and use exceptions on executing."""
-    if params['var']['var']:
+    """Try to walk and handle exceptions."""
+    if 'var' in params['var'] and params['var']['var']:
         setattr(suit, params['var']['var'], '')
     # Try to walk through this node.
     try:

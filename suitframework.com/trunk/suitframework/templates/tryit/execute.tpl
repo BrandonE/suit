@@ -8,6 +8,7 @@
 <fieldset>
     <legend>Who's Online?</legend>
     <p>
+        [comment]Generate a Who's Online list from a list of members.[/comment]
         [loop value="value" iterable="members" join=","]
         [if condition="value.admin"]<strong>[/if]
         [if condition="value.banned"]<del>[/if]

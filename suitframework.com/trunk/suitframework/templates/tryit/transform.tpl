@@ -1,10 +1,15 @@
-[template]suitframework/templates/tryit/templates/template/header.tpl[/template]
+[assign var="title"]Examples[/assign]
+[execute][template]suitframework/templates/tryit/templates/transform/header.tpl[/template][/execute]
 [if condition="loggedin"]
-<p>Welcome, [var]username[/var]!</p>
+<p>Welcome, [var]username[/var]! The current time is: [call function="currenttime" /]</p>
 [/if]
 [if condition="loggedin" not="true"]
 <p>Please log in.</p>
 [/if]
+<fieldset>
+    <legend>My File</legend>
+    [transform function="pygments" lexer="html"][skip]<p>Welcome, [var]username[/var]!</p>[/skip][/transform]
+</fieldset>
 <fieldset>
     <legend>Who's Online?</legend>
     <p>
@@ -18,4 +23,4 @@
         [/loop]
     </p>
 </fieldset>
-[template]suitframework/templates/tryit/templates/template/footer.tpl[/template]
+[execute][template]suitframework/templates/tryit/templates/transform/footer.tpl[/template][/execute]
