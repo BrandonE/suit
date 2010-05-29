@@ -406,6 +406,7 @@ def returningdelete(tree, limit = 0):
     Returns: Nothing.
     """
     while len(tree) > limit:
+        # If this item is a dict.
         if isinstance(tree[limit], dict):
             returningdelete(tree[limit]['contents'])
         del tree[limit]

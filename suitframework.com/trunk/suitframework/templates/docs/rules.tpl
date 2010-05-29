@@ -1,4 +1,9 @@
-<p>[gettext]Here is the structure of rules:[/gettext]</p>
+<a href="#intro" id="intro"><h3>[gettext]What is a Rule?[/gettext]</h3></a>
+
+<p>[gettext]A rule is used to tell SUIT how to transform a string. A collection of rules is called a <em>Ruleset</em>, and a Ruleset is used as a parameter in the <a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">execute</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">tokens</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">parse</a>, and <a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">walk</a> functions.[/gettext]</p>
+
+<p>[gettext]The syntax of a rule consists of an open and close string. Once these two strings are correctly matched, its contents are sent to user-defined functions which can transform them and return the final result. Rules can be nested and <a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">escaped</a>.[/gettext]</p>
+<a href="#rulestructure" id="rulestructure"><h3>[gettext]Rule Structure[/gettext]</h3></a>
 
 <table width="100%" border="1">
     <thead>
@@ -37,6 +42,8 @@
         </tr>
     </tbody>
 </table>
+
+<a href="#paramsstructure" id="paramsstructure"><h3>[gettext]Params Structure[/gettext]</h3></a>
 
 <p>[gettext]When SUIT calls the functions provided by the rules, it sends a dict containing parameters. Here is the structure of these params:[/gettext]</p>
 

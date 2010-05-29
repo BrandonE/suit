@@ -74,7 +74,7 @@ def docs():
                 },
                 {
                     'title': 'Escaping',
-                    'url': 'gettingstarted'
+                    'url': 'escaping'
                 },
                 {
                     'title': 'FAQ',
@@ -192,6 +192,10 @@ def docs():
                 {
                     'title': 'trim',
                     'url': 'trim'
+                },
+                {
+                    'title': 'bracket',
+                    'url': 'bracket'
                 }
             ],
             'title': 'Templating Rules',
@@ -241,9 +245,7 @@ def docs():
         c.loop.search = []
         for category in c.loop.articles:
             for article in category['articles']:
-                if os.path.basename(
-                    article['url']
-                ).find(c.parameter1.lower()) != -1:
+                if article['title'].lower().find(c.parameter1.lower()) != -1:
                     c.loop.search.append(article)
         c.condition.notfound = True
         c.condition.matches = (c.loop.search)
