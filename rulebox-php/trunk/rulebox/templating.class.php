@@ -708,7 +708,7 @@ class Templating
                 $var && !$params['var']['not']
             ) ||
             (
-                !$var && $params['var']['else']
+                !$var && $params['var']['not']
             )
         )
         {

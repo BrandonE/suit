@@ -43,6 +43,41 @@
     </tbody>
 </table>
 
+<p>[gettext]Here's an example ruleset containing one rule, lower, which will be used to translate a string to lowercase.[/gettext]</p>
+
+<fieldset id="php">
+    <legend class="yesscript" style="display: none"><a href="#null" id="phplink">[gettext]PHP - Click to toggle[/gettext]</a></legend>
+    <legend class="noscript">[gettext]PHP[/gettext]</legend>
+    [transform function="pygments" lexer="php"]<?php
+$rules = array
+(
+    '[lower]' => array
+    (
+        'close' => '[/lower]',
+        'functions' => array
+        (
+            array
+            (
+                'class' => $class,
+                'function' => 'lower'
+            )
+        )
+    )
+);
+?>[/transform]
+</fieldset>
+<fieldset class="noscript" id="python">
+    <legend class="yesscript" style="display: none"><a href="#null" id="pythonlink">[gettext]Python - Click to toggle[/gettext]</a></legend>
+    <legend class="noscript">[gettext]Python[/gettext]</legend>
+    [transform function="pygments" lexer="python"]rules = {
+    '[lower]':
+    {
+        'close': '[/lower]',
+        'functions': [lower]
+    }
+}[/transform]
+</fieldset>
+
 <a href="#paramsstructure" id="paramsstructure"><h3>[gettext]Params Structure[/gettext]</h3></a>
 
 <p>[gettext]When SUIT calls the functions provided by the rules, it sends a dict containing parameters. Here is the structure of these params:[/gettext]</p>
@@ -75,3 +110,33 @@
 </table>
 
 <p>[gettext]As these parameters need to be sent between the various functions provided, have each function return these params so that SUIT can send them to the next function. The dict can be modified however the user wants.[/gettext]</p>
+
+<p>[gettext]Below is the lower function mentioned in the above configuration. See how it handles the params.[/gettext]</p>
+
+<fieldset id="php2">
+    <legend class="yesscript" style="display: none"><a href="#null" id="phplink2">[gettext]PHP - Click to toggle[/gettext]</a></legend>
+    <legend class="noscript">[gettext]PHP[/gettext]</legend>
+    [transform function="pygments" lexer="php"]<?php
+Class CLASS
+{
+    public function lower($params)
+    {
+        $params['string'] = $this->suit->walk($params['rules'], $params['tree'], $params['config']);
+        $params['string'] = strtolower($params['string']);
+        return $params;
+    }
+}
+?>[/transform]
+</fieldset>
+<fieldset class="noscript" id="python2">
+    <legend class="yesscript" style="display: none"><a href="#null" id="pythonlink2">[gettext]Python - Click to toggle[/gettext]</a></legend>
+    <legend class="noscript">[gettext]Python[/gettext]</legend>
+    [transform function="pygments" lexer="python"]def lower(params):
+    params['string'] = suit.walk(
+        params['rules'],
+        params['tree'],
+        params['config']
+    )
+    params['string'] = params['string'].lower()
+    return params[/transform]
+</fieldset>

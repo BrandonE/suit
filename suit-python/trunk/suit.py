@@ -537,6 +537,7 @@ def ruleitems(rules, items):
 
     ``rules``
         The dict to grab from.
+
     ``items``
         The items to grab from the dict.
 
