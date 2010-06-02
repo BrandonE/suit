@@ -5,7 +5,7 @@
 [execute][template]header.tpl[/template][/execute]
         <a href="#suit" id="suit"><h3>[gettext]SUIT Framework[/gettext]</h3></a>
         <p>[gettext]The main package. It holds a file containing the functions for using SUIT.[/gettext]</p>
-        <p>[gettext]For SUIT for PHP, you need to include it and <a href="#initialize">initialize</a> it, while in SUIT for Python you merely need to import it. In addition, SUIT for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
+        <p>[gettext]For SUIT for PHP, you need to include it and <a href="[url controller="root" action="template" templatefile="docs" parameter1="suitconstruct" /]">initialize</a> it, while in SUIT for Python you merely need to import it. In addition, SUIT for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
         <ul>
             <li><a href="#phpsuitdownload">[gettext]Download SUIT 2.0.0 for PHP[/gettext]</a></li>
             <li><a href="#pythonsuitdownload">[gettext]Download SUIT 2.0.0 for Python[/gettext]</a></li>
@@ -17,7 +17,7 @@
         </ul>
         <a href="#rulebox" id="rulebox"><h3>Rulebox</h3></a>
         <p>[gettext]A package containing various sets of rules for use with SUIT. If you believe you have a set of rules that can be used for several occassions, post it <a href="#forumurl">here</a> and it may be included into the package.[/gettext]</p>
-        <p>[gettext] For Rulebox for PHP, you need to include it and <a href="#initialize">initialize</a> it, while in Rulebox for Python you merely need to import it. In addition, Rulebox for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
+        <p>[gettext] For Rulebox for PHP, you need to include it and initialize the various Rulesets included (<a href="[url controller="root" action="template" templatefile="docs" parameter1="templatingconstruct" /]">Templating</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="bbcodeconstruct" /]">BBCode</a>), while in Rulebox for Python you merely need to import it. In addition, Rulebox for Python can also be set up through <a href="#easy_install">easy_install</a>.[/gettext]</p>
         <ul>
             <li><a href="#phpruleboxdownload">[gettext]Download Rulebox 1.0.0 for PHP[/gettext]</a></li>
             <li><a href="#pythonruleboxdownload">[gettext]Download Rulebox 1.0.0 for Python[/gettext]</a></li>

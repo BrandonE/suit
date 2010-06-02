@@ -1,0 +1,1 @@
+<p>[gettext]Look at this string![/gettext]</p>

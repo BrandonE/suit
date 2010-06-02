@@ -33,6 +33,16 @@ Example Usage
     # Result: Hello, <strong>Brandon</strong>!
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
+
+-----------------------------
+Var and Rules
+-----------------------------
+
+``var``
+    Container of variables to be used in with various rules.
+
+``rules``
+    Contains the rules for the Templating Ruleset.
 """
 
 import copy
@@ -48,10 +58,9 @@ import suit
 
 __all__ = [
     'assign', 'attribute', 'bracket', 'Class', 'comments', 'condition',
-    'decode', 'default', 'entities', 'evalrules', 'evaluation', 'execute',
-    'getvariable', 'listing', 'loadlocal', 'loop', 'loopiteration',
-    'returning', 'rules', 'savelocal', 'setvariable', 'templates', 'trim',
-    'trying', 'variables', 'walk'
+    'decode', 'default', 'entities', 'execute', 'getvariable', 'listing',
+    'loadlocal', 'loop', 'loopiteration', 'returning', 'rules', 'savelocal',
+    'setvariable', 'templates', 'trim', 'trying', 'variables', 'walk'
 ]
 
 class Class():
@@ -172,11 +181,6 @@ def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
         params['string'] = cgi.escape(str(params['string']), True)
-    return params
-
-def evaluation(params):
-    """Evaluate a Python statement."""
-    params['string'] = eval(params['string'])
     return params
 
 def execute(params):
@@ -827,13 +831,5 @@ rules = {
         'close': ']',
         'create': '[var]',
         'skip': True
-    }
-}
-
-evalrules = {
-    '[eval]':
-    {
-        'close': '[/eval]',
-        'functions': [walk, evaluation]
     }
 }

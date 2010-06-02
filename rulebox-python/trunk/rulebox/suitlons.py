@@ -17,16 +17,20 @@
 """
 Rules to help use SUIT with Pylons.
 
-Example usage:
+-----------------------------
+Example Usage
+-----------------------------
 
-import suit
-from rulebox import suitlons # easy_install rulebox
-from pylons import tmpl_context as c
-template = open('template.tpl').read()
-# Template contains "Hello, <strong>[c]username[/c]</strong>!"
-c.username = 'Brandon'
-print suit.execute(suitlons.rules, template)
-# Result: Hello, <strong>Brandon!</strong>
+::
+
+    import suit
+    from rulebox import suitlons # easy_install rulebox
+    from pylons import tmpl_context as c
+    template = open('template.tpl').read()
+    # Template contains "Hello, <strong>[c]username[/c]</strong>!"
+    c.username = 'Brandon'
+    print suit.execute(suitlons.rules, template)
+    # Result: Hello, <strong>Brandon!</strong>
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 """
@@ -47,11 +51,11 @@ from rulebox import templating
 
 __all__ = [
     'entities', 'gettext', 'pylonsrules', 'rules', 'suitrules', 'templates',
-    'tmpl_context', 'url_for'
+    'url_for'
 ]
 
 def entities(params):
-    """Convert HTML characters to their respective entities"""
+    """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
         params['string'] = escape(str(params['string']), True)
     return params
@@ -62,7 +66,7 @@ def gettext(params):
     return params
 
 def templates(params):
-    """Grab a template from a file"""
+    """Grab a template from a file in the Pylons path."""
     try:
         filename = os.path.normpath(params['string'])
         filepath = os.path.abspath(
@@ -73,30 +77,6 @@ def templates(params):
             params['string'] = open(filepath).read()
     except IOError:
         pass
-    return params
-
-def tmpl_context(params):
-    """Rip-off of SUIT's templating.default [var] rule. Reads variables from the
-    tmpl_context.
-    """
-    for key, value in enumerate(
-        params['string'].split(params['var']['delimiter'])
-    ):
-        if key == 0:
-            params['string'] = getattr(c, value)
-        else:
-            try:
-                params['string'] = params['string'][value]
-            except (AttributeError, TypeError):
-                try:
-                    params['string'] = params['string'][int(value)]
-                except (AttributeError, TypeError, ValueError):
-                    params['string'] = getattr(
-                        params['string'],
-                        value
-                    )
-    if params['var']['json']:
-        params['string'] = json.dumps(params['string'])
     return params
 
 def url_for(params):

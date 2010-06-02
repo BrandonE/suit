@@ -120,6 +120,25 @@ def docs():
             'url': 'suitfunctions'
         },
         {
+            'articles':
+            [
+                {
+                    'title': 'SUIT Construct',
+                    'url': 'suitconstruct'
+                },
+                {
+                    'title': 'Templating Construct',
+                    'url': 'templatingconstruct'
+                },
+                {
+                    'title': 'BBCode Construct',
+                    'url': 'bbcodeconstruct'
+                }
+            ],
+            'title': 'Constructs',
+            'url': 'constructs'
+        },
+        {
             'articles': 
             [
                 {
@@ -202,7 +221,25 @@ def docs():
             'url': 'templatingrules'
         },
         {
-            'articles': [],
+            'articles':
+            [
+                {
+                    'title': 'c',
+                    'url': 'c'
+                },
+                {
+                    'title': 'template (SUITlons Rule)',
+                    'url': 'templatesuitlonsrule'
+                },
+                {
+                    'title': 'gettext',
+                    'url': 'gettext'
+                },
+                {
+                    'title': 'url',
+                    'url': 'url'
+                }
+            ],
             'title': 'SUITlons Rules',
             'url': 'suitlonsrules'
         },
@@ -217,7 +254,13 @@ def docs():
             'url': 'helperfunctions'
         },
         {
-            'articles': [],
+            'articles':
+            [
+                {
+                    'title': 'SLACKS',
+                    'url': 'slacks'
+                }
+            ],
             'title': 'Subprojects',
             'url': 'subprojects'
         }

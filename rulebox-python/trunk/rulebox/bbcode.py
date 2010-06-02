@@ -58,19 +58,19 @@ __all__ = [
 ]
 
 def attribute(params):
-    """Create rule out of attribute"""
+    """Create rule out of attribute."""
     params['var'] = params['var'].copy()
     if 'create' in params['tree']:
         params['var']['equal'] = params['tree']['create']
     return params
 
 def linebreaks(params):
-    """Remove the HTML line breaks"""
+    """Remove the HTML line breaks."""
     params['string'] = params['string'].replace('<br />', '')
     return params
 
 def listitems(params):
-    """Create the list items"""
+    """Create the list items."""
     if not params['var']['equal'] or params['var']['equal'] in (
         '1', 'a', 'A', 'i', 'I'
     ):
@@ -97,7 +97,7 @@ def listitems(params):
     return params
 
 def size(params):
-    """Define the correct size"""
+    """Define the correct size."""
     params['var']['equal'] = int(params['var']['equal']) + 7
     if params['var']['equal'] > 30:
         params['var']['equal'] = 30
@@ -115,7 +115,7 @@ def style(params):
     return params
 
 def template(params):
-    """Substitute variables into the template"""
+    """Substitute variables into the template."""
     templating.var.equal = params['var']['equal']
     templating.var.string = params['string']
     params['string'] = suit.execute(

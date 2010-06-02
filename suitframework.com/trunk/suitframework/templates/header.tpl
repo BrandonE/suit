@@ -42,6 +42,7 @@
         <li[if condition="condition.tryit"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="tryit" /]">[gettext]Try It[/gettext]</a></li>
         <li[if condition="condition.slacks"] class="selected"[/if]><a href="[url controller="root" action="template" templatefile="slacks" /]">[gettext]SLACKS[/gettext]</a></li>
         <li><a href="http://suitframework.svn.sourceforge.net/viewvc/suitframework/" target="_blank">[gettext]SVN[/gettext]</a></li>
+        <li><a href="https://sourceforge.net/projects/suitframework/forums" target="_blank">[gettext]Forums[/gettext]</a></li>
     </ul>
 </div>
 <div class="content">

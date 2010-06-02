@@ -1,6 +1,6 @@
 <p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
 
-<p>[gettext]Transform a string using rules. The function calls <a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a>, and <a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">[gettext]walk[/gettext]</a> all in one convenient call.[/gettext]</p>
+<p>[gettext]Transform a string using rules. The function calls <a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">tokens</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">parse</a>, and <a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">walk</a> all in one convenient call.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>

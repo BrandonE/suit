@@ -33,11 +33,14 @@ class RootController(BaseController):
             'hash': {},
             'contents': []
         }
+        # Check if POST or GET data have been sent for SLACKS.
         if 'slacks' in request.params:
             if c.condition.slacks:
                 suit.log = defaultlog
-            slacks = json.dumps(suit.log, separators = (',', ':'))
+            # JSON encode the log.
+            slacks = json.dumps(suit.log, separators=(',', ':'))
             suit.log = defaultlog
+            # Set the headers to prompt a download of a .json file.
             response.headerlist = [
                 ('Pragma', 'public'),
                 ('Expires', '0'),

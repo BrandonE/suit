@@ -34,6 +34,16 @@ Example Usage
     // Result: Hello, <strong>Brandon</strong>!
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
+
+-----------------------------
+Var and Rules
+-----------------------------
+
+``var``
+    Container of variables to be used in with various rules.
+
+``rules``
+    Contains the rules for the Templating Ruleset.
 **/
 
 class Templating
@@ -577,26 +587,6 @@ class Templating
                 'skip' => true
             )
         );
-        $this->evalrules = array
-        (
-            '[eval]' => array
-            (
-                'close' => '[/eval]',
-                'functions' => array
-                (
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'walk'
-                    ),
-                    array
-                    (
-                        'class' => $this,
-                        'function' => 'evaluation'
-                    )
-                )
-            )
-        );
     }
 
     public function assign($params)
@@ -741,13 +731,6 @@ class Templating
         {
             $params['string'] = htmlentities(strval($params['string']));
         }
-        return $params;
-    }
-
-    public function evaluation($params)
-    {
-        // Evaluate a PHP statement.
-        $params['string'] = eval($params['string']);
         return $params;
     }
 

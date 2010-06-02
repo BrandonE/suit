@@ -32,14 +32,15 @@ Example Usage
     echo $suit->execute($templating->rules, $template);
     // Result: Hello, <strong>Brandon</strong>!
 
+Basic usage; see http://www.suitframework.com/docs/ for other uses.
+
 -----------------------------
 Caching and Logging
 -----------------------------
 
-Throughout SUIT, two dicts are used by the cache and tokens functions.
-
 ``cache``
     Saves processing time by storing the results of these functions.
+
 ``log``
     Contains information on how the execute function works.
 
