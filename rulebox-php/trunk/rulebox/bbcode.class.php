@@ -639,8 +639,8 @@ class BBCode
 
     public function template($params)
     {
-        $this->templating->equal = $params['var']['equal'];
-        $this->templating->string = $params['string'];
+        $this->templating->var->equal = $params['var']['equal'];
+        $this->templating->var->string = $params['string'];
         $params['string'] = $this->suit->execute($this->templating->rules, $params['var']['template']);
         return $params;
     }

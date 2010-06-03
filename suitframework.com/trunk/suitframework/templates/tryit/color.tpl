@@ -1,0 +1,1 @@
+The colors of the American Flag are [color=red]Red[/color], [color=white]White[/color], and [color=blue]Blue[/color] (Too bad the BDFL of SUIT, Brandon Evans, has Deuteranopia).

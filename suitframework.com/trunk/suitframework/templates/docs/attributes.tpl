@@ -61,3 +61,7 @@
 </fieldset>
 
 <p>[gettext]When matched, a function will define variables on var using this rules contents, have the new var overwrite all of the Static Variables, and continue as normal.[/gettext]</p>
+
+<a href="#bbcodeconfig" id="bbcodeconfig"><h3>[gettext]BBCode Config[/gettext]</h3></a>
+
+<p>[gettext]Similarly to the Template Ruleset's Attribute Config, each attribute rule requires two rules: one to use the default settings with (Ex. "[rule]" and "[/rule]"), and another one to create modified rules (Ex. "[rule=" and "]"). However, BBCode attributes can only modify one variable: equal. In addition, the attribute string isn't split up by quotes, and additional configuration isn't necessary necessary.[/gettext]</p>

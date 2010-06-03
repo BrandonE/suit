@@ -1,48 +1,52 @@
 <p><em>[gettext]Available Since:</em> Rulebox (1.0.0)[/gettext]</p>
 
-<p>[gettext]Execute the string using the same rules used in this template.[/gettext]</p>
+<p>[gettext]Create a link.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-    [gettext][skip][execute ( log="bool" )]string[/execute][/skip][/gettext]
+    [gettext][skip][url(=equal)]string[/url][/skip][/gettext]
 </fieldset>
 
 <fieldset>
     <legend><a id="parameters" href="#parameters">[gettext]Parameters[/gettext]</a></legend>
     <fieldset>
         <legend><a id="string" href="#string">string</a></legend>
-        <p>[gettext]The string to be executed.[/gettext]</p>
+        <p>[gettext]The label for the link.[/gettext]</p>
     </fieldset>
     <fieldset>
-        <legend><a id="log" href="#log">log</a></legend>
-        <p>[gettext]Whether or not the execute call should be logged. (Default: true)[/gettext]</p>
+        <legend><a id="equal" href="#equal">equal</a></legend>
+        <p>[gettext]The URL to go to when clicked on. (Default: "")[/gettext]</p>
     </fieldset>
 </fieldset>
 
 <fieldset>
     <legend><a id="staticvariables" href="#staticvariables">[gettext]Static Variables[/gettext]</a></legend>
     <fieldset>
-        <legend><a id="decode" href="#decode">decode</a></legend>
-        <p>[gettext]The variables to be JSON decoded. (Default: ["log"])[/gettext]</p>
+        <legend><a id="label" href="#label">label</a></legend>
+        <p>[gettext]A string used to label this rule. (Default: "url")[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="template" href="#template">template</a></legend>
+        <p>[gettext]The template to execute and replace the statement with. (Default: "". The template must be loaded manually.)[/gettext]</p>
     </fieldset>
 </fieldset>
 
 <fieldset>
     <legend><a id="output" href="#output">[gettext]Output[/gettext]</a></legend>
-    <p>[gettext]The executed string.[/gettext]</p>
+    <p>[gettext]The link.[/gettext]</p>
 </fieldset>
 
 <fieldset>
     <legend><a id="confignotes" href="#confignotes">[gettext]Config Notes[/gettext]</a></legend>
     <ul>
-        <li>[gettext]Uses the default <a href="[url controller="root" action="template" templatefile="docs" parameter1="attributes" /]#config">Attribute Config</a>.[/gettext]</li>
+        <li>[gettext]Uses the default <a href="[url controller="root" action="template" templatefile="docs" parameter1="attributes" /]#bbcodeconfig">BBCode Attribute Config</a>.[/gettext]</li>
     </ul>
 </fieldset>
 
 <fieldset>
     <legend><a id="seealso" href="#seealso">[gettext]See Also[/gettext]</a></legend>
         <ul>
-            <li><a href="[url controller="root" action="template" templatefile="tryit" parameter1="templating" parameter2="execute" /]">[gettext]Try It[/gettext]</a></li>
+            <li><a href="[url controller="root" action="template" templatefile="tryit" parameter1="bbcode" parameter2="urlbbcoderule" /]">[gettext]Try It[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="attributes" /]">[gettext]Attributes[/gettext]</a></li>
         </ul>
 </fieldset>

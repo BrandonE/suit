@@ -1,7 +1,5 @@
 <p>[gettext]If you've read technical documentation before, our method should be familiar. If not, let's review some of the things we do in these docs.[/gettext]</p>
 
-<a href="#syntax" id="syntax"><h3>[gettext]Syntax[/gettext]</h3></a>
-
 <p>[gettext]In the articles explaining functions, this site uses the following format to explain the syntax of their calls:[/gettext]</p>
 
 <fieldset>
@@ -49,7 +47,3 @@
 </fieldset>
 
 <p>[gettext]Because the syntax of rules generally use brackets, parentheses are now used to signify optional items. returntype is neglected as SUIT rules will always return a string. In fact, you can only send strings as parameters. The reason we still show a type is to tell what type to use when the rule will treat the parameter as <a href="http://en.wikipedia.org/wiki/JSON" target="_blank">JSON</a> and decode it.[/gettext]</p>
-
-<a href="#tryit" id="tryit"><h3>[gettext]Try It[/gettext]</h3></a>
-
-<p>[gettext]Try It is one of the more interactive features of this site. It can be used to play around with some Rulesets live on this site. However, because SUIT also needs a programming file to get anything important done, and we can't allow anyone to edit programming files for obvious reasons, we have provided examples for each rule article. In the See Also box on the bottom of each rule article, there is a link that says Try It. Click on it, and you'll see a template, a programming file, and perhaps some external templates. The example will show the rule in action, which you can then proceed to modify to your liking.[/gettext]</p>

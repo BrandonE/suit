@@ -15,7 +15,7 @@
 # http://www.suitframework.com/docs/credits
 
 """
-Rules to help use SUIT with Pylons.
+Rules that extend the Templating Ruleset to help use SUIT with Pylons.
 
 -----------------------------
 Example Usage

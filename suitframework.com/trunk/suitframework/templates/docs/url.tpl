@@ -1,4 +1,4 @@
-<p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
+<p><em>[gettext]Available Since:</em> Rulebox (1.0.0)[/gettext]</p>
 
 <p>[gettext]Returns a URL for the given URL settings supplied as parameters.[/gettext]</p>
 

@@ -1,4 +1,4 @@
-<p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
+<p><em>[gettext]Available Since:</em> Rulebox (1.0.0)[/gettext]</p>
 
 <p>[gettext]Initialize a BBCode object to use <a href="[url controller="root" action="template" templatefile="download" /]#rulebox">Rulebox for PHP</a>.[/gettext]</p>
 

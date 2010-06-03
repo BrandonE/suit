@@ -197,10 +197,6 @@ def docs():
                     'url': 'transform'
                 },
                 {
-                    'title': 'local',
-                    'url': 'local'
-                },
-                {
                     'title': 'try',
                     'url': 'try'
                 },
@@ -211,6 +207,10 @@ def docs():
                 {
                     'title': 'trim',
                     'url': 'trim'
+                },
+                {
+                    'title': 'local',
+                    'url': 'local'
                 },
                 {
                     'title': 'bracket',
@@ -244,14 +244,67 @@ def docs():
             'url': 'suitlonsrules'
         },
         {
-            'articles': [],
+            'articles':
+            [
+                {
+                    'title': 'b',
+                    'url': 'b'
+                },
+                {
+                    'title': 'i',
+                    'url': 'i'
+                },
+                {
+                    'title': 'u',
+                    'url': 'u'
+                },
+                {
+                    'title': 's',
+                    'url': 's'
+                },
+                {
+                    'title': 'url (BBCode Rule)',
+                    'url': 'urlbbcoderule'
+                },
+                {
+                    'title': 'email',
+                    'url': 'email'
+                },
+                {
+                    'title': 'img',
+                    'url': 'img'
+                },
+                {
+                    'title': 'size',
+                    'url': 'size'
+                },
+                {
+                    'title': 'font',
+                    'url': 'font'
+                },
+                {
+                    'title': 'color',
+                    'url': 'color'
+                },
+                {
+                    'title': 'align',
+                    'url': 'align'
+                },
+                {
+                    'title': 'list',
+                    'url': 'list'
+                },
+                {
+                    'title': 'quote',
+                    'url': 'quote'
+                },
+                {
+                    'title': 'code',
+                    'url': 'code'
+                }
+            ],
             'title': 'BBCode Rules',
             'url': 'bbcoderules'
-        },
-        {
-            'articles': [],
-            'title': 'Helper Functions',
-            'url': 'helperfunctions'
         },
         {
             'articles':
@@ -259,6 +312,10 @@ def docs():
                 {
                     'title': 'SLACKS',
                     'url': 'slacks'
+                },
+                {
+                    'title': 'Try It',
+                    'url': 'tryit'
                 }
             ],
             'title': 'Subprojects',
