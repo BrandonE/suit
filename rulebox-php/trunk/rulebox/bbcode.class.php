@@ -47,6 +47,13 @@ Example Usage
     // Result: assuming it loaded the default templates, "<strong>Test</strong>"
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
+
+-----------------------------
+Rules
+-----------------------------
+
+``rules``
+    dict - Contains the rules for the BBCode Ruleset.
 */
 
 class BBCode

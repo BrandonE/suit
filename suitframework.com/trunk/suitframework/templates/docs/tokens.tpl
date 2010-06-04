@@ -4,7 +4,7 @@
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-    str suit.tokens ( dict rules, str string [, dict config ] )
+    list suit.tokens ( dict rules, str string [, dict config ] )
 </fieldset>
 
 <fieldset>
@@ -19,9 +19,7 @@
     </fieldset>
     <fieldset>
         <legend><a id="config" href="#config">config</a></legend>
-        <p>
-            [gettext]Specifics on how the function should work. (Optional. Default: see <a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">defaultconfig</a>)[/gettext]
-        </p>
+        <p>[gettext]Specifics on how the function should work. (Optional. Default: see <a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">defaultconfig</a>)[/gettext]</p>
     </fieldset>
 </fieldset>
 
@@ -78,12 +76,12 @@
         <legend><a id="basicusage" href="#basicusage">[gettext]Basic Usage[/gettext]</a></legend>
         <fieldset>
             <legend><a id="basicusagetemplate" href="#basicusagetemplate">[gettext]Template[/gettext]</a></legend>
-            [transform function="pygments" lexer="html"]Hello, <strong>[var]username[/var]</strong>![/transform]
+            [transform function="pygments" lexer="html"][skip]Hello, <strong>[var]username[/var]</strong>![/skip][/transform]
         </fieldset>
         <fieldset id="php">
             <legend class="yesscript" style="display: none"><a href="#null" id="phplink">[gettext]PHP - Click to toggle[/gettext]</a></legend>
             <legend class="noscript">[gettext]PHP[/gettext]</legend>
-            [transform function="pygments" lexer="php"]<?php
+            [transform function="pygments" lexer="php"][skip]<?php
 require 'suit.class.php';
 require 'templating.class.php';
 $suit = new SUIT();
@@ -115,13 +113,13 @@ Result: array
     )
 )
 */
-?>[/transform]
+?>[/skip][/transform]
         </fieldset>
         <fieldset class="noscript" id="python">
             <legend class="yesscript" style="display: none"><a href="#null" id="pythonlink">[gettext]Python - Click to toggle[/gettext]</a></legend>
             <legend class="noscript">[gettext]Python[/gettext]</legend>
-            [transform function="pygments" lexer="python"]import suit
-from rulebox import templating # easy_install rulebox
+            [transform function="pygments" lexer="python"][skip]import suit
+from rulebox import templating
 templating.var.username = 'Brandon'
 tokens = suit.tokens(templating.rules, template)
 # Result: [
@@ -143,7 +141,7 @@ tokens = suit.tokens(templating.rules, template)
 #         'string': '[/var]',
 #         'type': 'close'
 #     }
-# ][/transform]
+# ][/skip][/transform]
         </fieldset>
     </fieldset>
 </fieldset>

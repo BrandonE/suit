@@ -14,8 +14,7 @@
 # http://www.suitframework.com/
 # http://www.suitframework.com/docs/credits
 
-"""
-A set of rules used to transfer information from the code to the template in
+"""A set of rules used to transfer information from the code to the template in
 order to create an HTML document.
 
 -----------------------------
@@ -24,8 +23,8 @@ Example Usage
 
 ::
 
-    import suit
-    from rulebox import templating # easy_install rulebox
+    import suit # easy_install suit
+    from rulebox import templating
     template = open('template.tpl').read()
     # Template contains "Hello, <strong>[var]username[/var]</strong>!"
     templating.var.username = 'Brandon'
@@ -39,10 +38,10 @@ Var and Rules
 -----------------------------
 
 ``var``
-    Container of variables to be used in with various rules.
+    obj - Container of variables to be used in with various rules.
 
 ``rules``
-    Contains the rules for the Templating Ruleset.
+    dict - Contains the rules for the Templating Ruleset.
 """
 
 import copy
@@ -64,6 +63,7 @@ __all__ = [
 ]
 
 class Class():
+    """Just an empty object."""
     pass
 
 var = Class()
@@ -85,10 +85,10 @@ def assign(params):
 
 def attribute(params):
     """Create rule out of attributes."""
-    var = params['rules'][params['tree']['rule']]['var'].copy()
-    params['var'] = var['var'].copy()
+    variable = params['rules'][params['tree']['rule']]['var'].copy()
+    params['var'] = variable['var'].copy()
     # Decide where to get the attributes from.
-    if 'onesided' in var and var['onesided']:
+    if 'onesided' in variable and variable['onesided']:
         string = params['string']
     elif 'create' in params['tree']:
         string = params['tree']['create']
@@ -97,7 +97,7 @@ def attribute(params):
     quote = ''
     smallest = False
     # Decide which quote string to use based on which occurs first.
-    for value in var['quote']:
+    for value in variable['quote']:
         haystack = string
         needle = value
         if params['config']['insensitive']:
@@ -115,16 +115,20 @@ def attribute(params):
             # If this is the opening quote.
             if key % 2 == 0:
                 name = value.strip()
-                syntax = (name[len(name) - len(var['equal'])] == var['equal'])
-                name = name[0:len(name) - len(var['equal'])]
+                syntax = (
+                    name[
+                        len(name) - len(variable['equal'])
+                    ] == variable['equal']
+                )
+                name = name[0:len(name) - len(variable['equal'])]
                 # If the syntax is not valid or the variable is not whitelisted
                 # or blacklisted, do not prepare to define the variable.
-                if not syntax or not listing(name, var):
+                if not syntax or not listing(name, variable):
                     name = ''
             elif name:
                 # Define the variable.
                 config = params['config'].copy()
-                config['log'] = var['log']
+                config['log'] = variable['log']
                 params['var'][name] = suit.execute(
                     params['rules'],
                     value,
@@ -146,7 +150,7 @@ def condition(params):
     # Do not show if no condition provided.
     if not 'condition' in params['var']:
         return params
-    var = getvariable(
+    variable = getvariable(
         params['var']['condition'],
         params['var']['delimiter'],
         params['var']['owner']
@@ -154,11 +158,11 @@ def condition(params):
     # Show the string if the condition is true.
     if (
         (
-            var and
+            variable and
             not params['var']['not']
         ) or
         (
-            not var and
+            not variable and
             params['var']['not']
         )
     ):
@@ -229,15 +233,15 @@ def getvariable(string, split, owner):
     """Get a variable based on a split string.
 
     ``string``
-        The name of the variable to grab.
+        str - The name of the variable to grab.
 
     ``split``
-        The string that separates the levels of the variable.
+        str - The string that separates the levels of the variable.
 
     ``owner``
-        The object to grab the variable from.
+        mixed - The object to grab the variable from.
 
-    Returns: The variable.
+    Returns: mixed - The variable.
     """
     for value in string.split(split):
         try:
@@ -253,9 +257,9 @@ def iterate(iterable):
     """Iterate over any object.
 
     ``iterable``
-        The object to iterate over.
+        mixed - The object to iterate over.
 
-    Returns: The items in key, value format.
+    Returns: mixed - The items in key, value format.
     """
     if hasattr(iterable, 'items'):
         iterations = iterable.items()
@@ -273,31 +277,32 @@ def iterate(iterable):
                     ))
     return iterations
 
-def listing(name, var):
-    """Check if the variable is whitelisted or blacklisted.
+def listing(name, variable):
+    """Check if the variable is whitelisted or blacklisted and determine
+    whether or not the variable can be used.
 
     ``name``
-        The name of the variable to check.
+        str - The name of the variable to check.
 
-    ``var``
-        A dict containing the `list` and `blacklist` keys if applicable.
+    ``variable``
+        dict - A dict containing the `list` and `blacklist` keys if applicable.
 
-    Returns: Whether or not the variable can be used.
+    Returns: bool - Whether or not the variable can be used.
     """
     return not (
-        'list' in var and
+        'list' in variable and
         (
             (
                 (
-                    not 'blacklist' in var or
-                    not var['blacklist']
+                    not 'blacklist' in variable or
+                    not variable['blacklist']
                 ) and
-                not name in var['list']
+                not name in variable['list']
             ) or
             (
-                'blacklist' in var and
-                var['blacklist'] and
-                name in var['list']
+                'blacklist' in variable and
+                variable['blacklist'] and
+                name in variable['list']
             )
         )
     )
@@ -343,7 +348,7 @@ def loop(params):
     # Do not loop if no iterable provided.
     if not 'iterable' in params['var']:
         return params
-    var = getvariable(
+    variable = getvariable(
         params['var']['iterable'],
         params['var']['delimiter'],
         params['var']['owner']
@@ -354,7 +359,7 @@ def loop(params):
         'contents': params['tree']['contents']
     }
     iterations = []
-    for key, value in iterate(var):
+    for key, value in iterate(variable):
         # Set the key variable if provided.
         if 'key' in params['var']:
             setvariable(
@@ -398,16 +403,15 @@ def returning(params):
     return params
 
 def returningdelete(tree, limit = 0):
-    """
-    Delete a tree and all of its contents.
+    """Delete contents of a tree to break references.
     
     ``tree``
-        The parse tree.
+        The contents of the tree.
 
     ``limit``
-        What the length of the tree should be limited to.
+        What the length the tree contents should be limited to.
 
-    Returns: Nothing.
+    Returns: void - Nothing. The contents of ``tree`` are modified.
     """
     while len(tree) > limit:
         # If this item is a dict.
@@ -426,18 +430,18 @@ def setvariable(string, split, assignment, owner):
     """Set a variable based on a split string.
 
     ``string``
-        The name of the variable to set.
+        str - The name of the variable to set.
 
     ``split``
-        The string that separates the levels of the variable.
+        str - The string that separates the levels of the variable.
 
     ``assignment``
-        The value to assign to the variable.
+        mixed - The value to assign to the variable.
 
     ``owner``
-        The object to set the variable on.
+        mixed - The object to set the variable on.
 
-    Returns: Nothing.
+    Returns: void - Nothing. The variable is modified.
     """
     split = string.split(split)
     for key, value in enumerate(split):
@@ -475,7 +479,7 @@ def transform(params):
 
 def trim(params):
     """Trim unnecessary whitespace."""
-    rules = {
+    trimrules = {
         '<pre':
         {
             'close': '</pre>',
@@ -487,9 +491,9 @@ def trim(params):
             'skip': True
         }
     }
-    pos = suit.tokens(rules, params['string'], params['config'])
+    pos = suit.tokens(trimrules, params['string'], params['config'])
     tree = suit.parse(
-        rules,
+        trimrules,
         pos,
         params['string'],
         params['config']
@@ -502,7 +506,7 @@ def trim(params):
             params['string'] += ''.join((
                 value['rule'],
                 value['contents'][0],
-                rules[value['rule']]['close']
+                trimrules[value['rule']]['close']
             ))
         # Else, trim it.
         else:
@@ -781,7 +785,7 @@ rules = {
     '[trim]':
     {
         'close': '[/trim]',
-        'functions': [walk, trim],
+        'functions': [walk, trim]
     },
     '[try]':
     {

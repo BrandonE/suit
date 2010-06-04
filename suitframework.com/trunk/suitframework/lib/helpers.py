@@ -142,8 +142,52 @@ def docs():
             'articles': 
             [
                 {
+                    'title': 'close',
+                    'url': 'close'
+                },
+                {
+                    'title': 'closed',
+                    'url': 'closed'
+                },
+                {
+                    'title': 'configitems',
+                    'url': 'configitems'
+                },
+                {
                     'title': 'defaultconfig',
                     'url': 'defaultconfig'
+                },
+                {
+                    'title': 'escape',
+                    'url': 'escape'
+                },
+                {
+                    'title': 'getvariable',
+                    'url': 'getvariable'
+                },
+                {
+                    'title': 'iterate',
+                    'url': 'iterate'
+                },
+                {
+                    'title': 'listing',
+                    'url': 'listing'
+                },
+                {
+                    'title': 'loghash',
+                    'url': 'loghash'
+                },
+                {
+                    'title': 'returningdelete',
+                    'url': 'returningdelete'
+                },
+                {
+                    'title': 'setvariable',
+                    'url': 'setvariable'
+                },
+                {
+                    'title': 'treeappend',
+                    'url': 'treeappend'
                 }
             ],
             'title': 'Helper Functions',

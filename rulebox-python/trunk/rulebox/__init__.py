@@ -23,8 +23,8 @@ Example Usage
 
 ::
 
-    import suit
-    from rulebox import templating # easy_install rulebox
+    import suit # easy_install suit
+    from rulebox import templating
     template = open('template.tpl').read()
     # Template contains "Hello, <strong>[var]username[/var]</strong>!"
     templating.var.username = 'Brandon'

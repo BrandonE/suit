@@ -1,17 +1,29 @@
 <p><em>[gettext]Available Since:</em> SUIT (2.0.0)[/gettext]</p>
 
-<p>[gettext]Transform a string using rules. The function calls tokens, parse, and walk all in one convenient call.[/gettext]</p>
+<p>[gettext]Handle escape strings for this position.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>
-    dict suit.defaultconfig ( dict config )
+    dict suit.escape ( str escapestring, int position, str string [, bool insensitive ] )
 </fieldset>
 
 <fieldset>
     <legend><a id="parameters" href="#parameters">[gettext]Parameters[/gettext]</a></legend>
     <fieldset>
-        <legend><a id="config" href="#config">config</a></legend>
-        <p>[gettext]The dict to fill.[/gettext]</p>
+        <legend><a id="escapestring" href="#escapestring">escapestring</a></legend>
+        <p>[gettext]The string to check for behind this position.[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="position" href="#position">position</a></legend>
+        <p>[gettext]The position of the open or close string to check for.[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="string" href="#string">string</a></legend>
+        <p>[gettext]The full string to check in.[/gettext]</p>
+    </fieldset>
+    <fieldset>
+        <legend><a id="insensitive" href="#insensitive">insensitive</a></legend>
+        <p>[gettext]Whether or not the searching should be done case insensitively.[/gettext]</p>
     </fieldset>
 </fieldset>
 
@@ -22,34 +34,20 @@
             <tr>
                 <th>[gettext]Key[/gettext]</th>
                 <th>[gettext]Description[/gettext]</th>
-                <th>[gettext]Default[/gettext]</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>escape</td>
-                <td>[gettext]str: The <a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">escape</a> string.[/gettext]</td>
-                <td>\</td>
+                <td>odd</td>
+                <td>[gettext]bool: Whether or not the count of the escape strings to the left of this position is odd, escaping the open or close string.[/gettext]</td>
             </tr>
             <tr>
-                <td>insensitive</td>
-                <td>[gettext]bool: Whether or not the searching should be done case insensitively.[/gettext]</td>
-                <td>True</td>
+                <td>position</td>
+                <td>[gettext]int: The position adjusted to the change in the string.[/gettext]</td>
             </tr>
             <tr>
-                <td>log</td>
-                <td>[gettext]bool: Whether or not the execute call should be logged.[/gettext]</td>
-                <td>True</td>
-            </tr>
-            <tr>
-                <td>mismatched</td>
-                <td>[gettext]bool: Whether or not to parse if the closing string does not match the opening string.[/gettext]</td>
-                <td>False</td>
-            </tr>
-            <tr>
-                <td>unclosed</td>
-                <td>[gettext]bool: Whether or not the SUIT should walk through the node if it was opened but not closed.[/gettext]</td>
-                <td>False</td>
+                <td>string</td>
+                <td>[gettext]str: The string omitting the necessary escape strings.[/gettext]</td>
             </tr>
         </tbody>
     </table>
@@ -65,19 +63,14 @@
             [transform function="pygments" lexer="php"][skip]<?php
 require 'suit.class.php';
 $suit = new SUIT();
-$config = array
-(
-    'escape' => ''
-);
-$config = $suit->defaultconfig($config);
+$result = $suit->escape('\\', 1, '\[var]');
+
 /*
 Result: array
 (
-    'unclosed' => false,
-    'insensitive' => true,
-    'log' => true,
-    'mismatched' => false,
-    'escape' => ''
+    'position' => 0,
+    'odd' => 1,
+    'string' => '[var]'
 )
 */
 ?>[/skip][/transform]
@@ -86,16 +79,11 @@ Result: array
             <legend class="yesscript" style="display: none"><a href="#null" id="pythonlink">[gettext]Python - Click to toggle[/gettext]</a></legend>
             <legend class="noscript">[gettext]Python[/gettext]</legend>
             [transform function="pygments" lexer="python"][skip]import suit
-config = {
-    'escape': ''
-}
-config = suit.defaultconfig(config)
+result = suit.escape('\\', 1, '\\[var]')
 # Result: {
-#     'unclosed': False,
-#     'insensitive': True,
-#     'log': True,
-#     'mismatched': False,
-#     'escape': ''
+#     'position': 0,
+#     'odd': 1,
+#     'string': '[var]'
 # }[/skip][/transform]
         </fieldset>
     </fieldset>
@@ -105,8 +93,6 @@ config = suit.defaultconfig(config)
     <legend><a id="seealso" href="#seealso">[gettext]See Also[/gettext]</a></legend>
         <ul>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">[gettext]execute[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="walk" /]">[gettext]walk[/gettext]</a></li>
         </ul>
 </fieldset>

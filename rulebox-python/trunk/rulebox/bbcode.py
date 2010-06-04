@@ -14,8 +14,7 @@
 # http://www.suitframework.com/
 # http://www.suitframework.com/docs/credits
 
-"""
-A set of rules used to transform BBCode into HTML.
+"""A set of rules used to transform BBCode into HTML.
 
 -----------------------------
 Example Usage
@@ -24,7 +23,7 @@ Example Usage
 ::
 
     from cgi import escape
-    import suit
+    import suit # easy_install suit
     from rulebox import bbcode
     rules = bbcode.rules
     # Load the BBCode templates
@@ -47,6 +46,13 @@ Example Usage
     # Result: assuming it loaded the default templates, "<strong>Test</strong>"
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
+
+-----------------------------
+Rules
+-----------------------------
+
+``rules``
+    dict - Contains the rules for the BBCode Ruleset.
 """
 
 import suit

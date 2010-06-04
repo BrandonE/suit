@@ -14,8 +14,7 @@
 # http://www.suitframework.com/
 # http://www.suitframework.com/docs/credits
 
-"""
-Rules that extend the Templating Ruleset to help use SUIT with Pylons.
+"""Rules that extend the Templating Ruleset to help use SUIT with Pylons.
 
 -----------------------------
 Example Usage
@@ -23,8 +22,8 @@ Example Usage
 
 ::
 
-    import suit
-    from rulebox import suitlons # easy_install rulebox
+    import suit # easy_install suit
+    from rulebox import suitlons
     from pylons import tmpl_context as c
     template = open('template.tpl').read()
     # Template contains "Hello, <strong>[c]username[/c]</strong>!"
@@ -33,16 +32,20 @@ Example Usage
     # Result: Hello, <strong>Brandon!</strong>
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
+
+-----------------------------
+Rules
+-----------------------------
+
+``suitrules``
+    dict - Contains the modified rules for the Templating Ruleset.
+
+``pylonsrules``
+    dict - Contains the rules unique to the SUITlons Ruleset.
 """
 
 import os
-import sys
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
-import suit
 from pylons import config, tmpl_context as c, url
 from pylons.i18n import ugettext as _
 from webhelpers.html import escape

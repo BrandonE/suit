@@ -19,7 +19,7 @@
         </tr>
         <tr>
             <td>[gettext]Alex Munroe (Eevee)[/gettext]</td>
-            <td>[gettext]Frequent contributor and old wise man[/gettext]</td>
+            <td>[gettext]Contributor and old wise man[/gettext]</td>
             <td><a href="http://www.veekun.com/" target="_blank">http://www.veekun.com/</a></td>
         </tr>
         <tr>

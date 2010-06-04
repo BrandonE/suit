@@ -15,8 +15,7 @@ Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 
-A set of rules used to transfer information from the code to the template in
-order to create an HTML document.
+A set of rules used to transfer information from the code to the template in order to create an HTML document.
 
 -----------------------------
 Example Usage
@@ -40,10 +39,10 @@ Var and Rules
 -----------------------------
 
 ``var``
-    Container of variables to be used in with various rules.
+    obj - Container of variables to be used in with various rules.
 
 ``rules``
-    Contains the rules for the Templating Ruleset.
+    dict - Contains the rules for the Templating Ruleset.
 **/
 
 class Templating
@@ -608,10 +607,10 @@ class Templating
     public function attribute($params)
     {
         // Create rule out of attributes.
-        $var = $params['rules'][$params['tree']['rule']]['var'];
-        $params['var'] = $var['var'];
+        $variable = $params['rules'][$params['tree']['rule']]['var'];
+        $params['var'] = $variable['var'];
         // Decide where to get the attributes from.
-        if (array_key_exists('onesided', $var) && $var['onesided'])
+        if (array_key_exists('onesided', $variable) && $variable['onesided'])
         {
             $string = $params['string'];
         }
@@ -631,7 +630,7 @@ class Templating
             $function = 'stripos';
         }
         // Decide which quote string to use based on which occurs first.
-        foreach ($var['quote'] as $value)
+        foreach ($variable['quote'] as $value)
         {
             $position = $function($string, $value);
             if (
@@ -656,10 +655,10 @@ class Templating
                 if ($key % 2 == 0)
                 {
                     $name = trim($value);
-                    $syntax = (substr($name, strlen($name) - strlen($var['equal'])) == $var['equal']);
-                    $name = substr_replace($name, '', strlen($name) - strlen($var['equal']));
+                    $syntax = (substr($name, strlen($name) - strlen($variable['equal'])) == $variable['equal']);
+                    $name = substr_replace($name, '', strlen($name) - strlen($variable['equal']));
                     // If the syntax is not valid or the variable is not whitelisted or blacklisted, do not prepare to define the variable.
-                    if (!$syntax || !$this->listing($name, $var))
+                    if (!$syntax || !$this->listing($name, $variable))
                     {
                         $name = '';
                     }
@@ -668,7 +667,7 @@ class Templating
                 {
                     // Define the variable.
                     $config = $params['config'];
-                    $config['log'] = $var['log'];
+                    $config['log'] = $variable['log'];
                     $params['var'][$name] = $this->suit->execute($params['rules'], $value, $config);
                 }
             }
@@ -691,14 +690,14 @@ class Templating
         {
             return $params;
         }
-        $var = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
+        $variable = $this->getvariable($params['var']['condition'], $params['var']['delimiter'], $params['var']['owner']);
         // Show the string if the condition is true.
         if (
             (
-                $var && !$params['var']['not']
+                $variable && !$params['var']['not']
             ) ||
             (
-                !$var && $params['var']['not']
+                !$variable && $params['var']['not']
             )
         )
         {
@@ -777,15 +776,15 @@ class Templating
         Get a variable based on a split string.
 
         ``string``
-            The name of the variable to grab.
+            str - The name of the variable to grab.
 
         ``split``
-            The string that separates the levels of the variable.
+            str - The string that separates the levels of the variable.
 
         ``owner``
-            The object to grab the variable from.
+            mixed - The object to grab the variable from.
 
-        Returns: The variable.
+        Returns: mixed - The variable.
         */
         foreach (explode($split, $string) as $value)
         {
@@ -801,30 +800,30 @@ class Templating
         return $owner;
     }
 
-    public function listing($name, $var)
+    public function listing($name, $variable)
     {
         /*
-        Check if the variable is whitelisted or blacklisted.
+        Check if the variable is whitelisted or blacklisted and determine whether or not the variable can be used.
 
         ``name``
-            The name of the variable to check.
+            str - The name of the variable to check.
 
-        ``var``
-            A dict containing the `list` and `blacklist` keys if applicable.
+        ``variable``
+            dict - A dict containing the `list` and `blacklist` keys if applicable.
 
-        Returns: Whether or not the variable can be used.
+        Returns: bool - Whether or not the variable can be used.
         */
         return (
             !(
-                array_key_exists('list', $var) &&
+                array_key_exists('list', $variable) &&
                 (
                     (
                         (
-                            !array_key_exists('blacklist', $var) || !$var['blacklist']
-                        ) && !in_array($name, $var['list'])
+                            !array_key_exists('blacklist', $variable) || !$variable['blacklist']
+                        ) && !in_array($name, $variable['list'])
                     ) ||
                     (
-                        array_key_exists('blacklist', $var) && $var['blacklist'] && in_array($name, $var['list'])
+                        array_key_exists('blacklist', $variable) && $variable['blacklist'] && in_array($name, $variable['list'])
                     )
                 )
             )
@@ -872,7 +871,7 @@ class Templating
         {
             return $params;
         }
-        $var = $this->getvariable($params['var']['iterable'], $params['var']['delimiter'], $params['var']['owner']);
+        $variable = $this->getvariable($params['var']['iterable'], $params['var']['delimiter'], $params['var']['owner']);
         # Remove the rule from the tree.
         $tree = array
         (
@@ -880,7 +879,7 @@ class Templating
             'contents' => $params['tree']['contents']
         );
         $iterations = array();
-        foreach ($var as $key => $value)
+        foreach ($variable as $key => $value)
         {
             // Set the key variable if provided.
             if (array_key_exists('key', $params['var']))
@@ -949,18 +948,18 @@ class Templating
         Set a variable based on a split string.
 
         ``string``
-            The name of the variable to set.
+            str - The name of the variable to set.
 
         ``split``
-            The string that separates the levels of the variable.
+            str - The string that separates the levels of the variable.
 
         ``assignment``
-            The value to assign to the variable.
+            mixed - The value to assign to the variable.
 
         ``owner``
-            The object to set the variable on.
+            mixed - The object to set the variable on.
 
-        Returns: Nothing.
+        Returns: void - Nothing. The variable is modified.
         */
         $split = explode($split, $string);
         foreach ($split as $key => $value)
@@ -1012,7 +1011,7 @@ class Templating
     public function trim($params)
     {
         // Trim unnecessary whitespace.
-        $rules = array
+        $trimrules = array
         (
             '<pre' => array
             (
@@ -1025,8 +1024,8 @@ class Templating
                 'skip' => true
             )
         );
-        $pos = $this->suit->tokens($rules, $params['string'], $params['config']);
-        $tree = $this->suit->parse($rules, $pos, $params['string'], $params['config']);
+        $pos = $this->suit->tokens($trimrules, $params['string'], $params['config']);
+        $tree = $this->suit->parse($trimrules, $pos, $params['string'], $params['config']);
         $tree = $tree['contents'];
         $params['string'] = '';
         foreach ($tree as $value)
@@ -1034,7 +1033,7 @@ class Templating
             // If this node is a tag we do not want to trim the contents of, put the statement back.
             if (is_array($value))
             {
-                $params['string'] .= $value['rule'] . $value['contents'][0] . $rules[$value['rule']]['close'];
+                $params['string'] .= $value['rule'] . $value['contents'][0] . $trimrules[$value['rule']]['close'];
             }
             // Else, trim it.
             else
