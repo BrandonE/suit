@@ -462,7 +462,7 @@ def setvariable(string, split, assignment, owner):
             setattr(owner, split[len(split) - 1], assignment)
 
 def templates(params):
-    """Grab a template from a file."""
+    """Grab the unparsed contents of a template file."""
     # If the template is not whitelisted or blacklisted.
     if listing(params['string'], params['var']):
         params['string'] = open(

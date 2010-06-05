@@ -57,7 +57,7 @@ except ImportError:
 
 __all__ = [
     'cache', 'close', 'closed', 'configitems', 'defaultconfig', 'escape',
-    'evalrules', 'execute', 'log', 'loghash', 'parse', 'ruleitems',
+    'evalrules', 'execute', 'log', 'loghash', 'parse', 'ruleitems', 'rulesort',
     'separators', 'tokens', 'treeappend', 'walk'
 ]
 
@@ -553,6 +553,20 @@ def ruleitems(rules, items):
                 newrules[key][value2] = value[value2]
     return newrules
 
+def rulesort(a, b):
+    """Sort by priority, and if it is equal, sort by the size of the
+    string."""
+    if 'priority' in a and not 'priority' in b:
+        return -1
+    elif 'priority' in b and not 'priority' in a:
+        return 1
+    elif 'priority' in a and 'priority' in b:
+        if a['priority'] > b['priority']:
+            return -1
+        elif b['priority'] > a['priority']:
+            return 1
+    return len(b['string']) - len(a['string'])
+
 def tokens(rules, string, config = None):
     """Generate the tokens from the string. Tokens contain the different open
     and close strings and their positions.
@@ -606,23 +620,22 @@ def tokens(rules, string, config = None):
     for key, value in rules.items():
         # No need adding the open string if no close string provided.
         if 'close' in value:
+            item = {}
+            if 'priority' in value:
+                item['priority'] = value['priority']
             # Open strings open a block. Close strings close a block
             # Flat strings are open or close strings depending on context.
             stringtype = 'flat'
             # If the open string is the same as the close string, it is flat.
             if key != value['close']:
                 stringtype = 'open'
-                strings.append({
-                    'string': value['close'],
-                    'type': 'close'
-                })
-            strings.append({
-                'string': key,
-                'type': stringtype
-            })
-    # Order the strings by the length, in descending order, so that bigger
-    # strings are given priority over smaller strings.
-    strings.sort(key=lambda item: len(item['string']), reverse=True)
+                item['string'] = value['close']
+                item['type'] = 'close'
+                strings.append(item.copy())
+            item['string'] = key
+            item['type'] = stringtype
+            strings.append(item)
+    strings.sort(cmp=rulesort)
     if config['insensitive']:
         string = string.lower()
     for value in strings:

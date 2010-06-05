@@ -988,7 +988,7 @@ class Templating
 
     public function templates($params)
     {
-        // Grab a template from a file.
+        // Grab the unparsed contents of a template file.
         // If the variable is not whitelisted or blacklisted.
         if ($this->listing($params['string'], $params['var']))
         {

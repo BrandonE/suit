@@ -20,6 +20,7 @@
             <input name="search" type="text" /> <input name="submit" type="submit" value="Search" />
         </p>
         </form>
+        [comment]
         <form class="languages" action="#" method="post">
         <p>
             <select name="language">
@@ -31,6 +32,7 @@
             <input type="submit" value="Update" />
         </p>
         </form>
+        [/comment]
     </div>
 </div>
 <div class="nav">

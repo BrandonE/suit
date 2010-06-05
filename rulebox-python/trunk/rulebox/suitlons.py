@@ -69,7 +69,7 @@ def gettext(params):
     return params
 
 def templates(params):
-    """Grab a template from a file in the Pylons path."""
+    """Grab the unparsed contents of a template file in the Pylons path."""
     try:
         filename = os.path.normpath(params['string'])
         filepath = os.path.abspath(

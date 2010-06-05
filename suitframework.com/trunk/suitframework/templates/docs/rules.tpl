@@ -29,6 +29,10 @@
             <td>[gettext]list: The functions to run when walking through a node created by this rule.[/gettext]</td>
         </tr>
         <tr>
+            <td>[gettext]priority[/gettext]</td>
+            <td>[gettext]int: Used to give the open and close strings of this rule priority over others. (Default: null. The strings will be prioritized by size)[/gettext]</td>
+        </tr>
+        <tr>
             <td>[gettext]skip[/gettext]</td>
             <td>[gettext]bool: Whether or not the parser should skip over the contents of the nodes created by this rule.[/gettext]</td>
         </tr>

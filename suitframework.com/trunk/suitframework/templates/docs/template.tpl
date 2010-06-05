@@ -1,6 +1,6 @@
 <p><em>[gettext]Available Since:</em> Rulebox (1.0.0)[/gettext]</p>
 
-<p>[gettext]Grab a template from a file.[/gettext]</p>
+<p>[gettext]Grab the unparsed contents of a template file.[/gettext]</p>
 
 <fieldset>
     <legend><a id="syntax" href="#syntax">[gettext]Syntax[/gettext]</a></legend>

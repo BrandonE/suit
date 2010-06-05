@@ -345,12 +345,6 @@ class SUIT
         return $string;
     }
 
-    public function lengthsort($a, $b)
-    {
-        // Order the strings by the length, in descending order, so that bigger strings are given priority over smaller strings.
-        return strlen($b['string']) - strlen($a['string']);
-    }
-
     public function loghash($entry, $items)
     {
         /*
@@ -645,6 +639,31 @@ class SUIT
         return $newrules;
     }
 
+    public function rulesort($a, $b)
+    {
+        // Sort by priority, and if it is equal, sort by the size of the string.
+        if (array_key_exists('priority', $a) && !array_key_exists('priority', $b))
+        {
+            return -1;
+        }
+        elseif (array_key_exists('priority', $b) && !array_key_exists('priority', $a))
+        {
+            return 1;
+        }
+        elseif (array_key_exists('priority', $a) && array_key_exists('priority', $b))
+        {
+            if ($a['priority'] > $b['priority'])
+            {
+                return -1;
+            }
+            elseif ($b['priority'] > $a['priority'])
+            {
+                return 1;
+            }
+        }
+        return strlen($b['string']) - strlen($a['string']);
+    }
+
     public function tokens($rules, $string, $config = array())
     {
         /*
@@ -701,26 +720,27 @@ class SUIT
             // No need adding the open string if no close string provided.
             if (array_key_exists('close', $value))
             {
+                $item = array();
+                if (array_key_exists('priority', $value))
+                {
+                    $item['priority'] = $value['priority'];
+                }
                 // Open strings open a block. Close strings close a block. Flat strings are open or close strings depending on context.
                 $stringtype = 'flat';
                 // If the open string is the same as the close string, it is flat.
                 if ($key != $value['close'])
                 {
                     $stringtype = 'open';
-                    $strings[] = array
-                    (
-                        'string' => $value['close'],
-                        'type' => 'close'
-                    );
+                    $item['string'] = $value['close'];
+                    $item['type'] = 'close';
+                    $strings[] = $item;
                 }
-                $strings[] = array
-                (
-                    'string' => $key,
-                    'type' => $stringtype
-                );
+                $item['string'] = $key;
+                $item['type'] = $stringtype;
+                $strings[] = $item;
             }
         }
-        usort($strings, array('SUIT', 'lengthsort'));
+        usort($strings, array('SUIT', 'rulesort'));
         foreach ($strings as $value)
         {
             $tempstring = $value['string'];
