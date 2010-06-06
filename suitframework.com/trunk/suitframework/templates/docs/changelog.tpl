@@ -1,1 +1,1 @@
-mm/dd/YY: 2.0.0 - [gettext]Blah.[/gettext]
+<p>[gettext]06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released. These versions were the first to be developed using SVN. You can see all of the differences between it and its predecessor by reading revisions 25 through 142.[/gettext]</p>

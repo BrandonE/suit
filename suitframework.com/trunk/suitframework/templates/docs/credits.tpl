@@ -29,12 +29,12 @@
         </tr>
         <tr>
             <td>[gettext]Peter Behr[/gettext]</td>
-            <td>[gettext]Logo designer and translator of TIE[/gettext]</td>
+            <td>[gettext]Logo designer and translator[/gettext]</td>
             <td>[gettext]N/A[/gettext]</td>
         </tr>
         <tr>
             <td>[gettext]St&eacute;phane Lemay[/gettext]</td>
-            <td>[gettext]Translator of TIE[/gettext]</td>
+            <td>[gettext]Translator[/gettext]</td>
             <td><a href="http://www.interordi.com/" target="_blank">http://www.interordi.com/</a></td>
         </tr>
     </tbody>

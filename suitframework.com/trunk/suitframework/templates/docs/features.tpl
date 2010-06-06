@@ -2,7 +2,7 @@
 
 <ul>
     <li>[gettext]A <a href="[url controller="root" action="template" templatefile="docs" parameter1="comparison" /]">cleaner</a> syntax.[/gettext]</li>
-    <li>[gettext]A <a href="[url controller="root" action="template" templatefile="download" parameter1="rulebox" /]">Rulebox</a> which contains several sets of rules you can use to transform your template[/gettext]</a>
+    <li>[gettext]A <a href="[url controller="root" action="template" templatefile="download" parameter1="rulebox" /]">Rulebox</a> which contains several sets of rules you can use to transform your template.[/gettext]</a>
     <li>[gettext]Finally, you can separate not only the CSS and Javascript from the HTML structure, but the logic as well. The templating ruleset provides a syntax that a designer can easily work around.[/gettext]</li>
     <li>[gettext]Don't like the rules provided in the Rulebox? You can develop your own <a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">rules</a> easily.[/gettext]</li>
     <li>[gettext]The server-side language transforms the template. This can be useful for services where you want to allow the user to easily change the structure of the script, but do not want to allow them to execute code on your server.[/gettext]</li>

@@ -11,28 +11,26 @@
 <body>
 <div class="header">
     <div class="left">
-        <h1 class="title"><a href="[url controller="root" action="template" templatefile="index" /]">SUIT Framework</a></h1>
-        <div class="slogan">Scripting Using Integrated Templates</div>
+        <h1 class="title"><a href="[url controller="root" action="template" templatefile="index" /]">[gettext]SUIT Framework[/gettext]</a></h1>
+        <div class="slogan">[gettext]Scripting Using Integrated Templates[/gettext]</div>
     </div>
     <div class="right">
         <form action="#" method="post">
         <p>
-            <input name="search" type="text" /> <input name="submit" type="submit" value="Search" />
+            <input name="search" type="text" /> <input name="submit" type="submit" value="[gettext]Search[/gettext]" />
         </p>
         </form>
-        [comment]
         <form class="languages" action="#" method="post">
         <p>
             <select name="language">
-                <option value="default">Default</option>
+                <option value="">[gettext]English[/gettext]</option>
                 [loop key="key" value="value" iterable="loop.languages"]
-                <option value="[c]value.id[/c]">[c]value.title[/c]</option>
+                <option value="[c]key[/c]"[if condition="value.selected"] selected="selected"[/if]>[c]value.title[/c]</option>
                 [/loop]
             </select>
-            <input type="submit" value="Update" />
+            <input type="submit" value="[gettext]Update[/gettext]" />
         </p>
         </form>
-        [/comment]
     </div>
 </div>
 <div class="nav">
@@ -51,5 +49,5 @@
     <div class="section">
         <h2>[c]title[/c]</h2>
         <p style="text-align: center">
-            <strong>[gettext]mm/dd/YY: Something x.x.x has been released.[/gettext]</strong>
+            <strong>[gettext]06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released.[/gettext]</strong>
         </p>

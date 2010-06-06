@@ -10,8 +10,8 @@
         <a href="http://suitframework.svn.sourceforge.net/viewvc/suitframework/" target="_blank">[gettext]SVN[/gettext]</a>
         <a href="https://sourceforge.net/projects/suitframework/forums" target="_blank">[gettext]Forums[/gettext]</a>
     </p>
-    <p>Powered by <a target="_blank" href="http://www.suitframework.com/">SUIT</a></p>
-    <p>Copyright &copy; 2008-2010 Brandon Evans and Chris Santiago. All Rights Reserved.</p>
+    <p>[gettext]Powered by <a target="_blank" href="http://www.suitframework.com/">SUIT</a>[/gettext]</p>
+    <p>[gettext]Copyright &copy; 2008-2010 Brandon Evans and Chris Santiago. All Rights Reserved.[/gettext]</p>
     <p><a href="https://lists.sourceforge.net/lists/listinfo/suitframework-news">[gettext]Subscribe to our Mailing List[/gettext]</a></p>
     [if condition="condition.slacks" not="true"]
     <p>
@@ -21,18 +21,18 @@
     [loop key="key" value="value" iterable="slackslog"]
     <input type="hidden" name="[c]key[/c]" value="[c]value[/c]" />
     [/loop]
-    <p><input type="submit" name="slacks" value="Download SLACKS log" /></p>
+    <p><input type="submit" name="slacks" value="[gettext]Download SLACKS log[/gettext]" /></p>
     </form>
     [/if]
     <p>
-        <a href="http://www.suitframework.com/" target="_blank"><img src="/images/poweredby/suit.png" alt="SUIT" /></a>
-        <a href="http://php.net/" target="_blank"><img src="/images/poweredby/php.gif" alt="PHP" /></a>
-        <a href="http://www.python.org/" target="_blank"><img src="/images/poweredby/python.png" alt="Python" /></a>
-        <a href="http://mysql.com/" target="_blank"><img src="/images/poweredby/mysql.png" alt="MySQL" /></a>
+        <a href="http://www.suitframework.com/" target="_blank"><img src="/images/poweredby/suit.png" alt="[gettext]SUIT[/gettext]" /></a>
+        <a href="http://php.net/" target="_blank"><img src="/images/poweredby/php.gif" alt="[gettext]PHP[/gettext]" /></a>
+        <a href="http://www.python.org/" target="_blank"><img src="/images/poweredby/python.png" alt="[gettext]Python[/gettext]" /></a>
+        <a href="http://mysql.com/" target="_blank"><img src="/images/poweredby/mysql.png" alt="[gettext]MySQL[/gettext]" /></a>
     </p>
     <p>
-        <a href="http://twitter.com/suitframework" target="_blank"><img src="/images/news/twitter.png" alt="Twitter" /></a>
-        <a href="http://www.facebook.com/pages/SUIT-Framework/137182976758" target="_blank"><img src="/images/news/facebook.png" alt="Facebook" /></a>
+        <a href="http://twitter.com/suitframework" target="_blank"><img src="/images/news/twitter.png" alt="[gettext]Twitter[/gettext]" /></a>
+        <a href="http://www.facebook.com/pages/SUIT-Framework/137182976758" target="_blank"><img src="/images/news/facebook.png" alt="[gettext]Facebook[/gettext]" /></a>
     </p>
     <script type="text/javascript">
     <!--

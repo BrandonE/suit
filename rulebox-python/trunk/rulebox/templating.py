@@ -184,7 +184,7 @@ def decode(params):
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        params['string'] = cgi.escape(str(params['string']), True)
+        params['string'] = cgi.escape(params['string'], True)
     return params
 
 def execute(params):

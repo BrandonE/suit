@@ -60,7 +60,7 @@ __all__ = [
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        params['string'] = escape(str(params['string']), True)
+        params['string'] = escape(params['string'], True)
     return params
 
 def gettext(params):
@@ -92,7 +92,7 @@ def url_for(params):
 
 suitrules = templating.rules.copy()
 
-#  Adjust the templating.default rules for Pylons' convenience.
+# Adjust the templating.default rules for Pylons' convenience.
 suitrules['[assign]'] = suitrules['[assign]'].copy()
 suitrules['[assign]']['var'] = suitrules['[assign]']['var'].copy()
 suitrules['[assign]']['var']['var'] = suitrules[
@@ -143,6 +143,13 @@ suitrules['[template]']['functions'] = [
     templating.walk,
     templates
 ]
+
+suitrules['[try]'] = suitrules['[try]'].copy()
+suitrules['[try]']['var'] = suitrules['[try]']['var'].copy()
+suitrules['[try]']['var']['var'] = suitrules[
+    '[try]'
+]['var']['var'].copy()
+suitrules['[try]']['var']['var']['owner'] = c
 
 del suitrules['[var]']
 del suitrules['[var']

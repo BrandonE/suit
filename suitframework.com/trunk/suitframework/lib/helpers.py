@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Helper functions
 
 Consists of functions to typically be used within templates, but also
@@ -11,7 +12,7 @@ except ImportError:
     import json
 import os
 from glob import glob
-from pylons import config, request, response, tmpl_context as c, url
+from pylons import config, request, response, session, tmpl_context as c, url
 from pylons.controllers.util import redirect
 from pylons.i18n import get_lang, set_lang, ugettext as _gettext
 from suitframework.lib import helperstry
@@ -415,15 +416,35 @@ def header():
             ),
             code = 303
         )
-    #if ('submit' in request.POST and
-    #request.POST['submit'] == _gettext('Update')):
-    c.loop.languages = [
-        {
-            'id': 'en',
-            'title': 'English',
-            'selected': (get_lang() == 'en')
+    c.loop.languages = {
+        'ch': {
+            'title': u'中文 - 0%'
+        },
+        'es': {
+            'title': u'Español - 0%'
+        },
+        'fr': {
+            'title': u'Français - 0%'
+        },
+        'pl': {
+            'title': u'Polski - 0%'
         }
-    ]
+    }
+    if (
+        'language' in request.POST and
+        (
+            request.POST['language'] in c.loop.languages or
+            request.POST['language'] == ''
+        )
+    ):
+        session['lang'] = request.POST['language']
+        session.save()
+        c.loop.languages['ch']['selected'] = True
+    if 'lang' in session:
+        set_lang(session['lang'])
+    for value in c.loop.languages.items():
+        c.loop.languages[value[0]]['selected'] = (get_lang() and
+        get_lang()[0] == value[0])
     return ''
 
 def increment(num):
@@ -470,7 +491,7 @@ def slacks():
     c.condition.first = True
     c.condition.referrer = ('referrer' in request.GET and
     request.GET['referrer'])
-    c.key = -1
+    c.iteration = -1
     c.log = {
         'hash': {},
         'contents': []
