@@ -7,6 +7,7 @@
 <p>Our <strong>Try It</strong> Editor can be used to play around with some Rulesets live on this site. Learn more about it on its <a href="[url controller="root" action="template" templatefile="docs" parameter1="tryit" /]">Docs article</a>.</p>
 [if condition="condition.rule"]
 [if condition="template"]
+[if condition="error" not="true"]
 <fieldset id="html">
     <legend class="yesscript" style="display: none"><a href="#null" id="htmllink">[gettext]HTML - Click to toggle[/gettext]</a></legend>
     <legend class="noscript">[gettext]HTML[/gettext]</legend>
@@ -16,6 +17,13 @@
     <legend class="yesscript" style="display: none"><a href="#null" id="textlink">[gettext]Text - Click to toggle[/gettext]</a></legend>
     <legend class="noscript">[gettext]Text[/gettext]</legend>
 <pre>[c]executed[/c]</pre>
+</fieldset>
+[/if]
+[/if]
+[if condition="error"]
+<fieldset>
+    <legend>[gettext]Error[/gettext]</legend>
+    <p>[c]error[/c]</p>
 </fieldset>
 [/if]
 <form action="#" method="post">

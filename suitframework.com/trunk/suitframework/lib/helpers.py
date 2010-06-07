@@ -499,7 +499,10 @@ def slacks():
     try:
         loaded = False
         if 'url' in request.GET:
-            suit.log['contents'] = []
+            suit.log = {
+                'hash': {},
+                'contents': []
+            }
             c.log = urllib.urlopen(
                 request.GET['url'],
                 urllib.urlencode({
@@ -689,7 +692,11 @@ def tryit():
         c.executed = escape(c.executed, True)
     if c.executeconfig['linebreak']:
         c.executed = c.executed.replace('\n', '<br />\n')
-    c.executed = suit.execute(rules, c.executed, c.executeconfig)
+    c.error = False
+    try:
+        c.executed = suit.execute(rules, c.executed, c.executeconfig)
+    except Exception as inst:
+        c.error = inst
     return ''
 
 def whitelist(dir):
