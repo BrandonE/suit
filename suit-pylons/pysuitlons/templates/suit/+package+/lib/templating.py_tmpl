@@ -35,6 +35,7 @@ def render(template, **kwargs):
             ('Content-Disposition', 'attachment; filename=slacks.json'),
             ('Content-Length', len(slacks))
         ]
+        suit.log = defaultlog
         return slacks
     return result
 
