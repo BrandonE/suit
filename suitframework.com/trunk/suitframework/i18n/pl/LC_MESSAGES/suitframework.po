@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SUIT\n"
 "Report-Msgid-Bugs-To: admin@brandonevans.org\n"
 "POT-Creation-Date: 2007-08-02 18:01-0700\n"
-"PO-Revision-Date: 2010-06-05 13:46-0500\n"
+"PO-Revision-Date: 2010-06-08 00:05-0500\n"
 "Last-Translator: Brandon Evans <admin@brandonevans.org>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,6 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9dev-r215\n"
 "X-Poedit-Language: Polish\n"
+
+msgid "06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released. These versions were the first to be developed using SVN. You can see all of the differences between it and its predecessor by reading revisions 25 through 142."
+msgstr ""
+
+msgid "06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released."
+msgstr ""
 
 msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"url\" ]\"/>Return back to the url article.</a>"
 msgstr ""
@@ -32,7 +38,7 @@ msgstr ""
 msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>cleaner</a> syntax."
 msgstr ""
 
-msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" parameter1=\"rulebox\" ]\"/>Rulebox</a> which contains several sets of rules you can use to transform your template"
+msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" parameter1=\"rulebox\" ]\"/>Rulebox</a> which contains several sets of rules you can use to transform your template."
 msgstr ""
 
 msgid "A Double Sided rule using attributes (Such as <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"if\" ]\"/>if</a>) needs two rules to operate. The first matches the unmodified open and close strings (Ex. \"[rule]\" and \"[/rule]\"), defines the default variables, and configures how to assign the attributes for it."
@@ -149,9 +155,6 @@ msgstr ""
 msgid "An attribute is used to modify the properties of a rule through the template. If a rule is configured to use attributes, any attributes in any order can be used, which will modify variables that the rule's functions use."
 msgstr ""
 
-msgid "An integration for using SUIT as the Pylons templating engine of choice. It can either be downloaded or set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a>."
-msgstr ""
-
 msgid "Applies to Rules?"
 msgstr ""
 
@@ -192,9 +195,6 @@ msgid "Because the syntax of rules generally use brackets, parentheses are now u
 msgstr ""
 
 msgid "Below is the lower function mentioned in the above configuration. See how it handles the params."
-msgstr ""
-
-msgid "Blah."
 msgstr ""
 
 msgid "Bolds text."
@@ -296,10 +296,10 @@ msgstr ""
 msgid "Download SUIT 2.0.0 for PHP"
 msgstr ""
 
-msgid "Download SUIT 2.0.0 for Pylons"
+msgid "Download SUIT 2.0.0 for Python"
 msgstr ""
 
-msgid "Download SUIT 2.0.0 for Python"
+msgid "Download SUIT for Pylons 1.0.0"
 msgstr ""
 
 msgid "Download TIE 1.3.4"
@@ -317,7 +317,13 @@ msgstr ""
 msgid "Enclosing the third param are brackets. Anything inside brackets is optional."
 msgstr ""
 
+msgid "English"
+msgstr ""
+
 msgid "Entities"
+msgstr ""
+
+msgid "Error"
 msgstr ""
 
 msgid "Escape"
@@ -347,10 +353,10 @@ msgstr ""
 msgid "Finally, you can separate not only the CSS and Javascript from the HTML structure, but the logic as well. The templating ruleset provides a syntax that a designer can easily work around."
 msgstr ""
 
-msgid "For Rulebox for PHP, you need to include it and initialize the various Rulesets included (<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"templatingconstruct\" ]\"/>Templating</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"bbcodeconstruct\" ]\"/>BBCode</a>), while in Rulebox for Python you merely need to import it. In addition to downloading it, Rulebox for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a>."
+msgid "For Rulebox for PHP, you need to include it and initialize the various Rulesets included (<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"templatingconstruct\" ]\"/>Templating</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"bbcodeconstruct\" ]\"/>BBCode</a>), while in Rulebox for Python you merely need to import it. In addition to downloading it, Rulebox for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
 msgstr ""
 
-msgid "For SUIT for PHP, you need to include it and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"suitconstruct\" ]\"/>initialize</a> it, while in SUIT for Python you merely need to import it. In addition to downloading it, SUIT for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a>."
+msgid "For SUIT for PHP, you need to include it and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"suitconstruct\" ]\"/>initialize</a> it, while in SUIT for Python you merely need to import it. In addition to downloading it, SUIT for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
 msgstr ""
 
 msgid "Forums"
@@ -488,7 +494,7 @@ msgstr ""
 msgid "Log"
 msgstr ""
 
-msgid "Logo designer and translator of TIE"
+msgid "Logo designer and translator"
 msgstr ""
 
 msgid "Logo"
@@ -593,6 +599,9 @@ msgstr ""
 msgid "Put text in a code box."
 msgstr ""
 
+msgid "Pylons template sporting Python-SUIT as the template system based on the default_project template. It can either be downloaded or set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
+msgstr ""
+
 msgid "Python - Click to toggle"
 msgstr ""
 
@@ -660,6 +669,9 @@ msgid "Select a rule:"
 msgstr ""
 
 msgid "Set a variable based on a split string."
+msgstr ""
+
+msgid "Shell"
 msgstr ""
 
 msgid "Show the string if necessary."
@@ -1145,7 +1157,7 @@ msgstr ""
 msgid "Transform a string using rules. The function calls tokens, parse, and walk all in one convenient call."
 msgstr ""
 
-msgid "Translator of TIE"
+msgid "Translator"
 msgstr ""
 
 msgid "Trim unnecessary whitespace."
@@ -1437,9 +1449,6 @@ msgid "list: The functions to run when walking through a node created by this ru
 msgstr ""
 
 msgid "mixed: A variable that the functions can use. This key could be named anything, and does not do anything by default. Conventionally, we use this key and have the functions copy it to params."
-msgstr ""
-
-msgid "mm/dd/YY: Something x.x.x has been released."
 msgstr ""
 
 msgid "open"
