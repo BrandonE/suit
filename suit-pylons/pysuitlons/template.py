@@ -21,7 +21,7 @@ class PySUITTemplate(Template):
             # Rename the app logger in the rare case a project is named 'root'
             package_logger = 'app'
         vars['package_logger'] = package_logger
-        vars['babel_templates_extractor'] = '' # No PySUIT support yet.
+        vars['babel_templates_extractor'] = '' # Not yet
         # Ensure these exist in the namespace
         for name in self.ensure_names:
             vars.setdefault(name, '')
