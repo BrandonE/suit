@@ -1,0 +1,28 @@
+"""The base Controller API
+
+Provides the BaseController class for subclassing.
+"""
+from pylons.controllers import WSGIController
+
+from {{package}}.lib.templating import render
+{{if sqlalchemy}}
+
+from {{package}}.model import meta
+{{endif}}
+import suit
+
+class BaseController(WSGIController):
+
+    def __before__():
+        suit.log = {'hash': {}, 'contents': []}
+
+    def __call__(self, environ, start_response):
+        """Invoke the Controller"""
+        # WSGIController.__call__ dispatches to the Controller method
+        # the request is routed to. This routing information is
+        # available in environ['pylons.routes_dict']
+        {{if sqlalchemy}}
+        try:
+            return WSGIController.__call__(self, environ, start_response)
+        finally:
+            meta.Session.remove(){{else}}        return WSGIController.__call__(self, environ, start_response){{endif}}
