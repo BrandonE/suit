@@ -3,18 +3,18 @@ use_setuptools()
 
 from setuptools import setup, find_packages
 
-version = '0.0.1'
+version = '1.0.0'
 
 setup(
-    name='pysuitlons',
+    name='suit-pylons',
     version=version,
     author="Faltzer (Chris Santiago)",
     author_email="faltzermaster@aol.com",
     keywords='web wsgi framework sqlalchemy pylons paste template suit pysuit',
-    description='Pylons template sporting PySUIT as the template system based on the default_project template.',
+    description='Pylons template sporting Python-SUIT as the template system based on the default_project template.',
     long_description='',
     license='MIT License',
-    url='http://faltzershq.com/pysuitlons',
+    url='http://suitframework.com/docs/pylons/',
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Framework :: Pylons",
@@ -28,7 +28,7 @@ setup(
     ],
     zip_safe=True,
     packages=find_packages(),
-    install_requires=["suit>=1.3.5", "rulebox"],
+    install_requires=["suit>=2.0.0", "rulebox"],
     include_package_data=True,
     entry_points="""
         [paste.paster_create_template]
