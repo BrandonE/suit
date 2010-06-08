@@ -8,7 +8,7 @@ Install
 Usage
 ==================
 
-    paster create --template=pysuit my_application_name
+    paster create --template=suit my_application_name
 
 ==================
 PySUIT
