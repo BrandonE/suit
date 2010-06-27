@@ -31,6 +31,11 @@ setup(
     include_package_data=True,
     install_requires=["suit>=2.0.0", "rulebox"],
     entry_points="""
+        [paste.paster_command]
+        controller = pylons.commands:ControllerCommand
+        restcontroller = pylons.commands:RestControllerCommand
+        shell = pylons.commands:ShellCommand
+
         [paste.paster_create_template]
         suit = suit_pylons.template:PySUITTemplate
     """)
