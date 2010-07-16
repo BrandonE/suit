@@ -53,6 +53,22 @@ $(document).ready
                 $('#python').hide();
             }
         );
+        $('#phplink2').click
+        (
+            function ()
+            {
+                $('#php2').hide();
+                $('#python2').show();
+            }
+        );
+        $('#pythonlink2').click
+        (
+            function ()
+            {
+                $('#php2').show();
+                $('#python2').hide();
+            }
+        );
         $('#textlink').click
         (
             function ()

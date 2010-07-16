@@ -527,8 +527,14 @@ def trim(params):
 
 def trying(params):
     """Try to walk and handle exceptions."""
-    if 'var' in params['var'] and params['var']['var']:
-        setattr(suit, params['var']['var'], '')
+    # If a variable is provided.
+    if 'var' in params['var']:
+        setvariable(
+            params['var']['var'],
+            params['var']['delimiter'],
+            '',
+            params['var']['owner']
+        )
     # Try to walk through this node.
     try:
         params['string'] = suit.walk(
@@ -537,13 +543,13 @@ def trying(params):
             params['config']
         )
     # Catch all exceptions.
-    except Exception, inst:
+    except Exception, e:
         # If a variable is provided.
         if 'var' in params['var']:
             setvariable(
                 params['var']['var'],
                 params['var']['delimiter'],
-                inst,
+                e,
                 params['var']['owner']
             )
         # Collapse the node.

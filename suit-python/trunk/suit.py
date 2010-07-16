@@ -47,8 +47,6 @@ For both ``log`` and ``cache``, the `hash` key contains the actual data. The
 others reference this to deal with redundant items.
 """
 
-__version__ = '2.0.0'
-
 from hashlib import md5
 try:
     import simplejson as json
@@ -60,6 +58,8 @@ __all__ = [
     'evalrules', 'execute', 'log', 'loghash', 'parse', 'ruleitems', 'rulesort',
     'separators', 'tokens', 'treeappend', 'walk'
 ]
+
+__version__ = '2.0.0'
 
 cache = {
     'hash': {},
@@ -439,7 +439,7 @@ def parse(rules, pos, string, config = None):
                 string = escapeinfo['string']
                 # If this position should not be overlooked
                 if not escapeinfo['odd']:
-                    # If the inner string is not empty, add it to the tree
+                    # If the inner string is not empty, add it to the tree.
                     append = string[last:position]
                     # Adjust to after this string.
                     last = position + len(value['string'])

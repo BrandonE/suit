@@ -14,17 +14,15 @@
             <li><a href="https://sourceforge.net/projects/suitframework/files/suit-php/suit-php-2.0.0.zip/download">[gettext]Download SUIT 2.0.0 for PHP[/gettext]</a></li>
             <li><a href="https://sourceforge.net/projects/suitframework/files/suit-python/suit-python-2.0.0.zip/download">[gettext]Download SUIT 2.0.0 for Python[/gettext]</a></li>
         </ul>
-        [comment]
         <a href="#pylons" id="pylons"><h3>SUIT for Pylons</h3></a>
-        <p>[gettext]An integration for using SUIT as the Pylons templating engine of choice. It can either be downloaded or set up through <a href="http://pypi.python.org/pypi/setuptools" target="_blank">easy_install</a>.[/gettext]</p>
+        <p>[gettext]Pylons template sporting Python-SUIT as the template system based on the default_project template. It can either be downloaded or set up through <a href="http://pypi.python.org/pypi/setuptools" target="_blank">easy_install</a> with the following command:[/gettext]</p>
         <fieldset>
             <legend>[gettext]Shell[/gettext]</legend>
-            <pre>easy_install rulebox</pre>
+            <pre>easy_install suit-pylons</pre>
         </fieldset>
         <ul>
-            <li><a href="#pylonssuitdownload">[gettext]Download SUIT 2.0.0 for Pylons[/gettext]</a></li>
+            <li><a href="https://sourceforge.net/projects/suitframework/files/suit-pylons/suit-pylons.zip/download">[gettext]Download SUIT for Pylons 1.0.0[/gettext]</a></li>
         </ul>
-        [/comment]
         <a href="#rulebox" id="rulebox"><h3>Rulebox</h3></a>
         <p>[gettext]A package containing various sets of rules for use with SUIT. If you believe you have a set of rules that can be used for several occassions, post it <a href="#forumurl">here</a> and it may be included into the package.[/gettext]</p>
         <p>[gettext]For Rulebox for PHP, you need to include it and initialize the various Rulesets included (<a href="[url controller="root" action="template" templatefile="docs" parameter1="templatingconstruct" /]">Templating</a>, <a href="[url controller="root" action="template" templatefile="docs" parameter1="bbcodeconstruct" /]">BBCode</a>), while in Rulebox for Python you merely need to import it. In addition to downloading it, Rulebox for Python can also be set up through <a href="http://pypi.python.org/pypi/setuptools" target="_blank">easy_install</a> with the following command:[/gettext]</p>

@@ -33,9 +33,14 @@ Example Usage
     // Load the BBCode templates
     foreach ($rules as $key => $value)
     {
-        if (array_key_exists('var', $value) && array_key_exists('label', $value['var']))
+        if (
+            array_key_exists('var', $value) &&
+            array_key_exists('label', $value['var'])
+        )
         {
-            $rules[$key]['var']['template'] = file_get_contents('bbcode/' . $value['var']['label'] . '.tpl');
+            $rules[$key]['var']['template'] = file_get_contents(
+                'bbcode/' . $value['var']['label'] . '.tpl'
+            );
         }
     }
     code = nl2br(htmlentities('[b]Test[/b]'));
@@ -44,7 +49,8 @@ Example Usage
         'escape' => ''
     );
     echo $suit->execute($rules, $code, $config);
-    // Result: assuming it loaded the default templates, "<strong>Test</strong>"
+    // Result: assuming it loaded the default templates,
+    // "<strong>Test</strong>"
 
 Basic usage; see http://www.suitframework.com/docs/ for how to use other rules.
 
@@ -592,7 +598,9 @@ class BBCode
 
     public function bracket($params)
     {
-        $params['string'] = $params['tree']['rule'] . $params['string'] . $params['rules'][$params['tree']['rule']]['close'];
+        $params['string'] = $params['tree']['rule'] . $params[
+            'string'
+        ] . $params['rules'][$params['tree']['rule']]['close'];
         return $params;
     }
 
@@ -604,16 +612,23 @@ class BBCode
 
     public function listitems($params)
     {
-        if (!$params['var']['equal'] || in_array($params['var']['equal'], array('1', 'a', 'A', 'i', 'I')))
+        if (
+            !$params['var']['equal'] ||
+            in_array($params['var']['equal'], array('1', 'a', 'A', 'i', 'I'))
+        )
         {
             $params['string'] = str_replace('<br />', '', $params['string']);
-            $params['string'] = explode($params['var']['delimiter'], $params['string']);
+            $params['string'] = explode(
+                $params['var']['delimiter'], $params['string']
+            );
             $split = array();
             foreach ($params['string'] as $key => $value)
             {
                 if ($key != 0)
                 {
-                    $value = $params['var']['open'] . $value . $params['var']['close'];
+                    $value = $params['var']['open'] . $value . $params['var'][
+                        'close'
+                    ];
                 }
                 $split[] = $value;
             }
@@ -621,7 +636,9 @@ class BBCode
         }
         else
         {
-            $params['var']['template'] = $params['tree']['rule'] . $params['string'] . $params['rules'][$params['tree']['rule']]['close'];
+            $params['var']['template'] = $params['tree']['rule'] . $params[
+                'string'
+            ] . $params['rules'][$params['tree']['rule']]['close'];
         }
         return $params;
     }
@@ -640,7 +657,9 @@ class BBCode
     {
         $explode = explode(';', $params['var']['equal'], 2);
         $params['var']['equal'] = $explode[0];
-        $params['var']['equal'] = str_replace('"', '', str_replace('\'', '', $params['var']['equal']));
+        $params['var']['equal'] = str_replace(
+            '"', '', str_replace('\'', '', $params['var']['equal'])
+        );
         return $params;
     }
 
@@ -648,7 +667,9 @@ class BBCode
     {
         $this->templating->var->equal = $params['var']['equal'];
         $this->templating->var->string = $params['string'];
-        $params['string'] = $this->suit->execute($this->templating->rules, $params['var']['template']);
+        $params['string'] = $this->suit->execute(
+            $this->templating->rules, $params['var']['template']
+        );
         return $params;
     }
 }

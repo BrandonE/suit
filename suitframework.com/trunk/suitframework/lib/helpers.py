@@ -417,17 +417,11 @@ def header():
             code = 303
         )
     c.loop.languages = {
-        'ch': {
-            'title': u'中文 - 0%'
-        },
         'es': {
             'title': u'Español - 0%'
         },
         'fr': {
             'title': u'Français - 0%'
-        },
-        'pl': {
-            'title': u'Polski - 0%'
         }
     }
     if (
