@@ -16,4 +16,4 @@ http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 */
 
-$version = '1.1.0';
+$version = '1.0.0';

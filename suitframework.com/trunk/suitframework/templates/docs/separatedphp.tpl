@@ -1,6 +1,6 @@
 <?php
-require '/home/brandon/lib/php/suit.class.php';
-require '/home/brandon/lib/php/rulebox/templating.class.php';
+require 'suit.class.php';
+require 'templating.class.php';
 $suit = new SUIT();
 $templating = new Templating($suit);
 $template = file_get_contents('index.tpl');

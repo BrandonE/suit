@@ -11,8 +11,8 @@
             <pre>easy_install suit</pre>
         </fieldset>
         <ul>
-            <li><a href="https://sourceforge.net/projects/suitframework/files/suit-php/suit-php-2.0.0.zip/download">[gettext]Download SUIT 2.0.0 for PHP[/gettext]</a></li>
-            <li><a href="https://sourceforge.net/projects/suitframework/files/suit-python/suit-python-2.0.0.zip/download">[gettext]Download SUIT 2.0.0 for Python[/gettext]</a></li>
+            <li><a href="https://sourceforge.net/projects/suitframework/files/suit-php/suit-php-2.0.1.zip/download">[gettext]Download SUIT 2.0.1 for PHP[/gettext]</a></li>
+            <li><a href="https://sourceforge.net/projects/suitframework/files/suit-python/suit-python-2.0.1.zip/download">[gettext]Download SUIT 2.0.1 for Python[/gettext]</a></li>
         </ul>
         <a href="#pylons" id="pylons"><h3>SUIT for Pylons</h3></a>
         <p>[gettext]Pylons template sporting Python-SUIT as the template system based on the default_project template. It can either be downloaded or set up through <a href="http://pypi.python.org/pypi/setuptools" target="_blank">easy_install</a> with the following command:[/gettext]</p>
@@ -31,8 +31,8 @@
             <pre>easy_install rulebox</pre>
         </fieldset>
         <ul>
-            <li><a href="https://sourceforge.net/projects/suitframework/files/rulebox-php/rulebox-php-1.0.0.zip/download">[gettext]Download Rulebox 1.0.0 for PHP[/gettext]</a></li>
-            <li><a href="https://sourceforge.net/projects/suitframework/files/rulebox-python/rulebox-python-1.0.0.zip/download">[gettext]Download Rulebox 1.0.0 for Python[/gettext]</a></li>
+            <li><a href="https://sourceforge.net/projects/suitframework/files/rulebox-php/rulebox-php-1.1.0.zip/download">[gettext]Download Rulebox 1.1.0 for PHP[/gettext]</a></li>
+            <li><a href="https://sourceforge.net/projects/suitframework/files/rulebox-python/rulebox-python-1.1.0.zip/download">[gettext]Download Rulebox 1.1.0 for Python[/gettext]</a></li>
         </ul>
         <a href="#tie" id="tie"><h3>TIE (Discontinued)</h3></a>
         <p>[gettext]A template manager for SUIT for PHP. It stands for Template Integration Environment. The latest version uses SUIT 1.3.4 and should only be used for educational purposes.[/gettext]</p>

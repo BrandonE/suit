@@ -1,0 +1,1 @@
+<img src="[var entities="false"]string[/var]" alt="[var entities="false"]string[/var]" />

@@ -1,0 +1,1 @@
+<span style="text-decoration: underline">[var entities="false"]string[/var]</span>

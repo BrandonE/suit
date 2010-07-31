@@ -22,6 +22,10 @@
 <fieldset>
     <legend><a id="staticvariables" href="#staticvariables">[gettext]Static Variables[/gettext]</a></legend>
     <fieldset>
+        <legend><a id="delimiter" href="#delimiter">delimiter</a></legend>
+        <p>[gettext]The string that separates the levels of the variable. (Default: ".")[/gettext]</p>
+    </fieldset>
+    <fieldset>
         <legend><a id="owner" href="#owner">owner</a></legend>
         <p>[gettext]The object to call the function on. (Default: null. In SUIT for PHP, a global function will be called. In SUIT for Python, nothing will happen.)[/gettext]</p>
     </fieldset>
@@ -36,6 +40,13 @@
     <legend><a id="confignotes" href="#confignotes">[gettext]Config Notes[/gettext]</a></legend>
     <ul>
         <li>[gettext]Uses the default <a href="[url controller="root" action="template" templatefile="docs" parameter1="attributes" /]#onesidedconfig">One Sided Attribute Config</a>.[/gettext]</li>
+    </ul>
+</fieldset>
+
+<fieldset>
+    <legend><a id="changelog" href="#changelog">[gettext]Changelog[/gettext]</a></legend>
+    <ul>
+        <li>[gettext]1.1.0 - The static variable "delimiter" has been added.[/gettext]</li>
     </ul>
 </fieldset>
 

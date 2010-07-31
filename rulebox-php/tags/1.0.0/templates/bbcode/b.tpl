@@ -1,0 +1,1 @@
+<strong>[var entities="false"]string[/var]</strong>

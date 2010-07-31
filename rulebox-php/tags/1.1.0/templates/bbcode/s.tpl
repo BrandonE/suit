@@ -1,0 +1,1 @@
+<del>[var entities="false"]string[/var]</del>
