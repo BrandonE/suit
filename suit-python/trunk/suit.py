@@ -178,7 +178,7 @@ def defaultconfig(config):
         dict - The dict to fill.
 
     Returns: dict - A dict with the following format:
-    
+
     `escape`
         str - The escape string.
 
@@ -226,7 +226,7 @@ def escape(escapestring, position, string, insensitive = True):
         bool - Whether or not the searching should be done case insensitively.
 
     Returns: dict - A dict with the following format:
-    
+
     `odd`
         bool - Whether or not the count of the escape strings to the left of
         this position is odd, escaping the open or close string.
@@ -317,6 +317,12 @@ def execute(rules, string, config = None):
         pop = loghash(pop, ('walk',))
         log['contents'] = treeappend((pop,), log['contents'])
     return string
+
+def functions(params):
+    """Run the specified functions."""
+    for value in params['rules'][params['tree']['rule']]['functions']:
+        params = value(params)
+    return params
 
 def loghash(entry, items):
     """Hash specific keys for logging.
@@ -758,9 +764,7 @@ def walk(rules, tree, config = None):
                 # Allow reference to the parent branch.
                 params['tree']['parent'] = tree
                 if 'rule' in value and 'functions' in rules[value['rule']]:
-                    # Run the specified functions.
-                    for value2 in rules[value['rule']]['functions']:
-                        params = value2(params)
+                    params = functions(params)
                 # Add the resulting string.
                 string += unicode(params['string'])
             # Else, add the open string and the result of walking through it

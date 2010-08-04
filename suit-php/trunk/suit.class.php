@@ -196,7 +196,7 @@ class SUIT
             dict - The dict to fill.
 
         Returns: dict - A dict with the following format:
-        
+
         `escape`
             str - The escape string.
 
@@ -265,7 +265,7 @@ class SUIT
             insensitively.
 
         Returns: dict - A dict with the following format:
-        
+
         `odd`
             bool - Whether or not the count of the escape strings to the left
             of this position is odd, escaping the open or close string.
@@ -382,6 +382,27 @@ class SUIT
             );
         }
         return $string;
+    }
+
+    public function functions($params)
+    {
+        // Run the specified functions.
+        $rule = $params['tree']['rule'];
+        foreach ($params['rules'][$rule]['functions'] as $value)
+        {
+            /*
+            Note whether or not the function is in a class.
+            */
+            if (array_key_exists('class', $value))
+            {
+                $params = $value['class']->$value['function']($params);
+            }
+            else
+            {
+                $params = $value['function']($params);
+            }
+        }
+        return $params;
     }
 
     public function loghash($entry, $items)
@@ -1044,23 +1065,7 @@ class SUIT
                         array_key_exists('functions', $rules[$value['rule']])
                     )
                     {
-                        // Run the specified functions.
-                        foreach (
-                            $rules[$value['rule']]['functions'] as $value2
-                        )
-                        {
-                            // Note whether or not the function is in a class.
-                            if (array_key_exists('class', $value2))
-                            {
-                                $params = $value2['class']->$value2[
-                                    'function'
-                                ]($params);
-                            }
-                            else
-                            {
-                                $params = $value2['function']($params);
-                            }
-                        }
+                        $params = $this->functions($params);
                     }
                     // Add the resulting string.
                     $string .= strval($params['string']);
