@@ -10,18 +10,18 @@
     <legend>My File</legend>
     [transform function="pygments" lexer="html"][skip]<p>Welcome, [var]username[/var]!</p>[/skip][/transform]
 </fieldset>
+[comment]
+As PHP exceptions aren't automatically thrown when an error occurs, this
+particular example would always pass. The concept still applies.
+[/comment]
+[try var="exception"]
 <fieldset>
     <legend>My Other File</legend>
-    [comment]
-    As PHP exceptions aren't automatically thrown when an error occurs, this
-    particular example would always pass. The concept still applies.
-    [/comment]
-    [try var="exception"]
     [transform function="pygments" lexer="html"][template]suitframework/templates/tryit/templates/try/file.tpl[/template][/transform]
-    [/try]
 </fieldset>
+[/try]
 [if condition="exception"]
-[var]exception[/var]
+<p>An exception was caught: [var]exception.1[/var]</p>
 [return /]
 [/if]
 <fieldset>

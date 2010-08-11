@@ -49,5 +49,5 @@
     <div class="section">
         <h2>[c]title[/c]</h2>
         <p style="text-align: center">
-            <strong>[gettext]07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released.[/gettext]</strong>
+            <strong><a href="[url controller="root" action="template" templatefile="docs" parameter1="changelog" /]">[gettext]07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released.[/gettext]</a></strong>
         </p>

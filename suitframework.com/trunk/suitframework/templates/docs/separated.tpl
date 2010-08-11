@@ -14,7 +14,7 @@
 </p>
 [/if]
 [if condition="loggedin" not="true"]
-<p>Please log in.</p>'
+<p>Please log in.</p>
 [/if]
 <fieldset>
     <legend>Who's Online?</legend>

@@ -20,7 +20,13 @@ msgstr ""
 msgid "06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released. These versions were the first to be developed using SVN. You can see all of the differences between it and its predecessor by reading revisions 25 through 142."
 msgstr ""
  
-msgid "06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released."
+msgid "07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released. Applied the 80 character rule to the PHP files to match the Python files. Fixed bug with <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"try\" ]\"/>try</a> that caused the variable to be undefined initially if no exception was thrown. Made SUIT PHP's parse function cache correctly. Before, it was loading the cache, but not returning it. The static variable \"delimiter\" has been added to <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"call\" ]\"/>call</a> and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"transform\" ]\"/>transform</a>."
+msgstr ""
+ 
+msgid "07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released."
+msgstr ""
+ 
+msgid "1.1.0 - The static variable \"delimiter\" has been added."
 msgstr ""
  
 msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"url\" ]\"/>Return back to the url article.</a>"
@@ -212,6 +218,9 @@ msgstr ""
 msgid "Call a function to transform a string."
 msgstr ""
  
+msgid "Changelog"
+msgstr ""
+ 
 msgid "Check if the variable is whitelisted or blacklisted and determine whether or not the variable can be used."
 msgstr ""
  
@@ -284,19 +293,19 @@ msgstr ""
 msgid "Download CAPE 0.0.0"
 msgstr ""
  
-msgid "Download Rulebox 1.0.0 for PHP"
+msgid "Download Rulebox 1.1.0 for PHP"
 msgstr ""
  
-msgid "Download Rulebox 1.0.0 for Python"
+msgid "Download Rulebox 1.1.0 for Python"
 msgstr ""
  
 msgid "Download SLACKS log"
 msgstr ""
  
-msgid "Download SUIT 2.0.0 for PHP"
+msgid "Download SUIT 2.0.1 for PHP"
 msgstr ""
  
-msgid "Download SUIT 2.0.0 for Python"
+msgid "Download SUIT 2.0.1 for Python"
 msgstr ""
  
 msgid "Download SUIT for Pylons 1.0.0"
@@ -467,7 +476,7 @@ msgstr ""
 msgid "Insensitive"
 msgstr ""
  
-msgid "Introducing the <strong>SUIT Framework</strong> (Scripting Using Integrated Templates), an open-source web templating framework. It provides a lightweight and powerful solution to this problem by allowing developers to define their own syntax for transforming templates by using <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a>. The rules should generally allow the transfer of information from the server-side language to the template. Then, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>execute</a> the template according to the provided rules, and problem solved."
+msgid "Introducing the <strong>SUIT Framework</strong> (Scripting Using Integrated Templates), an open-source web <a href=\"http://en.wikipedia.org/wiki/Template_engine_(web)\">templating framework</a> with some <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" ]\"/>innovative features</a>. It provides a lightweight and powerful solution to this problem by allowing developers to define their own syntax for transforming templates by using <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a>. The rules should generally allow the transfer of information from the server-side language to the template. Then, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>execute</a> the template according to the provided rules, and problem solved."
 msgstr ""
  
 msgid "Italicizes text."
@@ -686,7 +695,7 @@ msgstr ""
 msgid "Skip parsing in a certain section of the template."
 msgstr ""
  
-msgid "So, read the docs, get help in the community, and enjoy clean coding!"
+msgid "So, read the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" ]\"/>Docs</a>, get help in the <a href=\"https://sourceforge.net/projects/suitframework/forums\" target=\"_blank\">Forums</a>, and enjoy clean coding!"
 msgstr ""
  
 msgid "So, you got this far. What's next? Firstly, you need to decide whether or not SUIT is for you. To get a better idea of this, read a <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>Comparison of SUIT to its Alternatives</a> and its <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" ]\"/>Features</a>. Next, get an idea on how to read these docs through <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"readingdocs\" ]\"/>Reading Docs</a>."
@@ -1125,9 +1134,6 @@ msgid "The variables to be JSON decoded. (Default: [\"not\"])"
 msgstr ""
  
 msgid "The walked through string. The variables will be reset."
-msgstr ""
- 
-msgid "There have been several approaches to this problem. Those who ignore this problem store the markup in a string, concatenate the dynamic elements, and print the document. This requires a lot of symbols, such as quotes, to be escaped. Besides, the majority of the document will be static, so this seems superfluous. Thus, many solutions have simply have templates that contain HTML, and put the logic in between certain tags. Although this looks much better than the original method, it still has two languages integrated into eachother. So, what can these elements be separated?"
 msgstr ""
  
 msgid "These options all generate the <a href=\"/comparison\">same page</a>. Take your pick. Although the second option of these three comes really close, we at SUIT believe that two completely different languages should be separated, and we have worked on this project to accomplish that. As you can see by the above example, we have succeeded."
