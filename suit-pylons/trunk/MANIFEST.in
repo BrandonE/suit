@@ -1,5 +1,0 @@
-recursive-include suit_pylons/templates *
-include LICENCE.txt
-include README.txt
-include ez_setup.py
-global-exclude *.svn
