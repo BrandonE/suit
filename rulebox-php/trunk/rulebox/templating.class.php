@@ -62,8 +62,6 @@ class Templating
 
         $this->default['owner'] = &$this->var;
 
-        $this->suit = $suit;
-
         $this->rules = array
         (
             '[' => array
@@ -231,7 +229,6 @@ class Templating
                     'quote' => $this->default['quote'],
                     'var' => array
                     (
-                        'condition' => 'false',
                         'decode' => array('log'),
                         'log' => 'true'
                     )
@@ -589,6 +586,8 @@ class Templating
                 'skip' => true
             )
         );
+
+        $this->suit = $suit;
     }
 
     public function assign($params)
@@ -809,12 +808,9 @@ class Templating
                         $params['var']['owner']
                     );
                 }
-                $params['string'] = $owner->$function($kwargs);
+                $function = array($owner, $function);
             }
-            else
-            {
-                $params['string'] = $function($kwargs);
-            }
+            $params['string'] = call_user_func_array($function, $kwargs);
         }
         return $params;
     }
