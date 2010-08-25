@@ -28,7 +28,6 @@
         <a href="http://www.suitframework.com/" target="_blank"><img src="/images/poweredby/suit.png" alt="[gettext]SUIT[/gettext]" /></a>
         <a href="http://php.net/" target="_blank"><img src="/images/poweredby/php.gif" alt="[gettext]PHP[/gettext]" /></a>
         <a href="http://www.python.org/" target="_blank"><img src="/images/poweredby/python.png" alt="[gettext]Python[/gettext]" /></a>
-        <a href="http://mysql.com/" target="_blank"><img src="/images/poweredby/mysql.png" alt="[gettext]MySQL[/gettext]" /></a>
     </p>
     <p>
         <a href="http://twitter.com/suitframework" target="_blank"><img src="/images/news/twitter.png" alt="[gettext]Twitter[/gettext]" /></a>

@@ -336,7 +336,7 @@ def loghash(entry, items):
     Returns: dict - The dict with the specified items hashed.
     """
     newlog = {}
-    for key, value in entry.items():
+    for key, value in list(entry.items()):
         if key in items:
             dumped = json.dumps(
                 value,
@@ -552,7 +552,7 @@ def ruleitems(rules, items):
     Returns: dict - The dict with the specified items.
     """
     newrules = {}
-    for key, value in rules.items():
+    for key, value in list(rules.items()):
         newrules[key] = {}
         for value2 in items:
             if value2 in value:
@@ -623,7 +623,7 @@ def tokens(rules, string, config = None):
     pos = []
     repeated = set({})
     strings = []
-    for key, value in rules.items():
+    for key, value in list(rules.items()):
         # No need adding the open string if no close string provided.
         if 'close' in value:
             item = {}
@@ -765,8 +765,12 @@ def walk(rules, tree, config = None):
                 params['tree']['parent'] = tree
                 if 'rule' in value and 'functions' in rules[value['rule']]:
                     params = functions(params)
+                try:
+                    function = unicode
+                except NameError:
+                    function = str
                 # Add the resulting string.
-                string += unicode(params['string'])
+                string += function(params['string'])
             # Else, add the open string and the result of walking through it
             # without the rule.
             else:

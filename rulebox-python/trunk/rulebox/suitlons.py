@@ -60,7 +60,11 @@ __all__ = [
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        params['string'] = escape(unicode(params['string']), True)
+        try:
+            function = unicode
+        except NameError:
+            function = str
+        params['string'] = escape(function(params['string']), True)
     return params
 
 def gettext(params):
@@ -85,7 +89,7 @@ def templates(params):
 def url_for(params):
     """Returns a URL for the given URL settings supplied as parameters."""
     url_params = {}
-    for key, value in params['var'].items():
+    for key, value in list(params['var'].items()):
         url_params[str(key)] = value
     params['string'] = url(**url_params)
     return params

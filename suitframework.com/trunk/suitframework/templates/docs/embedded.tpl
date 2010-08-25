@@ -52,7 +52,7 @@ if ($loggedin):
 <?php
 else:
 ?>
-<p>Please log in.</p>'
+<p>Please log in.</p>
 <?php
 endif;
 ?>

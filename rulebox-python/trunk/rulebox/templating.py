@@ -48,6 +48,7 @@ import copy
 import os
 import re
 import cgi
+import collections
 try:
     import simplejson as json
 except ImportError:
@@ -184,7 +185,11 @@ def decode(params):
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        params['string'] = cgi.escape(unicode(params['string']), True)
+        try:
+            function = unicode
+        except NameError:
+            function = str
+        params['string'] = cgi.escape(function(params['string']), True)
     return params
 
 def execute(params):
@@ -251,15 +256,20 @@ def iterate(iterable):
     Returns: mixed - The items in key, value format.
     """
     if hasattr(iterable, 'items'):
-        iterations = iterable.items()
+        iterations = list(iterable.items())
     else:
         try:
             iterations = enumerate(iterable)
         except (TypeError, RuntimeError):
             iterations = []
             for value in dir(iterable):
-                if (not value.startswith('_') and
-                not callable(getattr(iterable, value))):
+                if (
+                    not value.startswith('_') and
+                    not isinstance(
+                        getattr(iterable, value),
+                        collections.Callable
+                    )
+                ):
                     iterations.append((
                         value,
                         getattr(iterable, value)
@@ -299,7 +309,7 @@ def listing(name, variable):
 def loadlocal(params):
     """Reset the variables set before this section."""
     # Set the variables.
-    for key, value in params['var']['local'].items():
+    for key, value in list(params['var']['local'].items()):
         if hasattr(params['var']['owner'], 'items'):
             params['var']['owner'][key] = value
         else:
@@ -313,7 +323,7 @@ def loadlocal(params):
                 )
     # Remove the variables set after this section.
     if hasattr(params['var']['owner'], 'items'):
-        for key, value in params['var']['owner'].items():
+        for key, value in list(params['var']['owner'].items()):
             if not key in params['var']['local']:
                 del params['var']['owner'][key]
     else:
@@ -323,8 +333,13 @@ def loadlocal(params):
                     del params['var']['owner'][key]
         except (TypeError, RuntimeError):
             for value in dir(params['var']['owner']):
-                if (not value.startswith('_') and
-                not callable(getattr(params['var']['owner'], value))):
+                if (
+                    not value.startswith('_') and
+                    not isinstance(
+                        getattr(iterable, value),
+                        collections.Callable
+                    )
+                ):
                     if not value in params['var']['local']:
                         delattr(
                             params['var']['owner'],
@@ -532,7 +547,7 @@ def trying(params):
             params['config']
         )
     # Catch all exceptions.
-    except Exception, e:
+    except Exception as e:
         # If a variable is provided.
         if 'var' in params['var']:
             setvariable(
