@@ -49,9 +49,9 @@ others reference this to deal with redundant items.
 
 from hashlib import md5
 try:
-    import simplejson as json
-except ImportError:
     import json
+except ImportError:
+    import simplejson as json
 
 __all__ = [
     'cache', 'close', 'closed', 'configitems', 'defaultconfig', 'escape',

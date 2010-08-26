@@ -3,9 +3,9 @@ import logging
 from hashlib import md5
 
 try:
-    import simplejson as json
-except ImportError:
     import json
+except ImportError:
+    import simplejson as json
 
 import os
 

@@ -50,9 +50,9 @@ import re
 import cgi
 import collections
 try:
-    import simplejson as json
-except ImportError:
     import json
+except ImportError:
+    import simplejson as json
 
 import suit
 

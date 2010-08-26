@@ -7,9 +7,9 @@ available to Controllers. This module is available to templates as 'h'.
 # Import helpers as desired, or define your own, ie:
 #from webhelpers.html.tags import checkbox, password
 try:
-    import simplejson as json
-except ImportError:
     import json
+except ImportError:
+    import simplejson as json
 import os
 from glob import glob
 from pylons import config, request, response, session, tmpl_context as c, url
@@ -76,6 +76,10 @@ def docs():
                 {
                     'title': 'Escaping',
                     'url': 'escaping'
+                },
+                {
+                    'title': 'Cache',
+                    'url': 'cache'
                 },
                 {
                     'title': 'FAQ',
