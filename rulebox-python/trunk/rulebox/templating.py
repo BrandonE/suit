@@ -215,7 +215,9 @@ def functions(params):
             params['var']['delimiter'],
             params['var']['owner']
         )
-        kwargs = params['var']
+        kwargs = {}
+        for index, value in params['var'].items():
+            kwargs[str(index)] = value
         # Remove the parameters that shouldn't be used in the call.
         del kwargs['delimiter']
         del kwargs['function']
