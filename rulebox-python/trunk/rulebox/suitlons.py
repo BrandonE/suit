@@ -48,7 +48,7 @@ import os
 
 from pylons import config, tmpl_context as c, url
 from pylons.i18n import ugettext as _
-from webhelpers.html import escape
+from webhelpers.html import escape, literal
 
 from rulebox import templating
 
@@ -60,11 +60,7 @@ __all__ = [
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        try:
-            function = unicode
-        except NameError:
-            function = str
-        params['string'] = escape(function(params['string']), True)
+        params['string'] = escape(literal(params['string']))
     return params
 
 def gettext(params):
