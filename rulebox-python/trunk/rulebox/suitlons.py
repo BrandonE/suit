@@ -48,8 +48,8 @@ import os
 
 from pylons import config, tmpl_context as c, url
 from pylons.i18n import ugettext as _
-from webhelpers.html import escape, literal
-
+from webhelpers.html import escape
+from markupsafe import Markup
 from rulebox import templating
 
 __all__ = [
@@ -60,7 +60,7 @@ __all__ = [
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        params['string'] = escape(literal(params['string']))
+        params['string'] = escape(Markup(params['string']).unescape())
     return params
 
 def gettext(params):
