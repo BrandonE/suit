@@ -425,7 +425,7 @@ def header():
             'title': u'Español - 0%'
         },
         'fr': {
-            'title': u'Français - 0%'
+            'title': u'Français - 10%'
         }
     }
     if (
@@ -437,12 +437,13 @@ def header():
     ):
         session['lang'] = request.POST['language']
         session.save()
-        c.loop.languages['ch']['selected'] = True
     if 'lang' in session:
         set_lang(session['lang'])
     for value in c.loop.languages.items():
-        c.loop.languages[value[0]]['selected'] = (get_lang() and
-        get_lang()[0] == value[0])
+        c.loop.languages[value[0]]['selected'] = (
+            get_lang() and
+            get_lang()[0] == value[0]
+        )
     return ''
 
 def increment(num):
@@ -485,39 +486,45 @@ def slacks():
     c.referrer = ''
     if 'referer' in request.headers:
         c.referrer = request.headers['referer']
-    c.condition.error = False
+    c.condition.invalid = False
     c.condition.first = True
-    c.condition.referrer = ('referrer' in request.GET and
-    request.GET['referrer'])
+    c.condition.referrer = (
+        'referrer' in request.GET and
+        request.GET['referrer']
+    )
     c.iteration = -1
     c.log = {
         'hash': {},
         'contents': []
     }
+    c.condition.big = False
     try:
-        loaded = False
+        loaded = True
         if 'url' in request.GET:
             suit.log = {
                 'hash': {},
                 'contents': []
             }
-            c.log = urllib.urlopen(
+            log = urllib.urlopen(
                 request.GET['url'],
                 urllib.urlencode({
                     'slacks': 'true'
                 })
             ).read()
-            loaded = True
         elif ('submit' in request.POST and
         request.POST['submit'] == _gettext('Upload')):
-            c.log = request.POST['file'].file.read()
-            loaded = True
+            log = request.POST['file'].file.read()
+        else:
+            loaded = False
         if loaded:
-            c.log = json.loads(c.log)
-            if not c.log['contents']:
-                raise
-            for key, value in c.log['hash'].items():
-                c.log['hash'][key] = json.loads(value)
+            if len(log) > 100000:
+                c.condition.big = True
+            else:
+                c.log = json.loads(log)
+                if not c.log['contents']:
+                    raise
+                for key, value in c.log['hash'].items():
+                    c.log['hash'][key] = json.loads(value)
     except (
         AttributeError,
         EOFError,
@@ -530,7 +537,7 @@ def slacks():
             'hash': {},
             'contents': []
         }
-        c.condition.error = True
+        c.condition.invalid = False
     return ''
 
 def tokenshighlight(tokens, open, close, flat, end, string):

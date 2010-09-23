@@ -48,12 +48,12 @@ import copy
 import os
 import re
 import cgi
-import collections
 try:
     import json
 except ImportError:
     import simplejson as json
 
+from markupsafe import Markup
 import suit
 
 __all__ = [
@@ -185,11 +185,7 @@ def decode(params):
 def entities(params):
     """Convert HTML characters to their respective entities."""
     if not params['var']['json'] and params['var']['entities']:
-        try:
-            function = unicode
-        except NameError:
-            function = str
-        params['string'] = cgi.escape(function(params['string']), True)
+        params['string'] = cgi.escape(Markup(params['string']).unescape())
     return params
 
 def execute(params):
@@ -267,10 +263,7 @@ def iterate(iterable):
             for value in dir(iterable):
                 if (
                     not value.startswith('_') and
-                    not isinstance(
-                        getattr(iterable, value),
-                        collections.Callable
-                    )
+                    not callable(getattr(iterable, value))
                 ):
                     iterations.append((
                         value,
@@ -337,10 +330,7 @@ def loadlocal(params):
             for value in dir(params['var']['owner']):
                 if (
                     not value.startswith('_') and
-                    not isinstance(
-                        getattr(iterable, value),
-                        collections.Callable
-                    )
+                    not callable(getattr(params['var']['owner'], value))
                 ):
                     if not value in params['var']['local']:
                         delattr(
