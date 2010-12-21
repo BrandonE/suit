@@ -1,0 +1,20 @@
+Metadata-Version: 1.0
+Name: pysuitlons
+Version: 0.0.1
+Summary: Pylons template sporting PySUIT as the template system based on the default_project template.
+Home-page: http://faltzershq.com/pysuitlons
+Author: Faltzer (Chris Santiago)
+Author-email: faltzermaster@aol.com
+License: MIT License
+Description: UNKNOWN
+Keywords: web wsgi framework sqlalchemy pylons paste template suit pysuit
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Pylons
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Internet :: WWW/HTTP :: WSGI
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

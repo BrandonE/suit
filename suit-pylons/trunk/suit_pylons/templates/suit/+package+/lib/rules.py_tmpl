@@ -1,0 +1,19 @@
+"""SUIT Templating Rules."""
+
+from rulebox import templating, suitlons
+from phanpy.rules import rules as phanpy
+
+from {{package}}.lib.base import h
+
+__all__ = ['rules']
+
+rules = suitlons.rules.copy()
+# If you wish to use the rules from the phanpy package, uncomment the below
+# line.
+#rules = dict(rules.copy(), **phanpy.copy()
+
+# Make sure [call /] and [transform] use our helpers.
+rules['[call'] = rules['[call'].copy()
+rules['[call']['var']['var']['owner'] = h
+rules['[transform]'] = rules['[transform]'].copy()
+rules['[transform]']['var']['var']['owner'] = h
