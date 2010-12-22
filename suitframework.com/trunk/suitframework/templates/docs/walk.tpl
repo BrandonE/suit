@@ -73,6 +73,5 @@ print suit.walk(templating.rules, tree)
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">[gettext]execute[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="tokens" /]">[gettext]tokens[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="parse" /]">[gettext]parse[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">[gettext]defaultconfig[/gettext]</a></li>
         </ul>
 </fieldset>

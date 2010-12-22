@@ -11,7 +11,7 @@
         <a href="https://sourceforge.net/projects/suitframework/forums" target="_blank">[gettext]Forums[/gettext]</a>
     </p>
     <p>[gettext]Powered by <a target="_blank" href="http://www.suitframework.com/">SUIT</a>[/gettext]</p>
-    <p>[gettext]Copyright &copy; 2008-2010 Brandon Evans and Chris Santiago. All Rights Reserved.[/gettext]</p>
+    <p>[gettext]Copyright &copy; 2008-2010 <a href="http://www.brandonevans.org/" target="_blank">Brandon Evans</a> and <a href="http://www.faltzershq.com/" target="_blank">Chris Santiago</a>. All Rights Reserved.[/gettext]</p>
     <p><a href="https://lists.sourceforge.net/lists/listinfo/suitframework-news">[gettext]Subscribe to our Mailing List[/gettext]</a></p>
     [if condition="condition.slacks" not="true"]
     <p>

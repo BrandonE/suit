@@ -66,6 +66,5 @@ print suit.execute(templating.rules, template)
         <ul>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">[gettext]Rules[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="escaping" /]">[gettext]Escaping[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">[gettext]defaultconfig[/gettext]</a></li>
         </ul>
 </fieldset>

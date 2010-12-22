@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SUIT\n"
 "Report-Msgid-Bugs-To: admin@brandonevans.org\n"
 "POT-Creation-Date: 2007-08-02 18:01-0700\n"
-"PO-Revision-Date: 2010-09-14 19:02-0500\n"
+"PO-Revision-Date: 2010-12-21 23:33-0500\n"
 "Last-Translator: Brandon Evans <admin@brandonevans.org>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -20,43 +20,48 @@ msgstr ""
 msgid "06/06/2010: SUIT 2.0.0 and Rulebox 1.0.0 released. These versions were the first to be developed using SVN. You can see all of the differences between it and its predecessor by reading revisions 25 through 142."
 msgstr "2010-06-06: SUIT 2.0.0 et Rulebox 1.0.0 sont disponibles. Ces versions ont été les premières à être développées en utilisant SVN. Vous pouvez consulter l'historique des différences en consultant les révisions 25 à 142."
 
-msgid "07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released. Applied the 80 character rule to the PHP files to match the Python files. Fixed bug with <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"try\" ]\"/>try</a> that caused the variable to be undefined initially if no exception was thrown. Made SUIT PHP's parse function cache correctly. Before, it was loading the cache, but not returning it. The static variable \"delimiter\" has been added to <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"call\" ]\"/>call</a> and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"transform\" ]\"/>transform</a>."
+#, fuzzy
+msgid "07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released. Applied the 80 character rule to the PHP files to match the Python files. Fixed bug with <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"try\" /]\">try</a> that caused the variable to be undefined initially if no exception was thrown. Made SUIT PHP's parse function cache correctly. Before, it was loading the cache, but not returning it. The static variable \"delimiter\" has been added to <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"call\" /]\">call</a> and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"transform\" /]\">transform</a>."
 msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles. "
-
-msgid "07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released."
-msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles."
 
 msgid "1.1.0 - The static variable \"delimiter\" has been added."
 msgstr "1.1.0 - La variable statique \"delimiter\" a été ajoutée."
 
-msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"url\" ]\"/>Return back to the url article.</a>"
+#, fuzzy
+msgid "12/21/2010: SUIT 2.0.2 and Rulebox 1.1.1 released."
+msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles."
+
+#, fuzzy
+msgid "12/21/2010: SUIT 2.0.2 and Rulebox 1.1.1 released:"
+msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles."
+
+#, fuzzy
+msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"url\" /]\">Return back to the url article.</a>"
 msgstr "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"url\" ]\"/>Retour à l'adresse de l'article.</a>"
 
-msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"slacks\" ]\"/>SLACKS</a> takes a SUIT generated log, which contains information on how the execute function works, and formats it to show the user how it transformed the template. In order to permit SLACKS to access this log, instead of calling execute and printing the result, you must use the following snippet."
+#, fuzzy
+msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"slacks\" /]\">SLACKS</a> takes a SUIT generated log, which contains information on how the execute function works, and formats it to show the user how it transformed the template. In order to permit SLACKS to access this log, instead of calling execute and printing the result, you must use the following snippet."
 msgstr "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"slacks\" ]\"/>SLACKS</a> reçoit un journal généré par SUIT, qui contient de l'information sur le fonctionnement de la fonction execute, et le formatte pour montrer à l'utilisateur comment le modèle a été transformé. Afin de permettre à SLACKS d'accéder à ce journal, au lieu d'appeler execute et d'afficher le résultat, vous devez exécuter le segment suivant."
 
-msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"tryit\" ]\"/>Try It</a> is one of the more interactive features of this site. It can be used to play around with some Rulesets live on this site. Select a Rulset, and write a template to be transformed with it."
+#, fuzzy
+msgid "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"tryit\" /]\">Try It</a> is one of the more interactive features of this site. It can be used to play around with some Rulesets live on this site. Select a Rulset, and write a template to be transformed with it."
 msgstr "<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"tryit\" ]\"/>Essayez-Le</a> est une des options les plus interactives du site. Elle peut être utilisée pour tester certains ensembles de règles directement en ligne. Sélectionner une Règle, et écrivez un modèle devant être transformé par lui."
 
-msgid "<strong>SLACKS</strong> (SLACKS Lets Application Coders Know SUIT) can be used to show how a page has been built by SUIT. Learn how to configure your site to use SLACKS by reading its <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"slacks\" ]\"/>Docs article</a>."
+msgid "<strong>SLACKS</strong> (SLACKS Lets Application Coders Know SUIT) can be used to show how a page has been built by SUIT. Learn how to configure your site to use SLACKS by reading its <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"slacks\" /]\">Docs article</a>."
 msgstr ""
 
-msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>cleaner</a> syntax."
+#, fuzzy
+msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" /]\">cleaner</a> syntax."
 msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
-msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" parameter1=\"rulebox\" ]\"/>Rulebox</a> which contains several sets of rules you can use to transform your template."
+#, fuzzy
+msgid "A <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" parameter1=\"rulebox\" /]\">Rulebox</a> which contains several sets of rules you can use to transform your template."
 msgstr "Une <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" parameter1=\"rulebox\" ]\"/>Règle</a> qui contient plusieurs ensemble de règles pour transformer votre modèle.À REVOIR: Règle vs Rulebox"
 
-msgid "A Double Sided rule using attributes (Such as <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"if\" ]\"/>if</a>) needs two rules to operate. The first matches the unmodified open and close strings (Ex. \"[rule]\" and \"[/rule]\"), defines the default variables, and configures how to assign the attributes for it."
+msgid "A Double Sided rule using attributes (Such as <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"if\" /]\">if</a>) needs two rules to operate. The first matches the unmodified open and close strings (Ex. \"[rule]\" and \"[/rule]\"), defines the default variables, and configures how to assign the attributes for it."
 msgstr ""
 
 msgid "A community application made with SUIT for PHP to get an idea how a forum using SUIT would work. The latest version uses SUIT for PHP 1.3.2 and should only be used for educational purposes. For a forum system still in development using SUIT, see <a href=\"#paraboards\">Parasol Boards</a>."
-msgstr ""
-
-msgid "A dict containing the `list` and `blacklist` keys if applicable."
-msgstr ""
-
-msgid "A dict with the following format:"
 msgstr ""
 
 msgid "A list of dicts with the following format:"
@@ -77,8 +82,9 @@ msgstr ""
 msgid "A parameter to send to the url function. Infinite params can be passed through this method with any name."
 msgstr ""
 
-msgid "A rule is used to tell SUIT how to transform a string. A collection of rules is called a <em>Ruleset</em>, and a Ruleset is used as a parameter in the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>execute</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"tokens\" ]\"/>tokens</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"parse\" ]\"/>parse</a>, and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"walk\" ]\"/>walk</a> functions."
-msgstr ""
+#, fuzzy
+msgid "A rule is used to tell SUIT how to transform a string. A collection of rules is called a <em>Ruleset</em>, and a Ruleset is used as a parameter in the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" /]\">execute</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"tokens\" /]\">tokens</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"parse\" /]\">parse</a>, and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"walk\" /]\">walk</a> functions."
+msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles. "
 
 msgid "A string contained in brackets."
 msgstr ""
@@ -128,10 +134,7 @@ msgstr "Une chaîne utilisée pour identifier cette règle. (Défaut: \"url\")"
 msgid "A template manager for SUIT for PHP. It stands for Template Integration Environment. The latest version uses SUIT 1.3.4 and should only be used for educational purposes."
 msgstr ""
 
-msgid "Add to the tree contents in the appropriate place if necessary."
-msgstr ""
-
-msgid "After that, you need to decide what aspects of SUIT you will be using. Are you going to merely be editing SUIT templates, or will you actually be developing sites with them? Will you use the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>Rules</a> provided by SUIT, or will you be developing your own?"
+msgid "After that, you need to decide what aspects of SUIT you will be using. Are you going to merely be editing SUIT templates, or will you actually be developing sites with them? Will you use the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">Rules</a> provided by SUIT, or will you be developing your own?"
 msgstr ""
 
 msgid "After version 1.3.4, Brandon finally started using SVN. With it, he introduced attributes, separated template retrieval from the system, optimized the system, and much more. In fact, there was apparently so much to tidy up that he never wanted to make another release until he deemed the project solid. Along with this, he decided to redo the site and documentation. During this period, Brandon also developed SLACKS (SLACKS Lets Application Coders Know SUIT), which could be used to debug SUIT projects. SUIT 2.0.0 was released on 06/06/10."
@@ -146,13 +149,20 @@ msgstr ""
 msgid "Alternatively, you can upload a file containing the JSON encoded tree:"
 msgstr ""
 
-msgid "Although the syntax for <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>Rules</a> is similar, there are a few differences."
-msgstr ""
+#, fuzzy
+msgid "Although the syntax for <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">Rules</a> is similar, there are a few differences."
+msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour délimiter la chaîne."
 
 msgid "An additional parameter to send to the function. Infinite params can be passed through this method with any name."
 msgstr ""
 
 msgid "An attribute is used to modify the properties of a rule through the template. If a rule is configured to use attributes, any attributes in any order can be used, which will modify variables that the rule's functions use."
+msgstr ""
+
+msgid "Apparently, json is preferred over simplejson, so now it'll try to import json, and if it fails, it'll import simplejson."
+msgstr ""
+
+msgid "Applied Chris' new entities formatting to templating.py of Rulebox Python."
 msgstr ""
 
 msgid "Applies to Rules?"
@@ -175,9 +185,6 @@ msgstr "Attributs"
 
 msgid "Available Since:</em> Rulebox (1.0.0)"
 msgstr "Disponible depuis:</em> Rulebox (1.0.0)"
-
-msgid "Available Since:</em> Rulebox for Python (1.0.0)"
-msgstr "Disponible depuis:</em> Rulebox for Python (1.0.0)"
 
 msgid "Available Since:</em> SUIT (2.0.0)"
 msgstr "Disponible depuis:</em> SUIT (2.0.0)"
@@ -207,7 +214,7 @@ msgid "Brandon first wanted to focus on the templating system of the forum. He w
 msgstr ""
 
 #, fuzzy
-msgid "By default, SUIT caches the results to <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"tokens\" ]\"/>tokens</a> and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"parse\" ]\"/>parse</a>. This effictively eliminates the additional processing time whenever you <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>execute</a> the same template with the same <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a>."
+msgid "By default, SUIT caches the results to <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"tokens\" /]\">tokens</a> and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"parse\" /]\">parse</a>. This effictively eliminates the additional processing time whenever you <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" /]\">execute</a> the same template with the same <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a>."
 msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles. "
 
 msgid "Call a function to generate the output."
@@ -217,12 +224,6 @@ msgid "Call a function to transform a string."
 msgstr ""
 
 msgid "Changelog"
-msgstr ""
-
-msgid "Check if the variable is whitelisted or blacklisted and determine whether or not the variable can be used."
-msgstr ""
-
-msgid "Check whether or not this item is a dict and has been closed."
 msgstr ""
 
 msgid "Chris Santiago (Faltzer)"
@@ -249,7 +250,7 @@ msgstr ""
 msgid "Convert HTML characters to their respective entities."
 msgstr ""
 
-msgid "Copyright &copy; 2008-2010 Brandon Evans and Chris Santiago. All Rights Reserved."
+msgid "Copyright &copy; 2008-2010 <a href=\"http://www.brandonevans.org/\" target=\"_blank\">Brandon Evans</a> and <a href=\"http://www.faltzershq.com/\" target=\"_blank\">Chris Santiago</a>. All Rights Reserved."
 msgstr ""
 
 msgid "Create a link to an E-Mail."
@@ -259,12 +260,6 @@ msgid "Create a link."
 msgstr ""
 
 msgid "Create a list."
-msgstr ""
-
-msgid "Default"
-msgstr ""
-
-msgid "Delete contents of a tree to break references."
 msgstr ""
 
 msgid "Depending on the condition, either the string or nothing."
@@ -285,25 +280,26 @@ msgstr ""
 msgid "Docs"
 msgstr ""
 
-msgid "Don't like the rules provided in the Rulebox? You can develop your own <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a> easily."
-msgstr ""
+#, fuzzy
+msgid "Don't like the rules provided in the Rulebox? You can develop your own <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a> easily."
+msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour délimiter la chaîne."
 
 msgid "Download CAPE 0.0.0"
 msgstr ""
 
-msgid "Download Rulebox 1.1.0 for PHP"
+msgid "Download Rulebox 1.1.1 for PHP"
 msgstr ""
 
-msgid "Download Rulebox 1.1.0 for Python"
+msgid "Download Rulebox 1.1.1 for Python"
 msgstr ""
 
 msgid "Download SLACKS log"
 msgstr ""
 
-msgid "Download SUIT 2.0.1 for PHP"
+msgid "Download SUIT 2.0.2 for PHP"
 msgstr ""
 
-msgid "Download SUIT 2.0.1 for Python"
+msgid "Download SUIT 2.0.2 for Python"
 msgstr ""
 
 msgid "Download SUIT for Pylons 1.0.0"
@@ -315,7 +311,7 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-msgid "Due to this innovation, we now have to worry about two different types of languages: Client-side and Server-side. Some of the (X)HTML, CSS, and Javascript, which the client-side browser will interpret, can stay static on the page, while the changing parts need to be generated by a server-side language like PHP or Python. This results in several languages on the same document, which can get <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>very messy</a>, and forces all the developers to work on one file. By default, CSS and Javascript can be stored in an external file, but what can we do about the server-side language?"
+msgid "Due to this innovation, we now have to worry about two different types of languages: Client-side and Server-side. Some of the (X)HTML, CSS, and Javascript, which the client-side browser will interpret, can stay static on the page, while the changing parts need to be generated by a server-side language like PHP or Python. This results in several languages on the same document, which can get <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" /]\">very messy</a>, and forces all the developers to work on one file. By default, CSS and Javascript can be stored in an external file, but what can we do about the server-side language?"
 msgstr ""
 
 msgid "Either a boolean stating whether or not to return out of everything (false meaning don't return out of anything), or an integer saying how many layers to return out of. (Default: true)"
@@ -333,13 +329,19 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
+msgid "Error: The log provided is invalid."
+msgstr ""
+
+msgid "Error: The log provided is too big to process."
+msgstr ""
+
 msgid "Escape"
 msgstr ""
 
 msgid "Escaping"
 msgstr ""
 
-msgid "Even if you choose to only use call and transform, they are powered by rules, so they are a necessary feature. We at SUIT tend to create rulesets with rules that will undoubtably be used a lot in the context, and use functions for cases unique to our projects. For instance, this site uses a function called \"pygments\" to highlight the code in our examples. Considering that most sites wouldn't need this, we created a function instead of adding it as a rule for the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" ]#rulebox\"/>Templating Ruleset</a>."
+msgid "Even if you choose to only use call and transform, they are powered by rules, so they are a necessary feature. We at SUIT tend to create rulesets with rules that will undoubtably be used a lot in the context, and use functions for cases unique to our projects. For instance, this site uses a function called \"pygments\" to highlight the code in our examples. Considering that most sites wouldn't need this, we created a function instead of adding it as a rule for the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" /]#rulebox\">Templating Ruleset</a>."
 msgstr ""
 
 msgid "Examples"
@@ -360,10 +362,13 @@ msgstr ""
 msgid "Finally, you can separate not only the CSS and Javascript from the HTML structure, but the logic as well. The templating ruleset provides a syntax that a designer can easily work around."
 msgstr ""
 
-msgid "For Rulebox for PHP, you need to include it and initialize the various Rulesets included (<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"templatingconstruct\" ]\"/>Templating</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"bbcodeconstruct\" ]\"/>BBCode</a>), while in Rulebox for Python you merely need to import it. In addition to downloading it, Rulebox for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
+msgid "Fixed copyrights. For some reason, it said it was using the GPL instead of the LGPL, and Rulebox wasn't part of a package."
 msgstr ""
 
-msgid "For SUIT for PHP, you need to include it and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"suitconstruct\" ]\"/>initialize</a> it, while in SUIT for Python you merely need to import it. In addition to downloading it, SUIT for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
+msgid "For Rulebox for PHP, you need to include it and initialize the various Rulesets included (<a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"templatingconstruct\" /]\">Templating</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"bbcodeconstruct\" /]\">BBCode</a>), while in Rulebox for Python you merely need to import it. In addition to downloading it, Rulebox for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
+msgstr ""
+
+msgid "For SUIT for PHP, you need to include it and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"suitconstruct\" /]\">initialize</a> it, while in SUIT for Python you merely need to import it. In addition to downloading it, SUIT for Python can also be set up through <a href=\"http://pypi.python.org/pypi/setuptools\" target=\"_blank\">easy_install</a> with the following command:"
 msgstr ""
 
 msgid "Forums"
@@ -376,12 +381,6 @@ msgid "Generate the tokens from the string. Tokens contain the different open an
 msgstr ""
 
 msgid "Generate the tree from the tokens and string. The tree will show how the string has been broken up and how to transform it."
-msgstr ""
-
-msgid "Get a variable based on a split string."
-msgstr ""
-
-msgid "Get the specified items from the config."
 msgstr ""
 
 msgid "Get the specified items from the rules."
@@ -408,19 +407,10 @@ msgstr ""
 msgid "HTML"
 msgstr ""
 
-msgid "Handle escape strings for this position."
-msgstr ""
-
-msgid "Handle the closing of a rule."
-msgstr ""
-
 msgid "Has 'skip' enabled as true."
 msgstr ""
 
 msgid "Has 'skipescape' enabled as true."
-msgstr ""
-
-msgid "Hash specific keys for logging."
 msgstr ""
 
 msgid "Here's an example ruleset containing one rule, lower, which will be used to translate a string to lowercase."
@@ -444,16 +434,17 @@ msgstr ""
 msgid "If you need any help, feel free to post in our <a href=\"https://sourceforge.net/projects/suitframework/forums\" target=\"_blank\">Forums</a>."
 msgstr ""
 
-msgid "If you've ever programmed, you should be familiar with the concept of an <a href=\"http://en.wikipedia.org/wiki/Escape_character\" target=\"_blank\">Escape character</a>. If so, you should be comfortable with SUIT's implementation of it, which uses \"\\\"\" for the character by default. However, for those who don't, and to highlight special cases, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"tryit\" parameter1=\"templating\" parameter2=\"escaping\" ]\"/>try some examples</a>."
+msgid "If you've ever programmed, you should be familiar with the concept of an <a href=\"http://en.wikipedia.org/wiki/Escape_character\" target=\"_blank\">Escape character</a>. If so, you should be comfortable with SUIT's implementation of it, which uses \"\\\"\" for the character by default. However, for those who don't, and to highlight special cases, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"tryit\" parameter1=\"templating\" parameter2=\"escaping\" /]\">try some examples</a>."
 msgstr ""
 
 msgid "If you've read technical documentation before, our method should be familiar. If not, let's review some of the things we do in these docs."
 msgstr ""
 
-msgid "If you've read the documentation for <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"call\" ]\"/>call</a> or <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"transform\" ]\"/>transform</a>, you might be wondering why anyone would want to construct their own <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>Rules</a> when they could just use these function rules. Both methods have their pros and cons."
-msgstr ""
+#, fuzzy
+msgid "If you've read the documentation for <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"call\" /]\">call</a> or <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"transform\" /]\">transform</a>, you might be wondering why anyone would want to construct their own <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">Rules</a> when they could just use these function rules. Both methods have their pros and cons."
+msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles. "
 
-msgid "In addition to modifying the template to transform, you can also modify how it is transformed. This is done through six checkboxes and one textbox underneath the template textarea. To learn what Insensitive, Log, Mismatched, Unclosed, and Escape do, see <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"defaultconfig\" ]\"/>defaultconfig</a>. Entities converts HTML characters in the template to their respective entities, and Line Break transforms line breaks in the textbox to the HTML form."
+msgid "In addition to modifying the template to transform, you can also modify how it is transformed. This is done through six checkboxes and one textbox underneath the template textarea. To learn what Insensitive, Log, Mismatched, Unclosed, and Escape do, see <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"defaultconfig\" /]\">defaultconfig</a>. Entities converts HTML characters in the template to their respective entities, and Line Break transforms line breaks in the textbox to the HTML form."
 msgstr ""
 
 msgid "In the articles explaining functions, this site uses the following format to explain the syntax of their calls:"
@@ -462,19 +453,22 @@ msgstr ""
 msgid "In the summer of 2008, based on a freelancing job, Brandon Evans decided to write yet another PHP forum system. When enlisting Chris Santiago to help, Chris stated that he was working on another forum system, Parasol Boards, in Python, but that he would help me out if necessary."
 msgstr ""
 
-msgid "Initialize a BBCode object to use <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" ]#rulebox\"/>Rulebox for PHP</a>."
-msgstr ""
+#, fuzzy
+msgid "Initialize a BBCode object to use <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" /]#rulebox\">Rulebox for PHP</a>."
+msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
-msgid "Initialize a SUIT object to use <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" ]#suit\"/>SUIT for PHP</a>."
-msgstr ""
+#, fuzzy
+msgid "Initialize a SUIT object to use <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" /]#suit\">SUIT for PHP</a>."
+msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
-msgid "Initialize a Templating object to use <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" ]#rulebox\"/>Rulebox for PHP</a>."
-msgstr ""
+#, fuzzy
+msgid "Initialize a Templating object to use <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" /]#rulebox\">Rulebox for PHP</a>."
+msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
 msgid "Insensitive"
 msgstr ""
 
-msgid "Introducing the <strong>SUIT Framework</strong> (Scripting Using Integrated Templates), an open-source web <a href=\"http://en.wikipedia.org/wiki/Template_engine_(web)\">templating framework</a> with some <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" ]\"/>innovative features</a>. It provides a lightweight and powerful solution to this problem by allowing developers to define their own syntax for transforming templates by using <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a>. The rules should generally allow the transfer of information from the server-side language to the template. Then, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>execute</a> the template according to the provided rules, and problem solved."
+msgid "Introducing the <strong>SUIT Framework</strong> (Scripting Using Integrated Templates), an open-source web <a href=\"http://en.wikipedia.org/wiki/Template_engine_(web)\">templating framework</a> with some <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" /]\">innovative features</a>. It provides a lightweight and powerful solution to this problem by allowing developers to define their own syntax for transforming templates by using <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a>. The rules should generally allow the transfer of information from the server-side language to the template. Then, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" /]\">execute</a> the template according to the provided rules, and problem solved."
 msgstr ""
 
 msgid "Italicizes text."
@@ -482,9 +476,6 @@ msgstr ""
 
 msgid "Item"
 msgstr "Item"
-
-msgid "Iterate over any object."
-msgstr ""
 
 msgid "Key"
 msgstr ""
@@ -511,6 +502,9 @@ msgid "Look at this string!"
 msgstr ""
 
 msgid "Loop a string with different variables."
+msgstr ""
+
+msgid "Made it so that Rulebox for PHP can use [skip][call /] and [transform][/skip] with actual kwargs instead of just an array."
 msgstr ""
 
 msgid "Mismatched"
@@ -546,13 +540,7 @@ msgstr ""
 msgid "Nothing. It collapses."
 msgstr ""
 
-msgid "Nothing. The contents of ``tree`` are modified."
-msgstr ""
-
 msgid "Nothing. The specified layers will be returned out of that point."
-msgstr ""
-
-msgid "Nothing. The variable is modified."
 msgstr ""
 
 msgid "Now, if your application runs on a constant Python process, that means this cache will not reset when you refresh the page. But, what if you want to take full effect of the caching features running a PHP application or a Python application that doesn't run constantly? Luckily, the SUIT's cache attribute can be accessed, encoded by JSON, stored to a file, loaded when you refresh, and decoded to use. See an example of this below:"
@@ -567,7 +555,7 @@ msgstr ""
 msgid "One Sided Attribute Config"
 msgstr ""
 
-msgid "One Sided rule using attributes (Such as <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"return\" ]\"/>return</a>) only needs one rule. The Static Variables are the same, except for onesided being true. In addition, the following Config is applied:"
+msgid "One Sided rule using attributes (Such as <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"return\" /]\">return</a>) only needs one rule. The Static Variables are the same, except for onesided being true. In addition, the following Config is applied:"
 msgstr ""
 
 msgid "One of the most common criticisms of projects like SUIT is that by adding \"unnecessary\" complication, they cause scripts to load slower than they would normally. While I'd like to say SUIT's parser works so efficiently that it doesn't take any extra time to process, it does slow scripts down by a couple fractions of a millisecond. While some might consider this negligble, others might consider it an excuse to avoid using SUIT along with its standards. For those people, SUIT has caching functions."
@@ -621,7 +609,10 @@ msgstr ""
 msgid "Quote text."
 msgstr ""
 
-msgid "Regardless of your goals, it'd probably be a great idea to start by reading the documentation for the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" ]#templatingrules\"/>Templating Rules</a> to get an idea of what potential rules can look like. If you are only modifying templates using this Ruleset, you probably can stop there. However, if you plan on developing sites to use SUIT, you should, at minimum, read the documentation for the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>execute</a> function. You could read on related functions, but you can accomplish near everything just with execute. Lastly, if you want to learn how to develop Rules, read their <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]#rulestructure\"/>Structure</a> and their <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]#paramsstructure\"/>Params Structure</a>."
+msgid "Ran 2to3.py on all of the Python files, which supposedly makes SUIT compatible with Python 3."
+msgstr ""
+
+msgid "Regardless of your goals, it'd probably be a great idea to start by reading the documentation for the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" /]#templatingrules\">Templating Rules</a> to get an idea of what potential rules can look like. If you are only modifying templates using this Ruleset, you probably can stop there. However, if you plan on developing sites to use SUIT, you should, at minimum, read the documentation for the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" /]\">execute</a> function. You could read on related functions, but you can accomplish near everything just with execute. Lastly, if you want to learn how to develop Rules, read their <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]#rulestructure\">Structure</a> and their <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]#paramsstructure\">Params Structure</a>."
 msgstr ""
 
 msgid "Reset the variables set before this section."
@@ -654,7 +645,7 @@ msgstr ""
 msgid "SUIT Templates look the same no matter what language translates them. We currently have versions for PHP and Python, and if we made a version for any other language (on demand), the syntax would still stay the same. Thus, if you create a project with SUIT for PHP and later decide you want to convert to Python (Which we would heavily recommend), you have one less thing to worry about."
 msgstr ""
 
-msgid "SUIT currently has both PHP and Python implementations, and provides several sets of rules for both in our <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" ]#rulebox\"/>Rulebox</a>. Although the different versions have some differences in setting up the rules and executing, the templates do not directly evaluate in those languages, making our solution safer than many others. In addition, templates used with SUIT for PHP can be used with SUIT for Python."
+msgid "SUIT currently has both PHP and Python implementations, and provides several sets of rules for both in our <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"download\" /]#rulebox\">Rulebox</a>. Although the different versions have some differences in setting up the rules and executing, the templates do not directly evaluate in those languages, making our solution safer than many others. In addition, templates used with SUIT for PHP can be used with SUIT for Python."
 msgstr ""
 
 msgid "SUIT"
@@ -678,9 +669,6 @@ msgstr ""
 msgid "Select a rule:"
 msgstr ""
 
-msgid "Set a variable based on a split string."
-msgstr ""
-
 msgid "Shell"
 msgstr ""
 
@@ -696,17 +684,19 @@ msgstr ""
 msgid "Skip parsing in a certain section of the template."
 msgstr ""
 
-msgid "So, read the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" ]\"/>Docs</a>, get help in the <a href=\"https://sourceforge.net/projects/suitframework/forums\" target=\"_blank\">Forums</a>, and enjoy clean coding!"
+msgid "So, read the <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" /]\">Docs</a>, get help in the <a href=\"https://sourceforge.net/projects/suitframework/forums\" target=\"_blank\">Forums</a>, and enjoy clean coding!"
 msgstr ""
 
-msgid "So, you got this far. What's next? Firstly, you need to decide whether or not SUIT is for you. To get a better idea of this, read a <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>Comparison of SUIT to its Alternatives</a> and its <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" ]\"/>Features</a>. Next, get an idea on how to read these docs through <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"readingdocs\" ]\"/>Reading Docs</a>."
-msgstr ""
+#, fuzzy
+msgid "So, you got this far. What's next? Firstly, you need to decide whether or not SUIT is for you. To get a better idea of this, read a <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" /]\">Comparison of SUIT to its Alternatives</a> and its <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" /]\">Features</a>. Next, get an idea on how to read these docs through <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"readingdocs\" /]\">Reading Docs</a>."
+msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles. "
 
 msgid "Some systems create a cache file for every template parsed. Not SUIT. Set up the cache like this, and you're good to go. Now, once you parse every template with every ruleset you use on you application, the cache should stay the same size. Changing the data that SUIT substitutes into these templates will not grow the cache. However, if you modify a template or change the ruleset that you use to transform it, the cache will start growing again. Because of this, it wouldn't be a bad idea to empty the cache file every once in a while."
 msgstr ""
 
-msgid "Specifics on how the function should work. (Optional. Default: see <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"defaultconfig\" ]\"/>defaultconfig</a>)"
-msgstr ""
+#, fuzzy
+msgid "Specifics on how the function should work. (Optional. Default: see <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"defaultconfig\" /]\">defaultconfig</a>)"
+msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
 msgid "St&eacute;phane Lemay"
 msgstr "St&eacute;phane Lemay"
@@ -735,19 +725,20 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a> containing the strings to search for."
+#, fuzzy
+msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a> containing the strings to search for."
 msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> contenant les chaînes recherchées."
 
-msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a> to use to transform the string."
+#, fuzzy
+msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a> to use to transform the string."
 msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> à utiliser pour transformer les chaînes."
 
-msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a> used to break up the string."
+#, fuzzy
+msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a> used to break up the string."
 msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour délimiter la chaîne."
 
-msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a> used to determine how to add the string."
-msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour déterminer comment ajouter la chaîne."
-
-msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>rules</a> used to specify how to walk through the tree."
+#, fuzzy
+msgid "The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" /]\">rules</a> used to specify how to walk through the tree."
 msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour spécifier comment traverser l'arbre."
 
 msgid "The BBCode object."
@@ -786,16 +777,7 @@ msgstr ""
 msgid "The combined results."
 msgstr ""
 
-msgid "The condition."
-msgstr ""
-
 msgid "The contents of the file."
-msgstr ""
-
-msgid "The contents of the tree to add the item on."
-msgstr ""
-
-msgid "The contents of the tree."
 msgstr ""
 
 msgid "The creater of the quote. (Default: \"\". The quote will be anonymous.)"
@@ -804,19 +786,10 @@ msgstr ""
 msgid "The dict containing the variables to be used by the rule's functions which might be editable by attributes. (Default: Varies from rule to rule)"
 msgstr ""
 
-msgid "The dict to fill."
-msgstr ""
-
 msgid "The dict to grab from."
 msgstr ""
 
-msgid "The dict with the specified items hashed."
-msgstr ""
-
 msgid "The dict with the specified items."
-msgstr ""
-
-msgid "The dict."
 msgstr ""
 
 msgid "The entire statement treated as plain text."
@@ -828,9 +801,6 @@ msgstr ""
 msgid "The font to make the text. (Default: \"serif\")"
 msgstr ""
 
-msgid "The full string to check in."
-msgstr ""
-
 msgid "The generated string."
 msgstr ""
 
@@ -840,25 +810,10 @@ msgstr ""
 msgid "The italicized text."
 msgstr ""
 
-msgid "The item to check."
-msgstr ""
-
-msgid "The items in key, value format."
-msgstr ""
-
-msgid "The items to add."
-msgstr ""
-
 msgid "The items to grab from the dict."
 msgstr ""
 
-msgid "The items to hash in the dict."
-msgstr ""
-
 msgid "The label for the link."
-msgstr ""
-
-msgid "The last item of the tree's contents."
 msgstr ""
 
 msgid "The link."
@@ -883,9 +838,6 @@ msgid "The name of the variable containing the condition result. (Default: null.
 msgstr ""
 
 msgid "The name of the variable containing the iterable to use. (Default: null. The string will collapse.)"
-msgstr ""
-
-msgid "The name of the variable to check."
 msgstr ""
 
 msgid "The name of the variable to grab."
@@ -918,13 +870,7 @@ msgstr ""
 msgid "The object to grab the variable from. (Default: templating.var)"
 msgstr ""
 
-msgid "The object to grab the variable from."
-msgstr ""
-
 msgid "The object to grab the variables from and set them to. (Default: templating.var)"
-msgstr ""
-
-msgid "The object to iterate over."
 msgstr ""
 
 msgid "The object to set the variable on. (Default: templating.var)"
@@ -934,12 +880,6 @@ msgid "The path to the file."
 msgstr ""
 
 msgid "The position (left, center, right) to align the text. (Default: \"\")"
-msgstr ""
-
-msgid "The position of the open or close string to check for."
-msgstr ""
-
-msgid "The provided site has not been configured for use with SLACKS."
 msgstr ""
 
 msgid "The quote."
@@ -978,12 +918,6 @@ msgstr ""
 msgid "The string that separates the levels of the variable. (Default: \".\")"
 msgstr ""
 
-msgid "The string that separates the levels of the variable."
-msgstr ""
-
-msgid "The string to add."
-msgstr ""
-
 msgid "The string to align."
 msgstr ""
 
@@ -1018,9 +952,6 @@ msgid "The string to change the font of."
 msgstr ""
 
 msgid "The string to change the size of."
-msgstr ""
-
-msgid "The string to check for behind this position."
 msgstr ""
 
 msgid "The string to close each item with. (Default: \"[entities]</li>[/entities]\")"
@@ -1077,7 +1008,7 @@ msgstr ""
 msgid "The string with the HTML escaped."
 msgstr ""
 
-msgid "The syntax of a rule consists of an open and close string. Once these two strings are correctly matched, its contents are sent to user-defined functions which can transform them and return the final result. Rules can be nested and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"escaping\" ]\"/>escaped</a>."
+msgid "The syntax of a rule consists of an open and close string. Once these two strings are correctly matched, its contents are sent to user-defined functions which can transform them and return the final result. Rules can be nested and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"escaping\" /]\">escaped</a>."
 msgstr ""
 
 msgid "The template to execute and replace the statement with. (Default: \"\". The template must be loaded manually.)"
@@ -1113,9 +1044,6 @@ msgstr ""
 msgid "The unparsed string."
 msgstr ""
 
-msgid "The updated tree contents."
-msgstr ""
-
 msgid "The value to assign to the variable."
 msgstr ""
 
@@ -1146,7 +1074,7 @@ msgstr ""
 msgid "This article does not exist."
 msgstr ""
 
-msgid "Those explanations aside, I believe SUIT will serve you better than the other options. Perhaps this example doesn't convince you. Before making up your mind, see <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" ]\"/>Features</a> for more examples of how SUIT can improve your Web 2.0 application."
+msgid "Those explanations aside, I believe SUIT will serve you better than the other options. Perhaps this example doesn't convince you. Before making up your mind, see <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"features\" /]\">Features</a> for more examples of how SUIT can improve your Web 2.0 application."
 msgstr ""
 
 msgid "To be fair, I must clarify on a couple of things. Firstly, I am aware that what method you use for CSS / Javascript has no relation to what you use for the server-side language. I merely combined the similar methods to help reinforce the differences. Also, you might be wondering if I used static variables, why did I not store them in an external file, or just use static HTML? This example assumes that you would be generating these variables from an actual condition and loop, perhaps by using a database. However you generate the data, the application of it to the document remains the same."
@@ -1161,11 +1089,9 @@ msgstr ""
 msgid "Tokens"
 msgstr ""
 
-msgid "Transform a string using rules. The function calls <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"tokens\" ]\"/>tokens</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"parse\" ]\"/>parse</a>, and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"walk\" ]\"/>walk</a> all in one convenient call."
-msgstr ""
-
-msgid "Transform a string using rules. The function calls tokens, parse, and walk all in one convenient call."
-msgstr ""
+#, fuzzy
+msgid "Transform a string using rules. The function calls <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"tokens\" /]\">tokens</a>, <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"parse\" /]\">parse</a>, and <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"walk\" /]\">walk</a> all in one convenient call."
+msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles. "
 
 msgid "Translator"
 msgstr ""
@@ -1191,7 +1117,7 @@ msgstr ""
 msgid "Underlines text."
 msgstr ""
 
-msgid "Unlike many alternatives where it takes several extra lines of programming to translate a template, with SUIT, you only need to call one <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" ]\"/>function</a> with two necessary parameters and one optional parameter."
+msgid "Unlike many alternatives where it takes several extra lines of programming to translate a template, with SUIT, you only need to call one <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"execute\" /]\">function</a> with two necessary parameters and one optional parameter."
 msgstr ""
 
 msgid "Update"
@@ -1200,14 +1126,17 @@ msgstr "Mise à jour"
 msgid "Uses a strikethrough on text."
 msgstr ""
 
-msgid "Uses the default <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"attributes\" ]#bbcodeconfig\"/>BBCode Attribute Config</a>."
-msgstr ""
+#, fuzzy
+msgid "Uses the default <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"attributes\" /]#bbcodeconfig\">BBCode Attribute Config</a>."
+msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
-msgid "Uses the default <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"attributes\" ]#config\"/>Attribute Config</a>."
-msgstr ""
+#, fuzzy
+msgid "Uses the default <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"attributes\" /]#config\">Attribute Config</a>."
+msgstr "Une syntaxe plus <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"comparison\" ]\"/>claire</a>."
 
-msgid "Uses the default <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"attributes\" ]#onesidedconfig\"/>One Sided Attribute Config</a>."
-msgstr ""
+#, fuzzy
+msgid "Uses the default <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"attributes\" /]#onesidedconfig\">One Sided Attribute Config</a>."
+msgstr "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour délimiter la chaîne."
 
 msgid "Walk - Click to toggle"
 msgstr ""
@@ -1222,9 +1151,6 @@ msgid "What is a Rule?"
 msgstr ""
 
 msgid "What is an Attribute?"
-msgstr ""
-
-msgid "What the length the tree contents should be limited to."
 msgstr ""
 
 msgid "When SUIT calls the functions provided by the rules, it sends a dict containing parameters. Here is the structure of these params:"
@@ -1248,13 +1174,7 @@ msgstr ""
 msgid "Whether or not the output should have the HTML entities transformed. (Default: true)"
 msgstr ""
 
-msgid "Whether or not the searching should be done case insensitively."
-msgstr ""
-
 msgid "Whether or not the value should be JSON decoded. (Default: false)"
-msgstr ""
-
-msgid "Whether or not the variable can be used."
 msgstr ""
 
 msgid "Whether or not the variable should be JSON encoded. (Default: false)"
@@ -1389,22 +1309,7 @@ msgstr ""
 msgid "bool: If skip is true, whether or not escaping the open or close strings should remove the escape strings. (Default: false)"
 msgstr ""
 
-msgid "bool: Whether or not the SUIT should walk through the node if it was opened but not closed."
-msgstr ""
-
-msgid "bool: Whether or not the count of the escape strings to the left of this position is odd, escaping the open or close string."
-msgstr ""
-
-msgid "bool: Whether or not the execute call should be logged."
-msgstr ""
-
 msgid "bool: Whether or not the parser should skip over the contents of the nodes created by this rule."
-msgstr ""
-
-msgid "bool: Whether or not the searching should be done case insensitively."
-msgstr ""
-
-msgid "bool: Whether or not to parse if the closing string does not match the opening string."
 msgstr ""
 
 msgid "close"
@@ -1417,9 +1322,6 @@ msgid "config"
 msgstr ""
 
 msgid "create"
-msgstr ""
-
-msgid "defaultconfig"
 msgstr ""
 
 msgid "dict"
@@ -1443,9 +1345,6 @@ msgstr ""
 msgid "functions"
 msgstr ""
 
-msgid "int: The position adjusted to the change in the string."
-msgstr ""
-
 msgid "int: Used to give the open and close strings of this rule priority over others. (Default: null. The strings will be prioritized by size)"
 msgstr ""
 
@@ -1453,9 +1352,6 @@ msgid "int: Where the string ends."
 msgstr ""
 
 msgid "int: Where the string starts."
-msgstr ""
-
-msgid "list: The contents of the tree with the appended data."
 msgstr ""
 
 msgid "list: The functions to run when walking through a node created by this rule."
@@ -1491,9 +1387,6 @@ msgstr ""
 msgid "skipescape"
 msgstr ""
 
-msgid "str: The <a href=\"[url controller=\"root\" action=\"template\" templatefile=\"docs\" parameter1=\"escaping\" ]\"/>escape</a> string."
-msgstr ""
-
 msgid "str: The close string."
 msgstr ""
 
@@ -1503,13 +1396,7 @@ msgstr ""
 msgid "str: The rule this rule creates if applicable."
 msgstr ""
 
-msgid "str: The skip rule, if opened."
-msgstr ""
-
 msgid "str: The string built from these functions."
-msgstr ""
-
-msgid "str: The string omitting the necessary escape strings."
 msgstr ""
 
 msgid "str: The type, options being open, close, or flat."
@@ -1533,6 +1420,20 @@ msgstr ""
 msgid "var"
 msgstr ""
 
-msgid "walk"
-msgstr "marche"
+#~ msgid "07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released."
+#~ msgstr "2010-07-31: SUIT 2.0.1 et Rulebox 1.1.0 sont disponibles."
 
+#~ msgid "Available Since:</em> Rulebox for Python (1.0.0)"
+#~ msgstr "Disponible depuis:</em> Rulebox for Python (1.0.0)"
+
+#~ msgid ""
+#~ "The <a href=\"[url controller=\"root\" action=\"template\" templatefile="
+#~ "\"docs\" parameter1=\"rules\" ]\"/>rules</a> used to determine how to add "
+#~ "the string."
+#~ msgstr ""
+#~ "Les <a href=\"[url controller=\"root\" action=\"template\" templatefile="
+#~ "\"docs\" parameter1=\"rules\" ]\"/>règles</a> utilisées pour déterminer "
+#~ "comment ajouter la chaîne."
+
+#~ msgid "walk"
+#~ msgstr "marche"

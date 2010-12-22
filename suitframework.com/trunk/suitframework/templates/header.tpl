@@ -2,6 +2,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>[gettext]SUIT Framework[/gettext] - [c]title[/c]</title>
+<meta name="description" content="SUIT Framework (Scripting Using Integrated Templates), an open-source web templating framework with some innovative features. It provides a lightweight and powerful solution to this problem by allowing developers to define their own syntax for transforming templates by using rules." />
+<meta name="keywords" content="suit, framework, scripting, using, integrated, templates, open, source, web, templating, syntax, rules, php, python" />
+<meta name="author" content="Brandon Evans and Chris Santiago" />
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
 <link href="/style.css" rel="stylesheet" type="text/css" />
 <link href="/pygments.css" rel="stylesheet" type="text/css" />
@@ -49,5 +52,5 @@
     <div class="section">
         <h2>[c]title[/c]</h2>
         <p style="text-align: center">
-            <strong><a href="[url controller="root" action="template" templatefile="docs" parameter1="changelog" /]">[gettext]07/31/2010: SUIT 2.0.1 and Rulebox 1.1.0 released.[/gettext]</a></strong>
+            <strong><a href="[url controller="root" action="template" templatefile="docs" parameter1="changelog" /]">[gettext]12/21/2010: SUIT 2.0.2 and Rulebox 1.1.1 released.[/gettext]</a></strong>
         </p>

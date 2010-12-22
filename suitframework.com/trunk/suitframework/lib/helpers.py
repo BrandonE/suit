@@ -144,61 +144,6 @@ def docs():
             'url': 'constructs'
         },
         {
-            'articles': 
-            [
-                {
-                    'title': 'close',
-                    'url': 'close'
-                },
-                {
-                    'title': 'closed',
-                    'url': 'closed'
-                },
-                {
-                    'title': 'configitems',
-                    'url': 'configitems'
-                },
-                {
-                    'title': 'defaultconfig',
-                    'url': 'defaultconfig'
-                },
-                {
-                    'title': 'escape',
-                    'url': 'escape'
-                },
-                {
-                    'title': 'getvariable',
-                    'url': 'getvariable'
-                },
-                {
-                    'title': 'iterate',
-                    'url': 'iterate'
-                },
-                {
-                    'title': 'listing',
-                    'url': 'listing'
-                },
-                {
-                    'title': 'loghash',
-                    'url': 'loghash'
-                },
-                {
-                    'title': 'returningdelete',
-                    'url': 'returningdelete'
-                },
-                {
-                    'title': 'setvariable',
-                    'url': 'setvariable'
-                },
-                {
-                    'title': 'treeappend',
-                    'url': 'treeappend'
-                }
-            ],
-            'title': 'Helper Functions',
-            'url': 'helperfunctions'
-        },
-        {
             'articles':
             [
                 {
@@ -425,7 +370,7 @@ def header():
             'title': u'Español - 0%'
         },
         'fr': {
-            'title': u'Français - 10%'
+            'title': u'Français - 8%'
         }
     }
     if (
@@ -537,7 +482,7 @@ def slacks():
             'hash': {},
             'contents': []
         }
-        c.condition.invalid = False
+        c.condition.invalid = True
     return ''
 
 def tokenshighlight(tokens, open, close, flat, end, string):

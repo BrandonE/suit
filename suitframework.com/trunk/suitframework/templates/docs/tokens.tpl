@@ -151,6 +151,5 @@ tokens = suit.tokens(templating.rules, template)
         <ul>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="rules" /]">[gettext]Rules[/gettext]</a></li>
             <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="execute" /]">[gettext]execute[/gettext]</a></li>
-            <li><a href="[url controller="root" action="template" templatefile="docs" parameter1="defaultconfig" /]">[gettext]defaultconfig[/gettext]</a></li>
         </ul>
 </fieldset>
