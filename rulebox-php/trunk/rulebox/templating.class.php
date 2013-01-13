@@ -1,18 +1,17 @@
 <?php
 /*
-This file is part of Rulebox.
-Rulebox is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-Rulebox is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-You should have received a copy of the GNU Lesser General Public License
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
+Copyright (C) 2008-2013 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 
@@ -62,6 +61,8 @@ class Templating
         $this->var = new stdClass();
 
         $this->default['owner'] = &$this->var;
+
+        $this->suit = $suit;
 
         $this->rules = array
         (
@@ -230,6 +231,7 @@ class Templating
                     'quote' => $this->default['quote'],
                     'var' => array
                     (
+                        'condition' => 'false',
                         'decode' => array('log'),
                         'log' => 'true'
                     )
@@ -587,8 +589,6 @@ class Templating
                 'skip' => true
             )
         );
-
-        $this->suit = $suit;
     }
 
     public function assign($params)
@@ -657,6 +657,7 @@ class Templating
             // Split up the string by quotes.
             $split = explode($quote, $string);
             unset($split[count($split) - 1]);
+			$name = '';
             foreach ($split as $key => $value)
             {
                 // If this is the opening quote.
@@ -681,7 +682,7 @@ class Templating
                         $name = '';
                     }
                 }
-                elseif ($name)
+                elseif ($name !== '')
                 {
                     // Define the variable.
                     $config = $params['config'];
@@ -809,9 +810,12 @@ class Templating
                         $params['var']['owner']
                     );
                 }
-                $function = array($owner, $function);
+                $params['string'] = $owner->$function($kwargs);
             }
-            $params['string'] = call_user_func_array($function, $kwargs);
+            else
+            {
+                $params['string'] = $function($kwargs);
+            }
         }
         return $params;
     }

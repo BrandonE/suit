@@ -11,7 +11,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2008-2010 Brandon Evans and Chris Santiago.
+Copyright (C) 2008-2013 Brandon Evans and Chris Santiago.
 http://www.suitframework.com/
 http://www.suitframework.com/docs/credits
 
@@ -64,7 +64,7 @@ class SUIT
         'hash' => array()
     );
 
-    public $version = '2.0.1';
+    public $version = '2.0.2';
 
     public function close($append, $pop, $rules, $tree)
     {
@@ -97,7 +97,7 @@ class SUIT
         if (!array_key_exists('create', $rule))
         {
             // If the inner string is not empty, add it to the rule.
-            if ($append)
+            if ($append !== '')
             {
                 $pop['contents'][] = $append;
             }
@@ -710,7 +710,7 @@ class SUIT
             $append = array_pop($tree);
         }
         // Add to the tree if necessary.
-        if ($append)
+        if ($append !== '')
         {
             $tree[] = $append;
         }
@@ -898,7 +898,7 @@ class SUIT
             Only proceed if there is a rule to match against, and it has yet to
             be searched for.
             */
-            if ($tempstring && !in_array($tempstring, $repeated))
+            if ($tempstring !== '' && !in_array($tempstring, $repeated))
             {
                 $function = 'strpos';
                 if ($config['insensitive'])
