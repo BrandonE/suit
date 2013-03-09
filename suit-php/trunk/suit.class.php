@@ -226,7 +226,7 @@ class SUIT
 		// Do you want to log this entry?
 		if (!array_key_exists('log', $config))
 		{
-			$config['log'] = true;
+			$config['log'] = false;
 		}
 		/*
 		If the close string doesn't match the open string, should it still
@@ -405,6 +405,41 @@ class SUIT
 		return $params;
 	}
 
+	public function json_encode_utf8($obj, $recurse = false)
+	{
+		/*
+		Encode an object into JSON while explicitly translating strings into
+		UTF-8.
+
+		``obj``
+			mixed - The object to translate
+
+		``recurse``
+			bool - Whether or not this is the outermost level.
+
+		Returns: str - The encoded object.
+		*/
+
+		if (is_array($obj))
+		{
+			foreach ($obj as $key => $value)
+			{
+				$obj[$key] = $this->json_encode_utf8($value, true);
+			}
+		}
+		else if (is_string($obj))
+		{
+			$obj = mb_convert_encoding($obj, 'UTF-8');
+		}
+
+		if (!$recurse)
+		{
+			return json_encode($obj);
+		}
+
+		return $obj;
+	}
+
 	public function loghash($entry, $items)
 	{
 		/*
@@ -423,7 +458,7 @@ class SUIT
 		{
 			if (in_array($key, $items))
 			{
-				$dumped = json_encode($value);
+				$dumped = $this->json_encode_utf8($value);
 				$hashkey = md5($dumped);
 				$this->log['hash'][$hashkey] = $dumped;
 				$value = $hashkey;
@@ -483,32 +518,28 @@ class SUIT
 		cache. Thus, the cache key will be the same if the parameters are the
 		same.
 		*/
-		if (json_decode(json_encode($string)) !== NULL)
-		{
-			$cachekey = md5(
-				json_encode(
-					array
-					(
-						$this->ruleitems(
-							$rules, array('close', 'create', 'skip')
-						),
-						$pos,
-						$string,
-						$this->configitems(
-							$config,
-							array('escape', 'insensitive', 'mismatched')
-						)
+		$cachekey = md5(
+			serialize(
+				array
+				(
+					$this->ruleitems(
+						$rules, array('close', 'create', 'skip')
+					),
+					$pos,
+					$string,
+					$this->configitems(
+						$config,
+						array('escape', 'insensitive', 'mismatched')
 					)
 				)
+			)
+		);
+		// If a tree is cached for this case, load it.
+		if (array_key_exists($cachekey, $this->cache['parse']))
+		{
+			return unserialize(
+				$this->cache['hash'][$this->cache['parse'][$cachekey]]
 			);
-			// If a tree is cached for this case, load it.
-			if (array_key_exists($cachekey, $this->cache['parse']))
-			{
-				return json_decode(
-					$this->cache['hash'][$this->cache['parse'][$cachekey]],
-					true
-				);
-			}
 		}
 		/*
 		Contains a set of the flat rules that have been opened and not
@@ -731,7 +762,7 @@ class SUIT
 			$tree['rule'] = '';
 		}
 		// Cache the tree.
-		$dumped = json_encode($tree);
+		$dumped = serialize($tree);
 		$hashkey = md5($dumped);
 		$this->cache['hash'][$hashkey] = $dumped;
 		$this->cache['parse'][$cachekey] = $hashkey;
@@ -846,26 +877,22 @@ class SUIT
 		cache. Thus, the cache key will be the same if the parameters are the
 		same.
 		*/
-		if (json_decode(json_encode($string)) !== NULL)
-		{
-			$cachekey = md5(
-				json_encode(
-					array
-					(
-						$this->ruleitems($rules, array('close')),
-						$string,
-						$this->configitems($config, array('insensitive'))
-					)
+		$cachekey = md5(
+			serialize(
+				array
+				(
+					$this->ruleitems($rules, array('close')),
+					$string,
+					$this->configitems($config, array('insensitive'))
 				)
+			)
+		);
+		// If positions are cached for this case, load them.
+		if (array_key_exists($cachekey, $this->cache['tokens']))
+		{
+			return unserialize(
+				$this->cache['hash'][$this->cache['tokens'][$cachekey]]
 			);
-			// If positions are cached for this case, load them.
-			if (array_key_exists($cachekey, $this->cache['tokens']))
-			{
-				return json_decode(
-					$this->cache['hash'][$this->cache['tokens'][$cachekey]],
-					true
-				);
-			}
 		}
 
 		$pos = array();
@@ -976,7 +1003,7 @@ class SUIT
 		}
 		usort($pos, array('SUIT', 'positionsort'));
 		// Cache the positions.
-		$dumped = json_encode($pos);
+		$dumped = serialize($pos);
 		$hashkey = md5($dumped);
 		$this->cache['hash'][$hashkey] = $dumped;
 		$this->cache['tokens'][$cachekey] = $hashkey;
