@@ -1,3 +1,0 @@
-include suitframework/config/deployment.ini_tmpl
-recursive-include suitframework/public *
-recursive-include suitframework/templates *

@@ -1,1 +1,0 @@
-<p>Welcome, [c]username[/c]!</p>

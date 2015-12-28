@@ -1,1 +1,0 @@
-[code]print 'Hello World'[/code]

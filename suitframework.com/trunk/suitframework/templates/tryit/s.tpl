@@ -1,1 +1,0 @@
-This site is maintained by [s]Chris Santiago[/s] Brandon Evans.

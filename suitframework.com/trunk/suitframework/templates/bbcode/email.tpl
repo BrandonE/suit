@@ -1,1 +1,0 @@
-<a href="mailto:[var entities="false"]equal[/var]" target="_blank">[var entities="false"]string[/var]</a>

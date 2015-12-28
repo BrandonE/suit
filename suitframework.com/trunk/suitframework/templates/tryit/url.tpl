@@ -1,1 +1,0 @@
-<p>[gettext]<a href="[url controller="root" action="template" templatefile="docs" parameter1="url" /]">Return back to the url article.</a>[/gettext]</p>

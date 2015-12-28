@@ -1,1 +1,0 @@
-We'd list frequently asked questions here, but no one's asked anything yet! If you have a question, post it on the forums.

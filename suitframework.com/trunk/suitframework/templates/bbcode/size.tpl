@@ -1,1 +1,0 @@
-<span style="font-size: [var entities="false"]equal[/var]pt">[var entities="false"]string[/var]</span>
